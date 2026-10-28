@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Buat Aplikasi AI Mu Sendiri</title>
+<style>
+:root{
+  --bg:#fcfcfc; --text:#0d0d0d; --muted:#8e8e8e; --border:#e5e5e5; --soft:#f3f3f3;
+  --btn:#0d0d0d; --btn-text:#ffffff; --send:#9fa9f7; --send-on:#0d0d0d; --send-on-text:#fff;
+  --glow:rgba(0,0,0,.025);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#212121; --text:#f4f4f4; --muted:#9b9b9b; --border:#3a3a3a; --soft:#2f2f2f;
+    --btn:#f4f4f4; --btn-text:#0d0d0d; --send:#5c64b5; --send-on:#f4f4f4; --send-on-text:#0d0d0d;
+    --glow:rgba(255,255,255,.02);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#212121; --text:#f4f4f4; --muted:#9b9b9b; --border:#3a3a3a; --soft:#2f2f2f;
+  --btn:#f4f4f4; --btn-text:#0d0d0d; --send:#5c64b5; --send-on:#f4f4f4; --send-on-text:#0d0d0d;
+  --glow:rgba(255,255,255,.02);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{
+  margin:0;min-height:100%;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  display:flex;
+}
+svg{display:block}
+.side{
+  width:84px;flex:none;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;align-self:flex-start;
+  display:flex;flex-direction:column;align-items:center;padding-top:22px;gap:0;
+}
+.side .logo{width:36px;height:36px;margin-bottom:26px}
+.side button{
+  width:40px;height:40px;margin-bottom:14px;border:0;background:none;color:var(--text);
+  border-radius:10px;display:grid;place-items:center;cursor:pointer;
+}
+.side button:hover{background:var(--soft)}
+.side button:focus-visible,.pill:focus-visible,.chip:focus-visible,.icon-btn:focus-visible{outline:2px solid var(--send);outline-offset:2px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.top{display:flex;justify-content:flex-end;gap:12px;padding:13px 16px 0}
+.pill{
+  height:52px;padding:0 18px;border-radius:999px;font-weight:600;font-size:19px;line-height:1;font-family:inherit;
+  cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);
+}
+.pill.dark{background:var(--btn);color:var(--btn-text);border-color:var(--btn);padding:0 17px}
+.center{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 24px 90px;
+}
+.glow{
+  width:100%;max-width:1160px;display:flex;flex-direction:column;align-items:center;
+  padding:36px 0 36px;border-radius:200px;
+  background:radial-gradient(ellipse at center,var(--glow) 0,transparent 70%);
+}
+.hero{margin:0 0 26px;text-align:center;width:100%;max-width:1152px}
+h1{
+  margin:0 0 8px;
+  font-size:clamp(18px,2.05vw,27px);
+  line-height:1.35;
+  font-weight:450;
+  letter-spacing:-.015em;
+  color:var(--text);
+}
+@media (min-width:860px){
+  h1{white-space:nowrap}
+}
+.type-wrap{display:flex;align-items:center;justify-content:center;min-height:1.4em}
+.type{
+  margin:0;
+  font-size:clamp(18px,2.05vw,27px);
+  line-height:1.35;
+  font-weight:600;
+  letter-spacing:-.015em;
+  color:var(--text);
+  display:inline-block;
+  min-height:1.35em;
+}
+.cursor{
+  display:inline-block;
+  width:2px;
+  height:1.15em;
+  margin-left:3px;
+  background:currentColor;
+  vertical-align:-.14em;
+  animation:blink 1s steps(1) infinite;
+}
+@media (max-width:820px){
+  h1,.type{font-size:clamp(17px,2.2vw,23px)}
+  .type-wrap{min-height:1.45em}
+}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cursor{animation:none}}
+.box{
+  width:100%;max-width:1152px;height:78px;border:1px solid var(--border);border-radius:999px;
+  background:var(--bg);display:flex;align-items:center;gap:14px;padding:0 15px 0 27px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+.icon-btn{border:0;background:none;color:var(--text);cursor:pointer;display:grid;place-items:center;padding:0;border-radius:50%}
+.box input{
+  flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);
+  font-weight:400;font-size:24px;line-height:1;font-family:inherit;padding:0 0 0 2px;
+}
+.box input::placeholder{color:var(--muted)}
+.send{
+  width:50px;height:50px;border-radius:50%;border:0;background:var(--send);color:#fff;
+  display:grid;place-items:center;cursor:pointer;flex:none;transition:background .15s;
+}
+.send.on{background:var(--send-on);color:var(--send-on-text)}
+.chips-wrap{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:16px;flex-wrap:wrap;
+}
+.chip{
+  height:48px;padding:0 20px;border-radius:999px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);font-weight:500;font-size:15px;line-height:1;
+  font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  transition:all .15s ease;
+  text-decoration:none;
+}
+.chip:hover,.pill:not(.dark):hover{background:var(--soft);border-color:var(--text)}
+.chip svg{color:var(--muted);transition:color .15s;flex-shrink:0}
+.chip:hover svg{color:var(--text)}
+.foot{
+  position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:17px;color:#666;
+  padding:0 16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .foot{color:#a5a5a5}}
+:root[data-theme="dark"] .foot{color:#a5a5a5}
+.foot a{color:inherit;text-decoration:underline}
+.first{position:relative;height:100vh;height:100svh;min-height:620px;display:flex;flex-direction:column}
+.demo{padding:72px 24px 96px;display:flex;flex-direction:column;align-items:center;border-top:1px solid var(--border)}
+.demo-head{text-align:center;margin-bottom:28px;max-width:720px}
+.demo h2{margin:0;font-size:clamp(22px,2.2vw,30px);font-weight:500;letter-spacing:-.01em}
+.demo-head p{margin:8px 0 0;color:var(--muted);font-size:clamp(15px,1.5vw,18px)}
+.frame{width:100%;max-width:1152px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--bg);box-shadow:0 8px 30px rgba(0,0,0,.07);transition:box-shadow .2s}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:46px;padding:0 16px;border-bottom:1px solid var(--border);background:var(--soft);position:relative;z-index:2}
+.bar-dots{display:flex;align-items:center;gap:7px;flex:none}
+.bar-dots i{width:12px;height:12px;border-radius:50%;cursor:pointer;transition:transform .15s,opacity .15s}
+.bar-dots .dot-red{background:#ff5f56;opacity:.85}.bar-dots .dot-yellow{background:#ffbd2e;opacity:.85}.bar-dots .dot-green{background:#27c93f;opacity:.85}
+.bar-dots i:hover{transform:scale(1.2);opacity:1}
+.bar-url{font-size:13.5px;font-weight:500;color:var(--muted);background:var(--bg);padding:4px 18px;border-radius:999px;border:1px solid var(--border);white-space:nowrap}
+.bar-actions{display:flex;align-items:center;gap:8px;flex:none}
+.stage-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;transition:all .15s;text-decoration:none}
+.stage-btn:hover{background:var(--btn);color:var(--btn-text);border-color:var(--btn)}
+.stage-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--soft);color:var(--muted)}
+.stage-btn:hover .stage-tag{background:rgba(255,255,255,.2);color:inherit}
+.stage-btn.restore-btn{background:var(--soft);color:var(--muted)}
+.stage-btn.restore-btn:hover{background:#ff5f56;color:#fff;border-color:#ff5f56}
+.frame iframe{display:block;width:100%;height:760px;border:0;background:var(--bg)}
+/* Stage 1: Penuh menutup area chat AI / konten utama, navbar kiri tetap terlihat */
+.frame.stage-1{position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:84px!important;width:auto!important;max-width:none!important;height:100vh!important;height:100dvh!important;z-index:38!important;border-radius:0!important;margin:0!important;border:none!important;box-shadow:0 0 60px rgba(0,0,0,.5)!important;display:flex!important;flex-direction:column!important;animation:exp1 .22s cubic-bezier(.16,1,.3,1)}
+@media (min-width:821px){.frame.stage-1{left:64px!important}}
+@media (max-width:820px){.frame.stage-1{left:0!important}}
+.frame.stage-1 iframe{flex:1!important;height:calc(100% - 46px)!important;width:100%!important}
+/* Stage 2: Memenuhi luas semuanya (100vw x 100vh) termasuk navbar kiri */
+.frame.stage-2{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;z-index:9999!important;border-radius:0!important;margin:0!important;border:none!important;box-shadow:0 0 80px rgba(0,0,0,.7)!important;display:flex!important;flex-direction:column!important;animation:exp2 .22s cubic-bezier(.16,1,.3,1)}
+.frame.stage-2 iframe{flex:1!important;height:calc(100% - 46px)!important;width:100%!important}
+@keyframes exp1{from{opacity:.9;transform:scale(.985)}to{opacity:1;transform:none}}
+@keyframes exp2{from{opacity:.9;transform:scale(.985)}to{opacity:1;transform:none}}
+.price{padding:72px 24px 104px;display:flex;flex-direction:column;align-items:center;border-top:1px solid var(--border)}
+.price h2{margin:0;font-size:clamp(22px,2.2vw,30px);font-weight:500;letter-spacing:-.01em}
+.plans{width:100%;max-width:1152px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.plan{border:1px solid var(--border);border-radius:24px;padding:32px;display:flex;flex-direction:column;background:var(--bg)}
+.plan .tag{font-size:16px;font-weight:600}
+.plan .note{color:var(--muted);font-size:15px;margin-top:2px}
+.amount{margin:22px 0 0;font-size:clamp(40px,4.6vw,56px);font-weight:600;letter-spacing:-.03em;line-height:1}
+.amount small{font-size:16px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:8px}
+.plan ul{list-style:none;margin:24px 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.plan li{display:flex;gap:10px;align-items:flex-start;font-size:16px;line-height:1.4}
+.plan li svg{flex:none;margin-top:2px}
+.guar{background:var(--soft);border-radius:16px;padding:16px 18px;margin-bottom:24px;font-size:15px;line-height:1.5;color:var(--muted)}
+.guar b{display:block;color:var(--text);font-size:16px;margin-bottom:4px}
+.cta{margin-top:auto;display:grid;place-items:center;height:56px;border-radius:999px;background:var(--btn);color:var(--btn-text);font-weight:600;font-size:18px;text-decoration:none}
+.cta:focus-visible{outline:2px solid var(--send);outline-offset:2px}
+.plans{margin-top:14px}
+.plan{position:relative}
+.plan.main{border:2px solid var(--text)}
+.badge{position:absolute;top:-14px;left:30px;background:var(--btn);color:var(--btn-text);font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px}
+.per{margin-top:8px;color:var(--muted);font-size:15px}
+.cta.alt{background:transparent;color:var(--text);border:1px solid var(--border)}
+.cta.alt:hover{background:var(--soft)}
+/* Vercel-Style Formal Partner Verification Note */
+.partner-note{width:100%;max-width:1152px;margin-top:22px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;color:var(--muted);line-height:1.5;text-align:center}
+.partner-note svg{flex:none;color:var(--muted);opacity:.85}
+.partner-note b{color:var(--text);font-weight:600}
+@media (max-width:680px){.partner-note{font-size:12.5px;justify-content:flex-start;text-align:left;padding:0 4px}}
+mark{color:#0d0d0d;font-weight:600;padding:0 .18em;margin:0 -.04em;border-radius:.25em .5em .3em .45em;background:linear-gradient(transparent 32%,#ffe14d 32%,#ffe14d 92%,transparent 92%) no-repeat;background-size:0% 100%;-webkit-box-decoration-break:clone;box-decoration-break:clone;animation:hl .9s .35s ease-out forwards}
+@keyframes hl{to{background-size:100% 100%}}
+@media (prefers-reduced-motion:reduce){mark{animation:none;background-size:100% 100%}}
+.side{z-index:40}
+.side .logo{cursor:pointer}
+.side button::after{content:attr(data-tip);position:absolute;left:52px;top:50%;transform:translateY(-50%);background:var(--btn);color:var(--btn-text);font-size:13px;font-weight:500;padding:6px 10px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s}
+.side button:hover::after,.side button:focus-visible::after{opacity:1}
+.dcard.wide{width:min(560px,calc(100vw - 32px))}
+.ixd{width:min(1160px,calc(100vw - 32px));height:min(780px,calc(100dvh - 32px));max-height:none;margin:auto}
+.ixm{position:relative;display:grid;grid-template-columns:272px minmax(0,1fr);height:100%;background:var(--bg);border:1px solid var(--border);border-radius:26px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.32)}
+.ixd[open] .ixm{animation:ixin .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes ixin{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ixd[open] .ixm{animation:none}}
+.ixs{display:flex;flex-direction:column;min-height:0;padding:28px 14px 16px;border-right:1px solid var(--border);background:var(--soft)}
+.ixs h3{margin:0 12px;font-size:23px;font-weight:700;letter-spacing:-.02em}
+.ixs p{margin:8px 12px 18px;color:var(--muted);font-size:14px;line-height:1.5}
+#icat{display:flex;flex-direction:column;gap:2px;overflow:auto;min-height:0;padding-bottom:4px}
+.cat{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:none;color:var(--text);padding:10px 12px;border-radius:12px;font:inherit;font-size:14.5px;text-align:left;cursor:pointer}
+.cat span{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.cat:hover{background:var(--border)}
+.cat.on{background:var(--btn);color:var(--btn-text);font-weight:600}.cat.on span{color:inherit;opacity:.7}
+.cat:focus-visible,.idea:focus-visible,.ixsr input:focus-visible{outline:2px solid var(--send);outline-offset:2px}
+.ixc{display:flex;flex-direction:column;min-height:0;min-width:0}
+.ixh{display:flex;align-items:center;gap:16px;padding:22px 66px 16px 26px}
+.ixsr{position:relative;flex:1;min-width:0}
+.ixsr svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.ixsr input{width:100%;height:48px;border:1px solid var(--border);border-radius:999px;background:var(--soft);color:var(--text);padding:0 18px 0 46px;font:inherit;font-size:16px;outline:0}
+.ixsr input:focus{border-color:var(--text);background:var(--bg)}
+#ic{flex:none;color:var(--muted);font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ixg{flex:1;min-height:0;overflow:auto;padding:4px 26px 26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:12px;align-content:start;overscroll-behavior:contain}
+.idea{display:flex;flex-direction:column;gap:5px;text-align:left;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:16px;padding:14px 16px 15px;font-family:inherit;cursor:pointer;transition:transform .14s,border-color .14s,box-shadow .14s}
+.idea:hover{border-color:var(--text);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.09)}
+.idea i{font-style:normal;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.idea b{font-size:16px;font-weight:650;line-height:1.3;letter-spacing:-.005em}
+.idea small{font-size:14px;color:var(--muted);line-height:1.35}
+.iempty{grid-column:1/-1;color:var(--muted);padding:48px 0;text-align:center}
+@media (max-width:760px){
+  .ixd{width:calc(100vw - 16px);height:calc(100dvh - 16px)}
+  .ixm{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);border-radius:22px}
+  .ixs{padding:18px 12px 10px;border-right:0;border-bottom:1px solid var(--border)}
+  .ixs h3{margin:0 44px 10px 6px;font-size:20px}.ixs p{display:none}
+  #icat{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:6px}
+  .cat{flex:none;white-space:nowrap;border:1px solid var(--border);border-radius:999px;padding:8px 14px;background:var(--bg)}.cat span{display:none}
+  .ixh{padding:12px 14px}#ic{display:none}
+  .ixg{padding:2px 14px 18px;grid-template-columns:minmax(0,1fr)}
+}
+
+.price .demo-head{max-width:760px}
+.price h2{font-size:clamp(26px,3.2vw,40px);font-weight:600;line-height:1.2}
+.price .demo-head p{margin-top:12px;font-size:clamp(16px,1.7vw,20px);line-height:1.5}
+.price .demo-head p b{color:var(--text);font-weight:600}
+dialog{border:0;padding:0;background:transparent;color:var(--text);max-width:none;overflow:visible}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dcard{position:relative;width:min(440px,calc(100vw - 32px));background:var(--bg);border:1px solid var(--border);border-radius:24px;padding:40px 32px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.dcard h3{margin:0;font-size:26px;font-weight:600;letter-spacing:-.01em}
+.dcard p{margin:8px 0 24px;color:var(--muted);font-size:15.5px}
+.dx{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;border-radius:50%;background:none;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.dx:hover{background:var(--soft)}
+.sso,.dcard input,.go{display:block;width:100%;height:52px;border-radius:999px;font-family:inherit;font-size:16px}
+.sso{margin-bottom:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:500;cursor:pointer}
+.sso:hover{background:var(--soft)}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;margin:16px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--border)}
+.dcard input{border:1px solid var(--border);background:var(--bg);color:var(--text);padding:0 20px;outline:0;margin-bottom:10px}
+.dcard input:focus{border-color:var(--text)}
+.go{border:0;background:var(--btn);color:var(--btn-text);font-weight:600;cursor:pointer}
+.sso:focus-visible,.go:focus-visible,.dx:focus-visible{outline:2px solid var(--send);outline-offset:2px}
+.site{border-top:1px solid var(--border);padding:40px 24px calc(32px + env(safe-area-inset-bottom,0px))}
+.fin{max-width:1152px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+.fin b{display:block;font-size:17px;font-weight:600}
+.fin span{color:var(--muted);font-size:14.5px}
+.fin nav{display:flex;gap:24px;font-size:15px}
+.fin a{color:var(--text);text-decoration:none}
+.fin a:hover{text-decoration:underline}
+.fsmall{max-width:1152px;margin:28px auto 0;color:var(--muted);font-size:13px;line-height:1.5;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media (min-width:821px){
+.side{width:64px;padding-top:16px}
+.side .logo{width:28px;height:28px;margin-bottom:20px}
+.side button{width:34px;height:34px;margin-bottom:10px}
+.side button svg{width:21px;height:21px}
+.side button::after{left:44px;font-size:12.5px}
+.top{padding:10px 14px 0;gap:10px}
+.pill{height:40px;padding:0 15px;font-size:15px}
+.pill.dark{padding:0 14px}
+.glow{max-width:1152px;padding:28px 0}
+h1,.type{font-size:clamp(18px,2.05vw,27px)}
+.hero{margin-bottom:24px;max-width:1152px;width:100%}
+.box{max-width:900px;height:60px;gap:12px;padding:0 10px 0 20px}
+.box input{font-size:17px}
+.box .icon-btn svg{width:24px;height:24px}
+.send{width:40px;height:40px}
+.send svg{width:20px;height:20px}
+.chips-wrap{margin-top:16px;gap:10px}
+.chip{height:46px;padding:0 18px;font-size:15px;margin-top:0}
+.foot{font-size:13px}
+.center{padding-bottom:70px}
+.demo,.price{padding-top:56px;padding-bottom:72px}
+.demo h2{font-size:clamp(20px,1.9vw,26px)}
+.demo-head p{font-size:clamp(14px,1.3vw,16px)}
+.frame,.plans,.fin,.fsmall{max-width:960px}
+.frame iframe{height:660px}
+.price h2{font-size:clamp(24px,2.5vw,34px)}
+.price .demo-head p{font-size:clamp(15px,1.4vw,18px)}
+.plan{padding:26px;border-radius:20px}
+.plan .tag{font-size:15px}
+.plan .note,.per{font-size:14px}
+.amount{font-size:clamp(34px,3.4vw,44px);margin-top:18px}
+.amount small{font-size:14px}
+.plan li{font-size:15px}
+.guar{font-size:14px;padding:14px 16px}
+.cta{height:48px;font-size:16px}
+.badge{font-size:12px;left:26px}
+.site{padding-top:32px}
+}
+@media (max-width:820px){.plans{grid-template-columns:1fr}.plan{padding:24px}.price{padding:48px 16px 72px}}
+@media (max-width:820px){.frame iframe{height:900px}.demo{padding:48px 16px 64px}}
+@media (max-width:820px){
+  .side{display:none}
+  .pill{height:44px;font-size:16px}
+  .box{height:64px;padding-left:18px}
+  .box input{font-size:18px}
+  .send{width:42px;height:42px}
+  .chip{height:52px;font-size:17px}
+  .foot{font-size:13px;position:static;padding:10px 16px 14px}
+  .center{padding-bottom:24px}
+}
+.idea .th{display:block;width:100%;aspect-ratio:2/1;border-radius:10px;overflow:hidden;margin-bottom:6px}.idea .th svg{width:100%;height:100%}
+#idt{position:absolute;inset:0;z-index:6;background:var(--bg);display:none;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px 32px;padding:40px 40px 28px;overflow:auto;align-content:start}#idt.on{display:grid}
+.ixm .dx{z-index:7}.bk{grid-column:1/-1;justify-self:start;border:0;background:none;color:var(--muted);font:inherit;font-size:15px;cursor:pointer;padding:0}.bk:hover{color:var(--text)}
+.dv{border-radius:18px;overflow:hidden;border:1px solid var(--border)}.dv svg{width:100%;height:auto}
+.dt .dc{font-style:normal;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.dt h4{margin:6px 0 0;font-size:28px;letter-spacing:-.02em;line-height:1.2}
+.dt h5{margin:20px 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.dt p{margin:0;font-size:16px;line-height:1.55}
+.dbtn{margin-top:26px;height:52px;padding:0 28px;border:0;border-radius:999px;background:var(--btn);color:var(--btn-text);font:inherit;font-weight:600;cursor:pointer}
+@media (max-width:760px){#idt{grid-template-columns:1fr;padding:54px 16px 20px}}
+</style>
+</head>
+<body>
+<nav class="side" aria-label="Menu">
+  <svg class="logo" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true">
+    <path d="M20 4.5l9 5.2v10.6l-9 5.2-9-5.2V9.7z"/><path d="M29 9.7l8 4.6v9.4l-8 4.6"/><path d="M11 29.7l-8-4.6v-9.4l8-4.6" transform="translate(0 0)"/><path d="M20 35.5l-9-5.2V19.7M29 30.3l-9 5.2"/>
+  </svg>
+  <button id="n1" aria-label="Chat baru"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-5"/><path d="M17.5 3.5a2 2 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+  <button id="n2" aria-label="Pustaka"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="11" height="11" rx="3" transform="rotate(-12 9 14)"/><path d="M10 6.5l1-2a2.5 2.5 0 0 1 3.3-1.2l5 2.2a2.5 2.5 0 0 1 1.3 3.3l-2.2 5"/><circle cx="9" cy="14" r="1.6"/></svg></button>
+  <button id="n3" aria-label="Jelajahi"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="M15.6 12v1.2a2.2 2.2 0 0 0 4.4 0"/></svg></button>
+  <button id="n4" aria-label="Aplikasi"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z"/><path d="M12 8.5v7M8.5 12h7"/></svg></button>
+  <button id="n5" aria-label="Bantuan"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.8"/><path d="M5.6 5.6l3.7 3.7M14.7 14.7l3.7 3.7M18.4 5.6l-3.7 3.7M9.3 14.7l-3.7 3.7"/></svg></button>
+  <button id="n6" aria-label="Ide"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l14-6 2 5-8 4z"/><path d="M8 14l-3 6M12 14l1 6"/><path d="M19 3l1.5-1.5"/><circle cx="12" cy="20" r="1"/></svg></button>
+  <button id="n7" aria-label="Pengaturan"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z"/><circle cx="12" cy="12" r="3"/></svg></button>
+</nav>
+
+<main class="main">
+  <div class="first">
+  <header class="top">
+    <button class="pill dark" id="b1">Log in</button>
+    <button class="pill" id="b2">Sign up for free</button>
+  </header>
+
+  <section class="center">
+    <div class="glow">
+      <div class="hero">
+        <h1 id="h1"></h1>
+        
+        <div class="type-wrap">
+          <p class="type" aria-hidden="true"><span id="word">AI 3D Karakter</span><span class="cursor"></span></p>
+        </div>
+        
+        <p class="sr" id="sr"></p>
+      </div>
+
+      <div class="box">
+        <button class="icon-btn" aria-label="Tambah lampiran"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></button>
+        <input id="q" type="text" placeholder="Ask anything" autocomplete="off" aria-label="Pesan">
+        <button class="icon-btn" aria-label="Input suara"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg></button>
+        <button class="send" id="send" aria-label="Kirim"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/></svg></button>
+      </div>
+
+      <div class="chips-wrap">
+        <button class="chip" id="chip">What can you do?</button>
+        <button class="chip" id="btn-ideas" type="button" aria-label="Jelajahi 9.500+ ide aplikasi AI">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span id="btn-ideas-text">9.500+ Ide Aplikasi AI Siap Pakai</span>
+        </button>
+        <a class="chip" id="btn-demo" href="#contoh" aria-label="Lihat contoh nyata AI Game Generator">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <span id="btn-demo-text">Contoh: AI Game Generator ↓</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot" id="foot"></p>
+  </div>
+
+  <section class="demo" id="contoh">
+    <div class="demo-head">
+      <h2 id="dh"></h2>
+      <p id="dp"></p>
+    </div>
+    <div class="frame" id="demo-card-frame">
+      <div class="bar">
+        <div class="bar-dots" title="Kontrol Ukuran">
+          <i class="dot-red" id="btn-restore-dot" title="Kecilkan / Normal"></i>
+          <i class="dot-yellow" id="btn-stage1-dot" title="Tahap 1: Penuh Chat AI"></i>
+          <i class="dot-green" id="btn-stage2-dot" title="Tahap 2: Layar Penuh"></i>
+        </div>
+        <span class="bar-url">runnerflo.com</span>
+        <div class="bar-actions">
+          <button class="stage-btn" id="btn-next-stage" title="Perbesar Tampilan">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            <span id="stage-label">Perbesar</span>
+            <span class="stage-tag" id="stage-badge">Tahap 1/3</span>
+          </button>
+          <button class="stage-btn restore-btn" id="btn-restore" title="Kembalikan ke Ukuran Normal" style="display:none;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>
+            <span id="restore-label">Kecilkan</span>
+          </button>
+        </div>
+      </div>
+      <iframe id="demo-frame" title="Runnerflo AI 3D Game Generator — Contoh Nyata" src="https://kuis-game-3d-console.pages.dev" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+    </div>
+  </section>
+
+  <section class="price" id="harga">
+    <div class="demo-head"><h2 id="ph"></h2><p id="pp"></p></div>
+    <div class="plans" id="plans"></div>
+    <div class="partner-note" id="pnote">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <span id="pnotetext"></span>
+    </div>
+  </section>
+
+  <footer class="site">
+    <div class="fin">
+      <div><b>runnerflo.com</b><span id="ft"></span></div>
+      <nav><a href="https://runnerflo.com" target="_blank" rel="noopener" id="ftt"></a><a href="https://runnerflo.com" target="_blank" rel="noopener" id="fpv"></a><a href="https://runnerflo.com" target="_blank" rel="noopener" id="fk"></a></nav>
+    </div>
+    <div class="fsmall"><span id="fd"></span><span>© 2026 runnerflo.com</span></div>
+  </footer>
+
+  <dialog id="dlg" aria-labelledby="dt">
+    <div class="dcard">
+      <button class="dx" id="dx" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h3 id="dt"></h3>
+      <p id="ds"></p>
+      <button class="sso" data-go id="bg"></button>
+      <button class="sso" data-go id="ba"></button>
+      <button class="sso" data-go id="bm"></button>
+      <div class="or" id="orx"></div>
+      <input id="em" type="email" autocomplete="email">
+      <button class="go" data-go id="bc"></button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg2" class="ixd" aria-labelledby="is">
+    <div class="ixm">
+      <button class="dx" id="ix" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div id="idt"></div><aside class="ixs"><h3 id="is"></h3><p id="ip"></p><nav id="icat"></nav></aside>
+      <section class="ixc">
+        <div class="ixh"><div class="ixsr"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="isq" type="search" autocomplete="off"></div><span id="ic"></span></div>
+        <div class="ixg" id="il"></div>
+      </section>
+    </div>
+  </dialog>
+
+  </main>
+
+<script>
+  var I=(function(){
+    var h=(location.hash||'').toLowerCase(),lang,tz='',ln;
+    try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(e){}
+    ln=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||''];
+    var idTz=['Asia/Jakarta','Asia/Pontianak','Asia/Makassar','Asia/Jayapura'].indexOf(tz)>-1;
+    if(h==='#en')lang='en';else if(h==='#id')lang='id';else lang=(idTz||/^id\b/i.test(ln[0]||''))?'id':'en';
+    var g_id='Jika dalam 3 bulan bisnis AI kamu belum laku, kamu boleh meminta ganti aplikasi AI lain yang baru tanpa bayar sepeserpun.';
+    var g_en='If your AI business hasn\u2019t made a sale within 3 months, you can ask for a different AI app at no cost at all.';
+    var fid=['Tanpa langganan','AI gratis selamanya untuk skala produksi','Verifikasi kemitraan 1×24 jam','Risiko bisnis ditanggung runnerflo.com'];
+    var fen=['No subscription','Free AI forever at production scale','1×24-hour partner verification','Business risk carried by runnerflo.com'];
+    var D={
+      id:{btnIdeas:'9.500+ Ide Aplikasi AI Siap Pakai',
+        btnDemo:'Contoh: AI Game Generator ↓',
+        h1:'<mark>Buat aplikasi AI mu sendiri</mark> dengan keahlian spesifik yang kamu minta:',
+        words:[
+          'AI 3D Karakter',
+          'AI Kuis Game',
+          'AI Undangan Nikah',
+          'AI Penghitung Kalori Makanan',
+          'AI Video Tutorial Matematika',
+          'AI Simulasi Praktikum Fisika',
+          'AI Asisten Customer Service WhatsApp',
+          'AI Analisis Laporan Keuangan & Penjualan',
+          'AI Perancang Menu & HPP Kuliner',
+          'AI Pengingat Jadwal Pasien Klinik',
+          'AI Pembuat Brosur & Listing Properti',
+          'AI Generator Soal Ujian & Pembahasan',
+          'AI Pembuat Draf Kontrak Kerja Sama',
+          'AI Tutor Percakapan Bahasa Asing'
+        ],
+        dh:'Contoh nyata: Runnerflo AI 3D Game Generator',dp:'Platform AI yang membangun game 3D interaktif otomatis dari satu permintaan. Coba langsung di bawah ini.',
+        ph:'Bayar sekali, bisnis jalan selamanya',pp:'Potensi pendapatan <b>puluhan hingga ratusan juta rupiah per bulan</b>, hanya dari Rp399 ribu.',gt:'Garansi 3 bulan',gb:g_id,
+        pNote:'<b>Verifikasi Kemitraan:</b> Karena setiap pendaftar adalah mitra bisnis runnerflo.com, proses verifikasi akun memakan waktu 1×24 jam sebelum aktivasi penuh.',
+        plans:[
+          {main:1,badge:'Paling hemat',name:'1 Aplikasi AI',note:'Pilih 1 aplikasi dari 9.500+ ide',price:'Rp399.000',unit:'sekali bayar',per:'Rp399.000 per aplikasi',feats:fid,cta:'Pilih 1 aplikasi'},
+          {name:'3 Aplikasi AI',note:'Pilih 3 aplikasi dari 9.500+ ide',price:'Rp1.500.000',unit:'sekali bayar',per:'Rp500.000 per aplikasi',feats:fid,cta:'Pilih 3 aplikasi'}]},
+      en:{btnIdeas:'9,500+ Ready-to-Use AI App Ideas',
+        btnDemo:'Live Demo: AI Game Generator ↓',
+        h1:'<mark>Build your own AI app</mark> with the specific skills you ask for:',
+        words:[
+          'AI 3D Characters',
+          'AI Quiz Games',
+          'AI Wedding Invitations',
+          'AI Food Calorie Counters',
+          'AI Math Tutorial Videos',
+          'AI Physics & Science Lab Simulations',
+          'AI WhatsApp Customer Support Assistants',
+          'AI Financial & Sales Report Analytics',
+          'AI Culinary Menu & Food Costing Creators',
+          'AI Clinic Patient Appointment Reminders',
+          'AI Real Estate Brochure & Listing Makers',
+          'AI Exam Question & Explanations Generators',
+          'AI Contract & Agreement Drafters',
+          'AI Foreign Language Conversation Tutors'
+        ],
+        dh:'Live demo: Runnerflo AI 3D Game Generator',dp:'A platform that builds interactive 3D games automatically from one prompt. Try it live below.',
+        ph:'Pay once, run your business forever',pp:'Income potential of <b>thousands to tens of thousands of dollars a month</b>, from just $79.',gt:'3-month guarantee',gb:g_en,
+        pNote:'<b>Partner Verification:</b> As each account represents an official runnerflo.com business partner, verifications are completed within 1×24 hours prior to full activation.',
+        plans:[
+          {main:1,badge:'Best value',name:'1 AI App',note:'Pick 1 app from 9,500+ ideas',price:'$79',unit:'USD, one-time payment',per:'$79 per app',feats:fen,cta:'Get 1 app'},
+          {name:'3 AI Apps',note:'Pick 3 apps from 9,500+ ideas',price:'$399',unit:'USD, one-time payment',per:'$133 per app',feats:fen,cta:'Get 3 apps'}]}
+    };
+    var d=D[lang];d.lang=lang;
+    var X={id:{dt:'Masuk atau daftar',qp:'Tanyakan apa saja',ff:'AI bisa membuat kesalahan. Dengan memakainya, kamu menyetujui <a href="#">Syarat</a> &amp; <a href="#">Kebijakan Privasi</a>. <a href="#">Pelajari lebih lanjut</a>',ds:'Buat dan kelola aplikasi AI-mu sendiri.',g:'Lanjutkan dengan Google',a:'Lanjutkan dengan Apple',m:'Lanjutkan dengan Microsoft',o:'atau',ep:'Alamat email',c:'Lanjutkan',ft:'Aplikasi AI siap pakai dari 9.500+ ide.',t:'Syarat',pv:'Privasi',k:'Kontak',fd:'Potensi pendapatan bukan jaminan; hasil bergantung pada usaha dan pasar.'},en:{dt:'Log in or sign up',qp:'Ask anything',ff:'AI can make mistakes. By using it, you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>. <a href="#">Learn more</a>',ds:'Build and manage your own AI apps.',g:'Continue with Google',a:'Continue with Apple',m:'Continue with Microsoft',o:'or',ep:'Email address',c:'Continue',ft:'Ready-to-use AI apps from 9,500+ ideas.',t:'Terms',pv:'Privacy',k:'Contact',fd:'Income potential is not a guarantee; results depend on effort and market.'}}[lang];
+    var set=function(i,v){document.getElementById(i).textContent=v};
+    set('dt',X.dt);set('ds',X.ds);set('bg',X.g);set('ba',X.a);set('bm',X.m);set('orx',X.o);set('bc',X.c);set('ft',X.ft);set('ftt',X.t);set('fpv',X.pv);set('fk',X.k);set('fd',X.fd);
+    document.getElementById('em').placeholder=X.ep;document.getElementById('q').placeholder=X.qp;document.getElementById('foot').innerHTML=X.ff;
+    document.documentElement.lang=lang;
+    function $(i){return document.getElementById(i)}
+    $('h1').innerHTML=d.h1;if($('btn-ideas-text'))$('btn-ideas-text').textContent=d.btnIdeas;if($('btn-demo-text'))$('btn-demo-text').textContent=d.btnDemo;$('word').textContent=d.words[0];$('sr').textContent=d.words.join(', ') + ', dan lebih dari 9.500 ide lainnya';
+    $('dh').textContent=d.dh;$('dp').textContent=d.dp;$('ph').textContent=d.ph;$('pp').innerHTML=d.pp;
+    if($('pnotetext'))$('pnotetext').innerHTML=d.pNote;
+    var chk='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    $('plans').innerHTML=d.plans.map(function(p){
+      return '<article class="plan'+(p.main?' main':'')+'">'+(p.badge?'<span class="badge">'+p.badge+'</span>':'')
+        +'<span class="tag">'+p.name+'</span><span class="note">'+p.note+'</span>'
+        +'<div class="amount">'+p.price+'<small>'+p.unit+'</small></div><div class="per">'+p.per+'</div>'
+        +'<ul>'+p.feats.map(function(f){return '<li>'+chk+f+'</li>'}).join('')+'</ul>'
+        +'<div class="guar"><b>'+d.gt+'</b>'+d.gb+'</div>'
+        +'<a class="cta'+(p.main?'':' alt')+'" href="https://runnerflo.com" target="_blank" rel="noopener">'+p.cta+'</a></article>'}).join('');
+    return d;
+  })();
+  var dlg=document.getElementById('dlg');
+  function openDlg(){if(dlg.showModal){dlg.showModal();document.getElementById('em').focus()}else{dlg.setAttribute('open','')}}
+  document.getElementById('b1').onclick=openDlg;document.getElementById('b2').onclick=openDlg;
+  document.getElementById('dx').onclick=function(){dlg.close()};
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  Array.prototype.forEach.call(dlg.querySelectorAll('[data-go]'),function(b){b.onclick=function(){window.open('https://runnerflo.com','_blank','noopener')}});
+  var N=I.lang==='en'?{t:['New chat','Example app','My account','Pricing','Help','Explore ideas','Switch theme'],it:'Explore ideas',ip:'Not sure what to build? Pick your field, then choose an idea that fits.',sp:'Search ideas, e.g. coffee shop, clinic, student',all:'All ideas',cnt:' ideas',none:'No matching ideas. Try another keyword.'}:{t:['Chat baru','Contoh aplikasi','Akun saya','Harga','Bantuan','Jelajahi ide','Ganti tema'],it:'Jelajahi ide',ip:'Bingung mau buat apa? Pilih bidangmu, lalu pilih ide yang cocok.',sp:'Cari ide, mis. kedai kopi, klinik, mahasiswa',all:'Semua ide',cnt:' ide',none:'Tidak ada ide yang cocok. Coba kata kunci lain.'};
+  var qq=document.getElementById('q'),dlg2=document.getElementById('dlg2');
+  var DB={"u1":["Pembuat Caption Instagram|Instagram Caption Writer","Pembuat Skrip Video TikTok|TikTok Video Script Writer","Pembuat Kalender Konten|Content Calendar Maker","Pembuat Poster Promo|Promo Poster Maker","Pembuat Logo|Logo Designer","Pembuat Slogan|Slogan Generator","Penulis Email Promosi|Promo Email Writer","Pembuat Skrip Penjualan WhatsApp|WhatsApp Sales Script Writer","Pembuat Website|Website Builder","Pembuat Landing Page|Landing Page Maker","Pembuat Presentasi Usaha|Business Presentation Maker","Penganalisis Pesaing|Competitor Analyzer"],"u2":["Chatbot Customer Service|Customer Service Chatbot","Pembalas Ulasan Pelanggan|Customer Review Responder","Pembuat Katalog Digital|Digital Catalog Maker","Pembuat Program Loyalitas|Loyalty Program Maker","Penentu Harga Jual|Selling Price Advisor","Penghitung Modal dan Untung|Cost and Profit Calculator","Pencatat Keuangan Harian|Daily Bookkeeper","Pembuat Invoice|Invoice Maker","Pembuat Laporan Penjualan|Sales Report Maker","Pembuat Penawaran Harga|Quotation Maker","Pembuat SOP Karyawan|Staff SOP Writer","Penjadwal Karyawan|Staff Scheduler","Pembuat Poster Lowongan Kerja|Job Poster Maker","Pengingat Pelanggan|Customer Reminder","Pembuat Formulir Pemesanan|Order Form Maker","Perencana Promo Musiman|Seasonal Promo Planner","Penyusun Rencana Bisnis|Business Plan Writer","Penganalisis Kepuasan Pelanggan|Customer Satisfaction Analyzer"],"c":[{"n":"Kuliner|Food and Beverage","u":2,"f":["Pembuat Menu|Menu Creator","Pembuat Resep Andalan|Signature Recipe Creator","Penghitung Kalori Menu|Menu Calorie Counter","Penghitung HPP Menu|Menu Costing Calculator","Chatbot Pemesanan Makanan|Food Ordering Chatbot","Pengelola Stok Bahan|Ingredient Stock Manager","Pembuat SOP Dapur|Kitchen SOP Writer","Pembuat Paket Hemat|Combo Deal Maker","Pembuat Foto Menu|Menu Photo Creator","Perancang Kemasan Makanan|Food Packaging Designer"],"g":["Restoran|Restaurants","Warung Makan|Food Stalls","Kedai Kopi|Coffee Shops","Kafe|Cafes","Toko Roti|Bakeries","Toko Kue|Cake Shops","Katering|Catering Businesses","Katering Sehat|Healthy Catering Businesses","Bakso dan Mie Ayam|Meatball and Noodle Shops","Warteg|Warteg Eateries","Restoran Padang|Padang Restaurants","Restoran Seafood|Seafood Restaurants","Kedai Teh|Tea Shops","Juice Bar|Juice Bars","Toko Es Krim|Ice Cream Shops","Toko Camilan|Snack Shops","Usaha Frozen Food|Frozen Food Businesses","Bar dan Lounge|Bars and Lounges","Kedai Boba|Bubble Tea Shops","Kedai Sate|Satay Stalls","Usaha Nasi Kotak|Boxed Meal Businesses","Restoran Jepang|Japanese Restaurants","Pizzeria|Pizzerias","Kedai Martabak|Martabak Stalls","Usaha Kue Kering|Cookie Businesses"]},{"n":"Fashion dan Aksesori|Fashion and Accessories","u":2,"f":["Penata Gaya|Style Advisor","Penasihat Tren|Trend Advisor","Penulis Deskripsi Produk|Product Description Writer","Pembuat Foto Produk|Product Photo Creator","Pengelola Stok Barang|Stock Manager","Pencatat Pesanan Pelanggan|Order Tracker","Pembuat Lookbook|Lookbook Maker","Penasihat Pilihan Produk|Product Recommendation Advisor","Perancang Kemasan Produk|Product Packaging Designer","Perencana Koleksi Musiman|Seasonal Collection Planner"],"g":["Butik Pakaian|Clothing Boutiques","Toko Hijab|Hijab Shops","Toko Sepatu|Shoe Stores","Toko Tas|Bag Stores","Toko Kosmetik|Cosmetics Shops","Toko Perhiasan|Jewelry Stores","Toko Parfum|Perfume Shops","Toko Batik|Batik Shops","Thrift Shop|Thrift Shops","Brand Skincare Lokal|Local Skincare Brands","Konveksi|Garment Makers","Toko Aksesoris|Accessory Shops","Toko Kacamata|Eyewear Shops","Brand Pakaian Anak|Kids' Clothing Brands","Toko Busana Muslim|Muslim Fashion Shops","Toko Jam Tangan|Watch Shops","Brand Streetwear|Streetwear Brands","Toko Kain|Fabric Stores","Toko Baju Bayi|Baby Clothing Shops","Toko Seragam|Uniform Shops"]},{"n":"Salon dan Kecantikan|Beauty and Salon","u":2,"f":["Pengelola Reservasi|Booking Manager","Pengingat Jadwal Perawatan|Treatment Reminder","Penasihat Pilihan Perawatan|Treatment Advisor","Pembuat Paket Perawatan|Treatment Package Maker","Pengelola Keanggotaan|Membership Manager","Pencatat Riwayat Pelanggan|Client History Keeper","Penjadwal Terapis dan Capster|Therapist and Stylist Scheduler","Pembuat Edukasi Perawatan di Rumah|Home Care Tips Writer","Pembuat Voucher Hadiah|Gift Voucher Maker","Penghitung Komisi Staf|Staff Commission Calculator"],"g":["Salon Kecantikan|Beauty Salons","Barbershop|Barbershops","Spa|Spas","Klinik Kecantikan|Aesthetic Clinics","Makeup Artist|Makeup Artist Studios","Nail Art Studio|Nail Studios","Salon Muslimah|Muslimah Salons","Pijat Refleksi|Reflexology Centers","Studio Lash dan Brow|Lash and Brow Studios","Salon Pengantin|Bridal Salons","Day Spa|Day Spas","Salon Rambut|Hair Salons","Studio Tato|Tattoo Studios","Pusat Perawatan Wajah|Facial Care Centers","Salon Hewan|Pet Grooming Salons"]},{"n":"Fitness dan Olahraga|Fitness and Sports","u":2,"f":["Pembuat Program Latihan|Workout Program Maker","Penghitung Kalori Harian|Daily Calorie Counter","Pembuat Rencana Menu Sehat|Healthy Meal Plan Maker","Pengelola Keanggotaan|Membership Manager","Pengelola Jadwal Kelas|Class Schedule Manager","Pelacak Progres Member|Member Progress Tracker","Penghitung Kebutuhan Gizi|Nutrition Needs Calculator","Pembuat Tantangan 30 Hari|30-Day Challenge Maker","Pembuat Konten Edukasi Fitness|Fitness Education Content Maker","Pengingat Latihan|Workout Reminder"],"g":["Gym|Gyms","Studio Yoga|Yoga Studios","Studio Pilates|Pilates Studios","Studio Personal Training|Personal Training Studios","Studio Zumba|Zumba Studios","Studio Boxing|Boxing Studios","Studio Senam|Aerobics Studios","Studio CrossFit|CrossFit Boxes","Sekolah Renang|Swimming Schools","Perguruan Bela Diri|Martial Arts Schools","Klub Lari|Running Clubs","Klub Sepeda|Cycling Clubs","Klub Futsal|Futsal Clubs","Klub Bulu Tangkis|Badminton Clubs","Bootcamp Fitness|Fitness Bootcamps","Pusat Kebugaran Lansia|Senior Fitness Centers","Studio Tari|Dance Studios","Program Diet Online|Online Diet Programs","Klub Golf|Golf Clubs","Wall Climbing Gym|Climbing Gyms"]},{"n":"Klinik dan Kesehatan|Clinics and Health","u":2,"f":["Pengingat Jadwal Kontrol|Checkup Reminder","Pengelola Antrean Pasien|Patient Queue Manager","Chatbot Pendaftaran Pasien|Patient Registration Chatbot","Pembuat Formulir Pasien Digital|Digital Patient Form Maker","Penjadwal Dokter dan Praktik|Doctor Schedule Manager","Pembuat Konten Edukasi Pasien|Patient Education Content Maker","Pembuat Laporan Kunjungan|Visit Report Maker","Pengelola Stok Perlengkapan|Supply Stock Manager"],"g":["Klinik Gigi|Dental Clinics","Klinik Umum|General Clinics","Klinik Mata|Eye Clinics","Klinik Anak|Pediatric Clinics","Apotek|Pharmacies","Praktik Psikolog|Psychology Practices","Klinik Fisioterapi|Physiotherapy Clinics","Klinik Hewan|Veterinary Clinics","Praktik Ahli Gizi|Nutritionist Practices","Klinik Kulit|Dermatology Clinics","Klinik THT|ENT Clinics","Klinik Akupunktur|Acupuncture Clinics","Klinik Kesehatan Mental|Mental Health Clinics","Praktik Bidan Mandiri|Midwife Practices","Optik|Optical Shops","Klinik Tumbuh Kembang|Child Development Clinics","Klinik Bersalin|Maternity Clinics","Klinik Ortopedi|Orthopedic Clinics","Klinik Jantung|Heart Clinics","Klinik Lansia|Senior Care Clinics"]},{"n":"Toko Retail|Retail Stores","u":2,"f":["Pengelola Stok Barang|Stock Manager","Pencatat Pesanan Pelanggan|Order Tracker","Penulis Deskripsi Produk|Product Description Writer","Pembuat Foto Produk|Product Photo Creator","Pembuat Katalog Harga|Price List Maker","Pengingat Stok Menipis|Low Stock Alerter","Pencatat Kasbon Pelanggan|Customer Credit Tracker","Pembuat Laporan Laba Rugi Toko|Store Profit and Loss Reporter","Pembuat Label Harga|Price Label Maker","Perencana Display Toko|Store Display Planner"],"g":["Toko Kelontong|Convenience Stores","Toko Perlengkapan Mobil|Car Accessory Stores","Toko Ponsel|Phone Shops","Toko Elektronik|Electronics Stores","Toko Buku|Bookstores","Toko Mainan|Toy Stores","Toko Alat Tulis|Stationery Stores","Toko Bangunan|Hardware Stores","Toko Pertanian|Farm Supply Stores","Toko Peralatan Dapur|Kitchenware Stores","Toko Furnitur|Furniture Stores","Toko Sepeda|Bicycle Shops","Toko Oleh-oleh|Souvenir Food Shops","Toko Suvenir|Souvenir Shops","Toko Plastik|Plastic Goods Stores","Toko Perlengkapan Bayi|Baby Supply Stores","Toko Aksesoris Ponsel|Phone Accessory Shops","Toko Sparepart Motor|Motorcycle Parts Shops","Toko Hobi dan Koleksi|Hobby and Collectible Shops","Toko Alat Musik|Music Stores","Pet Shop|Pet Shops","Toko Tanaman Hias|Plant Nurseries","Toko Bunga|Flower Shops","Grosir Sembako|Grocery Wholesalers","Toko Alat Olahraga|Sporting Goods Stores"]},{"n":"Penjual Online|Online Sellers","u":2,"f":["Penulis Judul Produk SEO|SEO Product Title Writer","Penulis Deskripsi Produk|Product Description Writer","Pembuat Foto Produk|Product Photo Creator","Pembuat Skrip Live Selling|Live Selling Script Writer","Pembalas Chat Pembeli|Buyer Chat Responder","Penganalisis Produk Laris|Best Seller Analyzer","Penghitung Ongkir dan Margin|Shipping and Margin Calculator","Pembuat Promo Flash Sale|Flash Sale Promo Maker","Pencatat Resi dan Pengiriman|Shipment Tracker","Perekap Penjualan Harian|Daily Sales Recapper"],"g":["Reseller|Resellers","Dropshipper|Dropshippers","Seller Marketplace|Marketplace Sellers","Seller TikTok Shop|TikTok Shop Sellers","Seller Live Shopping|Live Shopping Sellers","Pebisnis Instagram|Instagram Sellers","Pebisnis Preloved|Preloved Sellers","Pebisnis Kosmetik Online|Online Cosmetics Sellers","Pebisnis Fashion Online|Online Fashion Sellers","Pebisnis Makanan Online|Online Food Sellers","Importir Kecil|Small Importers","Pebisnis Gadget Online|Online Gadget Sellers"]},{"n":"Servis dan Perbaikan|Repair Services","u":2,"f":["Pembuat Estimasi Biaya Servis|Service Cost Estimator","Pengingat Servis Berkala|Service Reminder","Pencatat Riwayat Pelanggan|Customer History Keeper","Penjadwal Teknisi|Technician Scheduler","Pembuat Garansi Servis|Service Warranty Maker","Pembuat Tanda Terima Servis|Service Receipt Maker","Pelacak Status Pengerjaan|Job Status Tracker","Pembuat Panduan Perawatan|Maintenance Guide Writer","Pengelola Stok Material dan Peralatan|Materials and Tools Stock Manager"],"g":["Bengkel Motor|Motorcycle Workshops","Bengkel Mobil|Car Workshops","Teknisi AC|AC Repair Services","Teknisi Elektronik|Electronics Repair Services","Servis Ponsel|Phone Repair Shops","Servis Laptop|Laptop Repair Shops","Servis Kulkas dan Mesin Cuci|Appliance Repair Services","Servis Printer|Printer Repair Services","Jasa Pasang CCTV|CCTV Installers","Reparasi Sepatu|Shoe Repair Shops","Bengkel Sepeda|Bicycle Workshops","Bengkel Las|Welding Workshops","Jasa Renovasi Rumah|Home Renovation Services","Jasa Pest Control|Pest Control Services","Jasa Sedot WC|Septic Services","Jasa Perawatan Taman|Garden Care Services","Salon Mobil|Car Detailing Shops","Jasa Cat Rumah|House Painting Services","Jasa Instalasi Listrik|Electrical Installers","Jasa Instalasi Air|Plumbing Services"]},{"n":"Properti dan Konstruksi|Property and Construction","u":2,"f":["Pembuat Brosur Properti|Property Brochure Maker","Penghitung Estimasi Biaya|Cost Estimator","Pembuat Kontrak Kerja Sama|Cooperation Agreement Drafter","Pembuat Laporan Progres|Progress Report Maker","Penjadwal Survei dan Kunjungan|Site Visit Scheduler","Pembuat Portofolio Proyek|Project Portfolio Maker","Pembuat Rencana Pembayaran Bertahap|Installment Plan Maker","Penjawab Pertanyaan Calon Klien|Prospect Question Responder"],"g":["Agen Properti|Real Estate Agencies","Developer Perumahan|Housing Developers","Kontraktor|Contractors","Biro Arsitek|Architecture Firms","Studio Desain Interior|Interior Design Studios","Pengelola Kos-kosan|Boarding House Owners","Pemilik Villa|Villa Owners","Pemilik Homestay|Homestay Owners","Penyedia Rumah Kontrakan|Rental House Owners","Coworking Space|Coworking Spaces","Konsultan Properti|Property Consultants","Pengembang Ruko|Shophouse Developers","Pengelola Apartemen|Apartment Managers","Studio Landscape|Landscape Studios","Usaha Kitchen Set|Kitchen Set Makers","Pengrajin Furnitur|Furniture Makers","Penjual Kavling|Land Plot Sellers","Jasa Konstruksi Baja Ringan|Light Steel Construction Services"]},{"n":"Travel dan Wisata|Travel and Tourism","u":2,"f":["Pembuat Itinerary|Itinerary Maker","Pembuat Paket Wisata|Tour Package Maker","Pengelola Reservasi|Booking Manager","Penerjemah Wisatawan|Tourist Translator","Pembuat Panduan Destinasi|Destination Guide Writer","Penghitung Biaya Perjalanan|Trip Cost Calculator","Pembuat Konten Destinasi|Destination Content Maker","Penyusun Syarat dan Ketentuan|Terms and Conditions Writer"],"g":["Agen Travel|Travel Agencies","Hotel Kecil|Small Hotels","Hotel Melati|Budget Hotels","Penginapan|Guesthouses","Operator Wisata|Tour Operators","Desa Wisata|Tourism Villages","Glamping|Glamping Sites","Resort|Resorts","Camping Ground|Campgrounds","Pemandu Gunung|Mountain Guide Services","Agen Tiket|Ticket Agencies","Wisata Kuliner|Food Tour Operators","Rental Mobil|Car Rentals","Rental Motor|Motorbike Rentals","Kapal Wisata|Boat Tour Operators","Operator Diving|Dive Operators","Operator Rafting|Rafting Operators","Taman Wisata|Tourist Parks","Tur Fotografi|Photo Tour Operators","Antar Jemput Bandara|Airport Transfer Services"]},{"n":"Event dan Pernikahan|Events and Weddings","u":2,"f":["Pembuat Undangan Digital|Digital Invitation Maker","Pembuat Rundown Acara|Event Rundown Maker","Perencana Anggaran Acara|Event Budget Planner","Pembuat Daftar Tamu|Guest List Maker","Pembuat Kontrak Vendor|Vendor Contract Drafter","Pembuat Moodboard Tema|Theme Moodboard Maker","Pengatur Posisi Duduk Tamu|Seating Arranger","Pembuat Checklist Persiapan|Preparation Checklist Maker","Pembuat Ucapan Terima Kasih|Thank-You Message Writer"],"g":["Wedding Organizer|Wedding Organizers","Event Organizer|Event Organizers","Dekorasi Pernikahan|Wedding Decorators","Fotografer Pernikahan|Wedding Photographers","Videografer Pernikahan|Wedding Videographers","Penyewaan Gedung|Venue Rentals","Penyewaan Tenda dan Kursi|Tent and Chair Rentals","MC dan Entertainer|MC and Entertainer Services","Band Pernikahan|Wedding Bands","Katering Pernikahan|Wedding Caterers","Penyewaan Gaun Pengantin|Bridal Gown Rentals","Suvenir Pernikahan|Wedding Souvenir Makers","Percetakan Undangan|Invitation Printers","Penyedia Photobooth|Photobooth Providers","Party Planner Anak|Kids' Party Planners","Penyelenggara Pameran|Exhibition Organizers"]},{"n":"Kreator dan Freelancer|Creators and Freelancers","u":1,"f":["Pembuat Ide Konten|Content Idea Generator","Pembuat Judul dan Thumbnail|Title and Thumbnail Maker","Pembuat Portofolio|Portfolio Maker","Pembuat Media Kit|Media Kit Maker","Pembuat Proposal Kerja Sama Brand|Brand Collaboration Proposal Writer","Penghitung Tarif Jasa|Service Rate Calculator","Pembuat Kontrak Freelance|Freelance Contract Drafter","Pembuat Bio dan Profil|Bio and Profile Writer","Penganalisis Performa Konten|Content Performance Analyzer","Pembuat Rencana Konten Mingguan|Weekly Content Planner"],"g":["Fotografer|Photographers","Videografer|Videographers","Desainer Grafis|Graphic Designers","Ilustrator|Illustrators","Content Creator|Content Creators","YouTuber|YouTubers","Podcaster|Podcasters","Selebgram|Influencers","Penulis Lepas|Freelance Writers","Penerjemah Lepas|Freelance Translators","Musisi|Musicians","Animator|Animators","Editor Video|Video Editors","Voice Over Artist|Voice Over Artists","Streamer Game|Game Streamers","Pembuat Komik|Comic Artists","Fotografer Produk|Product Photographers","Desainer Web Freelance|Freelance Web Designers","Penyanyi Cover|Cover Singers","Kreator Konten Edukasi|Educational Content Creators"]},{"n":"Jasa Profesional|Professional Services","u":1,"f":["Pembuat Proposal Layanan|Service Proposal Writer","Pembuat Draf Perjanjian|Agreement Drafter","Pembuat Laporan Klien|Client Report Maker","Pengingat Tenggat Klien|Client Deadline Reminder","Peringkas Dokumen Klien|Client Document Summarizer","Pembuat Checklist Dokumen|Document Checklist Maker","Penjawab Pertanyaan Klien|Client Question Answerer","Penghitung Tarif Layanan|Service Fee Calculator","Pembuat Artikel Edukasi Klien|Client Education Article Writer","Penjadwal Konsultasi|Consultation Scheduler"],"g":["Akuntan|Accountants","Konsultan Pajak|Tax Consultants","Notaris|Notaries","Kantor Pengacara|Law Firms","Konsultan Bisnis|Business Consultants","Agen Asuransi|Insurance Agents","Perencana Keuangan|Financial Planners","Auditor|Auditors","Konsultan HR|HR Consultants","Konsultan IT|IT Consultants","Agen Rekrutmen|Recruitment Agencies","Penerjemah Tersumpah|Sworn Translators","Konsultan Lingkungan|Environmental Consultants","Konsultan Pendidikan|Education Consultants","Biro Pengurusan Izin|Permit Service Bureaus","Penilai Properti|Property Appraisers","Konsultan Marketing|Marketing Consultants","Agensi Digital|Digital Agencies","Konsultan Ekspor Impor|Export-Import Consultants","Business Coach|Business Coaches"]},{"n":"Pendidikan dan Kursus|Education and Courses","u":1,"f":["Pembuat Soal Ujian|Exam Question Maker","Pembuat Materi Ajar|Teaching Material Maker","Pembuat Rencana Pembelajaran|Lesson Plan Maker","Pembuat Kuis Interaktif|Interactive Quiz Maker","Pembuat Rapor dan Komentar Siswa|Report Card Comment Writer","Pembuat Video Tutorial|Tutorial Video Maker","Pembuat Jadwal Kelas|Class Schedule Maker","Pengingat Pembayaran SPP|Tuition Payment Reminder","Pembuat Sertifikat|Certificate Maker","Penilai Tugas Otomatis|Assignment Grader","Pembuat Game Edukasi|Educational Game Maker","Pembuat Lembar Kerja|Worksheet Maker","Chatbot Tanya Jawab Siswa|Student FAQ Chatbot","Pembuat Laporan Perkembangan Siswa|Student Progress Report Maker"],"g":["Sekolah Dasar|Elementary Schools","Sekolah Menengah|Secondary Schools","Bimbel|Tutoring Centers","Guru Les Privat|Private Tutors","TK dan PAUD|Kindergartens","Kursus Bahasa Inggris|English Courses","Kursus Mengemudi|Driving Schools","Kursus Musik|Music Schools","Kursus Coding|Coding Schools","Pesantren|Islamic Boarding Schools","Kursus Menjahit|Sewing Courses","Kursus Memasak|Cooking Classes","Les Matematika|Math Tutoring","Sekolah Tahfidz|Quran Memorization Schools","Lembaga Pelatihan Kerja|Job Training Institutes","Sanggar Seni|Art Studios","Kursus Menggambar|Drawing Classes","Kursus Bahasa Mandarin|Mandarin Courses","Sekolah Online|Online Schools","Guru Mengaji|Quran Reading Teachers"]},{"n":"Pelajar dan Mahasiswa|Students","u":0,"f":["Tutor Pribadi|Personal Tutor","Pembuat Rencana Belajar|Study Plan Maker","Pembuat Ringkasan Materi|Material Summarizer","Pembuat Flashcard|Flashcard Maker","Pembuat Soal Latihan|Practice Question Maker","Pembuat Jadwal Belajar|Study Schedule Maker","Pembuat Mind Map|Mind Map Maker","Pengingat Tenggat Tugas|Assignment Deadline Reminder","Pelatih Presentasi|Presentation Coach","Penjelas Konsep Sulit|Hard Concept Explainer","Pembuat Simulasi Ujian|Exam Simulator","Pelatih Hafalan|Memorization Coach"],"g":["Siswa SD|Elementary Students","Siswa SMP|Middle School Students","Siswa SMA|High School Students","Siswa SMK|Vocational Students","Mahasiswa|College Students","Calon Mahasiswa|Prospective Students","Mahasiswa Skripsi|Thesis Students","Pencari Beasiswa|Scholarship Seekers","Peserta Olimpiade|Olympiad Participants","Santri|Islamic School Students","Pelajar Bahasa Asing|Foreign Language Learners","Calon PNS|Civil Service Candidates","Peserta Bootcamp|Bootcamp Participants","Pelajar Homeschooling|Homeschoolers"]},{"n":"Keluarga dan Rumah Tangga|Family and Home","u":0,"f":["Perencana Menu Mingguan|Weekly Meal Planner","Penghitung Kalori Keluarga|Family Calorie Counter","Pencatat Keuangan Keluarga|Family Budget Tracker","Pembuat Daftar Belanja|Shopping List Maker","Pembuat Resep dari Bahan di Kulkas|Fridge Leftover Recipe Maker","Penjadwal Tugas Rumah|Chore Scheduler","Pembuat Rencana Kegiatan Akhir Pekan|Weekend Activity Planner","Perencana Liburan|Vacation Planner","Perencana Acara Ulang Tahun|Birthday Party Planner","Pembuat Kartu Ucapan|Greeting Card Maker","Penghitung Hemat Listrik dan Air|Utility Saver Calculator","Pengingat Tanggal Penting|Important Date Reminder"],"g":["Ibu Rumah Tangga|Homemakers","Ibu Baru|New Mothers","Orang Tua Balita|Parents of Toddlers","Orang Tua Remaja|Parents of Teenagers","Keluarga Muda|Young Families","Pasangan Baru Menikah|Newlyweds","Lansia|Seniors","Keluarga Besar|Large Families","Anak Kos|Boarding House Residents","Penghuni Apartemen|Apartment Residents","Keluarga Perantau|Migrant Families","Pasangan LDR|Long-Distance Couples"]}]};
+  var IX=I.lang==='en'?1:0,PRE=IX?' for ':' untuk ',nf=new Intl.NumberFormat(IX?'en-US':'id-ID');
+  function P(x){var a=x.split('|');return a[IX]||a[0]}
+  var RU=[["drop", 4, "Skrip Penjualan|Skrip Video|Program Loyalitas|Slogan|Poster Promo|Perencana Promo|Penentu Harga|Penawaran Harga", "^(Klinik|Praktik)"], ["only", 10, "Daftar Tamu|Posisi Duduk|Rundown|Anggaran Acara|Kontrak Vendor|Checklist Persiapan", "Organizer|Party Planner|Penyelenggara|Gedung"], ["only", 10, "Moodboard", "Dekorasi|Fotografer|Videografer|Gaun|Photobooth|Organizer|Party Planner|Penyelenggara"], ["only", 10, "Undangan Digital", "Organizer|Percetakan|Party Planner|Penyelenggara"], ["only", 8, "Brosur Properti", "Agen|Developer|Pengembang|Kavling|Konsultan|Villa|Homestay|Kos|Kontrakan|Apartemen|Coworking"], ["only", 8, "Estimasi Biaya|Kontrak Kerja Sama|Laporan Progres|Portofolio Proyek", "Kontraktor|Arsitek|Interior|Landscape|Kitchen|Furnitur|Baja|Developer|Pengembang"], ["only", 8, "Pembayaran Bertahap", "Kontraktor|Developer|Pengembang|Kavling|Kitchen|Interior|Baja"], ["only", 9, "Penghitung Biaya Perjalanan", "Agen Travel|Operator|Pemandu|Tur|Desa|Wisata Kuliner|Antar Jemput|Rental"], ["drop", 9, "Itinerary|Paket Wisata", "Rental|Antar Jemput|Agen Tiket|Kapal"], ["drop", 13, "Penilai Tugas|Game Edukasi|Lembar Kerja", "Mengemudi"], ["drop", -1, "Poster Lowongan|Penjadwal Karyawan|SOP Karyawan", "Praktik|Makeup Artist|Reseller|Dropshipper|Klub|Pemandu"], ["drop", -1, "Penawaran Harga|Katalog Digital|Penghitung Modal|Laporan Penjualan", "Klub"]];
+  function OK(ci,f,g){for(var i=0;i<RU.length;i++){var r=RU[i];if(r[1]!==-1&&r[1]!==ci)continue;if(!new RegExp(r[2]).test(f))continue;var h=new RegExp(r[3]).test(g);if((r[0]==="drop"&&h)||(r[0]==="only"&&!h))return false}return true}
+  var KR=[["chat",/Chatbot|Penjawab|Pembalas|Tutor|Penjelas|Penerjemah/],["calc",/Penghitung|Penentu|Anggaran/],["track",/Pelacak|Pengelola|Pencatat|Perekap|Penganalisis|Stok|Pengatur/],["doc",/Kontrak|Perjanjian|Invoice|Laporan|Proposal|Penawaran|SOP|Rapor|Sertifikat|Formulir|Syarat|Rencana Bisnis/],["plan",/Penjadwal|Jadwal|Pengingat|Perencana|Rencana|Itinerary|Checklist|Rundown|Reservasi|Pelatih/],["img",/Foto|Logo|Poster|Desain|Perancang|Moodboard|Lookbook|Katalog|Brosur|Thumbnail|Kemasan|Undangan|Kartu|Landing|Website|Presentasi|Label|Portofolio|Media Kit|Voucher|Mind Map/]];
+  function KIND(f){for(var i=0;i<KR.length;i++)if(KR[i][1].test(f))return KR[i][0];return "write"}
+  var IDEAS=[],per=[],CNT=[];
+  DB.c.forEach(function(c,ci){
+    var fs=(c.u>0?DB.u1:[]).concat(c.u>1?DB.u2:[],c.f),list=[],seed=ci*7919+13;
+    fs.forEach(function(f){c.g.forEach(function(g){var a=f.split("|")[0];if(OK(ci,a,g.split("|")[0]))list.push({f:P(f),n:P(g),c:ci,k:KIND(a)})})});
+    for(var i=list.length-1;i>0;i--){seed=(seed*1664525+1013904223)>>>0;var j=Math.floor(seed/4294967296*(i+1)),t=list[i];list[i]=list[j];list[j]=t}
+    per.push(list);CNT.push(list.length);
+  });
+  (function(){var pos=per.map(function(){return 0}),go=true;while(go){go=false;per.forEach(function(l,ci){if(pos[ci]<l.length){IDEAS.push(l[pos[ci]++]);go=true}})}})();
+  IDEAS.forEach(function(x,i){x.i=i;x.s=('ai '+x.f+' '+x.n+' '+P(DB.c[x.c].n)).toLowerCase()});
+  var isq=document.getElementById('isq'),il=document.getElementById('il'),ic=document.getElementById('ic'),icat=document.getElementById('icat');
+  var CUR=[],SHOWN=0,STEP=90,ACT=-1;
+  isq.placeholder=N.sp;isq.setAttribute('aria-label',N.sp);
+  document.getElementById('ip').textContent=N.ip;
+  icat.innerHTML='<button class="cat on" data-c="-1">'+N.all+'<span>'+nf.format(IDEAS.length)+'</span></button>'+DB.c.map(function(c,i){return '<button class="cat" data-c="'+i+'">'+P(c.n)+'<span>'+nf.format(CNT[i])+'</span></button>'}).join('');
+  function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+  function THUMB(x){var h=(x.c*23+200)%360,a="hsl("+h+",60%,38%)",b="hsl("+h+",70%,90%)",m="hsl("+h+",65%,62%)",o="";
+    switch(x.k){
+    case "chat":o='<rect x="22" y="22" width="110" height="22" rx="11" fill="'+b+'"/><rect x="100" y="52" width="120" height="22" rx="11" fill="'+a+'"/><rect x="22" y="82" width="196" height="16" rx="8" fill="none" stroke="'+m+'"/>';break;
+    case "calc":o='<rect x="22" y="20" width="76" height="26" rx="6" fill="'+a+'"/><rect x="22" y="56" width="196" height="8" rx="4" fill="'+b+'"/><rect x="22" y="72" width="140" height="8" rx="4" fill="'+b+'"/><rect x="22" y="88" width="170" height="8" rx="4" fill="'+m+'"/>';break;
+    case "plan":for(var r=0;r<3;r++)for(var k=0;k<5;k++)o+='<rect x="'+(24+k*39)+'" y="'+(22+r*27)+'" width="33" height="21" rx="5" fill="'+(r*5+k===7?a:b)+'"/>';break;
+    case "doc":o='<rect x="22" y="18" width="80" height="10" rx="3" fill="'+a+'"/><rect x="22" y="38" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="52" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="66" width="150" height="6" rx="3" fill="'+b+'"/><circle cx="190" cy="90" r="11" fill="none" stroke="'+m+'" stroke-width="3"/>';break;
+    case "img":o='<rect x="22" y="18" width="196" height="64" rx="8" fill="'+b+'"/><circle cx="62" cy="40" r="9" fill="#ffd54a"/><path d="M22 82l56-30 40 20 36-24 64 34z" fill="'+m+'"/><circle cx="30" cy="94" r="5" fill="'+a+'"/><circle cx="46" cy="94" r="5" fill="'+m+'"/><circle cx="62" cy="94" r="5" fill="'+b+'"/>';break;
+    case "track":for(var q=0;q<6;q++)o+='<rect x="'+(28+q*32)+'" y="'+(92-[18,30,24,44,38,58][q])+'" width="20" height="'+[18,30,24,44,38,58][q]+'" rx="4" fill="'+(q===5?a:b)+'"/>';break;
+    default:o='<rect x="22" y="18" width="90" height="10" rx="3" fill="'+a+'"/><rect x="22" y="38" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="52" width="196" height="9" rx="3" fill="#ffe14d"/><rect x="22" y="68" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="82" width="120" height="6" rx="3" fill="'+b+'"/>'}
+    return '<svg viewBox="0 0 240 120" role="img" aria-hidden="true"><rect width="240" height="120" fill="'+b+'" opacity=".45"/><rect x="8" y="6" width="224" height="108" rx="12" fill="#fff" stroke="'+m+'" stroke-opacity=".5"/>'+o+'<text x="22" y="108" font-size="8" fill="'+a+'" font-family="sans-serif">'+esc(x.n)+'</text></svg>'}
+  var TX=IX?{use:"Use this idea",bk:"Back to ideas",wh:"What the AI does",ex:"Example result",fo:"Built for",k:{chat:["Answers questions from {n} customers by chat anytime: prices, hours and how to order.","\u201CWhat time do you open? Any bundle deal?\u201D \u2192 a friendly reply with prices and an order link."],calc:["Calculates the numbers {n} need from a few typed inputs, then explains the result.","Enter costs and quantities \u2192 total, margin and a safe suggested figure."],track:["Records and summarizes daily data for {n} in an easy-to-read overview.","A daily and weekly summary, plus a list of items that need follow-up."],doc:["Produces a clean document for {n} from a short form, ready to print or send.","Fill in names and details \u2192 a complete, professionally formatted document."],plan:["Builds schedules and automatic reminders so {n} never miss anything.","A tidy week laid out, plus reminders ready to send on WhatsApp."],img:["Creates visuals for {n} in the style and colors you pick.","Several downloadable design options with matching colors and style."],write:["Writes ready-to-use text for {n} in a tone that fits the market.","Three short, engaging versions you can paste right away."]}}:{use:"Pakai ide ini",bk:"Kembali ke daftar",wh:"Yang dikerjakan AI",ex:"Contoh hasil",fo:"Cocok untuk",k:{chat:["Menjawab pertanyaan pelanggan {n} lewat chat kapan saja: harga, jam layanan, dan cara pesan.","\u201CBuka jam berapa? Ada paket hemat?\u201D \u2192 balasan ramah lengkap dengan harga dan tautan pesan."],calc:["Menghitung angka yang dibutuhkan {n} dari beberapa isian, lalu menjelaskan hasilnya.","Masukkan biaya dan jumlah \u2192 total, margin, dan saran angka yang aman."],track:["Mencatat dan merangkum data harian {n} menjadi ringkasan yang mudah dibaca.","Ringkasan harian dan mingguan, plus daftar hal yang perlu ditindaklanjuti."],doc:["Membuat dokumen rapi untuk {n} dari isian singkat, siap dicetak atau dikirim.","Isi nama dan detail \u2192 dokumen lengkap berformat profesional."],plan:["Menyusun jadwal dan pengingat otomatis agar {n} tidak ada yang terlewat.","Satu minggu terjadwal rapi, plus pengingat siap kirim lewat WhatsApp."],img:["Membuat tampilan visual untuk {n} sesuai gaya dan warna pilihanmu.","Beberapa pilihan desain siap unduh dengan warna dan gaya senada."],write:["Menulis teks siap pakai untuk {n} dengan gaya bahasa yang cocok dengan pasarnya.","Tiga versi teks singkat, menarik, dan siap ditempel."]}};
+  function card(x){return '<button class="idea" data-i="'+x.i+'"><span class="th">'+THUMB(x)+'</span><i>'+P(DB.c[x.c].n)+'</i><b>AI '+x.f+'</b><small>'+PRE.trim()+' '+x.n+'</small></button>'}
+  function more(){var end=Math.min(CUR.length,SHOWN+STEP),h='';for(var i=SHOWN;i<end;i++)h+=card(CUR[i]);il.insertAdjacentHTML('beforeend',h);SHOWN=end}
+  function draw(){
+    var t=isq.value.trim().toLowerCase();
+    CUR=IDEAS.filter(function(x){return (ACT<0||x.c===ACT)&&(!t||x.s.indexOf(t)>-1)});
+    il.innerHTML='';SHOWN=0;il.scrollTop=0;
+    ic.textContent=nf.format(CUR.length)+N.cnt;
+    if(!CUR.length){il.innerHTML='<div class="iempty">'+N.none+'</div>';return}
+    more();
+  }
+  il.addEventListener('scroll',function(){if(SHOWN<CUR.length&&il.scrollTop+il.clientHeight>=il.scrollHeight-300)more()});
+  icat.addEventListener('click',function(e){var b=e.target.closest('.cat');if(!b)return;ACT=+b.dataset.c;Array.prototype.forEach.call(icat.children,function(x){x.classList.toggle('on',x===b)});draw()});
+  isq.addEventListener('input',draw);
+  function openIdeas(){document.getElementById("idt").className="";isq.value='';ACT=-1;Array.prototype.forEach.call(icat.children,function(x,i){x.classList.toggle('on',i===0)});draw();if(dlg2.showModal){if(!dlg2.open)dlg2.showModal()}else{dlg2.setAttribute('open','')}}
+  var autoDone=false;
+  function autoIdeas(){if(autoDone||dlg.open||dlg2.open)return;autoDone=true;setTimeout(function(){if(!dlg.open&&!dlg2.open)openIdeas()},700)}
+
+  function go(sel){var el=document.querySelector(sel);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}
+  function toTop(){window.scrollTo({top:0,behavior:'smooth'});qq.focus({preventScroll:true})}
+  N.t.forEach(function(x,i){var b=document.getElementById('n'+(i+1));b.setAttribute('aria-label',x);b.setAttribute('data-tip',x)});
+  document.getElementById('is').textContent=N.it;
+  document.getElementById('n1').onclick=function(){qq.value='';qq.dispatchEvent(new Event('input'));toTop()};
+  document.querySelector('.side .logo').onclick=toTop;
+  document.getElementById('n2').onclick=function(){go('#contoh')};
+  document.getElementById('n3').onclick=openDlg;
+  document.getElementById('n4').onclick=function(){go('#harga')};
+  document.getElementById('n5').onclick=function(){go('.site')};
+  document.getElementById('n6').onclick=openIdeas;
+  document.getElementById('ix').onclick=function(){dlg2.close()};
+  dlg2.addEventListener('click',function(e){if(e.target===dlg2)dlg2.close()});
+  var idt=document.getElementById("idt"),CX=null;
+  document.getElementById("il").onclick=function(e){var b=e.target.closest(".idea");if(!b)return;var x=CX=IDEAS[+b.dataset.i],t=TX.k[x.k];
+    idt.innerHTML='<button class="bk" id="bk">\u2190 '+TX.bk+'</button><div><div class="dv">'+THUMB(x)+'</div></div><div class="dt"><i class="dc">'+esc(P(DB.c[x.c].n))+'</i><h4>AI '+esc(x.f)+'</h4><h5>'+TX.fo+'</h5><p>'+esc(x.n)+'</p><h5>'+TX.wh+'</h5><p>'+esc(t[0].replace("{n}",x.n))+'</p><h5>'+TX.ex+'</h5><p>'+esc(t[1])+'</p><button class="dbtn" id="ub">'+TX.use+'</button></div>';
+    idt.className="on";idt.scrollTop=0;
+    document.getElementById("bk").onclick=function(){idt.className=""};
+    document.getElementById("ub").onclick=function(){qq.value="AI "+x.f+PRE+x.n;qq.dispatchEvent(new Event("input"));dlg2.close();toTop()}};
+  document.getElementById('n7').onclick=function(){var r=document.documentElement,cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'),nx=cur==='dark'?'light':'dark';r.setAttribute('data-theme',nx);var f=document.getElementById('demo-frame');if(f&&f.contentWindow)f.contentWindow.postMessage(nx,'*')};
+  var q=document.getElementById('q'),s=document.getElementById('send');
+  function goToWorkspace(val) {
+    var text = (typeof val === 'string' ? val : (q ? q.value : '')).trim();
+    var dest = 'Agent%20Workspace.html';
+    if (text) dest += '?q=' + encodeURIComponent(text);
+    window.location.href = dest;
+  }
+  q.addEventListener('input',function(){s.classList.toggle('on',q.value.trim().length>0)});
+  q.addEventListener('keydown',function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      goToWorkspace();
+    }
+  });
+  s.addEventListener('click',function(e){
+    e.preventDefault();
+    goToWorkspace();
+  });
+  var chipEl = document.getElementById('chip');
+  if (chipEl) chipEl.addEventListener('click',function(e){
+    e.preventDefault();
+    goToWorkspace('What can you do?');
+  });
+  var btnIdeas = document.getElementById('btn-ideas');
+  if (btnIdeas) btnIdeas.addEventListener('click', function(e) { e.preventDefault(); openIdeas(); });
+  var btnDemo = document.getElementById('btn-demo');
+  if (btnDemo) btnDemo.addEventListener('click', function(e) {
+    e.preventDefault();
+    var el = document.getElementById('contoh');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  (function(){
+    var words = I.words;
+    var el = document.getElementById('word');
+    if (!el || !words || !words.length) return;
+    var i = 0, n = 0, isDeleting = false;
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still) {
+      setInterval(function() {
+        i = (i + 1) % words.length;
+        el.textContent = words[i];
+      }, 2800);
+      return;
+    }
+    function tick() {
+      var current = words[i];
+      var speed = 36; // Generative typing speed
+
+      if (!isDeleting) {
+        n++;
+        el.textContent = current.slice(0, n);
+        if (n >= current.length) {
+          isDeleting = true;
+          speed = 1800; // 1.8s dwell for comfortable reading
+        }
+      } else {
+        // Smooth character-by-character backspace
+        n--;
+        el.textContent = current.slice(0, n);
+        speed = 20; // Smooth fast backspacing
+        if (n <= 0) {
+          isDeleting = false;
+          i = (i + 1) % words.length;
+          speed = 360; // Pause before next phrase
+        }
+      }
+      setTimeout(tick, speed);
+    }
+    el.textContent = '';
+    setTimeout(tick, 450);
+  })();
+
+  // 3-Stage Expandable Showcase Frame
+  (function() {
+    var frame = document.getElementById('demo-card-frame') || document.querySelector('.frame');
+    var btnNext = document.getElementById('btn-next-stage');
+    var btnRestore = document.getElementById('btn-restore');
+    var stageLabel = document.getElementById('stage-label');
+    var stageBadge = document.getElementById('stage-badge');
+    var restoreLabel = document.getElementById('restore-label');
+    var dotRed = document.getElementById('btn-restore-dot');
+    var dotYellow = document.getElementById('btn-stage1-dot');
+    var dotGreen = document.getElementById('btn-stage2-dot');
+
+    var isEn = (typeof I !== 'undefined' && I.lang === 'en');
+    var STAGE_TEXT = isEn ? {
+      s0_lbl: 'Expand', s0_tag: 'Stage 1/3',
+      s1_lbl: 'Fullscreen', s1_tag: 'Stage 2/3',
+      s2_lbl: 'Open New Tab', s2_tag: 'Stage 3/3 ↗',
+      rst: 'Minimize'
+    } : {
+      s0_lbl: 'Perbesar', s0_tag: 'Tahap 1/3',
+      s1_lbl: 'Layar Penuh', s1_tag: 'Tahap 2/3',
+      s2_lbl: 'Buka Tab Baru', s2_tag: 'Tahap 3/3 ↗',
+      rst: 'Kecilkan'
+    };
+
+    var currentStage = 0;
+
+    function updateStageUI() {
+      if (!frame) return;
+      frame.classList.remove('stage-1', 'stage-2');
+
+      if (currentStage === 0) {
+        if (stageLabel) stageLabel.textContent = STAGE_TEXT.s0_lbl;
+        if (stageBadge) stageBadge.textContent = STAGE_TEXT.s0_tag;
+        if (btnRestore) btnRestore.style.display = 'none';
+        document.body.style.overflow = '';
+      } else if (currentStage === 1) {
+        frame.classList.add('stage-1');
+        if (stageLabel) stageLabel.textContent = STAGE_TEXT.s1_lbl;
+        if (stageBadge) stageBadge.textContent = STAGE_TEXT.s1_tag;
+        if (btnRestore) btnRestore.style.display = 'inline-flex';
+        if (restoreLabel) restoreLabel.textContent = STAGE_TEXT.rst;
+        document.body.style.overflow = 'hidden';
+      } else if (currentStage === 2) {
+        frame.classList.add('stage-2');
+        if (stageLabel) stageLabel.textContent = STAGE_TEXT.s2_lbl;
+        if (stageBadge) stageBadge.textContent = STAGE_TEXT.s2_tag;
+        if (btnRestore) btnRestore.style.display = 'inline-flex';
+        if (restoreLabel) restoreLabel.textContent = STAGE_TEXT.rst;
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function nextStage() {
+      if (currentStage === 0) {
+        currentStage = 1;
+        updateStageUI();
+      } else if (currentStage === 1) {
+        currentStage = 2;
+        updateStageUI();
+      } else if (currentStage === 2) {
+        window.open('https://runnerflo.com', '_blank', 'noopener');
+      }
+    }
+
+    function setStage(s) {
+      currentStage = s;
+      updateStageUI();
+    }
+
+    function restore() {
+      currentStage = 0;
+      updateStageUI();
+    }
+
+    if (btnNext) btnNext.addEventListener('click', nextStage);
+    if (btnRestore) btnRestore.addEventListener('click', restore);
+    if (dotRed) dotRed.addEventListener('click', restore);
+    if (dotYellow) dotYellow.addEventListener('click', function() { setStage(1); });
+    if (dotGreen) dotGreen.addEventListener('click', function() { setStage(2); });
+
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && currentStage > 0) {
+        restore();
+      }
+    });
+  })();
+</script>
+</body>
+</html>

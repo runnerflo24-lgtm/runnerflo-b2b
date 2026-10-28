@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "runnerflo-b2b",
+  "pages_build_output_dir": ".",
+  "compatibility_date": "2026-10-23",
+  "observability": {
+    "enabled": true
+  }
+}
