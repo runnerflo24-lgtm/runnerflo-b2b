@@ -1,4 +1,5 @@
-// Cloudflare Pages Function: /api/agent (Claude AI Engine for Runnerflo B2B)
+// Cloudflare Pages Function: /api/agent
+// Claude Sonnet 5.5 — Build AI Apps & Make Workflows
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -9,15 +10,9 @@ export async function onRequest(context) {
     'Content-Type': 'application/json'
   };
 
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
-
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders });
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
-      status: 405,
-      headers: corsHeaders
-    });
+    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: corsHeaders });
   }
 
   const anthropicKey = (env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY)) || '';
@@ -36,56 +31,54 @@ export async function onRequest(context) {
     const mode = body.mode || 'Auto';
     const build = body.build || 'Build';
     const history = Array.isArray(body.history) ? body.history : [];
+    const makeApiKey = env.MAKE_API_KEY || '';
 
-    const systemPrompt = `You are the Runnerflo B2B AI Agent Workspace. You are an expert product builder and AI engineer helping clients build high-performance web platforms, edtech solutions, dashboards, and digital products.
-Project Name: "${projectName}"
-Current Stage: ${currentStage} (0: Inisialisasi, 1: Konsep & Landing Page, 2: Katalog & Modul, 3: Dashboard Progres, 4: Interaktif & Selesai)
-Mode: ${mode}
-Build Action: ${build}
+    const systemPrompt = `Kamu adalah Runnerflo B2B AI Agent — platform pembangun bisnis berbasis AI untuk UMKM Indonesia.
+Proyek: "${projectName}" | Stage: ${currentStage}/4 | Mode: ${mode} | Build: ${build}
+Make.com API: ${makeApiKey ? 'tersedia' : 'belum dikonfigurasi'}
 
-Strict instructions:
-1. Always reply in clear, professional, friendly Indonesian (or match client's language).
-2. You MUST return ONLY a raw JSON object with NO markdown formatting, NO \`\`\`json code fences, NO extraneous commentary outside the JSON.
-3. The JSON structure MUST be exactly:
+KEMAMPUANMU:
+1. Bangun platform digital (landing page, katalog, dashboard, sistem booking, dll)
+2. Rancang workflow otomasi bisnis menggunakan Make.com (WhatsApp, email, Google Sheets, payment)
+3. Buat proposal & strategi bisnis
+4. Hubungkan fitur "Runnerflo Scout" — AI pencari klien/peluang kerja
+
+INSTRUKSI KETAT:
+- Balas dalam Bahasa Indonesia yang profesional dan ramah
+- HANYA kembalikan JSON mentah tanpa markdown, tanpa \`\`\`json, tanpa komentar di luar JSON
+- Struktur JSON WAJIB persis:
 {
-  "text": "Your detailed explanation of what has been constructed, advised, or configured.",
-  "steps": ["Step 1 completed", "Step 2 completed", "Step 3 completed"],
-  "stage": <integer 0 to 4, normally advance stage if build requested or keep current stage if just asking>,
-  "suggest": ["Short suggestion 1 for next step", "Short suggestion 2", "Short suggestion 3"]
+  "text": "Penjelasan detail yang sudah dikerjakan atau disarankan.",
+  "steps": ["Langkah 1 selesai", "Langkah 2 selesai", "Langkah 3 selesai"],
+  "stage": <integer 0-4, naik jika build diminta>,
+  "suggest": ["Saran singkat 1", "Saran singkat 2", "Saran singkat 3"],
+  "makeWorkflow": null
+}
+- Field "makeWorkflow" diisi HANYA jika user minta otomasi/automasi/Make/workflow, isinya object blueprint Make.com scenario. Kalau tidak relevan, isi null.
+- Jika makeWorkflow diisi, formatnya:
+{
+  "name": "Nama Workflow",
+  "trigger": "webhook|schedule|email|whatsapp",
+  "steps": ["Deskripsi step 1", "Deskripsi step 2"],
+  "apps": ["WhatsApp Business", "Gmail", "Google Sheets"]
 }`;
 
     const formattedMessages = [];
-    // Include last few messages for conversation context
     for (const h of history) {
-      if (h.role === 'user' && h.text) {
-        formattedMessages.push({ role: 'user', content: h.text });
-      } else if (h.role === 'agent' && h.text) {
-        formattedMessages.push({ role: 'assistant', content: h.text });
-      }
+      if (h.role === 'user' && h.text) formattedMessages.push({ role: 'user', content: h.text });
+      else if (h.role === 'agent' && h.text) formattedMessages.push({ role: 'assistant', content: h.text });
     }
-    // Ensure the latest message is added
     if (formattedMessages.length === 0 || formattedMessages[formattedMessages.length - 1].content !== userText) {
       formattedMessages.push({ role: 'user', content: userText || 'Mulai rancang platform saya.' });
     }
 
-    const candidateModels = [
-      'claude-3-5-sonnet-20241022',
-      'claude-3-7-sonnet-20250219',
-      'claude-3-5-haiku-20241022'
-    ];
-
+    // Primary: claude-sonnet-5-5 | Fallback: claude-haiku-5-5
+    const candidateModels = ['claude-sonnet-5-5', 'claude-haiku-5-5'];
     let lastError = null;
     let agentResult = null;
 
     for (const model of candidateModels) {
       try {
-        const payload = {
-          model: model,
-          max_tokens: 1500,
-          system: systemPrompt,
-          messages: formattedMessages
-        };
-
         const response = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
@@ -93,63 +86,52 @@ Strict instructions:
             'anthropic-version': '2023-06-01',
             'content-type': 'application/json'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            model,
+            max_tokens: 2048,
+            system: systemPrompt,
+            messages: formattedMessages
+          })
         });
 
         if (!response.ok) {
           const errText = await response.text();
-          console.warn(`Claude API error (${model}):`, response.status, errText);
-          lastError = `${model} returned status ${response.status}: ${errText}`;
+          lastError = `${model} → ${response.status}: ${errText}`;
           continue;
         }
 
         const data = await response.json();
         const textBlock = (data.content || []).find(b => b.type === 'text');
         if (textBlock && textBlock.text) {
-          let raw = textBlock.text.trim();
-          // Strip potential markdown backticks if returned
-          if (raw.startsWith('```')) {
-            raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-          }
+          let raw = textBlock.text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
           try {
             agentResult = JSON.parse(raw);
             agentResult.model = model;
             break;
-          } catch (pe) {
-            // If model returned plain text instead of JSON, format it gracefully
+          } catch {
             agentResult = {
               text: raw,
-              steps: ['Analisis spesifikasi kebutuhan', 'Menyusun arsitektur sistem'],
+              steps: ['Analisis kebutuhan bisnis', 'Menyusun arsitektur platform'],
               stage: Math.min(4, currentStage + 1),
-              suggest: ['Lihat pratinjau live', 'Tambahkan fitur kustom'],
-              model: model
+              suggest: ['Tambahkan detail bisnis', 'Aktifkan otomasi Make', 'Jalankan Runnerflo Scout'],
+              makeWorkflow: null,
+              model
             };
             break;
           }
         }
       } catch (e) {
         lastError = e.message;
-        console.warn(`Network/fetch error for ${model}:`, e);
       }
     }
 
-    if (agentResult) {
-      return new Response(JSON.stringify(agentResult), {
-        status: 200,
-        headers: corsHeaders
-      });
-    }
+    if (agentResult) return new Response(JSON.stringify(agentResult), { status: 200, headers: corsHeaders });
 
-    return new Response(JSON.stringify({
-      error: 'Claude API invocation failed',
-      details: lastError,
-      fallback: true
-    }), { status: 502, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: 'Claude API gagal', details: lastError, fallback: true }), {
+      status: 502, headers: corsHeaders
+    });
 
   } catch (err) {
-    return new Response(JSON.stringify({
-      error: err.message,
-      fallback: true
-    }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: err.message, fallback: true }), { status: 500, headers: corsHeaders });
   }
 }
