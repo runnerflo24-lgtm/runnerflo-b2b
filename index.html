@@ -12,24 +12,24 @@
   --top-b: #d9e4fa;
   --bg: #f4f3fb;
   --panel: #ffffff;
-  --fg: #1f1d33;
-  --muted: #67657f;
+  --fg: #09090b;
+  --muted: #334155;
   --line: #e4e2f1;
   --accent: #5646e0;
   --accent-ink: #ffffff;
   --accent-soft: #e9e6fd;
   --bubble: #e9e6fd;
-  --bubble-fg: #2a2370;
-  --dark: #24213a;
+  --bubble-fg: #1e1b4b;
+  --dark: #09090b;
   --dark-fg: #ffffff;
-  --ok: #16a35f;
-  --warn: #f2c14e;
-  --warn-fg: #3a2d00;
-  --danger: #d6455d;
-  --s-accent: #0e9f8e;
-  --s-soft: #d7f3ee;
-  --code-bg: #14131f;
-  --code-fg: #d9d6f0;
+  --ok: #15803d;
+  --warn: #b45309;
+  --warn-fg: #ffffff;
+  --danger: #b91c1c;
+  --s-accent: #0f766e;
+  --s-soft: #ccfbf1;
+  --code-bg: #09090b;
+  --code-fg: #f8fafc;
   --glow: rgba(86, 70, 224, 0.08);
   --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -51,10 +51,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --top-a: #2a2660; --top-b: #1d3358; --bg: #12111c; --panel: #1b1a29; --fg: #ecebf6; --muted: #a09eb8;
-    --line: #2c2a40; --accent: #8f84ff; --accent-ink: #14113a; --accent-soft: #2a2750; --bubble: #2a2750;
-    --bubble-fg: #e2defc; --dark: #ecebf6; --dark-fg: #14131f; --ok: #3ccf8a; --warn: #f0c75a; --warn-fg: #2f2400;
-    --danger: #ff7a90; --s-accent: #3ed1bd; --s-soft: #153a36; --code-bg: #0c0b14; --code-fg: #d9d6f0;
+    --top-a: #2a2660; --top-b: #1d3358; --bg: #0b0a13; --panel: #141320; --fg: #ffffff; --muted: #cbd5e1;
+    --line: #2c2a40; --accent: #8f84ff; --accent-ink: #0b0a13; --accent-soft: #2a2750; --bubble: #2a2750;
+    --bubble-fg: #ffffff; --dark: #ffffff; --dark-fg: #0b0a13; --ok: #4ade80; --warn: #fbbf24; --warn-fg: #0b0a13;
+    --danger: #f87171; --s-accent: #2dd4bf; --s-soft: #134e4a; --code-bg: #050508; --code-fg: #ffffff;
     --glow: rgba(143, 132, 255, 0.12);
 
     --text: var(--fg);
@@ -70,10 +70,10 @@
 }
 
 :root[data-theme="dark"] {
-  --top-a: #2a2660; --top-b: #1d3358; --bg: #12111c; --panel: #1b1a29; --fg: #ecebf6; --muted: #a09eb8;
-  --line: #2c2a40; --accent: #8f84ff; --accent-ink: #14113a; --accent-soft: #2a2750; --bubble: #2a2750;
-  --bubble-fg: #e2defc; --dark: #ecebf6; --dark-fg: #14131f; --ok: #3ccf8a; --warn: #f0c75a; --warn-fg: #2f2400;
-  --danger: #ff7a90; --s-accent: #3ed1bd; --s-soft: #153a36; --code-bg: #0c0b14; --code-fg: #d9d6f0;
+  --top-a: #2a2660; --top-b: #1d3358; --bg: #0b0a13; --panel: #141320; --fg: #ffffff; --muted: #cbd5e1;
+  --line: #2c2a40; --accent: #8f84ff; --accent-ink: #0b0a13; --accent-soft: #2a2750; --bubble: #2a2750;
+  --bubble-fg: #ffffff; --dark: #ffffff; --dark-fg: #0b0a13; --ok: #4ade80; --warn: #fbbf24; --warn-fg: #0b0a13;
+  --danger: #f87171; --s-accent: #2dd4bf; --s-soft: #134e4a; --code-bg: #050508; --code-fg: #ffffff;
   --glow: rgba(143, 132, 255, 0.12);
 
   --text: var(--fg);
@@ -92,6 +92,8 @@ html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smoot
 body {
   margin: 0; min-height: 100%; background: var(--bg); color: var(--fg);
   font-family: var(--font-body); font-size: 14.5px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   display: flex;
 }
 svg { display: block; }
@@ -192,9 +194,9 @@ h1 mark {
 .icon-btn:hover { background: var(--accent-soft); color: var(--accent); }
 .box input {
   flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--fg);
-  font-weight: 500; font-size: 16.5px; line-height: 1; font-family: var(--font-body); padding: 0;
+  font-weight: 550; font-size: 16.5px; line-height: 1; font-family: var(--font-body); padding: 0;
 }
-.box input::placeholder { color: var(--muted); font-weight: 400; }
+.box input::placeholder { color: var(--muted); font-weight: 450; opacity: 0.95; }
 .send {
   width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--accent-soft); color: var(--muted);
   display: grid; place-items: center; cursor: pointer; flex: none; transition: all .18s ease;
@@ -209,7 +211,7 @@ h1 mark {
 }
 .chip {
   height: 42px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line);
-  background: var(--panel); color: var(--fg); font-weight: 500; font-size: 13.5px; line-height: 1;
+  background: var(--panel); color: var(--fg); font-weight: 600; font-size: 13.5px; line-height: 1;
   font-family: var(--font-body); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
   transition: all .18s ease; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
