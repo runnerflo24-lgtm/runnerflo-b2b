@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI Agent dengan 3.500+ Aplikasi</title>
+<title>Koneksi 1.000+ Marketplace Global — AI Pencari Nafkah</title>
 <style>
-:root{--bg:#f3f4f8;--card:rgba(255,255,255,.93);--ink:#0a1a33;--sub:#5b6577;color-scheme:light;
+:root{--bg:#f3f4f8;--card:rgba(255,255,255,.94);--ink:#0a1a33;--sub:#475569;color-scheme:light;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1118;--card:rgba(24,29,42,.93);--ink:#f3f4f8;--sub:#9aa6bd;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0e1118;--card:rgba(24,29,42,.93);--ink:#f3f4f8;--sub:#9aa6bd;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1118;--card:rgba(24,29,42,.94);--ink:#f3f4f8;--sub:#94a3b8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1118;--card:rgba(24,29,42,.94);--ink:#f3f4f8;--sub:#94a3b8;color-scheme:dark}
 html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-#cap{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);padding:14px 32px;border-radius:24px;box-shadow:0 14px 45px rgba(10,26,51,.25);border:1px solid rgba(120,130,160,.25);text-align:center;max-width:calc(100% - 32px);box-sizing:border-box;z-index:10}
-#num{font-size:clamp(34px,6vw,56px);font-weight:800;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
-#lab{font-size:clamp(13px,1.8vw,16px);color:var(--ink);opacity:.92;font-weight:600;margin-top:6px;letter-spacing:.2px}
+#cap{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);padding:12px 28px;border-radius:20px;box-shadow:0 12px 36px rgba(10,26,51,.16);border:1px solid rgba(120,130,160,.25);text-align:center;max-width:calc(100% - 32px);box-sizing:border-box;z-index:10}
+#num{font-size:clamp(32px,5.2vw,50px);font-weight:750;letter-spacing:-0.5px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+#lab{font-size:clamp(12px,1.5vw,14.5px);color:var(--sub);font-weight:600;margin-top:6px;letter-spacing:.25px}
 .fade-edge-top{position:fixed;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,var(--bg) 0%,transparent 100%);pointer-events:none;z-index:2}
 </style>
 </head>
 <body>
 <div class="fade-edge-top"></div>
-<canvas id="c" role="img" aria-label="Lebih dari 3.500 logo aplikasi mengalirkan data ke satu AI agent di tengah"></canvas>
-<div id="cap"><div id="num">0+</div><div id="lab">aplikasi terhubung ke satu AI agent</div></div>
+<canvas id="c" role="img" aria-label="AI Pencari Nafkah menghubungkan dan mencari klien secara otomatis ke lebih dari 1.000 Marketplace di seluruh dunia"></canvas>
+<div id="cap"><div id="num">0+</div><div id="lab">Marketplace Global • Otomatis Cari Klien</div></div>
 <script>
 const cv=document.getElementById("c"),cx=cv.getContext("2d");
 const dark=matchMedia("(prefers-color-scheme: dark)").matches,RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -62,11 +62,11 @@ pin("#36c5f0",0)+pin("#2eb67d",90)+pin("#ecb22e",180)+pin("#e01e5a",270),
 const defs=`<defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#d62976"/><stop offset=".7" stop-color="#962fbf"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs>`;
 const IM=IC.map(s=>{const i=new Image();i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100" width="200" height="200">${defs}${s}</svg>`);return i});
 function rs(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;
-M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.052;Rf=M*.26;Rl=M*.039;r0=Rf+Rl*1.5;Rmax=Math.hypot(W,H)/2*1.05;
+M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.036;Rf=M*.26;Rl=M*.039;r0=Rf+Rl*1.5;Rmax=Math.hypot(W,H)/2*1.05;
 S=Math.sqrt(Math.PI*(Rmax*Rmax-r0*r0)/N);for(let i=0;i<N;i++)R[i]=r0+(Rmax-r0)*U[i];if(RM)draw(0)}
 addEventListener("resize",rs);
 const pk=[];let last=0,acc=0,glow=0;
-const OR="#ff3d00";
+const OR="#ff451a";
 function tp(i,rot){const a=A[i]+rot;return[X+R[i]*Math.cos(a),Y+R[i]*Math.sin(a)]}
 function draw(t){
 const dt=Math.min(.05,Math.max(0,t-last));last=t;
@@ -79,39 +79,39 @@ if(x<-sz||x>W+sz||y<-sz||y>H+sz)continue;
 const k=.5+.5*Math.sin(t*1.6-d*.018+P[i]*.12),s=sz*(.85+.3*k);
 cx.globalAlpha=.42+.58*k;cx.drawImage(spr[K[i]],x-s/2,y-s/2,s,s)}
 cx.globalAlpha=1;
-/* logo utama + garis */
-const lw=Math.max(2,M*.004);
+/* logo utama + garis tipis */
+const lw=Math.max(1,M*.0016);
 for(let j=0;j<12;j++){
 const ang=j/12*TAU-Math.PI/2+t*.04,c=Math.cos(ang),s=Math.sin(ang);
-const lx=X+Rf*c,ly=Y+Rf*s,sx=X+c*(Rh*1.25),sy=Y+s*(Rh*1.25),ex=lx-c*(Rl+4),ey=ly-s*(Rl+4);
-cx.strokeStyle=OR;cx.lineWidth=lw;cx.setLineDash([M*.014,M*.012]);cx.lineDashOffset=-t*45*(j%2?1:-1);
+const lx=X+Rf*c,ly=Y+Rf*s,sx=X+c*(Rh*1.2),sy=Y+s*(Rh*1.2),ex=lx-c*(Rl+4),ey=ly-s*(Rl+4);
+cx.strokeStyle=OR;cx.lineWidth=lw;cx.setLineDash([M*.008,M*.008]);cx.lineDashOffset=-t*40*(j%2?1:-1);
 cx.beginPath();cx.moveTo(sx,sy);cx.lineTo(ex,ey);cx.stroke();cx.setLineDash([]);
 const q=((t*.3+j*.37)%1),pp=j%2?q:1-q;
-cx.fillStyle=OR;cx.beginPath();cx.arc(sx+(ex-sx)*pp,sy+(ey-sy)*pp,M*.0065,0,TAU);cx.fill();
-const mx=(sx+ex)/2,my=(sy+ey)/2,pr=M*.016;
+cx.fillStyle=OR;cx.beginPath();cx.arc(sx+(ex-sx)*pp,sy+(ey-sy)*pp,M*.0032,0,TAU);cx.fill();
+const mx=(sx+ex)/2,my=(sy+ey)/2,pr=M*.0082;
 cx.beginPath();cx.arc(mx,my,pr,0,TAU);cx.fill();
-cx.strokeStyle="#fff";cx.lineWidth=Math.max(2,pr*.28);cx.beginPath();cx.moveTo(mx-pr*.5,my);cx.lineTo(mx+pr*.5,my);cx.moveTo(mx,my-pr*.5);cx.lineTo(mx,my+pr*.5);cx.stroke();
-const rl=Rl*(1+.04*Math.sin(t*2+j));
-cx.save();cx.shadowColor="rgba(10,26,51,.25)";cx.shadowBlur=M*.03;cx.shadowOffsetY=M*.008;cx.fillStyle="#fff";cx.beginPath();cx.arc(lx,ly,rl,0,TAU);cx.fill();cx.restore();
+cx.strokeStyle="#fff";cx.lineWidth=Math.max(1,pr*.22);cx.beginPath();cx.moveTo(mx-pr*.42,my);cx.lineTo(mx+pr*.42,my);cx.moveTo(mx,my-pr*.42);cx.lineTo(mx,my+pr*.42);cx.stroke();
+const rl=Rl*(1+.03*Math.sin(t*2+j));
+cx.save();cx.shadowColor="rgba(10,26,51,.18)";cx.shadowBlur=M*.022;cx.shadowOffsetY=M*.005;cx.fillStyle="#fff";cx.beginPath();cx.arc(lx,ly,rl,0,TAU);cx.fill();cx.restore();
 const im=IM[j];if(im.complete&&im.naturalWidth){const z=rl*1.35;cx.drawImage(im,lx-z/2,ly-z/2,z,z)}}
-/* hub AI bulat dengan simbol chip */
-const hs=1+.02*Math.sin(t*2)+glow*.05,h=Rh*hs;
-cx.save();cx.shadowColor="rgba(10,26,51,.3)";cx.shadowBlur=M*.04;cx.shadowOffsetY=M*.01;cx.fillStyle="#fff";cx.beginPath();cx.arc(X,Y,h*1.2,0,TAU);cx.fill();cx.restore();
+/* hub AI ramping proporsional */
+const hs=1+.015*Math.sin(t*2)+glow*.04,h=Rh*hs;
+cx.save();cx.shadowColor="rgba(10,26,51,.2)";cx.shadowBlur=M*.025;cx.shadowOffsetY=M*.006;cx.fillStyle="#fff";cx.beginPath();cx.arc(X,Y,h*1.12,0,TAU);cx.fill();cx.restore();
 const g=cx.createLinearGradient(X-h,Y-h,X+h,Y+h);g.addColorStop(0,"#1f4287");g.addColorStop(1,"#0b1b3a");
 cx.fillStyle=g;cx.beginPath();cx.arc(X,Y,h*.98,0,TAU);cx.fill();
-cx.strokeStyle="rgba(79,134,240,.55)";cx.lineWidth=2;cx.beginPath();cx.arc(X,Y,h*.86,0,TAU);cx.stroke();
-const c2=h*.46;cx.fillStyle="#38e1ff";
+cx.strokeStyle="rgba(79,134,240,.45)";cx.lineWidth=1;cx.beginPath();cx.arc(X,Y,h*.86,0,TAU);cx.stroke();
+const c2=h*.44,pw=c2*.12,pl=c2*.18;cx.fillStyle="#38e1ff";
 for(const o of[-.5,0,.5]){const u=c2*o;
-cx.fillRect(X+u-c2*.07,Y-c2-c2*.3,c2*.14,c2*.3);cx.fillRect(X+u-c2*.07,Y+c2,c2*.14,c2*.3);
-cx.fillRect(X-c2-c2*.3,Y+u-c2*.07,c2*.3,c2*.14);cx.fillRect(X+c2,Y+u-c2*.07,c2*.3,c2*.14)}
-cx.fillStyle="#0a1a33";cx.strokeStyle="#38e1ff";cx.lineWidth=Math.max(2,h*.04);rr(cx,X-c2,Y-c2,c2*2,c2*2,c2*.32);cx.fill();cx.stroke();
-cx.fillStyle="#fff";cx.font=`800 ${c2*1.1}px system-ui,Segoe UI,Arial,sans-serif`;cx.textAlign="center";cx.textBaseline="middle";cx.fillText("AI",X,Y+c2*.05)}
+cx.fillRect(X+u-pw/2,Y-c2-pl,pw,pl);cx.fillRect(X+u-pw/2,Y+c2,pw,pl);
+cx.fillRect(X-c2-pl,Y+u-pw/2,pl,pw);cx.fillRect(X+c2,Y+u-pw/2,pl,pw)}
+cx.fillStyle="#0a1a33";cx.strokeStyle="#38e1ff";cx.lineWidth=Math.max(1.2,h*.028);rr(cx,X-c2,Y-c2,c2*2,c2*2,c2*.28);cx.fill();cx.stroke();
+cx.fillStyle="#fff";cx.font=`600 ${c2*.92}px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;cx.textAlign="center";cx.textBaseline="middle";cx.fillText("AI",X,Y+c2*.04)}
 function loop(ts){draw(ts/1000);requestAnimationFrame(loop)}
 rs();if(!RM)requestAnimationFrame(loop);
-/* penghitung */
+/* penghitung 1.000+ marketplace */
 const nm=document.getElementById("num"),c0=performance.now();
-function cnt(now){const p=Math.min(1,(now-c0)/3200),e=1-Math.pow(1-p,3);nm.textContent=Math.round(3500*e).toLocaleString("id-ID")+"+";if(p<1)requestAnimationFrame(cnt)}
-if(RM)nm.textContent="3.500+";else requestAnimationFrame(cnt);
+function cnt(now){const p=Math.min(1,(now-c0)/2600),e=1-Math.pow(1-p,3);nm.textContent=Math.round(1000*e).toLocaleString("id-ID")+"+";if(p<1)requestAnimationFrame(cnt)}
+if(RM)nm.textContent="1.000+";else requestAnimationFrame(cnt);
 </script>
 </body>
 </html>
