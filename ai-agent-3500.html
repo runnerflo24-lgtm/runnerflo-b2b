@@ -62,7 +62,7 @@ pin("#36c5f0",0)+pin("#2eb67d",90)+pin("#ecb22e",180)+pin("#e01e5a",270),
 const defs=`<defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#d62976"/><stop offset=".7" stop-color="#962fbf"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs>`;
 const IM=IC.map(s=>{const i=new Image();i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100" width="200" height="200">${defs}${s}</svg>`);return i});
 function rs(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;
-M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.07;Rf=M*.3;Rl=M*.07;r0=Rf+Rl*1.6;Rmax=Math.hypot(W,H)/2*1.05;
+M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.062;Rf=M*.29;Rl=M*.048;r0=Rf+Rl*1.5;Rmax=Math.hypot(W,H)/2*1.05;
 S=Math.sqrt(Math.PI*(Rmax*Rmax-r0*r0)/N);for(let i=0;i<N;i++)R[i]=r0+(Rmax-r0)*U[i];if(RM)draw(0)}
 addEventListener("resize",rs);
 const pk=[];let last=0,acc=0,glow=0;
@@ -86,9 +86,6 @@ for(let n=pk.length-1;n>=0;n--){const o=pk[n];o.p+=dt*o.v;if(o.p>=1){pk.splice(n
 const p=tp(o.i,rot),a=Math.max(0,o.p-.2);
 cx.globalAlpha=.9;cx.beginPath();cx.moveTo(p[0]+(X-p[0])*a,p[1]+(Y-p[1])*a);cx.lineTo(p[0]+(X-p[0])*o.p,p[1]+(Y-p[1])*o.p);cx.stroke()}
 cx.globalAlpha=1;glow=Math.max(0,glow-dt*.8);
-/* cincin pulsa dari hub */
-for(let k=0;k<3;k++){const ph=((t/2.8)+k/3)%1;cx.globalAlpha=(1-ph)*.4;cx.lineWidth=2;cx.beginPath();cx.arc(X,Y,Rh+ph*(Rmax-Rh),0,TAU);cx.stroke()}
-cx.globalAlpha=1;
 /* logo utama + garis */
 const lw=Math.max(2,M*.004);
 for(let j=0;j<12;j++){
