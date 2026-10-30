@@ -11,16 +11,14 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root[data-theme="dark"]{--bg:#0e1118;--card:rgba(24,29,42,.93);--ink:#f3f4f8;--sub:#9aa6bd;color-scheme:dark}
 html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-#cap{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);padding:14px 28px;border-radius:22px;box-shadow:0 12px 40px rgba(10,26,51,.2);text-align:center;max-width:calc(100% - 32px);box-sizing:border-box}
-#num{font-size:clamp(34px,6vw,56px);font-weight:800;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums}
-#lab{font-size:clamp(13px,1.8vw,16px);color:var(--sub);margin-top:6px}
+#cap{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);padding:14px 32px;border-radius:24px;box-shadow:0 14px 45px rgba(10,26,51,.25);border:1px solid rgba(120,130,160,.25);text-align:center;max-width:calc(100% - 32px);box-sizing:border-box;z-index:10}
+#num{font-size:clamp(34px,6vw,56px);font-weight:800;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+#lab{font-size:clamp(13px,1.8vw,16px);color:var(--ink);opacity:.92;font-weight:600;margin-top:6px;letter-spacing:.2px}
 .fade-edge-top{position:fixed;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,var(--bg) 0%,transparent 100%);pointer-events:none;z-index:2}
-.fade-edge-bot{position:fixed;bottom:0;left:0;right:0;height:90px;background:linear-gradient(0deg,var(--bg) 0%,transparent 100%);pointer-events:none;z-index:2}
 </style>
 </head>
 <body>
 <div class="fade-edge-top"></div>
-<div class="fade-edge-bot"></div>
 <canvas id="c" role="img" aria-label="Lebih dari 3.500 logo aplikasi mengalirkan data ke satu AI agent di tengah"></canvas>
 <div id="cap"><div id="num">0+</div><div id="lab">aplikasi terhubung ke satu AI agent</div></div>
 <script>
@@ -64,7 +62,7 @@ pin("#36c5f0",0)+pin("#2eb67d",90)+pin("#ecb22e",180)+pin("#e01e5a",270),
 const defs=`<defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#d62976"/><stop offset=".7" stop-color="#962fbf"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs>`;
 const IM=IC.map(s=>{const i=new Image();i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100" width="200" height="200">${defs}${s}</svg>`);return i});
 function rs(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;
-M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.1;Rf=M*.3;Rl=M*.07;r0=Rf+Rl*1.6;Rmax=Math.hypot(W,H)/2*1.05;
+M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.07;Rf=M*.3;Rl=M*.07;r0=Rf+Rl*1.6;Rmax=Math.hypot(W,H)/2*1.05;
 S=Math.sqrt(Math.PI*(Rmax*Rmax-r0*r0)/N);for(let i=0;i<N;i++)R[i]=r0+(Rmax-r0)*U[i];if(RM)draw(0)}
 addEventListener("resize",rs);
 const pk=[];let last=0,acc=0,glow=0;
