@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/search
-// Runnerflo Scout — AI Pencari Peluang Kerja & Klien
+// Runnerflo Breadwinner — Your AI Pencari Nafkah
 // Stack: Cloudflare AI Web Search (Ceramic.ai) + Claude Haiku 5.5
 export async function onRequest(context) {
   const { request, env } = context;
