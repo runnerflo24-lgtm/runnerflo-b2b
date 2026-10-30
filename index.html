@@ -143,8 +143,9 @@ button:focus-visible, input:focus-visible, .pill:focus-visible, .chip:focus-visi
 }
 .hero { margin: 0 0 24px; text-align: center; width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
 h1 {
-  margin: 0; font-size: clamp(26px, 3.4vw, 42px); line-height: 1.2; font-weight: 800;
+  margin: 0; font-size: clamp(28px, 3.8vw, 44px); line-height: 1.18; font-weight: 800;
   letter-spacing: -0.035em; color: var(--fg);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 h1 mark {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 40%, #d946ef 75%, #ec4899 100%);
@@ -153,41 +154,29 @@ h1 mark {
   color: transparent;
   font-weight: 900;
   padding: 0;
+  display: inline-block;
 }
 .hero-sub {
-  display: block; margin-top: 10px; font-size: clamp(14px, 1.6vw, 17.5px);
-  font-weight: 500; line-height: 1.5; color: var(--muted); letter-spacing: -0.01em;
+  display: block; font-size: clamp(15px, 1.8vw, 19px);
+  font-weight: 500; line-height: 1.45; color: var(--muted); letter-spacing: -0.015em;
+  max-width: 680px; margin: 0 auto;
 }
 
-.type-wrap { display: flex; align-items: center; justify-content: center; margin: 16px 0 20px; }
-.type-capsule {
-  display: inline-flex; align-items: center; gap: 10px; padding: 7px 18px 7px 12px; border-radius: 999px;
-  background: color-mix(in srgb, var(--panel) 85%, transparent);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
-  box-shadow: 0 8px 24px -4px rgba(86, 70, 224, 0.1), 0 2px 6px rgba(0,0,0,0.03);
-  transition: all .2s ease;
-}
-.type-capsule:hover {
-  border-color: var(--accent);
-  box-shadow: 0 10px 28px -4px rgba(86, 70, 224, 0.16);
-  transform: translateY(-1px);
-}
-.type-tag {
-  display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700;
-  letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent);
-  background: var(--accent-soft); padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+.type-wrap {
+  display: flex; align-items: center; justify-content: center;
+  margin: 14px 0 22px; min-height: 1.4em;
 }
 .type {
-  margin: 0; font-size: clamp(13.5px, 1.7vw, 16.5px); line-height: 1.35; font-weight: 700;
-  letter-spacing: -0.015em; color: var(--fg); display: inline-flex; align-items: center;
+  margin: 0; font-size: clamp(18px, 2.3vw, 26px); line-height: 1.35; font-weight: 700;
+  letter-spacing: -0.02em; color: var(--accent);
+  display: inline-flex; align-items: center; justify-content: center;
 }
 #word {
-  color: var(--fg);
+  color: var(--accent);
 }
 .cursor {
-  display: inline-block; width: 2.5px; height: 1.15em; margin-left: 4px; background: var(--accent);
-  border-radius: 2px; vertical-align: -0.12em; box-shadow: 0 0 8px var(--accent);
+  display: inline-block; width: 2.2px; height: 1.15em; margin-left: 4px;
+  background: var(--accent); border-radius: 1px; vertical-align: -0.12em;
   animation: blink 1s steps(1) infinite;
 }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -509,10 +498,7 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
         <h1 id="h1"></h1>
         
         <div class="type-wrap">
-          <div class="type-capsule">
-            <span class="type-tag" id="typeTag">✨ Ide Aplikasi</span>
-            <p class="type" aria-hidden="true"><span id="word">AI 3D Karakter</span><span class="cursor"></span></p>
-          </div>
+          <p class="type" aria-hidden="true"><span id="word">AI Analisis Laporan Keuangan & Penjualan</span><span class="cursor"></span></p>
         </div>
         
         <p class="sr" id="sr"></p>
@@ -639,22 +625,22 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
     var D={
       id:{btnIdeas:'9.500+ Ide Aplikasi AI Siap Pakai',
         btnDemo:'Contoh: AI Game Generator ↓',
-        h1:'<mark>AI Pencari Nafkah</mark> — bangun bisnis AI, biarkan AI yang carikan klienmu:',
+        h1:'<mark>AI Pencari Nafkah</mark><span class="hero-sub">Bangun bisnis AI mandiri dan raih klien secara otomatis</span>',
         words:[
-          'AI 3D Karakter',
-          'AI Kuis Game',
-          'AI Undangan Nikah',
-          'AI Penghitung Kalori Makanan',
-          'AI Video Tutorial Matematika',
-          'AI Simulasi Praktikum Fisika',
-          'AI Asisten Customer Service WhatsApp',
           'AI Analisis Laporan Keuangan & Penjualan',
+          'AI Asisten Customer Service WhatsApp',
+          'AI Pembuat Draf Kontrak Kerja Sama',
+          'AI Pembuat Brosur & Listing Properti',
           'AI Perancang Menu & HPP Kuliner',
           'AI Pengingat Jadwal Pasien Klinik',
-          'AI Pembuat Brosur & Listing Properti',
           'AI Generator Soal Ujian & Pembahasan',
-          'AI Pembuat Draf Kontrak Kerja Sama',
-          'AI Tutor Percakapan Bahasa Asing'
+          'AI Video Tutorial Pembelajaran',
+          'AI Tutor Percakapan Bahasa Asing',
+          'AI Simulasi Praktikum Sains',
+          'AI Penghitung Kalori Makanan',
+          'AI Undangan Digital & Reservasi',
+          'AI Kuis Game Interaktif',
+          'AI Karakter 3D Interaktif'
         ],
         dh:'Contoh nyata: Runnerflo AI 3D Game Generator',dp:'Platform AI yang membangun game 3D interaktif otomatis dari satu permintaan. Coba langsung di bawah ini.',
         ph:'Bayar sekali, bisnis jalan selamanya',pp:'Potensi pendapatan <b>puluhan hingga ratusan juta rupiah per bulan</b>, hanya dari Rp399 ribu.',gt:'Garansi 3 bulan',gb:g_id,
@@ -664,22 +650,22 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
           {name:'3 Aplikasi AI',note:'Pilih 3 aplikasi dari 9.500+ ide',price:'Rp1.500.000',unit:'sekali bayar',per:'Rp500.000 per aplikasi',feats:fid,cta:'Pilih 3 aplikasi'}]},
       en:{btnIdeas:'9,500+ Ready-to-Use AI App Ideas',
         btnDemo:'Live Demo: AI Game Generator ↓',
-        h1:'<mark>Your AI Breadwinner</mark> — build an AI business, let AI find your clients:',
+        h1:'<mark>AI Breadwinner</mark><span class="hero-sub">Build your autonomous AI business and acquire clients automatically</span>',
         words:[
-          'AI 3D Characters',
-          'AI Quiz Games',
-          'AI Wedding Invitations',
-          'AI Food Calorie Counters',
-          'AI Math Tutorial Videos',
-          'AI Physics & Science Lab Simulations',
-          'AI WhatsApp Customer Support Assistants',
           'AI Financial & Sales Report Analytics',
+          'AI WhatsApp Customer Support Assistants',
+          'AI Contract & Agreement Drafters',
+          'AI Real Estate Brochure & Listing Makers',
           'AI Culinary Menu & Food Costing Creators',
           'AI Clinic Patient Appointment Reminders',
-          'AI Real Estate Brochure & Listing Makers',
           'AI Exam Question & Explanations Generators',
-          'AI Contract & Agreement Drafters',
-          'AI Foreign Language Conversation Tutors'
+          'AI Educational Video Tutorials',
+          'AI Foreign Language Conversation Tutors',
+          'AI Interactive Science Lab Simulations',
+          'AI Food Calorie Counters',
+          'AI Digital Invitations & RSVP',
+          'AI Interactive Quiz Games',
+          'AI 3D Characters & Simulations'
         ],
         dh:'Live demo: Runnerflo AI 3D Game Generator',dp:'A platform that builds interactive 3D games automatically from one prompt. Try it live below.',
         ph:'Pay once, run your business forever',pp:'Income potential of <b>thousands to tens of thousands of dollars a month</b>, from just $79.',gt:'3-month guarantee',gb:g_en,
