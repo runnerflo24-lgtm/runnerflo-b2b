@@ -154,25 +154,21 @@ h1 mark {
   padding: 0;
 }
 .hero-sub {
-  margin: 0 0 14px; font-size: clamp(13px, 1.4vw, 16px);
-  font-weight: 400; color: var(--muted); letter-spacing: 0; line-height: 1.4;
+  margin: 0 0 22px; font-size: clamp(14px, 1.5vw, 17px);
+  font-weight: 400; color: var(--muted); letter-spacing: -0.01em; line-height: 1.5;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px;
+  text-align: center;
 }
-
-.type-wrap {
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 0 22px; min-height: 1.4em;
-}
-.type {
-  margin: 0; font-size: clamp(15px, 1.8vw, 22px); line-height: 1.35; font-weight: 500;
-  letter-spacing: -0.01em; color: var(--muted);
-  display: inline-flex; align-items: center; justify-content: center;
+.type-inline {
+  font-weight: 600; color: var(--fg);
+  display: inline-flex; align-items: center;
 }
 #word {
-  color: var(--muted);
+  color: var(--fg);
 }
 .cursor {
-  display: inline-block; width: 1.5px; height: 1em; margin-left: 3px;
-  background: var(--muted); border-radius: 1px; vertical-align: -0.1em;
+  display: inline-block; width: 1.5px; height: 1em; margin-left: 2px;
+  background: var(--fg); border-radius: 1px; vertical-align: -0.1em;
   animation: blink 1s steps(1) infinite;
 }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -492,10 +488,7 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
     <div class="glow">
       <div class="hero">
         <h1 id="h1"></h1>
-        <p class="hero-sub" id="hero-sub"></p>
-        <div class="type-wrap">
-          <p class="type" aria-hidden="true"><span id="word">AI Analisis Laporan Keuangan & Penjualan</span><span class="cursor"></span></p>
-        </div>
+        <p class="hero-sub"><span id="hero-sub"></span> <span class="type-inline"><span id="word">AI Analisis Laporan Keuangan & Penjualan</span><span class="cursor"></span></span></p>
         
         <p class="sr" id="sr"></p>
       </div>
@@ -622,7 +615,7 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
       id:{btnIdeas:'9.500+ Ide Aplikasi AI Siap Pakai',
         btnDemo:'Contoh: AI Game Generator â†“',
         h1:'<mark>AI Pencari Nafkah</mark>',
-        sub:'Bangun bisnis AI mandiri, biarkan AI yang carikan klienmu.',
+        sub:'Bangun bisnis AI mandiri, biarkan AI yang carikan klienmu:',
         words:[
           'AI Analisis Laporan Keuangan & Penjualan',
           'AI Asisten Customer Service WhatsApp',
@@ -648,7 +641,7 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
       en:{btnIdeas:'9,500+ Ready-to-Use AI App Ideas',
         btnDemo:'Live Demo: AI Game Generator â†“',
         h1:'<mark>AI Breadwinner</mark>',
-        sub:'Build your AI business autonomously and let AI acquire clients for you.',
+        sub:'Build your AI business autonomously, let AI find your clients:',
         words:[
           'AI Financial & Sales Report Analytics',
           'AI WhatsApp Customer Support Assistants',
