@@ -79,13 +79,6 @@ if(x<-sz||x>W+sz||y<-sz||y>H+sz)continue;
 const k=.5+.5*Math.sin(t*1.6-d*.018+P[i]*.12),s=sz*(.85+.3*k);
 cx.globalAlpha=.42+.58*k;cx.drawImage(spr[K[i]],x-s/2,y-s/2,s,s)}
 cx.globalAlpha=1;
-/* paket data dari tile ke hub */
-if(!RM){acc+=dt*55;while(acc>1){acc--;if(pk.length<160)for(let q=0;q<6;q++){const i=(Math.random()*N)|0,p=tp(i,rot);if(p[0]>0&&p[0]<W&&p[1]>0&&p[1]<H){pk.push({i,p:0,v:.45+Math.random()*.7});break}}}}
-cx.lineCap="round";cx.lineWidth=Math.max(1.5,M*.0025);cx.strokeStyle=OR;
-for(let n=pk.length-1;n>=0;n--){const o=pk[n];o.p+=dt*o.v;if(o.p>=1){pk.splice(n,1);glow=Math.min(1,glow+.12);continue}
-const p=tp(o.i,rot),a=Math.max(0,o.p-.2);
-cx.globalAlpha=.9;cx.beginPath();cx.moveTo(p[0]+(X-p[0])*a,p[1]+(Y-p[1])*a);cx.lineTo(p[0]+(X-p[0])*o.p,p[1]+(Y-p[1])*o.p);cx.stroke()}
-cx.globalAlpha=1;glow=Math.max(0,glow-dt*.8);
 /* logo utama + garis */
 const lw=Math.max(2,M*.004);
 for(let j=0;j<12;j++){
