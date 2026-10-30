@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Agent dengan 3.500+ Aplikasi</title>
+<style>
+:root{--bg:#f3f4f8;--card:rgba(255,255,255,.93);--ink:#0a1a33;--sub:#5b6577;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1118;--card:rgba(24,29,42,.93);--ink:#f3f4f8;--sub:#9aa6bd;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1118;--card:rgba(24,29,42,.93);--ink:#f3f4f8;--sub:#9aa6bd;color-scheme:dark}
+html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#cap{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);padding:14px 28px;border-radius:22px;box-shadow:0 12px 40px rgba(10,26,51,.2);text-align:center;max-width:calc(100% - 32px);box-sizing:border-box}
+#num{font-size:clamp(34px,6vw,56px);font-weight:800;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums}
+#lab{font-size:clamp(13px,1.8vw,16px);color:var(--sub);margin-top:6px}
+</style>
+</head>
+<body>
+<canvas id="c" role="img" aria-label="Lebih dari 3.500 logo aplikasi mengalirkan data ke satu AI agent di tengah"></canvas>
+<div id="cap"><div id="num">0+</div><div id="lab">aplikasi terhubung ke satu AI agent</div></div>
+<script>
+const cv=document.getElementById("c"),cx=cv.getContext("2d");
+const dark=matchMedia("(prefers-color-scheme: dark)").matches,RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const N=3500,TAU=Math.PI*2;
+let W,H,D,M,Rf,Rl,Rh,Rmax,r0,S,X,Y;
+const A=new Float32Array(N),U=new Float32Array(N),R=new Float32Array(N),P=new Float32Array(N),K=new Uint8Array(N);
+for(let i=0;i<N;i++){A[i]=i*2.399963;U[i]=Math.sqrt((i+.5)/N);K[i]=((i*2654435761)>>>0)%72;P[i]=Math.random()*TAU}
+/* sprite kecil untuk 3.500 tile */
+const COL=["#25d366","#e1306c","#ff3d00","#4285f4","#fbbc04","#7c3aed","#0ea5e9","#f97316","#10b981","#ef4444","#6366f1","#14b8a6"];
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+const spr=[];
+for(let c=0;c<12;c++)for(let g=0;g<6;g++){
+const o=document.createElement("canvas");o.width=o.height=64;const x=o.getContext("2d");
+x.fillStyle="#fff";rr(x,2,2,60,60,16);x.fill();x.strokeStyle=dark?"#2a3145":"#dfe3ee";x.lineWidth=2;x.stroke();
+x.fillStyle=x.strokeStyle=COL[c];x.lineWidth=7;x.lineCap="round";x.lineJoin="round";
+if(g==0){x.beginPath();x.arc(32,32,15,0,TAU);x.fill()}
+else if(g==1){x.beginPath();x.arc(32,32,14,0,TAU);x.stroke()}
+else if(g==2){rr(x,19,19,26,26,7);x.fill()}
+else if(g==3){x.beginPath();x.moveTo(32,15);x.lineTo(49,32);x.lineTo(32,49);x.lineTo(15,32);x.closePath();x.fill()}
+else if(g==4){[[20,38,48],[32,20,48],[44,30,48]].forEach(b=>{x.beginPath();x.moveTo(b[0],b[2]);x.lineTo(b[0],b[1]);x.stroke()})}
+else{[[22,22],[42,22],[22,42],[42,42]].forEach(p=>{x.beginPath();x.arc(p[0],p[1],6,0,TAU);x.fill()})}
+spr.push(o)}
+/* logo utama yang dikenal */
+const pin=(c,r)=>`<g transform="rotate(${r})" fill="${c}"><rect x="-38" y="-14" width="32" height="14" rx="7"/><circle cx="-13" cy="-27" r="7"/></g>`;
+const IC=[
+`<path d="M-29.2 16L-34 38L-14.9 29.8Z" fill="#25d366"/><circle cx="2" cy="-2" r="36" fill="#25d366"/><path d="M-27 31L-17.7 11.8A24 24 0 1 1-9.3 19.2Z" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/><path transform="translate(-2,-4)" d="M-10-14C-14-10-13-2-4 9C5 20 13 21 16 18L18 15C19 13 19 12 17 11L11 7C9 6 8 6 7 8L5 10C3 11 0 9-3 5C-6 2-8-1-7-3L-5-5C-3-6-3-7-4-9L-8-15C-9-16-10-15-10-14Z" fill="#fff"/>`,
+`<rect x="-38" y="-38" width="76" height="76" rx="22" fill="url(#ig)"/><rect x="-25" y="-25" width="50" height="50" rx="15" fill="none" stroke="#fff" stroke-width="5"/><circle r="12" fill="none" stroke="#fff" stroke-width="5"/><circle cx="17" cy="-17" r="3.5" fill="#fff"/>`,
+`<rect x="-42" y="-30" width="84" height="60" rx="17" fill="#f00"/><path d="M-10-15L18 0-10 15Z" fill="#fff"/>`,
+`<path d="M-38 22V-20L-26-11V26H-34C-36 26-38 24-38 22Z" fill="#4285f4"/><path d="M38 22V-20L26-11V26H34C36 26 38 24 38 22Z" fill="#34a853"/><path d="M-38-20V-24C-38-30-31-33-26-29L0-10L26-29C31-33 38-30 38-24V-20L26-11L0 8L-26-11Z" fill="#ea4335"/>`,
+pin("#36c5f0",0)+pin("#2eb67d",90)+pin("#ecb22e",180)+pin("#e01e5a",270),
+`<circle r="40" fill="#2aabee"/><path d="M-28-1L28-23L18 24L1 10L-9 20L-10 5Z" fill="#fff"/><path d="M-10 5L14-13L1 10Z" fill="#c8daea"/>`,
+`<circle r="40" fill="#1877f2"/><path d="M6 39V8H17L19-6H6V-14C6-19 8-21 14-21H20V-34C17-35 13-36 8-36C-4-36-8-28-8-17V-6H-20V8H-8V39Z" fill="#fff"/>`,
+`<rect x="-36" y="-36" width="72" height="72" rx="9" fill="#fff" stroke="#4285f4" stroke-width="6"/><path d="M-36-27A9 9 0 0 1-27-36H27A9 9 0 0 1 36-27V-14H-36Z" fill="#4285f4"/><text y="22" font-size="36" font-weight="700" font-family="Arial,sans-serif" fill="#4285f4" text-anchor="middle">31</text>`,
+`<rect x="-6" y="-34" width="44" height="68" rx="6" fill="#21a366"/><rect x="-40" y="-24" width="46" height="48" rx="7" fill="#107c41"/><path d="M-30-12L-10 12M-10-12L-30 12" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`,
+`<rect x="-40" y="-40" width="80" height="80" rx="20" fill="#2d8cff"/><rect x="-26" y="-14" width="32" height="28" rx="7" fill="#fff"/><path d="M10-4L28-15V15L10 4Z" fill="#fff"/>`,
+`<rect x="-34" y="-36" width="68" height="72" rx="9" fill="#fff" stroke="#111" stroke-width="6"/><path d="M-14 24V-24L14 24V-24" fill="none" stroke="#111" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>`,
+`<rect x="-38" y="-38" width="76" height="76" rx="18" fill="#000"/><path d="M-18-18L18 18M18-18L-18 18" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`
+];
+const defs=`<defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#d62976"/><stop offset=".7" stop-color="#962fbf"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs>`;
+const IM=IC.map(s=>{const i=new Image();i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100" width="200" height="200">${defs}${s}</svg>`);return i});
+function rs(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;
+M=Math.min(W,H);X=W/2;Y=H*.45;Rh=M*.1;Rf=M*.3;Rl=M*.07;r0=Rf+Rl*1.6;Rmax=Math.hypot(W,H)/2*1.05;
+S=Math.sqrt(Math.PI*(Rmax*Rmax-r0*r0)/N);for(let i=0;i<N;i++)R[i]=r0+(Rmax-r0)*U[i];if(RM)draw(0)}
+addEventListener("resize",rs);
+const pk=[];let last=0,acc=0,glow=0;
+const OR="#ff3d00";
+function tp(i,rot){const a=A[i]+rot;return[X+R[i]*Math.cos(a),Y+R[i]*Math.sin(a)]}
+function draw(t){
+const dt=Math.min(.05,Math.max(0,t-last));last=t;
+cx.setTransform(D,0,0,D,0,0);cx.clearRect(0,0,W,H);
+const rot=t*.025,sz=S*.82;
+/* 3.500 tile */
+for(let i=0;i<N;i++){
+const a=A[i]+rot,d=R[i],x=X+d*Math.cos(a),y=Y+d*Math.sin(a);
+if(x<-sz||x>W+sz||y<-sz||y>H+sz)continue;
+const k=.5+.5*Math.sin(t*1.6-d*.018+P[i]*.12),s=sz*(.85+.3*k);
+cx.globalAlpha=.42+.58*k;cx.drawImage(spr[K[i]],x-s/2,y-s/2,s,s)}
+cx.globalAlpha=1;
+/* paket data dari tile ke hub */
+if(!RM){acc+=dt*55;while(acc>1){acc--;if(pk.length<160)for(let q=0;q<6;q++){const i=(Math.random()*N)|0,p=tp(i,rot);if(p[0]>0&&p[0]<W&&p[1]>0&&p[1]<H){pk.push({i,p:0,v:.45+Math.random()*.7});break}}}}
+cx.lineCap="round";cx.lineWidth=Math.max(1.5,M*.0025);cx.strokeStyle=OR;
+for(let n=pk.length-1;n>=0;n--){const o=pk[n];o.p+=dt*o.v;if(o.p>=1){pk.splice(n,1);glow=Math.min(1,glow+.12);continue}
+const p=tp(o.i,rot),a=Math.max(0,o.p-.2);
+cx.globalAlpha=.9;cx.beginPath();cx.moveTo(p[0]+(X-p[0])*a,p[1]+(Y-p[1])*a);cx.lineTo(p[0]+(X-p[0])*o.p,p[1]+(Y-p[1])*o.p);cx.stroke()}
+cx.globalAlpha=1;glow=Math.max(0,glow-dt*.8);
+/* cincin pulsa dari hub */
+for(let k=0;k<3;k++){const ph=((t/2.8)+k/3)%1;cx.globalAlpha=(1-ph)*.4;cx.lineWidth=2;cx.beginPath();cx.arc(X,Y,Rh+ph*(Rmax-Rh),0,TAU);cx.stroke()}
+cx.globalAlpha=1;
+/* logo utama + garis */
+const lw=Math.max(2,M*.004);
+for(let j=0;j<12;j++){
+const ang=j/12*TAU-Math.PI/2+t*.04,c=Math.cos(ang),s=Math.sin(ang);
+const lx=X+Rf*c,ly=Y+Rf*s,sx=X+c*(Rh*1.25),sy=Y+s*(Rh*1.25),ex=lx-c*(Rl+4),ey=ly-s*(Rl+4);
+cx.strokeStyle=OR;cx.lineWidth=lw;cx.setLineDash([M*.014,M*.012]);cx.lineDashOffset=-t*45*(j%2?1:-1);
+cx.beginPath();cx.moveTo(sx,sy);cx.lineTo(ex,ey);cx.stroke();cx.setLineDash([]);
+const q=((t*.3+j*.37)%1),pp=j%2?q:1-q;
+cx.fillStyle=OR;cx.beginPath();cx.arc(sx+(ex-sx)*pp,sy+(ey-sy)*pp,M*.0065,0,TAU);cx.fill();
+const mx=(sx+ex)/2,my=(sy+ey)/2,pr=M*.016;
+cx.beginPath();cx.arc(mx,my,pr,0,TAU);cx.fill();
+cx.strokeStyle="#fff";cx.lineWidth=Math.max(2,pr*.28);cx.beginPath();cx.moveTo(mx-pr*.5,my);cx.lineTo(mx+pr*.5,my);cx.moveTo(mx,my-pr*.5);cx.lineTo(mx,my+pr*.5);cx.stroke();
+const rl=Rl*(1+.04*Math.sin(t*2+j));
+cx.save();cx.shadowColor="rgba(10,26,51,.25)";cx.shadowBlur=M*.03;cx.shadowOffsetY=M*.008;cx.fillStyle="#fff";cx.beginPath();cx.arc(lx,ly,rl,0,TAU);cx.fill();cx.restore();
+const im=IM[j];if(im.complete&&im.naturalWidth){const z=rl*1.35;cx.drawImage(im,lx-z/2,ly-z/2,z,z)}}
+/* hub AI bulat dengan simbol chip */
+const hs=1+.02*Math.sin(t*2)+glow*.05,h=Rh*hs;
+cx.save();cx.shadowColor="rgba(10,26,51,.3)";cx.shadowBlur=M*.04;cx.shadowOffsetY=M*.01;cx.fillStyle="#fff";cx.beginPath();cx.arc(X,Y,h*1.2,0,TAU);cx.fill();cx.restore();
+const g=cx.createLinearGradient(X-h,Y-h,X+h,Y+h);g.addColorStop(0,"#1f4287");g.addColorStop(1,"#0b1b3a");
+cx.fillStyle=g;cx.beginPath();cx.arc(X,Y,h*.98,0,TAU);cx.fill();
+cx.strokeStyle="rgba(79,134,240,.55)";cx.lineWidth=2;cx.beginPath();cx.arc(X,Y,h*.86,0,TAU);cx.stroke();
+const c2=h*.46;cx.fillStyle="#38e1ff";
+for(const o of[-.5,0,.5]){const u=c2*o;
+cx.fillRect(X+u-c2*.07,Y-c2-c2*.3,c2*.14,c2*.3);cx.fillRect(X+u-c2*.07,Y+c2,c2*.14,c2*.3);
+cx.fillRect(X-c2-c2*.3,Y+u-c2*.07,c2*.3,c2*.14);cx.fillRect(X+c2,Y+u-c2*.07,c2*.3,c2*.14)}
+cx.fillStyle="#0a1a33";cx.strokeStyle="#38e1ff";cx.lineWidth=Math.max(2,h*.04);rr(cx,X-c2,Y-c2,c2*2,c2*2,c2*.32);cx.fill();cx.stroke();
+cx.fillStyle="#fff";cx.font=`800 ${c2*1.1}px system-ui,Segoe UI,Arial,sans-serif`;cx.textAlign="center";cx.textBaseline="middle";cx.fillText("AI",X,Y+c2*.05)}
+function loop(ts){draw(ts/1000);requestAnimationFrame(loop)}
+rs();if(!RM)requestAnimationFrame(loop);
+/* penghitung */
+const nm=document.getElementById("num"),c0=performance.now();
+function cnt(now){const p=Math.min(1,(now-c0)/3200),e=1-Math.pow(1-p,3);nm.textContent=Math.round(3500*e).toLocaleString("id-ID")+"+";if(p<1)requestAnimationFrame(cnt)}
+if(RM)nm.textContent="3.500+";else requestAnimationFrame(cnt);
+</script>
+</body>
+</html>
