@@ -352,16 +352,6 @@ h1 mark {
 .partner-note svg { flex: none; color: var(--accent); }
 .partner-note b { color: var(--fg); font-weight: 600; }
 
-/* Footer */
-.site { border-top: 1px solid var(--line); background: var(--panel); padding: 36px 24px calc(28px + env(safe-area-inset-bottom, 0px)); }
-.fin { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
-.fin b { display: block; font-size: 16px; font-weight: 700; color: var(--fg); }
-.fin span { color: var(--muted); font-size: 13.5px; }
-.fin nav { display: flex; gap: 22px; font-size: 14px; }
-.fin a { color: var(--muted); text-decoration: none; transition: color .15s; }
-.fin a:hover { color: var(--accent); text-decoration: none; }
-.fsmall { max-width: 1040px; margin: 24px auto 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-
 /* Dialogs / Modals */
 dialog { border: 0; padding: 0; background: transparent; color: var(--fg); max-width: none; overflow: visible; }
 dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px); }
@@ -579,14 +569,6 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
     <iframe src="ai-agent-3500.html" style="position:absolute; inset:0; width:100%; height:100%; border:none; display:block; overflow:hidden;" title="Koneksi 1.000+ Marketplace Global — AI Pencari Nafkah" loading="lazy"></iframe>
   </section>
 
-  <footer class="site">
-    <div class="fin">
-      <div><b>runnerflo.com</b><span id="ft"></span></div>
-      <nav><a href="https://runnerflo.com" target="_blank" rel="noopener" id="ftt"></a><a href="https://runnerflo.com" target="_blank" rel="noopener" id="fpv"></a><a href="https://runnerflo.com" target="_blank" rel="noopener" id="fk"></a></nav>
-    </div>
-    <div class="fsmall"><span id="fd"></span><span>&copy; 2026 runnerflo.com</span></div>
-  </footer>
-
   <dialog id="dlg" aria-labelledby="dt">
     <div class="dcard">
       <button class="dx" id="dx" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -681,7 +663,7 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
     };
     var d=D[lang];d.lang=lang;
     var X={id:{dt:'Masuk atau daftar',qp:'Tanyakan apa saja',ff:'AI bisa membuat kesalahan. Dengan memakainya, kamu menyetujui <a href="#">Syarat</a> &amp; <a href="#">Kebijakan Privasi</a>. <a href="#">Pelajari lebih lanjut</a>',ds:'Buat dan kelola aplikasi AI-mu sendiri.',g:'Lanjutkan dengan Google',a:'Lanjutkan dengan Apple',m:'Lanjutkan dengan Microsoft',o:'atau',ep:'Alamat email',c:'Lanjutkan',ft:'Aplikasi AI siap pakai dari 9.500+ ide.',t:'Syarat',pv:'Privasi',k:'Kontak',fd:'Potensi pendapatan bukan jaminan; hasil bergantung pada usaha dan pasar.'},en:{dt:'Log in or sign up',qp:'Ask anything',ff:'AI can make mistakes. By using it, you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>. <a href="#">Learn more</a>',ds:'Build and manage your own AI apps.',g:'Continue with Google',a:'Continue with Apple',m:'Continue with Microsoft',o:'or',ep:'Email address',c:'Continue',ft:'Ready-to-use AI apps from 9,500+ ideas.',t:'Terms',pv:'Privacy',k:'Contact',fd:'Income potential is not a guarantee; results depend on effort and market.'}}[lang];
-    var set=function(i,v){document.getElementById(i).textContent=v};
+    var set=function(i,v){var el=document.getElementById(i);if(el)el.textContent=v;};
     set('dt',X.dt);set('ds',X.ds);set('bg',X.g);set('ba',X.a);set('bm',X.m);set('orx',X.o);set('bc',X.c);set('ft',X.ft);set('ftt',X.t);set('fpv',X.pv);set('fk',X.k);set('fd',X.fd);
     document.getElementById('em').placeholder=X.ep;document.getElementById('q').placeholder=X.qp;document.getElementById('foot').innerHTML=X.ff;
     document.documentElement.lang=lang;
@@ -768,7 +750,7 @@ dialog::backdrop { background: rgba(31, 29, 51, 0.55); backdrop-filter: blur(4px
   document.getElementById('n2').onclick=function(){go('#contoh')};
   document.getElementById('n3').onclick=openDlg;
   document.getElementById('n4').onclick=function(){go('#harga')};
-  document.getElementById('n5').onclick=function(){go('.site')};
+  document.getElementById('n5').onclick=function(){go('.sec-ai3500')};
   document.getElementById('n6').onclick=openIdeas;
   document.getElementById('ix').onclick=function(){dlg2.close()};
   dlg2.addEventListener('click',function(e){if(e.target===dlg2)dlg2.close()});
