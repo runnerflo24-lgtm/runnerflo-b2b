@@ -14,7 +14,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 #cap{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);padding:12px 28px;border-radius:20px;box-shadow:0 12px 36px rgba(10,26,51,.16);border:1px solid rgba(120,130,160,.25);text-align:center;max-width:calc(100% - 32px);box-sizing:border-box;z-index:10}
 #num{font-size:clamp(32px,5.2vw,50px);font-weight:750;letter-spacing:-0.5px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
 #lab{font-size:clamp(12px,1.5vw,14.5px);color:var(--sub);font-weight:600;margin-top:6px;letter-spacing:.25px;display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
-.cap-logo{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:var(--ink);color:var(--bg);flex-shrink:0}
+.cap-logo{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#000000;color:#ffffff;box-shadow:none;flex-shrink:0}
 .cap-logo svg{width:11px;height:11px;display:block}
 .fade-edge-top{position:fixed;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,var(--bg) 0%,transparent 100%);pointer-events:none;z-index:2}
 </style>
@@ -22,7 +22,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 <body>
 <div class="fade-edge-top"></div>
 <canvas id="c" role="img" aria-label="AI Pencari Nafkah menghubungkan dan mencari klien secara otomatis ke lebih dari 1.000 Marketplace di seluruh dunia"></canvas>
-<div id="cap"><div id="num">0+</div><div id="lab"><span class="cap-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 12h6M12 9v6"/></svg></span> <b>AI Pencari Nafkah</b> • Otomatis Cari Klien di Marketplace Global</div></div>
+<div id="cap"><div id="num">0+</div><div id="lab"><span class="cap-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> <b>AI Pencari Nafkah</b> • Otomatis Cari Klien di Marketplace Global</div></div>
 <script>
 const cv=document.getElementById("c"),cx=cv.getContext("2d");
 const dark=matchMedia("(prefers-color-scheme: dark)").matches,RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
