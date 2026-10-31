@@ -3,14 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Veltra — Agensi AI Agent</title>
+<title>Veltra &mdash; Agensi AI Agent</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#06080f;--bg2:#0e121d;--ink:#f1f4fa;--mut:#8f99b0;--line:rgba(255,255,255,.1);--card:rgba(16,21,34,.78);--acc:#c8ff3e;--on:#07100a;--vio:#7c5cff;color-scheme:dark;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f5fa;--bg2:#fff;--ink:#0a1020;--mut:#566079;--line:rgba(10,16,32,.12);--card:rgba(255,255,255,.82);--acc:#5b3df5;--on:#fff;color-scheme:light}}
+:root{
+  --bg:#06080f;--bg2:#0e121d;--ink:#f1f4fa;--mut:#8f99b0;--line:rgba(255,255,255,.1);--card:rgba(16,21,34,.78);--acc:#c8ff3e;--on:#07100a;--vio:#7c5cff;
+  --panel:#0e121d;--fg:#f1f4fa;--muted:#8f99b0;--accent:#c8ff3e;--accent-ink:#07100a;--accent-soft:rgba(200,255,62,.15);
+  color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --bg:#f4f5fa;--bg2:#fff;--ink:#0a1020;--mut:#566079;--line:rgba(10,16,32,.12);--card:rgba(255,255,255,.82);--acc:#5b3df5;--on:#fff;
+    --panel:#ffffff;--fg:#0a1020;--muted:#566079;--accent:#5b3df5;--accent-ink:#ffffff;--accent-soft:rgba(91,61,245,.12);
+    color-scheme:light
+  }
+}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
 *,*::before,*::after{box-sizing:inherit}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 'Bricolage Grotesque',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -25,7 +34,8 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 24px;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 55%,transparent)}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:20px;letter-spacing:-.03em}
 .logo i{width:26px;height:26px;border-radius:8px;background:var(--acc);display:grid;place-items:center;color:var(--on);font-style:normal;font-size:15px}
-.nav nav{display:flex;gap:28px;font-size:14px;color:var(--mut)}.nav nav a:hover{color:var(--ink)}
+.nav nav{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--mut)}.nav nav a:hover{color:var(--ink)}
+.nav nav a.nav-ideas-link{color:var(--acc);font-weight:600;display:inline-flex;align-items:center;gap:6px}
 .nav .btn{padding:9px 18px;font-size:13px}
 /* hero */
 .hero{position:relative;margin-top:-64px;padding:120px 22px 70px;min-height:max(100svh,820px);display:flex;flex-direction:column;justify-content:center;text-align:center;overflow:hidden}
@@ -40,14 +50,6 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .hero .sub{max-width:600px;margin:18px auto 0;color:var(--mut);font-size:clamp(15px,1.5vw,18px)}
 /* chat */
 .chat{width:min(760px,100%);margin:34px auto 0;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:28px;backdrop-filter:blur(20px);box-shadow:0 40px 90px -40px rgba(0,0,0,.8),0 0 60px -20px color-mix(in srgb,var(--acc) 30%,transparent)}
-.log{max-height:0;overflow:auto;padding:0 22px;transition:max-height .45s,padding .45s}
-.chat.on .log{max-height:min(44vh,360px);padding:22px 22px 4px}
-.m{display:flex;gap:12px;margin-bottom:18px;font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
-.m.u{justify-content:flex-end}.m.u p{background:color-mix(in srgb,var(--ink) 10%,transparent);padding:10px 16px;border-radius:20px 20px 6px 20px;max-width:82%}
-.m .av{flex:none;width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--on);display:grid;place-items:center;font-size:13px;font-style:normal;margin-top:1px}
-.dots i{display:inline-block;width:7px;height:7px;margin:8px 3px 0 0;border-radius:50%;background:var(--mut);animation:b 1s infinite}
-.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
-@keyframes b{50%{transform:translateY(-5px);opacity:.4}}
 .comp{display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 22px}
 .comp textarea{flex:1;resize:none;background:none;border:0;outline:0;color:var(--ink);font:inherit;font-size:16px;line-height:1.5;padding:11px 0;max-height:140px;min-width:0}
 .comp textarea::placeholder{color:var(--mut)}
@@ -56,6 +58,8 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
 .chips button{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 15px;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .2s,transform .2s}
 .chips button:hover{border-color:var(--acc);transform:translateY(-2px)}
+.btn-ideas-highlight{background:color-mix(in srgb,var(--acc) 18%,var(--card))!important;border-color:var(--acc)!important;color:var(--ink)!important;font-weight:700!important;display:inline-flex!important;align-items:center!important;gap:8px!important;box-shadow:0 0 20px -5px color-mix(in srgb,var(--acc) 45%,transparent)}
+.btn-ideas-highlight svg{color:var(--acc)}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
 .pv{width:min(1040px,100%);margin:48px auto 0;text-align:left;border:1px solid var(--line);border-radius:20px;background:var(--card);backdrop-filter:blur(20px);overflow:hidden;box-shadow:0 50px 100px -40px rgba(0,0,0,.85),0 0 80px -30px color-mix(in srgb,var(--vio) 55%,transparent)}
 .pv-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line)}
@@ -83,7 +87,7 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .price .hot{background:linear-gradient(160deg,color-mix(in srgb,var(--vio) 35%,var(--bg2)),var(--bg2) 65%);border-color:var(--vio)}
 .price strong{font-size:clamp(34px,4vw,48px);letter-spacing:-.04em;line-height:1}.price strong small{font-size:13px;color:var(--mut);font-weight:400;letter-spacing:0}
 .price ul{list-style:none;margin:0;padding:18px 0 0;border-top:1px solid var(--line);display:grid;gap:10px;flex:1;font-size:14.5px}
-.price li::before{content:"✓";color:var(--acc);margin-right:10px;font-weight:800}
+.price li::before{content:"\2713";color:var(--acc);margin-right:10px;font-weight:800}
 details{border-bottom:1px solid var(--line);padding:20px 0;max-width:800px}
 summary{cursor:pointer;font-size:18px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:16px}
 summary::after{content:"+";color:var(--acc);font-size:24px;line-height:1;transition:transform .3s}
@@ -92,6 +96,89 @@ details[open] summary::after{transform:rotate(45deg)}details p{color:var(--mut);
 .cta h2{font-size:clamp(32px,5.4vw,68px);line-height:1;letter-spacing:-.04em;font-weight:800;max-width:780px;margin:0 auto 28px}
 footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:40px 0;color:var(--mut);font-size:13px}
 .js .rv{opacity:0;transform:translateY(28px);transition:opacity .8s,transform .9s cubic-bezier(.2,.8,.2,1)}.js .rv.in{opacity:1;transform:none}
+
+/* Ideas Explorer Modal */
+.ixd { width: min(1080px, calc(100vw - 32px)); height: min(740px, calc(100dvh - 32px)); max-height: none; margin: auto; border: 0; padding: 0; background: transparent; color: var(--fg); overflow: visible; }
+.ixd::backdrop { background: rgba(6, 8, 15, 0.78); backdrop-filter: blur(8px); }
+.ixm {
+  position: relative; display: grid; grid-template-columns: 260px minmax(0, 1fr); height: 100%; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 24px; overflow: hidden; box-shadow: 0 30px 90px -20px rgba(0,0,0,.9), 0 0 50px -20px color-mix(in srgb, var(--acc) 25%, transparent);
+}
+.ixd[open] .ixm { animation: ixin .25s cubic-bezier(.2,.8,.2,1); }
+@keyframes ixin { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
+.ixs { display: flex; flex-direction: column; min-height: 0; padding: 24px 14px 16px; border-right: 1px solid var(--line); background: var(--bg); }
+.ixs h3 { margin: 0 10px; font-size: 20px; font-weight: 800; color: var(--fg); letter-spacing: -0.02em; }
+.ixs p { margin: 6px 10px 16px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+#icat { display: flex; flex-direction: column; gap: 3px; overflow: auto; min-height: 0; padding-bottom: 4px; }
+.cat {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 0; background: none; color: var(--fg);
+  padding: 9px 12px; border-radius: 10px; font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; transition: all .15s;
+}
+.cat span { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+.cat:hover { background: var(--accent-soft); color: var(--acc); }
+.cat.on { background: var(--acc); color: var(--on); font-weight: 700; }
+.cat.on span { color: inherit; opacity: .85; }
+.ixc { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
+.ixh { display: flex; align-items: center; gap: 16px; padding: 20px 54px 14px 24px; }
+.ixsr { position: relative; flex: 1; min-width: 0; }
+.ixsr svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.ixsr input {
+  width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 99px; background: var(--bg);
+  color: var(--fg); padding: 0 16px 0 42px; font: inherit; font-size: 14px; outline: 0; transition: border-color .2s;
+}
+.ixsr input:focus { border-color: var(--acc); }
+#ic { flex: none; color: var(--muted); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+.ixg {
+  flex: 1; min-height: 0; overflow: auto; padding: 4px 24px 24px; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; align-content: start; overscroll-behavior: contain;
+}
+.idea {
+  display: flex; flex-direction: column; gap: 5px; text-align: left; border: 1px solid var(--line); background: var(--bg2);
+  color: var(--fg); border-radius: 16px; padding: 14px; cursor: pointer; transition: all .18s ease; font: inherit;
+}
+.idea:hover { border-color: var(--acc); transform: translateY(-2px); box-shadow: 0 8px 24px -6px var(--acc); }
+.idea i { font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--acc); font-family: 'JetBrains Mono', monospace; }
+.idea b { font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--fg); }
+.idea small { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.idea .th { display: block; width: 100%; aspect-ratio: 2/1; border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+.idea .th svg { width: 100%; height: 100%; }
+.iempty { grid-column: 1/-1; color: var(--muted); padding: 48px 0; text-align: center; }
+
+#idt {
+  position: absolute; inset: 0; z-index: 6; background: var(--panel); display: none;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px 32px; padding: 36px 36px 24px; overflow: auto; align-content: start;
+}
+#idt.on { display: grid; }
+.bk { grid-column: 1/-1; justify-self: start; border: 0; background: none; color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; padding: 0; }
+.bk:hover { color: var(--acc); }
+.dv { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); }
+.dv svg { width: 100%; height: auto; }
+.dt .dc { font-style: normal; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--acc); font-family: 'JetBrains Mono', monospace; }
+.dt h4 { margin: 6px 0 0; font-size: 24px; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+.dt h5 { margin: 18px 0 4px; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.dt p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--fg); }
+.dbtn {
+  margin-top: 22px; height: 46px; padding: 0 24px; border: 0; border-radius: 99px;
+  background: var(--acc); color: var(--on); font: inherit; font-weight: 600; cursor: pointer;
+  transition: all .18s; display: inline-flex; align-items: center; justify-content: center;
+}
+.dbtn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -8px var(--acc); }
+.dx {
+  position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border: 0; border-radius: 8px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--mut); display: grid; place-items: center; cursor: pointer; z-index: 8;
+  transition: all .15s;
+}
+.dx:hover { background: color-mix(in srgb, var(--ink) 16%, transparent); color: var(--ink); }
+
+@media (max-width: 768px) {
+  .ixm { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .ixs { padding: 16px 14px 10px; border-right: 0; border-bottom: 1px solid var(--line); }
+  #icat { flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 6px; }
+  .cat { flex: none; white-space: nowrap; border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; }
+  .cat span { display: none; }
+  #idt { grid-template-columns: 1fr; padding: 48px 16px 24px; }
+}
+
 @media (max-width:900px){.nav nav{display:none}.stats{grid-template-columns:repeat(2,1fr)}.stats div:nth-child(3){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}
 .bento,.quotes{grid-template-columns:1fr}.bento .w2{grid-column:auto}.steps{grid-template-columns:repeat(2,1fr)}.price{grid-template-columns:1fr}.sec{padding-top:90px}}
 @media (max-width:520px){.steps{grid-template-columns:1fr}.hero{padding-top:100px}}
@@ -100,35 +187,47 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
 </head>
 <body>
 <header class="nav">
-  <a class="logo" href="#top"><i>✦</i>Veltra</a>
-  <nav><a href="#nafkah">Pencari nafkah</a><a href="#layanan">Layanan</a><a href="#proses">Proses</a><a href="#harga">Harga</a><a href="#faq">FAQ</a></nav>
+  <a class="logo" href="#top"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg></i>Veltra</a>
+  <nav>
+    <a href="#nafkah">Pencari nafkah</a>
+    <a href="#layanan">Layanan</a>
+    <a href="#proses">Proses</a>
+    <a href="#harga">Harga</a>
+    <a href="#faq">FAQ</a>
+    <a href="#ide" class="nav-ideas-link" id="nav-ideas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg> 9.500+ Ide</a>
+  </nav>
   <a class="btn" href="#kontak">Audit gratis</a>
 </header>
 
 <section class="hero" id="top">
   <canvas id="cv" role="img" aria-label="Lebih dari 3.500 logo aplikasi mengalirkan data ke satu AI agent di tengah"></canvas>
   <div>
-    <span class="badge mono"><b></b>AI pencari nafkah · 100+ marketplace</span>
+    <span class="badge mono"><b></b>AI pencari nafkah &middot; 100+ marketplace</span>
     <h1>AI yang <em>mencari nafkah</em> untuk Anda.</h1>
     <p class="sub">Buat AI aplikasi atau AI agent, lalu AI Veltra otomatis mencari klien dan memasarkannya ke 100+ marketplace dunia. Tanpa setup apa pun. Coba tanyakan langsung.</p>
     <div class="chat" id="chat">
       <div class="comp">
-        <textarea id="q" rows="1" placeholder="Tanya apa saja tentang AI agent untuk bisnis Anda…" aria-label="Pesan"></textarea>
+        <textarea id="q" rows="1" placeholder="Tanya apa saja tentang AI agent untuk bisnis Anda..." aria-label="Pesan"></textarea>
         <button class="send" id="send" aria-label="Kirim ke Workspace"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       </div>
     </div>
     <div class="chips" id="chips">
-      <button>Otomatiskan balasan WhatsApp pelanggan</button>
-      <button>Berapa biaya membuat AI agent?</button>
-      <button>Contoh AI agent untuk toko online</button>
-      <button>Bagaimana AI Veltra mencari klien untuk saya?</button>
+      <button id="btn-ideas" class="btn-ideas-highlight" type="button" aria-label="Jelajahi 9.500+ ide aplikasi AI">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>9.500+ Ide Aplikasi AI Siap Pakai</span>
+      </button>
+      <button id="chip-demo" type="button" aria-label="Lihat Contoh AI Game Generator"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="6 3 20 12 6 21 6 3"/></svg>Contoh: AI Game Generator &rarr;</button>
+      <button id="chip-workspace" type="button" aria-label="Buka Agent Workspace" style="color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Agent Workspace &nearr;</button>
+      <button type="button">Otomatiskan balasan WhatsApp pelanggan</button>
+      <button type="button">Berapa biaya membuat AI agent?</button>
+      <button type="button">Bagaimana AI mencari klien untuk saya?</button>
     </div>
     <p class="note">Asisten demo Veltra. Jawaban bisa keliru; untuk estimasi akurat, pesan audit gratis.</p>
     <!-- ====== KOTAK PREVIEW WEB (Contoh Nyata Runnerflo AI 3D Game) ====== -->
     <div class="pv" id="preview">
       <div class="pv-bar"><i></i><i></i><i></i><span class="pv-url">kuis-game-3d-console.pages.dev</span></div>
       <div class="pv-body" id="pv-body">
-        <iframe id="demo-frame" src="https://kuis-game-3d-console.pages.dev" title="Runnerflo AI 3D Game Generator — Contoh Nyata" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>
+        <iframe id="demo-frame" src="https://kuis-game-3d-console.pages.dev" title="Runnerflo AI 3D Game Generator - Contoh Nyata" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>
       </div>
     </div>
   </div>
@@ -139,7 +238,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
     <div><b>3.500+</b><span>aplikasi terhubung</span></div>
     <div><b>100+</b><span>marketplace dunia, tanpa setup</span></div>
     <div><b>6 mgg</b><span>rata-rata peluncuran</span></div>
-    <div><b>−40%</b><span>tugas manual di kuartal pertama</span></div>
+    <div><b>&minus;40%</b><span>tugas manual di kuartal pertama</span></div>
   </div>
 
   <section class="sec" id="nafkah">
@@ -160,7 +259,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
     <p class="mono kick rv">/ Layanan</p>
     <h2 class="t rv">AI yang dibangun di sekitar target bisnis Anda.</h2>
     <div class="bento">
-      <div class="card w2 rv"><span class="mono" style="color:var(--acc)">01 · Utama</span><h3>AI agent kustom</h3><p>Agen yang membaca, memutuskan, dan bertindak lintas tools Anda: dukungan pelanggan, penjualan, back office, dan riset, dengan persetujuan manusia di titik penting.</p>
+      <div class="card w2 rv"><span class="mono" style="color:var(--acc)">01 &middot; Utama</span><h3>AI agent kustom</h3><p>Agen yang membaca, memutuskan, dan bertindak lintas tools Anda: dukungan pelanggan, penjualan, back office, dan riset, dengan persetujuan manusia di titik penting.</p>
         <div class="apps"><span>WhatsApp</span><span>Gmail</span><span>Google Sheets</span><span>Slack</span><span>Notion</span><span>HubSpot</span><span>Shopify</span><span>+3.490 lainnya</span></div></div>
       <div class="card rv"><span class="mono" style="color:var(--mut)">02</span><h3>Otomasi workflow</h3><p>Tugas berulang berpindah dari tim ke sistem, lengkap dengan log dan notifikasi.</p></div>
       <div class="card rv"><span class="mono" style="color:var(--mut)">03</span><h3>Pencarian pengetahuan (RAG)</h3><p>Tanya jawab atas dokumen dan database Anda, dengan sumber tercantum dan izin akses dihormati.</p></div>
@@ -173,9 +272,9 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
     <p class="mono kick rv">/ Proses</p>
     <h2 class="t rv">Dari ide sampai AI yang berjalan.</h2>
     <div class="steps">
-      <div class="card rv"><div class="n">01</div><h3>Audit</h3><p>Kami memetakan workflow dan data, lalu mengurutkan use case berdasarkan nilai dan usaha.</p><p class="mono" style="margin-top:14px">Minggu 1–2</p></div>
-      <div class="card rv"><div class="n">02</div><h3>Prototipe</h3><p>Proof of concept pada data asli, diuji bersama tim Anda sebelum rilis.</p><p class="mono" style="margin-top:14px">Minggu 3–4</p></div>
-      <div class="card rv"><div class="n">03</div><h3>Bangun dan integrasi</h3><p>Build produksi, tinjauan keamanan, dan koneksi ke tools yang sudah ada.</p><p class="mono" style="margin-top:14px">Minggu 4–6</p></div>
+      <div class="card rv"><div class="n">01</div><h3>Audit</h3><p>Kami memetakan workflow dan data, lalu mengurutkan use case berdasarkan nilai dan usaha.</p><p class="mono" style="margin-top:14px">Minggu 1&ndash;2</p></div>
+      <div class="card rv"><div class="n">02</div><h3>Prototipe</h3><p>Proof of concept pada data asli, diuji bersama tim Anda sebelum rilis.</p><p class="mono" style="margin-top:14px">Minggu 3&ndash;4</p></div>
+      <div class="card rv"><div class="n">03</div><h3>Bangun dan integrasi</h3><p>Build produksi, tinjauan keamanan, dan koneksi ke tools yang sudah ada.</p><p class="mono" style="margin-top:14px">Minggu 4&ndash;6</p></div>
       <div class="card rv"><div class="n">04</div><h3>Jalankan dan tingkatkan</h3><p>Pemantauan, evaluasi, dan penyetelan agar kualitas dan biaya tetap terjaga.</p><p class="mono" style="margin-top:14px">Berkelanjutan</p></div>
     </div>
   </section>
@@ -240,10 +339,33 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
 
   <section class="cta rv" id="kontak">
     <h2>Siap menaruh AI agent di tim Anda?</h2>
-    <a class="btn" href="Agent Workspace.html">Buka Agent Workspace →</a>
+    <a class="btn" href="Agent%20Workspace.html">Buka Agent Workspace &rarr;</a>
   </section>
-  <footer><span>© 2026 Veltra. Hak cipta dilindungi.</span><span>hello@runnerflo.com · Jakarta, Indonesia</span></footer>
+  <footer><span>&copy; 2026 Veltra &bull; runnerflo.com. Hak cipta dilindungi.</span><span>hello@runnerflo.com &middot; Jakarta, Indonesia</span></footer>
 </main>
+
+<!-- ====== DIALOG MODAL 9.500+ IDE APLIKASI AI ====== -->
+<dialog id="dlg2" class="ixd" aria-labelledby="is">
+  <div class="ixm">
+    <button class="dx" id="ix" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div id="idt"></div>
+    <aside class="ixs">
+      <h3 id="is">9.500+ Ide Aplikasi AI</h3>
+      <p id="ip">Bingung mau buat apa? Pilih bidangmu, lalu pilih ide bisnis AI yang siap pakai.</p>
+      <nav id="icat"></nav>
+    </aside>
+    <section class="ixc">
+      <div class="ixh">
+        <div class="ixsr">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="isq" type="search" placeholder="Cari ide, mis. kedai kopi, klinik, mahasiswa..." autocomplete="off">
+        </div>
+        <span id="ic"></span>
+      </div>
+      <div class="ixg" id="il"></div>
+    </section>
+  </div>
+</dialog>
 
 <script>
 /* ===== 3.500 tile, spiral phyllotaxis, jadi latar hero ===== */
@@ -286,14 +408,15 @@ if(!RM){new IntersectionObserver(e=>{vis=e[0].isIntersecting}).observe(hero);req
 })();
 
 /* ===== Hubungkan Chat AI & Chips ke Agent Workspace ===== */
-(()=>{
-const ta=document.getElementById("q"),sb=document.getElementById("send");
 function goToWorkspace(val){
+  const ta=document.getElementById("q");
   const text = (typeof val === "string" ? val : (ta ? ta.value : "")).trim();
   let dest = "Agent%20Workspace.html";
   if(text) dest += "?q=" + encodeURIComponent(text);
   window.location.href = dest;
 }
+(()=>{
+const ta=document.getElementById("q"),sb=document.getElementById("send");
 if(ta){
   ta.addEventListener("input",()=>{
     ta.style.height="auto";
@@ -312,13 +435,124 @@ if(sb){
     goToWorkspace();
   });
 }
-document.querySelectorAll("#chips button").forEach(b=>{
+document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b=>{
   b.addEventListener("click",(e)=>{
     e.preventDefault();
+    if(b.id === "chip-demo"){
+      var pv = document.getElementById("preview");
+      if(pv) pv.scrollIntoView({behavior:"smooth", block:"center"});
+      return;
+    }
+    if(b.id === "chip-workspace"){
+      window.location.href = "Agent%20Workspace.html";
+      return;
+    }
     goToWorkspace(b.textContent);
   });
 });
 })();
+
+/* ===== Engine 9.500+ Ide Aplikasi AI ===== */
+var DB={"u1":["Pembuat Caption Instagram|Instagram Caption Writer","Pembuat Skrip Video TikTok|TikTok Video Script Writer","Pembuat Kalender Konten|Content Calendar Maker","Pembuat Poster Promo|Promo Poster Maker","Pembuat Logo|Logo Designer","Pembuat Slogan|Slogan Generator","Penulis Email Promosi|Promo Email Writer","Pembuat Skrip Penjualan WhatsApp|WhatsApp Sales Script Writer","Pembuat Website|Website Builder","Pembuat Landing Page|Landing Page Maker","Pembuat Presentasi Usaha|Business Presentation Maker","Penganalisis Pesaing|Competitor Analyzer"],"u2":["Chatbot Customer Service|Customer Service Chatbot","Pembalas Ulasan Pelanggan|Customer Review Responder","Pembuat Katalog Digital|Digital Catalog Maker","Pembuat Program Loyalitas|Loyalty Program Maker","Penentu Harga Jual|Selling Price Advisor","Penghitung Modal dan Untung|Cost and Profit Calculator","Pencatat Keuangan Harian|Daily Bookkeeper","Pembuat Invoice|Invoice Maker","Pembuat Laporan Penjualan|Sales Report Maker","Pembuat Penawaran Harga|Quotation Maker","Pembuat SOP Karyawan|Staff SOP Writer","Penjadwal Karyawan|Staff Scheduler","Pembuat Poster Lowongan Kerja|Job Poster Maker","Pengingat Pelanggan|Customer Reminder","Pembuat Formulir Pemesanan|Order Form Maker","Perencana Promo Musiman|Seasonal Promo Planner","Penyusun Rencana Bisnis|Business Plan Writer","Penganalisis Kepuasan Pelanggan|Customer Satisfaction Analyzer"],"c":[{"n":"Kuliner|Food and Beverage","u":2,"f":["Pembuat Menu|Menu Creator","Pembuat Resep Andalan|Signature Recipe Creator","Penghitung Kalori Menu|Menu Calorie Counter","Penghitung HPP Menu|Menu Costing Calculator","Chatbot Pemesanan Makanan|Food Ordering Chatbot","Pengelola Stok Bahan|Ingredient Stock Manager","Pembuat SOP Dapur|Kitchen SOP Writer","Pembuat Paket Hemat|Combo Deal Maker","Pembuat Foto Menu|Menu Photo Creator","Perancang Kemasan Makanan|Food Packaging Designer"],"g":["Restoran|Restaurants","Warung Makan|Food Stalls","Kedai Kopi|Coffee Shops","Kafe|Cafes","Toko Roti|Bakeries","Toko Kue|Cake Shops","Katering|Catering Businesses","Katering Sehat|Healthy Catering Businesses","Bakso dan Mie Ayam|Meatball and Noodle Shops","Warteg|Warteg Eateries","Restoran Padang|Padang Restaurants","Restoran Seafood|Seafood Restaurants","Kedai Teh|Tea Shops","Juice Bar|Juice Bars","Toko Es Krim|Ice Cream Shops","Toko Camilan|Snack Shops","Usaha Frozen Food|Frozen Food Businesses","Bar dan Lounge|Bars and Lounges","Kedai Boba|Bubble Tea Shops","Kedai Sate|Satay Stalls","Usaha Nasi Kotak|Boxed Meal Businesses","Restoran Jepang|Japanese Restaurants","Pizzeria|Pizzerias","Kedai Martabak|Martabak Stalls","Usaha Kue Kering|Cookie Businesses"]},{"n":"Fashion dan Aksesori|Fashion and Accessories","u":2,"f":["Penata Gaya|Style Advisor","Penasihat Tren|Trend Advisor","Penulis Deskripsi Produk|Product Description Writer","Pembuat Foto Produk|Product Photo Creator","Pengelola Stok Barang|Stock Manager","Pencatat Pesanan Pelanggan|Order Tracker","Pembuat Lookbook|Lookbook Maker","Penasihat Pilihan Produk|Product Recommendation Advisor","Perancang Kemasan Produk|Product Packaging Designer","Perencana Koleksi Musiman|Seasonal Collection Planner"],"g":["Butik Pakaian|Clothing Boutiques","Toko Hijab|Hijab Shops","Toko Sepatu|Shoe Stores","Toko Tas|Bag Stores","Toko Kosmetik|Cosmetics Shops","Toko Perhiasan|Jewelry Stores","Toko Parfum|Perfume Shops","Toko Batik|Batik Shops","Thrift Shop|Thrift Shops","Brand Skincare Lokal|Local Skincare Brands","Konveksi|Garment Makers","Toko Aksesoris|Accessory Shops","Toko Kacamata|Eyewear Shops","Brand Pakaian Anak|Kids' Clothing Brands","Toko Busana Muslim|Muslim Fashion Shops","Toko Jam Tangan|Watch Shops","Brand Streetwear|Streetwear Brands","Toko Kain|Fabric Stores","Toko Baju Bayi|Baby Clothing Shops","Toko Seragam|Uniform Shops"]},{"n":"Salon dan Kecantikan|Beauty and Salon","u":2,"f":["Pengelola Reservasi|Booking Manager","Pengingat Jadwal Perawatan|Treatment Reminder","Penasihat Pilihan Perawatan|Treatment Advisor","Pembuat Paket Perawatan|Treatment Package Maker","Pengelola Keanggotaan|Membership Manager","Pencatat Riwayat Pelanggan|Client History Keeper","Penjadwal Terapis dan Capster|Therapist and Stylist Scheduler","Pembuat Edukasi Perawatan di Rumah|Home Care Tips Writer","Pembuat Voucher Hadiah|Gift Voucher Maker","Penghitung Komisi Staf|Staff Commission Calculator"],"g":["Salon Kecantikan|Beauty Salons","Barbershop|Barbershops","Spa|Spas","Klinik Kecantikan|Aesthetic Clinics","Makeup Artist|Makeup Artist Studios","Nail Art Studio|Nail Studios","Salon Muslimah|Muslimah Salons","Pijat Refleksi|Reflexology Centers","Studio Lash dan Brow|Lash and Brow Studios","Salon Pengantin|Bridal Salons","Day Spa|Day Spas","Salon Rambut|Hair Salons","Studio Tato|Tattoo Studios","Pusat Perawatan Wajah|Facial Care Centers","Salon Hewan|Pet Grooming Salons"]},{"n":"Fitness dan Olahraga|Fitness and Sports","u":2,"f":["Pembuat Program Latihan|Workout Program Creator","Penghitung Target Kalori|Calorie Target Calculator","Pencatat Progres Member|Member Progress Tracker","Pengingat Jadwal Kelas|Class Schedule Reminder","Penasihat Nutrisi|Nutrition Advisor","Pembuat Tantangan Kebugaran|Fitness Challenge Creator","Pengelola Keanggotaan Gym|Gym Membership Manager","Pembuat Rencana Pemulihan|Recovery Plan Creator","Penjadwal Personal Trainer|Personal Trainer Scheduler","Pembuat Video Gerakan|Exercise Form Guide Maker"],"g":["Pusat Kebugaran|Gyms","Studio Yoga|Yoga Studios","Studio Pilates|Pilates Studios","Klub Lari|Running Clubs","Akademi Sepak Bola|Football Academies","Studio CrossFit|CrossFit Boxes","Klub Renang|Swimming Clubs","Studio Bela Diri|Martial Arts Studios","Klub Bulutangkis|Badminton Clubs","Studio Tari|Dance Studios","Pusat Panjat Tebing|Climbing Gyms","Klub Tenis|Tennis Clubs","Studio Spinning|Spinning Studios","Personal Trainer Independen|Independent Personal Trainers","Klub Bersepeda|Cycling Clubs"]},{"n":"Kesehatan dan Medis|Health and Medical","u":2,"f":["Pengingat Jadwal Pasien|Patient Appointment Reminder","Pengingat Minum Obat|Medication Reminder","Pembuat Ringkasan Riwayat Medis|Medical History Summarizer","Penjelas Hasil Tes Sederhana|Lab Test Result Explainer","Pembuat Edukasi Pasien|Patient Education Creator","Penyusun Draf Rujukan|Referral Draft Maker","Pencatat Keluhan Pasien|Patient Triage Assistant","Penghitung Estimasi Biaya Rawat|Treatment Cost Estimator","Pengingat Imunisasi Anak|Immunization Reminder","Pembuat Rencana Diet Medis|Dietary Plan Creator"],"g":["Klinik Pratama|General Clinics","Praktik Dokter Gigi|Dental Clinics","Apotek|Pharmacies","Klinik Tumbuh Kembang Anak|Pediatric Clinics","Klinik Fisioterapi|Physiotherapy Clinics","Klinik Mata|Eye Clinics","Laboratorium Medis|Medical Laboratories","Praktik Mandiri Bidan|Midwife Practices","Praktik Dokter Umum|General Practitioner Practices","Klinik Hewan|Veterinary Clinics","Pusat Akupunktur|Acupuncture Centers","Optik|Optical Clinics"]},{"n":"Pendidikan dan Kursus|Education and Courses","u":2,"f":["Pembuat Soal dan Pembahasan|Exam Question Generator","Pembuat RPP dan Silabus|Lesson Plan Maker","Pembuat Ringkasan Materi|Study Summary Maker","Pemeriksa Jawaban Esai|Essay Grader Assistant","Pembuat Kuis Interaktif|Interactive Quiz Maker","Pembuat Flashcard Belajar|Flashcard Creator","Tutor Tanya Jawab Pelajaran|Subject Q&A Tutor","Pembuat Laporan Progres Siswa|Student Progress Reporter","Penjadwal Bimbingan Belajar|Tutoring Scheduler","Penyusun Lembar Kerja Siswa|Student Worksheet Maker"],"g":["Bimbingan Belajar|Tutoring Centers","Kursus Bahasa Asing|Language Schools","Sekolah Musik|Music Schools","Kursus Coding Anak|Coding Schools for Kids","Lembaga Kursus Pelatihan|Vocational Training Centers","Taman Kanak-kanak|Kindergartens","Sekolah Mengemudi|Driving Schools","Kursus Memasak|Cooking Schools","Kursus Desain Grafis|Graphic Design Courses","Bimbel UTBK dan Kedinasan|College Prep Centers","Kursus Menjahit|Sewing Schools","Kursus Robotik|Robotics Classes"]},{"n":"Jasa Profesional|Professional Services","u":2,"f":["Pembuat Draf Perjanjian|Contract Draft Maker","Penyusun Proposal Proyek|Project Proposal Maker","Pencatat Menit Rapat|Meeting Minutes Generator","Penghitung Pajak Sederhana|Tax Calculator","Pembuat Laporan Kinerja|Performance Report Maker","Penyusun Profil Perusahaan|Company Profile Maker","Pembuat Checklist Kepatuhan|Compliance Checklist Maker","Penjadwal Konsultasi Klien|Client Consultation Scheduler","Penyusun FAQ Layanan|Service FAQ Maker","Pembuat Surat Penagihan|Payment Reminder Letter Maker"],"g":["Kantor Notaris|Notary Offices","Konsultan Pajak|Tax Consultants","Kantor Hukum|Law Firms","Konsultan Manajemen|Management Consultants","Agensi Pemasaran|Marketing Agencies","Akuntan Publik|Public Accountants","Konsultan SDM|HR Consultants","Penerjemah Tersumpah|Sworn Translators","Agensi Branding|Branding Agencies","Konsultan Lingkungan|Environmental Consultants","Perencana Keuangan|Financial Planners","Agensi PR|PR Agencies"]},{"n":"Kreatif dan Media|Creative and Media","u":1,"f":["Pembuat Skrip Podcast|Podcast Script Maker","Penulis Cerita Pendek|Story Writer","Pembuat Brief Desain|Design Brief Generator","Penulis Skrip Voiceover|Voiceover Script Writer","Pencari Ide Konten Harian|Daily Content Idea Generator","Pembuat Storyboard Kasar|Storyboard Prompt Maker","Penulis Lirik Lagu|Song Lyric Writer","Pembuat Rangkuman Berita|News Summarizer","Penyusun Moodboard Visual|Visual Moodboard Generator","Pembuat Deskripsi Portofolio|Portfolio Description Maker"],"g":["Studio Foto|Photo Studios","Rumah Produksi Video|Video Production Houses","Agensi Kreatif|Creative Agencies","Studio Animasi|Animation Studios","Penerbit Buku|Book Publishers","Studio Musik|Recording Studios","Kreator Konten YouTube|YouTube Creators","Podcaster|Podcasters","Ilustrator Lepas|Freelance Illustrators","Fotografer Pernikahan|Wedding Photographers","Studio Desain Interior|Interior Design Studios","Agensi Talenta|Talent Agencies"]},{"n":"Properti dan Konstruksi|Real Estate and Construction","u":2,"f":["Pembuat Listing Properti|Property Listing Creator","Penghitung Simulasi KPR|Mortgage Simulator","Penyusun Brosur Properti|Property Brochure Maker","Penjadwal Survei Lokasi|Site Visit Scheduler","Pencatat Inventaris Proyek|Project Inventory Tracker","Pembuat Estimasi Renovasi|Renovation Cost Estimator","Penyusun Laporan Harian Proyek|Daily Construction Report Maker","Penghitung Sewa dan ROI|Rental ROI Calculator","Pembuat Surat Perjanjian Sewa|Lease Agreement Drafter","Pembuat Checklist Serah Terima|Handover Checklist Maker"],"g":["Agen Properti|Real Estate Agents","Developer Perumahan|Home Developers","Kontraktor Bangunan|General Contractors","Studio Arsitek|Architectural Studios","Desainer Interior|Interior Designers","Jasa Renovasi|Renovation Services","Pengelola Kos-kosan|Boarding House Managers","Pengelola Apartemen|Apartment Managers","Penyedia Coworking Space|Coworking Spaces","Penyedia Kavling Tanah|Land Lot Sellers","Jasa Pertamanan|Landscaping Services"]},{"n":"Pariwisata dan Hospitality|Travel and Hospitality","u":2,"f":["Pembuat Itinerary Perjalanan|Travel Itinerary Maker","Pemandu Wisata Virtual|Virtual Tour Guide","Penghitung Biaya Liburan|Vacation Budget Calculator","Penerjemah Bahasa Lokal|Local Language Phrasebook","Rekomendasi Kuliner Lokal|Local Food Recommender","Pembuat Panduan Tamu|Guest Welcome Guide Maker","Pengingat Checklist Berkemas|Packing Checklist Maker","Pencatat Reservasi Kamar|Room Reservation Tracker","Pembuat Brosur Paket Wisata|Tour Package Brochure Maker","Penjawab Pertanyaan Tamu Hotel|Hotel Concierge Chatbot"],"g":["Hotel Butik|Boutique Hotels","Villa dan Resort|Villas and Resorts","Agen Perjalanan Wisata|Travel Agencies","Pengelola Homestay|Homestay Operators","Operator Tur Petualangan|Adventure Tour Operators","Glamping|Glamping Sites","Desa Wisata|Tourism Villages","Rental Mobil Wisata|Car Rental Agencies","Pemandu Wisata Lokal|Local Tour Guides","Pusat Informasi Wisata|Tourist Information Centers","Hostel Backpacker|Backpacker Hostels"]},{"n":"Event dan Pernikahan|Events and Weddings","u":2,"f":["Penyusun Rundown Acara|Event Rundown Maker","Penghitung Anggaran Acara|Event Budget Calculator","Pembuat Draf Undangan|Invitation Copywriter","Pencatat RSVP Tamu|RSVP Tracker","Pembuat Checklist Vendor|Vendor Checklist Maker","Pengingat Pembayaran Vendor|Vendor Payment Reminder","Penyusun Moodboard Acara|Event Moodboard Maker","Pembuat Skrip MC|MC Script Generator","Penata Susunan Duduk Tamu|Seating Chart Planner","Pembuat Kuesioner Evaluasi Acara|Event Feedback Survey Maker"],"g":["Wedding Organizer|Wedding Organizers","Event Organizer|Event Organizers","Penyedia Dekorasi|Decoration Vendors","Fotografer Event|Event Photographers","Penyedia Gedung Acara|Event Venues","Catering Acara|Event Caterers","Jasa Hiburan Musik|Live Bands","MC Profesional|Professional MCs","Penyedia Gaun Pengantin|Bridal Gown Renters","Penyedia Suvenir|Souvenir Makers"]},{"n":"Ritel dan Toko Fisik|Retail and Physical Stores","u":2,"f":["Pembuat Tagline Produk|Product Tagline Generator","Pembuat Poster Diskon|Discount Poster Maker","Pencatat Stok Menipis|Low Stock Alert Maker","Penyusun Katalog Musiman|Seasonal Catalog Maker","Pembuat Program Poin Pelanggan|Reward Program Maker","Penghitung Margin Keuntungan|Profit Margin Calculator","Penyusun Teks Siaran Toko|In-store Announcement Writer","Pencatat Kasir Harian|Daily Cash Register Balancer","Pembuat Formulir Retur Barang|Return Form Maker","Penasihat Penataan Etalase|Window Display Advisor"],"g":["Minimarket Mandiri|Convenience Stores","Toko Kelontong|Grocery Stores","Toko Alat Tulis|Stationery Stores","Toko Mainan Anak|Toy Stores","Toko Elektronik|Electronics Stores","Toko Bahan Bangunan|Hardware Stores","Toko Perlengkapan Rumah|Homeware Stores","Toko Pakan Hewan|Pet Supply Stores","Toko Kado dan Aksesoris|Gift Shops","Toko Tanaman Hias|Plant Nurseries","Toko Komputer|Computer Stores","Toko Buku Mandiri|Independent Bookstores"]},{"n":"Otomotif dan Bengkel|Automotive and Workshops","u":2,"f":["Pengingat Jadwal Servis Berkala|Service Reminder Maker","Penghitung Estimasi Biaya Servis|Repair Cost Estimator","Pencatat Riwayat Kendaraan|Vehicle Service History Keeper","Penyusun Draf Garansi Servis|Warranty Draft Maker","Pembuat Checklist Uji Emisi|Vehicle Inspection Checklist","Pencatat Suku Cadang Bengkel|Spare Part Stock Tracker","Pembuat Tips Perawatan Kendaraan|Car Care Tips Writer","Penyusun Promo Ganti Oli|Oil Change Promo Maker","Penjadwal Booking Servis|Service Booking Scheduler","Penjawab Pertanyaan Kerusakan|Symptom Diagnosis Helper"],"g":["Bengkel Mobil|Auto Repair Shops","Bengkel Motor|Motorcycle Repair Shops","Tempat Cuci Mobil|Car Washes","Toko Ban dan Pelek|Tire and Wheel Shops","Salon Mobil Detailing|Auto Detailing Studios","Toko Variasi Motor|Motorcycle Accessory Shops","Bengkel AC Mobil|Car AC Workshops","Bengkel Ketok Magic|Body Repair Shops","Dealer Motor Bekas|Used Motorcycle Dealers","Rental Mobil|Car Rental Services","Bengkel Sepeda|Bicycle Workshops"]},{"n":"Teknologi dan Startup|Technology and Startups","u":1,"f":["Pembuat Release Notes|Release Notes Generator","Penulis Dokumentasi API|API Documentation Writer","Pembuat Ringkasan User Feedback|User Feedback Summarizer","Penyusun Draf Pitch Deck|Pitch Deck Copy Generator","Penghitung Runway Keuangan|Runway Calculator","Pembuat Job Description Tech|Tech Job Description Maker","Penyusun Kuesioner Riset Pasar|User Research Survey Maker","Pembuat Onboarding Checklist|Onboarding Checklist Maker","Penulis Email Dingin B2B|Cold Outreach Email Writer","Pembuat SOP Deployment|Deployment SOP Maker"],"g":["Startup SaaS|SaaS Startups","Software House|Software Houses","Agensi Pengembang Web|Web Development Agencies","Studio Game Mandiri|Indie Game Studios","Startup Edutech|EdTech Startups","Startup Fintech|FinTech Startups","Startup Healthtech|HealthTech Startups","Penyedia Hosting Lokal|Hosting Providers","Penyedia Solusi IoT|IoT Solution Providers","Agensi Keamanan Siber|Cybersecurity Agencies"]},{"n":"Keluarga dan Rumah Tangga|Family and Home","u":0,"f":["Perencana Menu Mingguan|Weekly Meal Planner","Penghitung Kalori Keluarga|Family Calorie Counter","Pencatat Keuangan Keluarga|Family Budget Tracker","Pembuat Daftar Belanja|Shopping List Maker","Pembuat Resep dari Bahan di Kulkas|Fridge Leftover Recipe Maker","Penjadwal Tugas Rumah|Chore Scheduler","Pembuat Rencana Kegiatan Akhir Pekan|Weekend Activity Planner","Perencana Liburan|Vacation Planner","Perencana Acara Ulang Tahun|Birthday Party Planner","Pembuat Kartu Ucapan|Greeting Card Maker","Penghitung Hemat Listrik dan Air|Utility Saver Calculator","Pengingat Tanggal Penting|Important Date Reminder"],"g":["Ibu Rumah Tangga|Homemakers","Ibu Baru|New Mothers","Orang Tua Balita|Parents of Toddlers","Orang Tua Remaja|Parents of Teenagers","Keluarga Muda|Young Families","Pasangan Baru Menikah|Newlyweds","Lansia|Seniors","Keluarga Besar|Large Families","Anak Kos|Boarding House Residents","Penghuni Apartemen|Apartment Residents","Keluarga Perantau|Migrant Families","Pasangan LDR|Long-Distance Couples"]}]};
+
+var IX=0, PRE=' untuk ', nf=new Intl.NumberFormat('id-ID');
+function P(x){var a=x.split('|');return a[IX]||a[0]}
+var RU=[["drop", 4, "Skrip Penjualan|Skrip Video|Program Loyalitas|Slogan|Poster Promo|Perencana Promo|Penentu Harga|Penawaran Harga", "^(Klinik|Praktik)"], ["only", 10, "Daftar Tamu|Posisi Duduk|Rundown|Anggaran Acara|Kontrak Vendor|Checklist Persiapan", "Organizer|Party Planner|Penyelenggara|Gedung"], ["only", 10, "Moodboard", "Dekorasi|Fotografer|Videografer|Gaun|Photobooth|Organizer|Party Planner|Penyelenggara"], ["only", 10, "Undangan Digital", "Organizer|Percetakan|Party Planner|Penyelenggara"], ["only", 8, "Brosur Properti", "Agen|Developer|Pengembang|Kavling|Konsultan|Villa|Homestay|Kos|Kontrakan|Apartemen|Coworking"], ["only", 8, "Estimasi Biaya|Kontrak Kerja Sama|Laporan Progres|Portofolio Proyek", "Kontraktor|Arsitek|Interior|Landscape|Kitchen|Furnitur|Baja|Developer|Pengembang"], ["only", 8, "Pembayaran Bertahap", "Kontraktor|Developer|Pengembang|Kavling|Kitchen|Interior|Baja"], ["only", 9, "Penghitung Biaya Perjalanan", "Agen Travel|Operator|Pemandu|Tur|Desa|Wisata Kuliner|Antar Jemput|Rental"], ["drop", 9, "Itinerary|Paket Wisata", "Rental|Antar Jemput|Agen Tiket|Kapal"], ["drop", 13, "Penilai Tugas|Game Edukasi|Lembar Kerja", "Mengemudi"], ["drop", -1, "Poster Lowongan|Penjadwal Karyawan|SOP Karyawan", "Praktik|Makeup Artist|Reseller|Dropshipper|Klub|Pemandu"], ["drop", -1, "Penawaran Harga|Katalog Digital|Penghitung Modal|Laporan Penjualan", "Klub"]];
+function OK(ci,f,g){for(var i=0;i<RU.length;i++){var r=RU[i];if(r[1]!==-1&&r[1]!==ci)continue;if(!new RegExp(r[2]).test(f))continue;var h=new RegExp(r[3]).test(g);if((r[0]==="drop"&&h)||(r[0]==="only"&&!h))return false}return true}
+var KR=[["chat",/Chatbot|Penjawab|Pembalas|Tutor|Penjelas|Penerjemah/],["calc",/Penghitung|Penentu|Anggaran/],["track",/Pelacak|Pengelola|Pencatat|Perekap|Penganalisis|Stok|Pengatur/],["doc",/Kontrak|Perjanjian|Invoice|Laporan|Proposal|Penawaran|SOP|Rapor|Sertifikat|Formulir|Syarat|Rencana Bisnis/],["plan",/Penjadwal|Jadwal|Pengingat|Perencana|Rencana|Itinerary|Checklist|Rundown|Reservasi|Pelatih/],["img",/Foto|Logo|Poster|Desain|Perancang|Moodboard|Lookbook|Katalog|Brosur|Thumbnail|Kemasan|Undangan|Kartu|Landing|Website|Presentasi|Label|Portofolio|Media Kit|Voucher|Mind Map/]];
+function KIND(f){for(var i=0;i<KR.length;i++)if(KR[i][1].test(f))return KR[i][0];return "write"}
+var IDEAS=[],per=[],CNT=[];
+DB.c.forEach(function(c,ci){
+  var fs=(c.u>0?DB.u1:[]).concat(c.u>1?DB.u2:[],c.f),list=[],seed=ci*7919+13;
+  fs.forEach(function(f){c.g.forEach(function(g){var a=f.split("|")[0];if(OK(ci,a,g.split("|")[0]))list.push({f:P(f),n:P(g),c:ci,k:KIND(a)})})});
+  for(var i=list.length-1;i>0;i--){seed=(seed*1664525+1013904223)>>>0;var j=Math.floor(seed/4294967296*(i+1)),t=list[i];list[i]=list[j];list[j]=t}
+  per.push(list);CNT.push(list.length);
+});
+(function(){var pos=per.map(function(){return 0}),go=true;while(go){go=false;per.forEach(function(l,ci){if(pos[ci]<l.length){IDEAS.push(l[pos[ci]++]);go=true}})}})();
+IDEAS.forEach(function(x,i){x.i=i;x.s=('ai '+x.f+' '+x.n+' '+P(DB.c[x.c].n)).toLowerCase()});
+
+var isq=document.getElementById('isq'),il=document.getElementById('il'),ic=document.getElementById('ic'),icat=document.getElementById('icat'),dlg2=document.getElementById('dlg2');
+var CUR=[],SHOWN=0,STEP=90,ACT=-1;
+if(icat){
+  icat.innerHTML='<button class="cat on" data-c="-1">Semua ide<span>'+nf.format(IDEAS.length)+'</span></button>'+DB.c.map(function(c,i){return '<button class="cat" data-c="'+i+'">'+P(c.n)+'<span>'+nf.format(CNT[i])+'</span></button>'}).join('');
+}
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function THUMB(x){var h=(x.c*23+200)%360,a="hsl("+h+",60%,38%)",b="hsl("+h+",70%,90%)",m="hsl("+h+",65%,62%)",o="";
+  switch(x.k){
+  case "chat":o='<rect x="22" y="22" width="110" height="22" rx="11" fill="'+b+'"/><rect x="100" y="52" width="120" height="22" rx="11" fill="'+a+'"/><rect x="22" y="82" width="196" height="16" rx="8" fill="none" stroke="'+m+'"/>';break;
+  case "calc":o='<rect x="22" y="20" width="76" height="26" rx="6" fill="'+a+'"/><rect x="22" y="56" width="196" height="8" rx="4" fill="'+b+'"/><rect x="22" y="72" width="140" height="8" rx="4" fill="'+b+'"/><rect x="22" y="88" width="170" height="8" rx="4" fill="'+m+'"/>';break;
+  case "plan":for(var r=0;r<3;r++)for(var k=0;k<5;k++)o+='<rect x="'+(24+k*39)+'" y="'+(22+r*27)+'" width="33" height="21" rx="5" fill="'+(r*5+k===7?a:b)+'"/>';break;
+  case "doc":o='<rect x="22" y="18" width="80" height="10" rx="3" fill="'+a+'"/><rect x="22" y="38" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="52" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="66" width="150" height="6" rx="3" fill="'+b+'"/><circle cx="190" cy="90" r="11" fill="none" stroke="'+m+'" stroke-width="3"/>';break;
+  case "img":o='<rect x="22" y="18" width="196" height="64" rx="8" fill="'+b+'"/><circle cx="62" cy="40" r="9" fill="#ffd54a"/><path d="M22 82l56-30 40 20 36-24 64 34z" fill="'+m+'"/><circle cx="30" cy="94" r="5" fill="'+a+'"/><circle cx="46" cy="94" r="5" fill="'+m+'"/><circle cx="62" cy="94" r="5" fill="'+b+'"/>';break;
+  case "track":for(var q=0;q<6;q++)o+='<rect x="'+(28+q*32)+'" y="'+(92-[18,30,24,44,38,58][q])+'" width="20" height="'+[18,30,24,44,38,58][q]+'" rx="4" fill="'+(q===5?a:b)+'"/>';break;
+  default:o='<rect x="22" y="18" width="90" height="10" rx="3" fill="'+a+'"/><rect x="22" y="38" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="52" width="196" height="9" rx="3" fill="#ffe14d"/><rect x="22" y="68" width="196" height="6" rx="3" fill="'+b+'"/><rect x="22" y="82" width="120" height="6" rx="3" fill="'+b+'"/>'}
+  return '<svg viewBox="0 0 240 120" role="img" aria-hidden="true"><rect width="240" height="120" fill="'+b+'" opacity=".45"/><rect x="8" y="6" width="224" height="108" rx="12" fill="#fff" stroke="'+m+'" stroke-opacity=".5"/>'+o+'<text x="22" y="108" font-size="8" fill="'+a+'" font-family="sans-serif">'+esc(x.n)+'</text></svg>'}
+
+var TX={use:"Pakai ide ini",bk:"Kembali ke daftar",wh:"Yang dikerjakan AI",ex:"Contoh hasil",fo:"Cocok untuk",k:{chat:["Menjawab pertanyaan pelanggan {n} lewat chat kapan saja: harga, jam layanan, dan cara pesan.","\u201CBuka jam berapa? Ada paket hemat?\u201D \u2192 balasan ramah lengkap dengan harga dan tautan pesan."],calc:["Menghitung angka yang dibutuhkan {n} dari beberapa isian, lalu menjelaskan hasilnya.","Masukkan biaya dan jumlah \u2192 total, margin, dan saran angka yang aman."],track:["Mencatat dan merangkum data harian {n} menjadi ringkasan yang mudah dibaca.","Ringkasan harian dan mingguan, plus daftar hal yang perlu ditindaklanjuti."],doc:["Membuat dokumen rapi untuk {n} dari isian singkat, siap dicetak atau dikirim.","Isi nama dan detail \u2192 dokumen lengkap berformat profesional."],plan:["Menyusun jadwal dan pengingat otomatis agar {n} tidak ada yang terlewat.","Satu minggu terjadwal rapi, plus pengingat siap kirim lewat WhatsApp."],img:["Membuat tampilan visual untuk {n} sesuai gaya dan warna pilihanmu.","Beberapa pilihan desain siap unduh dengan warna dan gaya senada."],write:["Menulis teks siap pakai untuk {n} dengan gaya bahasa yang cocok dengan pasarnya.","Tiga versi teks singkat, menarik, dan siap ditempel."]}};
+
+function card(x){return '<button class="idea" data-i="'+x.i+'"><span class="th">'+THUMB(x)+'</span><i>'+P(DB.c[x.c].n)+'</i><b>AI '+x.f+'</b><small>'+PRE.trim()+' '+x.n+'</small></button>'}
+function more(){var end=Math.min(CUR.length,SHOWN+STEP),h='';for(var i=SHOWN;i<end;i++)h+=card(CUR[i]);il.insertAdjacentHTML('beforeend',h);SHOWN=end}
+function draw(){
+  var t=isq?isq.value.trim().toLowerCase():'';
+  CUR=IDEAS.filter(function(x){return (ACT<0||x.c===ACT)&&(!t||x.s.indexOf(t)>-1)});
+  if(!il)return;
+  il.innerHTML='';SHOWN=0;il.scrollTop=0;
+  if(ic)ic.textContent=nf.format(CUR.length)+' ide';
+  if(!CUR.length){il.innerHTML='<div class="iempty">Tidak ada ide yang cocok. Coba kata kunci lain.</div>';return}
+  more();
+}
+
+if(il){
+  il.addEventListener('scroll',function(){if(SHOWN<CUR.length&&il.scrollTop+il.clientHeight>=il.scrollHeight-300)more()});
+}
+if(icat){
+  icat.addEventListener('click',function(e){var b=e.target.closest('.cat');if(!b)return;ACT=+b.dataset.c;Array.prototype.forEach.call(icat.children,function(x){x.classList.toggle('on',x===b)});draw()});
+}
+if(isq){
+  isq.addEventListener('input',draw);
+}
+
+function openIdeas(){
+  var idt=document.getElementById("idt");
+  if(idt) idt.className="";
+  if(isq) isq.value='';
+  ACT=-1;
+  if(icat){
+    Array.prototype.forEach.call(icat.children,function(x,i){x.classList.toggle('on',i===0)});
+  }
+  draw();
+  if(dlg2){
+    if(dlg2.showModal){if(!dlg2.open)dlg2.showModal()}else{dlg2.setAttribute('open','')}
+  }
+}
+
+var btnIdeas=document.getElementById('btn-ideas');
+if(btnIdeas) btnIdeas.addEventListener('click',function(e){e.preventDefault();openIdeas()});
+var navIdeas=document.getElementById('nav-ideas');
+if(navIdeas) navIdeas.addEventListener('click',function(e){e.preventDefault();openIdeas()});
+var ix=document.getElementById('ix');
+if(ix) ix.addEventListener('click',function(){if(dlg2)dlg2.close()});
+if(dlg2){
+  dlg2.addEventListener('click',function(e){if(e.target===dlg2)dlg2.close()});
+}
+
+var idt=document.getElementById("idt");
+if(il){
+  il.onclick=function(e){
+    var b=e.target.closest(".idea");
+    if(!b)return;
+    var x=IDEAS[+b.dataset.i],t=TX.k[x.k];
+    if(!idt)return;
+    idt.innerHTML='<button class="bk" id="bk">\u2190 '+TX.bk+'</button><div><div class="dv">'+THUMB(x)+'</div></div><div class="dt"><i class="dc">'+esc(P(DB.c[x.c].n))+'</i><h4>AI '+esc(x.f)+'</h4><h5>'+TX.fo+'</h5><p>'+esc(x.n)+'</p><h5>'+TX.wh+'</h5><p>'+esc(t[0].replace("{n}",x.n))+'</p><h5>'+TX.ex+'</h5><p>'+esc(t[1])+'</p><button class="dbtn" id="ub">'+TX.use+'</button></div>';
+    idt.className="on";
+    idt.scrollTop=0;
+    document.getElementById("bk").onclick=function(){idt.className=""};
+    document.getElementById("ub").onclick=function(){
+      if(dlg2) dlg2.close();
+      goToWorkspace("AI " + x.f + PRE + x.n);
+    };
+  };
+}
 
 /* ===== reveal saat scroll ===== */
 try{document.documentElement.classList.add("js");
