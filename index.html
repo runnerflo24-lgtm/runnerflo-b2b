@@ -88,14 +88,37 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
 .pv{width:min(1040px,100%);margin:48px auto 0;text-align:left;border:1px solid var(--line);border-radius:20px;background:var(--card);backdrop-filter:blur(20px);overflow:hidden;box-shadow:0 50px 100px -40px rgba(0,0,0,.85),0 0 80px -30px color-mix(in srgb,var(--vio) 55%,transparent);transition:border-color .4s,box-shadow .4s}
 .pv.live-active{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc),0 50px 100px -40px rgba(0,0,0,.85),0 0 80px -20px color-mix(in srgb,var(--acc) 45%,transparent)}
-.pv-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line)}
-.pv-bar i{width:11px;height:11px;border-radius:50%;background:color-mix(in srgb,var(--ink) 22%,transparent)}
-.pv-url{flex:1;margin-left:10px;padding:6px 14px;border-radius:99px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px}
-.pv-tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;background:var(--acc);color:var(--on);font-weight:850;font-size:10px;letter-spacing:.04em;text-transform:uppercase}
-.pv-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--on);animation:tagPulse 1.4s infinite}
-@keyframes tagPulse{50%{opacity:.25}}
+.pv-bar{display:flex;align-items:center;gap:7px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.bar-dots{display:flex;align-items:center;gap:7px;flex:none}
+.bar-dots i{width:11px;height:11px;border-radius:50%;cursor:pointer;transition:transform .15s,opacity .15s;display:inline-block}
+.bar-dots .dot-red{background:#ff5f56;opacity:.85}
+.bar-dots .dot-yellow{background:#ffbd2e;opacity:.85}
+.bar-dots .dot-green{background:#27c93f;opacity:.85}
+.bar-dots i:hover{transform:scale(1.25);opacity:1}
+.pv-url{flex:1;margin-left:10px;padding:5px 14px;border-radius:99px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.bar-actions{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
+.stage-btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:all .2s;text-decoration:none}
+.stage-btn:hover{background:var(--acc);color:var(--on);border-color:var(--acc)}
+.stage-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--mut);transition:all .2s}
+.stage-btn:hover .stage-tag{background:rgba(0,0,0,.25);color:#fff}
+.stage-btn.restore-btn{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--mut)}
+.stage-btn.restore-btn:hover{background:#ff5f56;color:#fff;border-color:#ff5f56}
 .pv-body{aspect-ratio:16/9;min-height:480px;position:relative}
 .pv-body iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* Stage 1: Penuh menutup layar KECUALI Chat AI */
+body.pv-stage-1-active .chat{position:fixed!important;top:14px!important;left:50%!important;transform:translateX(-50%)!important;width:min(720px,calc(100vw - 32px))!important;z-index:10000!important;margin:0!important;animation:chatDock .25s ease}
+body.pv-stage-1-active .comp{box-shadow:0 10px 40px rgba(0,0,0,0.85),0 0 25px color-mix(in srgb,var(--acc) 40%,transparent)!important;border-color:var(--acc)!important;background:rgba(14,18,30,0.95)!important}
+@keyframes chatDock{from{transform:translate(-50%,-10px);opacity:.8}to{transform:translate(-50%,0);opacity:1}}
+.pv.stage-1{position:fixed!important;top:88px!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;max-width:none!important;height:calc(100vh - 88px)!important;height:calc(100dvh - 88px)!important;z-index:9998!important;border-radius:0!important;margin:0!important;border:none!important;box-shadow:0 -10px 40px rgba(0,0,0,0.85)!important;display:flex!important;flex-direction:column!important;animation:exp1 .22s cubic-bezier(.16,1,.3,1)}
+.pv.stage-1 .pv-body{flex:1!important;height:calc(100% - 46px)!important;aspect-ratio:auto!important;min-height:0!important}
+
+/* Stage 2: Fullscreen seluruh layar 100% tanpa keluar tab */
+.pv.stage-2{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;z-index:99999!important;border-radius:0!important;margin:0!important;border:none!important;box-shadow:0 0 80px rgba(0,0,0,0.9)!important;display:flex!important;flex-direction:column!important;animation:exp2 .22s cubic-bezier(.16,1,.3,1)}
+.pv.stage-2 .pv-body{flex:1!important;height:calc(100% - 46px)!important;aspect-ratio:auto!important;min-height:0!important}
+
+@keyframes exp1{from{opacity:.9;transform:scale(.985)}to{opacity:1;transform:none}}
+@keyframes exp2{from{opacity:.9;transform:scale(.985)}to{opacity:1;transform:none}}
 /* sections */
 .sec{padding:120px 0 0}.kick{color:var(--acc);margin-bottom:14px}
 .t{font-size:clamp(30px,4.6vw,56px);line-height:1.02;letter-spacing:-.035em;font-weight:800;max-width:720px}
@@ -585,7 +608,25 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
     <p class="note">Asisten demo Veltra. Jawaban bisa keliru; untuk estimasi akurat, pesan audit gratis.</p>
     <!-- ====== KOTAK PREVIEW WEB (Contoh Nyata: Runnerflo AI 3D Game) ====== -->
     <div class="pv" id="preview">
-      <div class="pv-bar"><i></i><i></i><i></i><span class="pv-url">kuis-game-3d-console.pages.dev</span></div>
+      <div class="pv-bar">
+        <div class="bar-dots" title="Kontrol Ukuran">
+          <i class="dot-red" id="btn-restore-dot" title="Kecilkan / Normal"></i>
+          <i class="dot-yellow" id="btn-stage1-dot" title="Tahap 1: Layar Penuh Kecuali Chat AI"></i>
+          <i class="dot-green" id="btn-stage2-dot" title="Tahap 2: Layar Penuh"></i>
+        </div>
+        <span class="pv-url"><span style="padding:1px 7px;border-radius:99px;background:var(--acc);color:var(--on);font-weight:700;font-size:10px;margin-right:6px">LIVE</span> kuis-game-3d-console.pages.dev</span>
+        <div class="bar-actions">
+          <button class="stage-btn" id="btn-next-stage" title="Perbesar Tampilan">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            <span id="stage-label">Perbesar</span>
+            <span class="stage-tag" id="stage-badge">Tahap 1/3</span>
+          </button>
+          <button class="stage-btn restore-btn" id="btn-restore" title="Kembalikan ke Ukuran Normal" style="display:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>
+            <span id="restore-label">Kecilkan</span>
+          </button>
+        </div>
+      </div>
       <div class="pv-body" id="pv-body">
         <iframe id="demo-frame" src="https://kuis-game-3d-console.pages.dev" title="Runnerflo AI 3D Game Generator - Contoh Nyata" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>
       </div>
@@ -814,6 +855,90 @@ document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b => {
     goToWorkspace(b.textContent);
   });
 });
+})();
+
+/* ===== 3-Stage Progressive Showcase Frame (Perbesar 3 Bertahap) ===== */
+(function() {
+  var frame = document.getElementById('preview');
+  var btnNext = document.getElementById('btn-next-stage');
+  var btnRestore = document.getElementById('btn-restore');
+  var stageLabel = document.getElementById('stage-label');
+  var stageBadge = document.getElementById('stage-badge');
+  var restoreLabel = document.getElementById('restore-label');
+  var dotRed = document.getElementById('btn-restore-dot');
+  var dotYellow = document.getElementById('btn-stage1-dot');
+  var dotGreen = document.getElementById('btn-stage2-dot');
+
+  var STAGE_TEXT = {
+    s0_lbl: 'Perbesar', s0_tag: 'Tahap 1/3',
+    s1_lbl: 'Layar Penuh', s1_tag: 'Tahap 2/3',
+    s2_lbl: 'Buka Tab Baru', s2_tag: 'Tahap 3/3 &#x2197;',
+    rst: 'Kecilkan'
+  };
+
+  var currentStage = 0;
+
+  function updateStageUI() {
+    if (!frame) return;
+    frame.classList.remove('stage-1', 'stage-2');
+    document.body.classList.remove('pv-stage-1-active');
+
+    if (currentStage === 0) {
+      if (stageLabel) stageLabel.textContent = STAGE_TEXT.s0_lbl;
+      if (stageBadge) stageBadge.innerHTML = STAGE_TEXT.s0_tag;
+      if (btnRestore) btnRestore.style.display = 'none';
+      document.body.style.overflow = '';
+    } else if (currentStage === 1) {
+      frame.classList.add('stage-1');
+      document.body.classList.add('pv-stage-1-active');
+      if (stageLabel) stageLabel.textContent = STAGE_TEXT.s1_lbl;
+      if (stageBadge) stageBadge.innerHTML = STAGE_TEXT.s1_tag;
+      if (btnRestore) btnRestore.style.display = 'inline-flex';
+      if (restoreLabel) restoreLabel.textContent = STAGE_TEXT.rst;
+      document.body.style.overflow = 'hidden';
+    } else if (currentStage === 2) {
+      frame.classList.add('stage-2');
+      if (stageLabel) stageLabel.textContent = STAGE_TEXT.s2_lbl;
+      if (stageBadge) stageBadge.innerHTML = STAGE_TEXT.s2_tag;
+      if (btnRestore) btnRestore.style.display = 'inline-flex';
+      if (restoreLabel) restoreLabel.textContent = STAGE_TEXT.rst;
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function nextStage() {
+    if (currentStage === 0) {
+      currentStage = 1;
+      updateStageUI();
+    } else if (currentStage === 1) {
+      currentStage = 2;
+      updateStageUI();
+    } else if (currentStage === 2) {
+      window.open('https://kuis-game-3d-console.pages.dev', '_blank', 'noopener');
+    }
+  }
+
+  function setStage(s) {
+    currentStage = s;
+    updateStageUI();
+  }
+
+  function restore() {
+    currentStage = 0;
+    updateStageUI();
+  }
+
+  if (btnNext) btnNext.addEventListener('click', nextStage);
+  if (btnRestore) btnRestore.addEventListener('click', restore);
+  if (dotRed) dotRed.addEventListener('click', restore);
+  if (dotYellow) dotYellow.addEventListener('click', function() { setStage(1); });
+  if (dotGreen) dotGreen.addEventListener('click', function() { setStage(2); });
+
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && currentStage > 0) {
+      restore();
+    }
+  });
 })();
 
 /* ===== Engine 9.500+ Ide Aplikasi AI ===== */
