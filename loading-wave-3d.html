@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loading AI</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0a0d29;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .content {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #f4f6ff;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 2px 24px rgba(5, 6, 30, .7), 0 0 2px rgba(5, 6, 30, .6);
+  }
+
+  .percent {
+    font-size: clamp(48px, 14vmin, 120px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .label {
+    font-size: clamp(14px, 3vmin, 20px);
+    letter-spacing: .5px;
+    opacity: .92;
+  }
+
+  .dots span {
+    display: inline-block;
+    animation: dot 1.2s infinite ease-in-out;
+  }
+  .dots span:nth-child(2) { animation-delay: .2s; }
+  .dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes dot {
+    0%, 80%, 100% { opacity: .25; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-4px); }
+  }
+
+  /* Cadangan jika WebGL tidak tersedia */
+  body.nogl {
+    background: linear-gradient(120deg, #0a0d29, #3a2ba8, #4aa8ff, #0a0d29);
+    background-size: 300% 300%;
+    animation: fallback 8s ease-in-out infinite;
+  }
+  @keyframes fallback {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="cloth"></canvas>
+
+  <div class="content" role="status" aria-live="polite" aria-label="Memuat AI">
+    <div class="percent" id="percent">0%</div>
+    <div class="label"><span id="label">Menyiapkan AI</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('cloth');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) { document.body.classList.add('nogl'); return setupProgress(null); }
+
+  // ---------- Shader ----------
+  const COMMON = `
+    precision highp float;
+    uniform float uTime;
+
+    // Kain "dikocak": domain diputar-putar dulu supaya lipatannya tidak beraturan
+    vec2 warp(vec2 p) {
+      return p + 0.35 * vec2(sin(p.y * 0.6 + uTime * 0.9), cos(p.x * 0.5 + uTime * 0.7));
+    }
+
+    float height(vec2 p0) {
+      vec2 p = warp(p0);
+      float t = uTime;
+      float h = 0.0;
+      h += 0.55 * sin(dot(p, vec2( 0.8,  0.5)) + t * 1.3);
+      h += 0.40 * sin(dot(p, vec2(-0.5,  0.9)) + t * 1.7 + 1.3);
+      h += 0.22 * sin(dot(p, vec2( 1.6, -0.7)) - t * 2.1 + 2.1);
+      h += 0.10 * sin(dot(p, vec2( 2.8,  2.0)) + t * 3.2);
+      // gelembung besar: kain mengembang lalu mengempis
+      h *= 0.85 + 0.25 * sin(p0.x * 0.25 + t * 0.5) * cos(p0.y * 0.2 - t * 0.4);
+      return h;
+    }
+  `;
+
+  const VS = COMMON + `
+    attribute vec2 aPos;
+    uniform mat4 uVP;
+    varying vec3 vWorld;
+    void main() {
+      float h = height(aPos);
+      vec3 w = vec3(aPos.x, h, aPos.y);
+      vWorld = w;
+      gl_Position = uVP * vec4(w, 1.0);
+    }
+  `;
+
+  const FS = COMMON + `
+    uniform vec3 uCam;
+    uniform float uGlow;
+    varying vec3 vWorld;
+
+    void main() {
+      vec2 p = vWorld.xz;
+      float e = 0.04;
+      float h  = height(p);
+      float hx = height(p + vec2(e, 0.0));
+      float hz = height(p + vec2(0.0, e));
+      vec3 n = normalize(vec3(-(hx - h) / e, 1.0, -(hz - h) / e));
+
+      vec3 V = normalize(uCam - vWorld);
+      vec3 L1 = normalize(vec3(-0.4, 0.8, 0.5));
+      vec3 L2 = normalize(vec3( 0.7, 0.4, -0.6));
+
+      float d1 = max(dot(n, L1), 0.0);
+      float d2 = max(dot(n, L2), 0.0);
+      vec3 H = normalize(L1 + V);
+      float spec = pow(max(dot(n, H), 0.0), 60.0);
+      float fres = pow(1.0 - max(dot(n, V), 0.0), 3.0);
+
+      float hh = clamp(h * 0.4 + 0.5, 0.0, 1.0);
+      vec3 deep = vec3(0.07, 0.08, 0.32);
+      vec3 mid  = vec3(0.38, 0.25, 0.88);
+      vec3 high = vec3(0.45, 0.82, 1.00);
+
+      vec3 col = mix(deep, mid, smoothstep(0.10, 0.60, hh));
+      col = mix(col, high, smoothstep(0.62, 1.0, hh) * 0.8);
+
+      col *= 0.32 + 0.95 * d1;
+      col += d2 * vec3(0.55, 0.20, 0.75) * 0.28;          // cahaya samping keunguan
+      col += spec * vec3(1.0, 0.95, 1.0) * 0.65;          // kilau satin
+      col += fres * vec3(0.35, 0.45, 1.0) * 0.5;          // tepi lipatan bercahaya
+      col *= 1.0 + uGlow * 0.35;
+
+      // kabut ke warna latar -> kedalaman, tidak ada tepi terlihat
+      float dist = length(vWorld.xz - uCam.xz);
+      col = mix(col, vec3(0.04, 0.05, 0.16), smoothstep(6.0, 14.0, dist));
+
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+
+  const vs = compile(gl.VERTEX_SHADER, VS);
+  const fs = compile(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) { document.body.classList.add('nogl'); return setupProgress(null); }
+
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.error(gl.getProgramInfoLog(prog));
+    document.body.classList.add('nogl');
+    return setupProgress(null);
+  }
+  gl.useProgram(prog);
+
+  // ---------- Mesh kain ----------
+  const N = 250;          // titik per sisi (250*250 < 65536 -> Uint16 cukup)
+  const EXTENT = 18;      // kain besar supaya selalu memenuhi layar
+  const pos = new Float32Array(N * N * 2);
+  for (let j = 0; j < N; j++) {
+    for (let i = 0; i < N; i++) {
+      const k = (j * N + i) * 2;
+      pos[k]     = (i / (N - 1) * 2 - 1) * EXTENT;
+      pos[k + 1] = (j / (N - 1) * 2 - 1) * EXTENT;
+    }
+  }
+  const idx = new Uint16Array((N - 1) * (N - 1) * 6);
+  let q = 0;
+  for (let j = 0; j < N - 1; j++) {
+    for (let i = 0; i < N - 1; i++) {
+      const a = j * N + i, b = a + 1, c = a + N, d = c + 1;
+      idx[q++] = a; idx[q++] = c; idx[q++] = b;
+      idx[q++] = b; idx[q++] = c; idx[q++] = d;
+    }
+  }
+
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, pos, gl.STATIC_DRAW);
+  const aPos = gl.getAttribLocation(prog, 'aPos');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  const ibo = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+
+  const uTime = gl.getUniformLocation(prog, 'uTime');
+  const uVP   = gl.getUniformLocation(prog, 'uVP');
+  const uCam  = gl.getUniformLocation(prog, 'uCam');
+  const uGlow = gl.getUniformLocation(prog, 'uGlow');
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.clearColor(0.04, 0.05, 0.16, 1);
+
+  // ---------- Matriks kecil ----------
+  function perspective(fovy, aspect, near, far) {
+    const f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
+    return [f / aspect,0,0,0, 0,f,0,0, 0,0,(far + near) * nf,-1, 0,0,2 * far * near * nf,0];
+  }
+  function sub(a, b) { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+  function cross(a, b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+  function norm(a) { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0]/l, a[1]/l, a[2]/l]; }
+  function dot(a, b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+  function lookAt(eye, target, up) {
+    const z = norm(sub(eye, target));
+    const x = norm(cross(up, z));
+    const y = cross(z, x);
+    return [x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0, -dot(x,eye),-dot(y,eye),-dot(z,eye),1];
+  }
+  function mul(a, b) {
+    const o = new Array(16);
+    for (let c = 0; c < 4; c++)
+      for (let r = 0; r < 4; r++)
+        o[c*4 + r] = a[r]*b[c*4] + a[4+r]*b[c*4+1] + a[8+r]*b[c*4+2] + a[12+r]*b[c*4+3];
+    return o;
+  }
+
+  // ---------- Ukuran ----------
+  let W = 0, H = 0;
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+    const h = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+    if (w !== W || h !== H) {
+      W = canvas.width = w;
+      H = canvas.height = h;
+      gl.viewport(0, 0, W, H);
+    }
+  }
+  window.addEventListener('resize', resize);
+
+  // ---------- Progres (teks & intensitas kibasan) ----------
+  const progress = setupProgress();
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let t = 0, last = performance.now();
+
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    resize();
+
+    // makin tinggi progres, makin kencang kainnya dikibas
+    const p = progress.value() / 100;
+    t += dt * (reduced ? 0.15 : 1.0 + p * 0.7);
+
+    const eye = [Math.sin(t * 0.15) * 1.4, 5.0, 3.5 + Math.cos(t * 0.11) * 0.4];
+    const view = lookAt(eye, [0, 0, -1], [0, 1, 0]);
+    const proj = perspective(55 * Math.PI / 180, W / H, 0.1, 80);
+    const vp = mul(proj, view);
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.uniform1f(uTime, t);
+    gl.uniformMatrix4fv(uVP, false, new Float32Array(vp));
+    gl.uniform3f(uCam, eye[0], eye[1], eye[2]);
+    gl.uniform1f(uGlow, progress.glow());
+    gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---------- Logika persentase ----------
+  // Dipakai juga saat WebGL tidak ada (gl = null)
+  function setupProgress() { return progressLogic(); }
+})();
+
+function progressLogic() {
+  const percent = document.getElementById('percent');
+  const label = document.getElementById('label');
+
+  let current = 0, target = 0, external = false, glow = 0, glowTarget = 0;
+
+  function loop() {
+    current += (target - current) * 0.04;
+    if (Math.abs(target - current) < 0.05) current = target;
+    glow += (glowTarget - glow) * 0.08;
+    percent.textContent = Math.round(current) + '%';
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // Mode mandiri: simulasi loading berulang
+  function auto() {
+    if (external) return;
+    const steps = [18, 37, 55, 71, 86, 100];
+    let i = 0;
+    const id = setInterval(() => {
+      if (external) return clearInterval(id);
+      target = steps[i++];
+      if (target >= 100) {
+        clearInterval(id);
+        label.textContent = 'Siap';
+        glowTarget = 1;
+        setTimeout(() => {
+          if (external) return;
+          glowTarget = 0;
+          label.textContent = 'Menyiapkan AI';
+          target = 0; current = 0;
+          auto();
+        }, 2200);
+      }
+    }, 900);
+  }
+  auto();
+
+  // Kontrol dari halaman induk:
+  //   iframe.contentWindow.postMessage({ type: 'progress', value: 60, text: 'Memuat model' }, '*')
+  //   iframe.contentWindow.postMessage({ type: 'done' }, '*')
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === 'progress') {
+      external = true;
+      target = Math.max(0, Math.min(100, Number(d.value) || 0));
+      glowTarget = 0;
+      if (d.text) label.textContent = d.text;
+    } else if (d.type === 'done') {
+      external = true;
+      target = 100;
+      glowTarget = 1;
+      label.textContent = d.text || 'Siap';
+    }
+  });
+
+  return { value: () => current, glow: () => glow };
+}
+</script>
+</body>
+</html>

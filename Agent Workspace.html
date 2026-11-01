@@ -272,111 +272,132 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
 .flow-empty { text-align: center; padding: 32px 16px; color: var(--muted); }
 .flow-empty b { display: block; font-size: 15px; color: var(--fg); margin-bottom: 6px; }
 
-/* -- Wave Loading & Hologram Generation Animation -- */
+/* -- Wave Loading (iframe loading-wave-3d.html) -- */
 .wave-loading-wrap {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 50% 45%, #0f162e 0%, #06080f 100%);
-  color: #fff;
   z-index: 10;
   overflow: hidden;
   transition: opacity .7s cubic-bezier(.16,1,.3,1), visibility .7s;
+  background: #0a0d29;
 }
 .wave-loading-wrap.done {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
-.wave-ai-core {
-  width: 72px;
-  height: 72px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, var(--accent), #7c5cff);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 0 45px rgba(124, 92, 255, 0.6), 0 0 85px rgba(200, 255, 62, 0.35);
-  animation: corePulse 2s ease-in-out infinite;
-  margin-bottom: 18px;
-  position: relative;
-}
-.wave-ai-core::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: 28px;
-  border: 1.5px dashed color-mix(in srgb, var(--accent) 70%, transparent);
-  animation: spin 8s linear infinite;
-}
-@keyframes corePulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 35px rgba(124, 92, 255, 0.5); }
-  50% { transform: scale(1.08); box-shadow: 0 0 65px rgba(200, 255, 62, 0.6), 0 0 110px rgba(124, 92, 255, 0.4); }
-}
-.sound-wave-bars {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  height: 38px;
-  margin: 14px 0 10px;
-}
-.sound-wave-bars span {
-  width: 4px;
-  height: 8px;
-  background: linear-gradient(180deg, var(--accent), #38bdf8);
-  border-radius: 99px;
-  animation: soundBar 1.2s ease-in-out infinite;
-}
-.sound-wave-bars span:nth-child(1) { animation-delay: 0.0s; }
-.sound-wave-bars span:nth-child(2) { animation-delay: 0.12s; }
-.sound-wave-bars span:nth-child(3) { animation-delay: 0.24s; }
-.sound-wave-bars span:nth-child(4) { animation-delay: 0.36s; }
-.sound-wave-bars span:nth-child(5) { animation-delay: 0.48s; }
-.sound-wave-bars span:nth-child(6) { animation-delay: 0.6s; }
-.sound-wave-bars span:nth-child(7) { animation-delay: 0.72s; }
-.sound-wave-bars span:nth-child(8) { animation-delay: 0.6s; }
-.sound-wave-bars span:nth-child(9) { animation-delay: 0.48s; }
-.sound-wave-bars span:nth-child(10) { animation-delay: 0.36s; }
-.sound-wave-bars span:nth-child(11) { animation-delay: 0.24s; }
-.sound-wave-bars span:nth-child(12) { animation-delay: 0.12s; }
-@keyframes soundBar {
-  0%, 100% { height: 8px; opacity: 0.35; transform: scaleY(0.6); }
-  50% { height: 38px; opacity: 1; transform: scaleY(1.2); }
-}
-.wave-progress-bar {
-  width: 260px;
-  height: 6px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 99px;
-  overflow: hidden;
-  margin: 10px 0 6px;
-  position: relative;
-}
-.wave-progress-fill {
+.wave-loading-wrap iframe {
+  width: 100%;
   height: 100%;
-  width: 4%;
-  background: linear-gradient(90deg, var(--accent), #38bdf8);
-  border-radius: 99px;
-  transition: width .35s ease;
-}
-.wave-status-text {
-  font-size: 14px;
-  font-weight: 700;
-  color: #f1f4fa;
-  margin-top: 4px;
-  letter-spacing: -.01em;
-}
-.wave-sub-text {
-  font-size: 12px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  margin-top: 2px;
+  border: 0;
+  display: block;
 }
 
-/* -- 3x Enlarged Preview Theater Lightbox -- */
+/* -- 3-Stage Progressive Showcase for Agent Workspace -- */
+.ws-bar-dots { display: flex; align-items: center; gap: 6px; margin-right: 6px; flex: none; }
+.ws-bar-dots i { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; transition: transform .15s, opacity .15s; display: inline-block; }
+.ws-bar-dots .dot-red { background: #ff5f56; opacity: .85; }
+.ws-bar-dots .dot-yellow { background: #ffbd2e; opacity: .85; }
+.ws-bar-dots .dot-green { background: #27c93f; opacity: .85; }
+.ws-bar-dots i:hover { transform: scale(1.25); opacity: 1; }
+
+.stage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+}
+.stage-btn:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.stage-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--fg) 12%, transparent);
+  color: var(--muted);
+  transition: all .2s;
+}
+.stage-btn:hover .stage-tag {
+  background: rgba(0, 0, 0, .25);
+  color: #fff;
+}
+.stage-btn.restore-btn {
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--muted);
+}
+.stage-btn.restore-btn:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* Workspace Stage 1: Layar penuh KECUALI Chat AI */
+.work.ws-stage-1 {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9998 !important;
+  background: var(--bg) !important;
+  padding: 12px !important;
+  gap: 12px !important;
+}
+.work.ws-stage-1 .chat {
+  width: 420px !important;
+  min-width: 360px !important;
+  max-width: 450px !important;
+  flex: none !important;
+  display: flex !important;
+}
+.work.ws-stage-1 .side {
+  flex: 1 !important;
+  height: 100% !important;
+  max-height: none !important;
+}
+
+/* Workspace Stage 2: Layar penuh 100% tanpa keluar tab */
+.work.ws-stage-2 {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  background: #000 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+}
+.work.ws-stage-2 .chat {
+  display: none !important;
+}
+.work.ws-stage-2 .side {
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+.work.ws-stage-2 .sbar {
+  display: none !important;
+}
+.work.ws-stage-2 .browser {
+  height: 100vh !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
 .btn-expand-preview {
   display: inline-flex;
   align-items: center;
@@ -838,18 +859,20 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     pct: 4
   };
 
+  function _sendWaveMsg(data) {
+    var wf = $('#wsWaveFrame');
+    if (wf && wf.contentWindow) {
+      try { wf.contentWindow.postMessage(data, '*'); } catch(e) {}
+    }
+  }
+
   function updateWave(pct, title, sub) {
     liveGenStatus.pct = pct;
     liveGenStatus.title = title;
     liveGenStatus.sub = sub;
     var w = $('#waveLoading');
-    if (w) {
-      w.classList.remove('done');
-      var f = $('#waveFill'), t = $('#waveStatusText'), s = $('#waveSubText');
-      if (f) f.style.width = pct + '%';
-      if (t) t.textContent = title;
-      if (s) s.innerHTML = sub;
-    }
+    if (w) w.classList.remove('done');
+    _sendWaveMsg({ type: 'progress', value: pct, text: title.replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022') });
     var frame = $('#wsLiveFrame');
     if (frame && pct < 100) frame.style.opacity = '0';
   }
@@ -858,27 +881,75 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     liveGenStatus.pct = 100;
     liveGenStatus.title = 'Generasi Selesai 100%! Platform EdTech LMS Aktif.';
     liveGenStatus.sub = 'Progres: 100% &bull; Terhubung ke 1.000+ Marketplace Global';
-    var w = $('#waveLoading');
-    if (w) w.classList.add('done');
-    var iframe = $('#wsLiveFrame');
-    if (iframe) iframe.style.opacity = '1';
+    _sendWaveMsg({ type: 'done', text: 'Siap \u2014 EdTech LMS Aktif!' });
+    setTimeout(function () {
+      var w = $('#waveLoading');
+      if (w) w.classList.add('done');
+      var iframe = $('#wsLiveFrame');
+      if (iframe) iframe.style.opacity = '1';
+    }, 800);
   }
 
-  function openLightbox() {
-    var lb = $('#previewLightbox');
-    if (!lb) return;
-    lb.hidden = false;
-    document.body.style.overflow = 'hidden';
-  }
-  window.openLightbox = openLightbox;
+  var wsCurrentStage = 0;
+  var WS_STAGE_TEXT = {
+    s0_lbl: 'Perbesar', s0_tag: 'Tahap 1/3',
+    s1_lbl: 'Layar Penuh', s1_tag: 'Tahap 2/3',
+    s2_lbl: 'Buka Tab Baru', s2_tag: 'Tahap 3/3 &#x2197;',
+    rst: 'Kecilkan'
+  };
 
-  function closeLightbox() {
-    var lb = $('#previewLightbox');
-    if (!lb) return;
-    lb.hidden = true;
-    document.body.style.overflow = '';
+  function updateWsStageUI() {
+    var workEl = $('#work');
+    if (workEl) {
+      workEl.classList.remove('ws-stage-1', 'ws-stage-2');
+      if (wsCurrentStage === 1) workEl.classList.add('ws-stage-1');
+      else if (wsCurrentStage === 2) workEl.classList.add('ws-stage-2');
+    }
+    var lbl = $('#wsStageLabel'), bdg = $('#wsStageBadge'), rBtn = $('#wsBtnRestore'), rLbl = $('#wsRestoreLabel');
+    if (wsCurrentStage === 0) {
+      if (lbl) lbl.textContent = WS_STAGE_TEXT.s0_lbl;
+      if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s0_tag;
+      if (rBtn) rBtn.style.display = 'none';
+      document.body.style.overflow = '';
+    } else if (wsCurrentStage === 1) {
+      if (lbl) lbl.textContent = WS_STAGE_TEXT.s1_lbl;
+      if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s1_tag;
+      if (rBtn) rBtn.style.display = 'inline-flex';
+      if (rLbl) rLbl.textContent = WS_STAGE_TEXT.rst;
+      document.body.style.overflow = 'hidden';
+    } else if (wsCurrentStage === 2) {
+      if (lbl) lbl.textContent = WS_STAGE_TEXT.s2_lbl;
+      if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s2_tag;
+      if (rBtn) rBtn.style.display = 'inline-flex';
+      if (rLbl) rLbl.textContent = WS_STAGE_TEXT.rst;
+      document.body.style.overflow = 'hidden';
+    }
   }
-  window.closeLightbox = closeLightbox;
+
+  function wsNextStage() {
+    if (wsCurrentStage === 0) {
+      wsCurrentStage = 1;
+      updateWsStageUI();
+    } else if (wsCurrentStage === 1) {
+      wsCurrentStage = 2;
+      updateWsStageUI();
+    } else if (wsCurrentStage === 2) {
+      window.open('https://runnerflo-ai.pages.dev', '_blank', 'noopener');
+    }
+  }
+  window.wsNextStage = wsNextStage;
+
+  function wsSetStage(s) {
+    wsCurrentStage = s;
+    updateWsStageUI();
+  }
+  window.wsSetStage = wsSetStage;
+
+  function wsRestore() {
+    wsCurrentStage = 0;
+    updateWsStageUI();
+  }
+  window.wsRestore = wsRestore;
 
   function runAgent(p, text) {
     var my = ++runId;
@@ -966,7 +1037,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
         p.stage = 4;
         p.suggest = ['Uji coba video player HLS', 'Lihat kuis & skor', 'Buka Radar cari klien', 'Aktifkan Make workflow'];
         p.updated = Date.now();
-        m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn-expand-preview" onclick="openLightbox()" style="padding:9px 18px;font-size:13px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Perbesar Pratinjau (3x) &#x2922;</button></div>';
+        m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="stage-btn" onclick="window.wsNextStage()" style="padding:9px 18px;font-size:13px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Perbesar Pratinjau (Tahap 1/3)</button></div>';
         finishWave();
         save();
         toast('\ud83d\ude80 Platform EdTech LMS selesai dibuat & live!');
@@ -1132,26 +1203,30 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     } else if (uiMode === 'live') {
       var isGenerating = (p && p.busy);
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
-        '<div class="chrome"><i></i><i></i><i></i>' +
+        '<div class="chrome">' +
+        '<div class="ws-bar-dots" title="Kontrol Ukuran">' +
+        '<i class="dot-red" id="ws-restore-dot" title="Kecilkan / Normal"></i>' +
+        '<i class="dot-yellow" id="ws-stage1-dot" title="Tahap 1: Layar Penuh Kecuali Chat AI"></i>' +
+        '<i class="dot-green" id="ws-stage2-dot" title="Tahap 2: Layar Penuh"></i>' +
+        '</div>' +
         '<span class="url" style="display:flex;align-items:center;gap:8px">' +
         '<span style="padding:1px 7px;border-radius:99px;background:var(--ok);color:#fff;font-weight:700;font-size:10px;letter-spacing:.02em">LIVE</span> ' +
         'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform</span>' +
-        '<button type="button" class="btn-expand-preview" id="btnExpand3x" title="Perbesar tampilan pratinjau 3x">' +
+        '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
+        '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Perbesar Tampilan">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
-        'Perbesar 3x' +
+        '<span id="wsStageLabel">Perbesar</span>' +
+        '<span class="stage-tag" id="wsStageBadge">Tahap 1/3</span>' +
         '</button>' +
+        '<button type="button" class="stage-btn restore-btn" id="wsBtnRestore" title="Kembalikan ke Ukuran Normal" style="display:none">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>' +
+        '<span id="wsRestoreLabel">Kecilkan</span>' +
+        '</button>' +
+        '</div>' +
         '</div>' +
         '<div style="flex:1;min-height:540px;position:relative;background:#06080f">' +
         '<div id="waveLoading" class="wave-loading-wrap' + (isGenerating ? '' : ' done') + '">' +
-        '<div class="wave-ai-core">' +
-        '<svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>' +
-        '</div>' +
-        '<div class="sound-wave-bars">' +
-        '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>' +
-        '</div>' +
-        '<div class="wave-status-text" id="waveStatusText">' + esc(liveGenStatus.title || 'AI Agent sedang men-generate arsitektur EdTech LMS...') + '</div>' +
-        '<div class="wave-progress-bar"><div class="wave-progress-fill" id="waveFill" style="width:' + (liveGenStatus.pct || 4) + '%"></div></div>' +
-        '<div class="wave-sub-text" id="waveSubText">' + (liveGenStatus.sub || 'Progres: ' + (liveGenStatus.pct || 4) + '% &bull; Inisialisasi Edge Environment') + '</div>' +
+        '<iframe id="wsWaveFrame" src="loading-wave-3d.html" title="Loading AI" sandbox="allow-scripts allow-same-origin" style="width:100%;height:100%;border:0;display:block"></iframe>' +
         '</div>' +
         '<iframe id="wsLiveFrame" src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Platform" style="position:absolute;inset:0;width:100%;height:100%;border:0;opacity:' + (isGenerating ? '0' : '1') + ';transition:opacity 0.8s ease" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>' +
         '</div>' +
@@ -1170,7 +1245,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     }
     pane.innerHTML = h;
     if (uiMode === 'preview') { var nm = pane.querySelectorAll('.files .nm'); p.assets.forEach(function (a, i) { nm[i].textContent = a.name; nm[i].title = a.name; }); }
-    if (uiMode === 'live') { drawCourses(); drawQuiz(); var sq = $('#sq'); if (sq) sq.value = live.q; }
+    if (uiMode === 'live') { drawCourses(); drawQuiz(); var sq = $('#sq'); if (sq) sq.value = live.q; setTimeout(updateWsStageUI, 10); setTimeout(function(){ if (liveGenStatus.pct >= 100) { _sendWaveMsg({ type: 'done', text: 'Siap \u2014 EdTech LMS Aktif!' }); } else { _sendWaveMsg({ type: 'progress', value: liveGenStatus.pct || 4, text: (liveGenStatus.title || '').replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022') }); } }, 200); }
     if (uiMode === 'code') { var pr = pane.querySelector('pre.code'); if (pr) pr.textContent = codeFor(codeFile); }
     if (uiMode === 'radar') {
       var si = $('#skillsInput'); if (si) si.addEventListener('input', function(){ radarState.skills = this.value; });
@@ -1309,6 +1384,11 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     if ((el = c('[data-o]'))) { if (live.picked < 0) { live.picked = +el.dataset.o; if (live.picked === QUIZ[live.qi].a) live.score++; drawQuiz(); } return; }
     if (c('[data-qn]')) { if (live.qi === QUIZ.length - 1) live.done = true; else { live.qi++; live.picked = -1; } drawQuiz(); return; }
     if (c('[data-qr]')) { live.qi = 0; live.score = 0; live.picked = -1; live.done = false; drawQuiz(); return; }
+    if (c('#wsBtnNextStage')) { wsNextStage(); return; }
+    if (c('#wsBtnRestore')) { wsRestore(); return; }
+    if (c('#ws-restore-dot')) { wsSetStage(0); return; }
+    if (c('#ws-stage1-dot')) { wsSetStage(1); return; }
+    if (c('#ws-stage2-dot')) { wsSetStage(2); return; }
     if (c('#btnExpand3x')) { openLightbox(); return; }
     if (c('#btnCloseLightbox')) { closeLightbox(); return; }
     if (t && t.id === 'previewLightbox') { closeLightbox(); return; }
@@ -1317,7 +1397,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   document.addEventListener('keydown', function (e) {
     var tg = e.target;
     if ((e.key === 'Enter' || e.key === ' ') && tg.matches && tg.matches('div.tab[data-t]')) { e.preventDefault(); go(tg.dataset.t); }
-    if (e.key === 'Escape') { closeMenu(); closeLightbox(); }
+    if (e.key === 'Escape') { closeMenu(); closeLightbox(); wsRestore(); }
   });
   document.addEventListener('input', function (e) {
     if (e.target.id === 'msg') { fit(); updSend(); }
