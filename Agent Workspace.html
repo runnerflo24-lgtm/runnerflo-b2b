@@ -1,4 +1,4 @@
-﻿<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Agent Workspace</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -224,7 +224,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
 }
 @media (prefers-reduced-motion: reduce) { .steps li:not(.done) .ck, .typing i { animation: none; } .thread { scroll-behavior: auto; } .dots button { transition: none; } }
 
-/* ── Radar (AI Pencari Nafkah) ───────────────────────────────── */
+/* -- Radar (AI Pencari Nafkah) --------------------------------- */
 .radar-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
 .radar-top h4 { margin: 0; font-size: 14px; font-weight: 700; flex: 1; }
 .scan-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 13px; border: none; cursor: pointer; }
@@ -251,7 +251,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
 .radar-empty { text-align: center; padding: 32px 16px; color: var(--muted); }
 .radar-empty b { display: block; font-size: 15px; color: var(--fg); margin-bottom: 6px; }
 
-/* ── Workflow Visualizer (Make.com style) ────────────────────── */
+/* -- Workflow Visualizer (Make.com style) ---------------------- */
 .flow-board { display: flex; flex-direction: column; gap: 16px; }
 .flow-board h4 { margin: 0; font-size: 14px; font-weight: 700; }
 .flow-canvas { display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 12px 4px; scrollbar-width: thin; }
@@ -271,6 +271,224 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
 .flow-actions .activate-btn { background: var(--ok); color: #fff; border-color: transparent; }
 .flow-empty { text-align: center; padding: 32px 16px; color: var(--muted); }
 .flow-empty b { display: block; font-size: 15px; color: var(--fg); margin-bottom: 6px; }
+
+/* -- Wave Loading & Hologram Generation Animation -- */
+.wave-loading-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 45%, #0f162e 0%, #06080f 100%);
+  color: #fff;
+  z-index: 10;
+  overflow: hidden;
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), visibility .7s;
+}
+.wave-loading-wrap.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.wave-ai-core {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--accent), #7c5cff);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 45px rgba(124, 92, 255, 0.6), 0 0 85px rgba(200, 255, 62, 0.35);
+  animation: corePulse 2s ease-in-out infinite;
+  margin-bottom: 18px;
+  position: relative;
+}
+.wave-ai-core::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 28px;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 70%, transparent);
+  animation: spin 8s linear infinite;
+}
+@keyframes corePulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 35px rgba(124, 92, 255, 0.5); }
+  50% { transform: scale(1.08); box-shadow: 0 0 65px rgba(200, 255, 62, 0.6), 0 0 110px rgba(124, 92, 255, 0.4); }
+}
+.sound-wave-bars {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+  margin: 14px 0 10px;
+}
+.sound-wave-bars span {
+  width: 4px;
+  height: 8px;
+  background: linear-gradient(180deg, var(--accent), #38bdf8);
+  border-radius: 99px;
+  animation: soundBar 1.2s ease-in-out infinite;
+}
+.sound-wave-bars span:nth-child(1) { animation-delay: 0.0s; }
+.sound-wave-bars span:nth-child(2) { animation-delay: 0.12s; }
+.sound-wave-bars span:nth-child(3) { animation-delay: 0.24s; }
+.sound-wave-bars span:nth-child(4) { animation-delay: 0.36s; }
+.sound-wave-bars span:nth-child(5) { animation-delay: 0.48s; }
+.sound-wave-bars span:nth-child(6) { animation-delay: 0.6s; }
+.sound-wave-bars span:nth-child(7) { animation-delay: 0.72s; }
+.sound-wave-bars span:nth-child(8) { animation-delay: 0.6s; }
+.sound-wave-bars span:nth-child(9) { animation-delay: 0.48s; }
+.sound-wave-bars span:nth-child(10) { animation-delay: 0.36s; }
+.sound-wave-bars span:nth-child(11) { animation-delay: 0.24s; }
+.sound-wave-bars span:nth-child(12) { animation-delay: 0.12s; }
+@keyframes soundBar {
+  0%, 100% { height: 8px; opacity: 0.35; transform: scaleY(0.6); }
+  50% { height: 38px; opacity: 1; transform: scaleY(1.2); }
+}
+.wave-progress-bar {
+  width: 260px;
+  height: 6px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 10px 0 6px;
+  position: relative;
+}
+.wave-progress-fill {
+  height: 100%;
+  width: 4%;
+  background: linear-gradient(90deg, var(--accent), #38bdf8);
+  border-radius: 99px;
+  transition: width .35s ease;
+}
+.wave-status-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f4fa;
+  margin-top: 4px;
+  letter-spacing: -.01em;
+}
+.wave-sub-text {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* -- 3x Enlarged Preview Theater Lightbox -- */
+.btn-expand-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background .2s, transform .2s;
+}
+.btn-expand-preview:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: translateY(-1px);
+}
+.preview-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(3, 5, 12, 0.88);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 24px 22px;
+  box-sizing: border-box;
+  animation: lbFadeIn .25s ease;
+}
+@keyframes lbFadeIn {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+.preview-lightbox-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px -20px rgba(0,0,0,0.9), 0 0 60px -10px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.preview-lightbox-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.preview-lightbox-bar .url {
+  flex: 1;
+  background: var(--panel);
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+}
+.preview-lightbox-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: var(--line);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 12.5px;
+  border: 0;
+  cursor: pointer;
+  transition: background .2s;
+}
+.preview-lightbox-close:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.preview-lightbox-body {
+  flex: 1;
+  position: relative;
+  background: #000;
+}
+.preview-lightbox-body iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+@media (max-width: 640px) {
+  .preview-lightbox {
+    padding: 10px 8px 12px;
+  }
+  .preview-lightbox-inner {
+    border-radius: 14px;
+  }
+  .preview-lightbox-bar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .preview-lightbox-bar .url {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+}
 </style>
 
 <div class="app">
@@ -325,6 +543,30 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<!-- 3x Enlarged Preview Theater Lightbox (In-Place) -->
+<div id="previewLightbox" class="preview-lightbox" hidden>
+  <div class="preview-lightbox-inner">
+    <div class="preview-lightbox-bar">
+      <span style="display:flex;align-items:center;gap:6px">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ff5f56;display:inline-block"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#ffbd2e;display:inline-block"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#27c93f;display:inline-block"></span>
+      </span>
+      <span class="url">
+        <span style="padding:2px 8px;border-radius:99px;background:var(--ok);color:#fff;font-weight:700;font-size:10px;letter-spacing:.02em">LIVE 3X</span>
+        https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Tampilan Penuh 3x)
+      </span>
+      <button type="button" class="preview-lightbox-close" id="btnCloseLightbox" aria-label="Tutup pratinjau">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Tutup (Kembali)
+      </button>
+    </div>
+    <div class="preview-lightbox-body">
+      <iframe src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Tampilan Penuh" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -363,10 +605,10 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     { q: 'Kata kunci apa yang dipakai untuk membuat fungsi?', o: ['func', 'def', 'lambda', 'fn'], a: 1 }
   ];
   var TIPS = [
-    ['Gunakan tab Radar', 'Masukkan keahlian Anda lalu klik Scan — AI cari peluang klien di Google hari ini.'],
+    ['Gunakan tab Radar', 'Masukkan keahlian Anda lalu klik Scan \u2014 AI cari peluang klien di Google hari ini.'],
     ['Workflow otomasi siap', 'Minta AI buat workflow Make.com: WhatsApp auto-reply, invoice email, update Sheets.'],
     ['Beri perintah spesifik', 'Contoh: "Buatkan landing page salon dengan form booking dan daftar harga".'],
-    ['Kirim proposal 1 klik', 'Di tab Radar, klik "Kirim via WA" — proposal langsung dibuka di WhatsApp siap kirim.']
+    ['Kirim proposal 1 klik', 'Di tab Radar, klik "Kirim via WA" \u2014 proposal langsung dibuka di WhatsApp siap kirim.']
   ];
   var FILES = [
     ['HeroSection.tsx', 1],
@@ -391,7 +633,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   var state = load() || seed();
 
   function greet() {
-    return { role: 'agent', text: 'Bisnis apa yang ingin Anda jalankan — atau klien apa yang ingin AI carikan untuk Anda hari ini? 🚀', steps: [] };
+    return { role: 'agent', text: 'Bisnis apa yang ingin Anda jalankan \u2014 atau klien apa yang ingin AI carikan untuk Anda hari ini? \ud83d\ude80', steps: [] };
   }
   function mkProject(name, stage) {
     return { id: 'p' + Math.random().toString(36).slice(2, 8), name: name, stage: stage || 0, updated: Date.now(), msgs: [greet()], suggest: AUDIENCE.slice(), assets: [], busy: false, dismissed: false };
@@ -519,20 +761,20 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     }).then(function(r){ return r.json(); }).then(function(d){
       radarState.results = d; radarState.loading = false;
       if (uiMode === 'radar') renderSide();
-      toast('📡 Radar: ' + (d.opportunities||[]).length + ' peluang ditemukan!');
+      toast('\ud83d\udce1 Radar: ' + (d.opportunities||[]).length + ' peluang ditemukan!');
     }).catch(function(){
       radarState.loading = false;
-      radarState.results = { summary: 'Radar gagal — pastikan ANTHROPIC_API_KEY sudah aktif di Cloudflare.', opportunities: [], searchedAt: new Date().toISOString() };
+      radarState.results = { summary: 'Radar gagal \u2014 pastikan ANTHROPIC_API_KEY sudah aktif di Cloudflare.', opportunities: [], searchedAt: new Date().toISOString() };
       if (uiMode === 'radar') renderSide();
     });
   }
 
   function radarPane() {
     var res = radarState.results, loading = radarState.loading;
-    var h = '<div class="radar-top"><h4>📡 Radar — AI Pencari Nafkah</h4></div>';
+    var h = '<div class="radar-top"><h4>\ud83d\udce1 Radar \u2014 AI Pencari Nafkah</h4></div>';
     h += '<div class="skills-row"><input id="skillsInput" type="text" placeholder="Keahlian Anda, mis: video editing, desain logo, foto produk" value="'+esc(radarState.skills||'')+'"><button class="scan-btn" id="scanBtn"'+(loading?' disabled':'')+'>'+I.spark+(loading?' Scanning...':' Scan Sekarang')+'</button></div>';
     if (loading) {
-      h += '<div class="radar-empty"><b>🔍 AI sedang mencari peluang di internet...</b>Tunggu sebentar, Claude Haiku 5.5 sedang analisis hasil pencarian Google.</div>';
+      h += '<div class="radar-empty"><b>\ud83d\udd0d AI sedang mencari peluang di internet...</b>Tunggu sebentar, Claude Haiku 5.5 sedang analisis hasil pencarian Google.</div>';
     } else if (!res) {
       h += '<div class="radar-empty"><b>Belum ada hasil</b>Masukkan keahlian Anda lalu klik "Scan Sekarang". AI akan cari orang yang butuh jasa Anda di internet hari ini.</div>';
     } else {
@@ -544,16 +786,16 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
         opps.forEach(function(o, i){
           var badge = o.relevance === 'Tinggi' ? 'high' : o.relevance === 'Sedang' ? 'med' : 'low';
           h += '<div class="opp"><div class="opp-head"><div class="opp-title">'+esc(o.title||'Peluang #'+(i+1))+'</div><span class="opp-badge '+badge+'">'+esc(o.relevance||'Sedang')+'</span></div>';
-          if (o.budget) h += '<div class="opp-meta">💰 '+esc(o.budget)+'</div>';
-          if (o.source) h += '<div class="opp-meta">🔗 <a href="'+esc(o.source)+'" target="_blank" rel="noopener">'+esc(o.source.replace(/^https?:\/\//,'').slice(0,50))+'</a></div>';
+          if (o.budget) h += '<div class="opp-meta">\ud83d\udcb0 '+esc(o.budget)+'</div>';
+          if (o.source) h += '<div class="opp-meta">\ud83d\udd17 <a href="'+esc(o.source)+'" target="_blank" rel="noopener">'+esc(o.source.replace(/^https?:\/\//,'').slice(0,50))+'</a></div>';
           if (o.proposal) {
             h += '<div class="opp-proposal"><label>DRAFT PROPOSAL SIAP KIRIM:</label>'+esc(o.proposal)+'</div>';
             var wa = o.contact ? 'https://wa.me/'+o.contact.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(o.proposal) : 'https://wa.me/?text='+encodeURIComponent(o.proposal);
-            h += '<div class="opp-actions"><button class="wa-btn" data-wa="'+encodeURIComponent(o.proposal)+'">📱 Kirim via WA</button><button class="copy-btn" data-copy="'+encodeURIComponent(o.proposal)+'">📋 Salin Proposal</button></div>';
+            h += '<div class="opp-actions"><button class="wa-btn" data-wa="'+encodeURIComponent(o.proposal)+'">\ud83d\udcf1 Kirim via WA</button><button class="copy-btn" data-copy="'+encodeURIComponent(o.proposal)+'">\ud83d\udccb Salin Proposal</button></div>';
           }
           h += '</div>';
         });
-        if (res.nextSearch) h += '<p style="margin:8px 0 0;font-size:12px;color:var(--muted)">💡 Coba juga: '+esc(res.nextSearch)+'</p>';
+        if (res.nextSearch) h += '<p style="margin:8px 0 0;font-size:12px;color:var(--muted)">\ud83d\udca1 Coba juga: '+esc(res.nextSearch)+'</p>';
       }
     }
     return h;
@@ -564,18 +806,18 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     var wf = p && p.makeWorkflow ? p.makeWorkflow : null;
     var h = '<div class="flow-board">';
     if (!wf) {
-      h += '<h4>⚙️ Workflow Otomasi — Make.com</h4>';
+      h += '<h4>\u2699\ufe0f Workflow Otomasi \u2014 Make.com</h4>';
       h += '<div class="flow-empty"><b>Belum ada workflow</b>Minta AI untuk buat workflow otomasi di chat. Contoh:<br><br>"Buatkan workflow WhatsApp auto-reply untuk setiap order masuk"<br>"Buat otomasi kirim invoice email ke klien"<br>"Hubungkan form booking ke Google Sheets"</div>';
       h += '<div class="flow-actions"><button class="btn" onclick="document.getElementById(\'msg\').value=\'Buatkan workflow Make.com: WhatsApp auto-reply untuk order masuk\';document.getElementById(\'msg\').focus()">+ Buat Workflow Baru</button></div>';
     } else {
       var apps = wf.apps || [];
       var steps = wf.steps || [];
-      var icons = {'WhatsApp Business':'📱','Gmail':'✉️','Google Sheets':'📊','Make.com':'⚙️','Webhook':'🔗','Email':'✉️','Telegram':'💬','Google Calendar':'📅','Stripe':'💳','Xendit':'💳','HTTP':'🌐','Filter':'🔧','Instagram':'📸'};
-      h += '<h4>⚙️ '+esc(wf.name||'Workflow Otomasi')+'</h4>';
+      var icons = {'WhatsApp Business':'\ud83d\udcf1','Gmail':'\u2709\ufe0f','Google Sheets':'\ud83d\udcca','Make.com':'\u2699\ufe0f','Webhook':'\ud83d\udd17','Email':'\u2709\ufe0f','Telegram':'\ud83d\udcac','Google Calendar':'\ud83d\udcc5','Stripe':'\ud83d\udcb3','Xendit':'\ud83d\udcb3','HTTP':'\ud83c\udf10','Filter':'\ud83d\udd27','Instagram':'\ud83d\udcf8'};
+      h += '<h4>\u2699\ufe0f '+esc(wf.name||'Workflow Otomasi')+'</h4>';
       h += '<div class="flow-canvas">';
       apps.forEach(function(app, i){
-        var icon = icons[app] || '⚡';
-        h += '<div class="fnode-wrap"><div class="fnode'+(i===0?' trigger':'')+'"><div class="fn-icon">'+icon+'</div><div class="fn-label">'+esc(app)+'</div><div class="fn-app">'+(i===0?'Trigger':'Action')+'</div></div>'+(i<apps.length-1?'<div class="fedge">▶</div>':'')+'</div>';
+        var icon = icons[app] || '\u26a1';
+        h += '<div class="fnode-wrap"><div class="fnode'+(i===0?' trigger':'')+'"><div class="fn-icon">'+icon+'</div><div class="fn-label">'+esc(app)+'</div><div class="fn-app">'+(i===0?'Trigger':'Action')+'</div></div>'+(i<apps.length-1?'<div class="fedge">\u25b6</div>':'')+'</div>';
       });
       h += '</div>';
       if (steps.length) {
@@ -583,48 +825,136 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
         steps.forEach(function(s){ h += '<div class="fi-row"><div class="fi-dot"></div><span style="font-size:13px">'+esc(s)+'</span></div>'; });
         h += '</div>';
       }
-      h += '<div class="flow-actions"><button class="activate-btn" onclick="toast(\'Hubungkan MAKE_API_KEY dulu di Cloudflare → Settings → Env Variables\')">⚡ Aktifkan di Make.com</button><button onclick="window.open(\'https://make.com\',\'_blank\')">Buka Make.com →</button></div>';
+      h += '<div class="flow-actions"><button class="activate-btn" onclick="toast(\'Hubungkan MAKE_API_KEY dulu di Cloudflare \u2192 Settings \u2192 Env Variables\')">\u26a1 Aktifkan di Make.com</button><button onclick="window.open(\'https://make.com\',\'_blank\')">Buka Make.com \u2192</button></div>';
       h += '<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">Tambahkan MAKE_API_KEY di Cloudflare Pages untuk mengaktifkan workflow otomatis.</p>';
     }
     h += '</div>';
     return h;
   }
 
+  var liveGenStatus = {
+    title: 'AI Agent sedang men-generate arsitektur EdTech LMS...',
+    sub: 'Progres: 4% &bull; Menyiapkan Next.js 14 App Router & HLS Media Engine',
+    pct: 4
+  };
+
+  function updateWave(pct, title, sub) {
+    liveGenStatus.pct = pct;
+    liveGenStatus.title = title;
+    liveGenStatus.sub = sub;
+    var w = $('#waveLoading');
+    if (w) {
+      w.classList.remove('done');
+      var f = $('#waveFill'), t = $('#waveStatusText'), s = $('#waveSubText');
+      if (f) f.style.width = pct + '%';
+      if (t) t.textContent = title;
+      if (s) s.innerHTML = sub;
+    }
+    var frame = $('#wsLiveFrame');
+    if (frame && pct < 100) frame.style.opacity = '0';
+  }
+
+  function finishWave() {
+    liveGenStatus.pct = 100;
+    liveGenStatus.title = 'Generasi Selesai 100%! Platform EdTech LMS Aktif.';
+    liveGenStatus.sub = 'Progres: 100% &bull; Terhubung ke 1.000+ Marketplace Global';
+    var w = $('#waveLoading');
+    if (w) w.classList.add('done');
+    var iframe = $('#wsLiveFrame');
+    if (iframe) iframe.style.opacity = '1';
+  }
+
+  function openLightbox() {
+    var lb = $('#previewLightbox');
+    if (!lb) return;
+    lb.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  window.openLightbox = openLightbox;
+
+  function closeLightbox() {
+    var lb = $('#previewLightbox');
+    if (!lb) return;
+    lb.hidden = true;
+    document.body.style.overflow = '';
+  }
+  window.closeLightbox = closeLightbox;
+
   function runAgent(p, text) {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
+    updateWave(4, 'Fase 1/8: Inisialisasi Project Engine & Arsitektur EdTech LMS...', 'Progres: 4% &bull; Menyiapkan Next.js 14 App Router & Edge Runtime');
     renderChat(); renderTabs(); renderSide();
 
-    var m = { role: 'agent', text: '', steps: [] };
+    var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
     p.msgs.push(m);
     renderIf(p);
 
     var simSteps = [
       {
-        step: "Inisialisasi Project Engine & Arsitektur Full-Stack",
-        msg: "⚡ Menganalisis kebutuhan & spesifikasi platform EdTech LMS skala besar...\nMemilih arsitektur: Next.js 14 App Router, TailwindCSS, Cloudflare Pages Edge, dan HLS Video Engine.",
-        delay: 2400
+        step: "Inisialisasi Project Engine & Arsitektur Full-Stack Next.js 14",
+        msg: "\u26a1 Menganalisis kebutuhan & spesifikasi platform EdTech LMS skala enterprise...\nMemilih arsitektur stack: Next.js 14 App Router, TypeScript, TailwindCSS v3.4, Cloudflare Pages Edge Runtime, dan PostgreSQL / Prisma Schema.",
+        waveTitle: "Fase 1/8: Merancang Arsitektur Sistem EdTech LMS...",
+        waveSub: "Progres: 12% &bull; Menyiapkan Next.js 14 App Router & Edge Runtime",
+        pct: 12,
+        delay: 4800
       },
       {
-        step: "Merancang Database Silabus & Engine Video Streaming",
-        msg: "\n\n📐 Merancang basis data kursus, modul bab pelajaran, video multi-bitrate HLS, serta sistem kuis adaptif.",
-        delay: 2600
+        step: "Perancangan Skema Database, Relasi Modul & Hak Akses Multi-Role",
+        msg: "\n\n\ud83d\udcd0 Merancang basis data relasional: Tabel Siswa, Instruktur, Modul Bab Pelajaran, Video Assets, adaptive quizzes, token enkripsi HLS, dan transaksi marketplace global.",
+        waveTitle: "Fase 2/8: Menyiapkan Skema Database & Relasi Modul...",
+        waveSub: "Progres: 25% &bull; Sinkronisasi tabel PostgreSQL & Redis cache",
+        pct: 25,
+        delay: 4800
       },
       {
-        step: "Generating Komponen Utama (Hero, Video, Kuis, LMS, Auth)",
-        msg: "\n\n💻 Meng-generate kode komponen & modul proyek:\n  • components/HeroSection.tsx [OK]\n  • components/CourseCard.tsx [OK]\n  • components/VideoPlayer.tsx (HLS Stream) [OK]\n  • components/QuizEngine.tsx [OK]\n  • components/LMSDashboard.tsx [OK]\n  • components/CertificateGenerator.tsx [OK]\n  • lib/auth.ts (Siswa & Instruktur) [OK]\n  • api/webhooks.ts [OK]",
-        delay: 3800
+        step: "Sintesis Engine Video Streaming Multi-Bitrate HLS & Transkripsi AI",
+        msg: "\n\n\ud83c\udfa5 Menginisialisasi Video Streaming Engine: Protokol HLS (HTTP Live Streaming) adaptive bitrate (1080p, 720p, 480p), token enkripsi AES-128, transkrip subtitle otomatis berbasis Whisper AI, dan caching CDN.",
+        waveTitle: "Fase 3/8: Sintesis Video Player HLS Multi-Bitrate...",
+        waveSub: "Progres: 38% &bull; Konfigurasi HLS adaptive stream & Whisper AI subtitles",
+        pct: 38,
+        delay: 5200
       },
       {
-        step: "Kompilasi Edge Assets & Deployment ke runnerflo-ai.pages.dev",
-        msg: "\n\n🔄 Mengompilasi Edge assets static bundle & deploy ke server CDN global: https://runnerflo-ai.pages.dev [LIVE]",
-        delay: 2800
+        step: "Generating Komponen Frontend (Hero, Course Catalog, Video Player, Dashboard)",
+        msg: "\n\n\ud83d\udcbb Meng-generate seluruh modul frontend & antarmuka interaktif:\n  \u2022 components/HeroSection.tsx (Hero interaktif beranimasi) [OK]\n  \u2022 components/CourseCard.tsx (Katalog kursus berfilter) [OK]\n  \u2022 components/VideoPlayer.tsx (HLS Stream player dengan bookmark) [OK]\n  \u2022 components/QuizEngine.tsx (Mesin kuis adaptif realtime) [OK]\n  \u2022 components/LMSDashboard.tsx (Dashboard siswa & progres materi) [OK]\n  \u2022 lib/auth.ts (Sistem login siswa & mentor) [OK]",
+        waveTitle: "Fase 4/8: Generating Komponen Frontend & Engine Kuis...",
+        waveSub: "Progres: 55% &bull; Menulis HeroSection, CourseCard, QuizEngine, VideoPlayer",
+        pct: 55,
+        delay: 5500
       },
       {
-        step: "Koneksi ke 1.000+ Marketplace Global (AI Pencari Nafkah)",
-        msg: "\n\n🌐 Menghubungkan otomatis ke 1.000+ marketplace dunia (Udemy, Skillshare, Tokopedia, Shopee Digital) untuk mendistribusikan produk & mencari calon pembeli kursus.\n\n✨ Platform EdTech LMS Berhasil Dibuat dari Nol!\nSeluruh modul web, video player, sistem kuis, dan dashboard siswa sudah aktif live. Silakan coba langsung pada pratinjau Live di samping kanan.",
-        delay: 2800
+        step: "Integrasi Mesin Kuis Interaktif & Generator Sertifikat Ber-QR Code",
+        msg: "\n\n\ud83c\udf93 Membangun sistem evaluasi materi adaptif:\n  \u2022 components/CertificateGenerator.tsx (Penerbitan e-sertifikat otomatis) [OK]\n  \u2022 Validasi skor kelulusan secara realtime & verifikasi anti-fraud QR Code.",
+        waveTitle: "Fase 5/8: Integrasi Generator Sertifikat & Validasi QR...",
+        waveSub: "Progres: 68% &bull; Verifikasi sertifikat digital berstandar akreditasi",
+        pct: 68,
+        delay: 4800
+      },
+      {
+        step: "Kompilasi Turbopack Edge Static Bundle & Optimasi Tree-Shaking",
+        msg: "\n\n\ud83d\udd04 Mengompilasi Edge assets static bundle dengan Turbopack:\n  \u2022 Minifikasi CSS & JavaScript bundle\n  \u2022 Pre-rendering modul pelajaran statis untuk loading instan < 0.3s\n  \u2022 Uji kompatibilitas iframe & responsif mobile/desktop.",
+        waveTitle: "Fase 6/8: Kompilasi Edge Assets & Turbopack Bundle...",
+        waveSub: "Progres: 82% &bull; Tree-shaking 100% & minifikasi zero-latency edge bundle",
+        pct: 82,
+        delay: 5000
+      },
+      {
+        step: "Deployment Global ke Edge Network CDN: runnerflo-ai.pages.dev",
+        msg: "\n\n\ud83d\ude80 Melakukan deployment ke 300+ Edge Data Centers di seluruh dunia:\nDomain produksi aktif: https://runnerflo-ai.pages.dev [STATUS: LIVE 200 OK]\nSistem video streaming, modul kuis adaptif, dan dashboard siswa telah online.",
+        waveTitle: "Fase 7/8: Deploy Global ke Cloudflare Pages Edge...",
+        waveSub: "Progres: 94% &bull; CDN edge route propagasi ke 300+ kota di dunia",
+        pct: 94,
+        delay: 4800
+      },
+      {
+        step: "Koneksi Otomatis ke 1.000+ Marketplace Global (AI Pencari Nafkah)",
+        msg: "\n\n\ud83c\udf10 Menghubungkan otomatis ke 1.000+ marketplace dunia (Udemy, Skillshare, Tokopedia, Shopee Digital, Teachable) via Webhook & Otomasi Make.com.\n\n\u2728 Platform EdTech LMS Berhasil Dibuat dari Nol!\nSeluruh arsitektur Next.js 14, streaming HLS video player, modul kuis interaktif, dan dashboard siswa sudah aktif live. Silakan coba langsung pada pratinjau di samping kanan atau klik tombol perbesar 3x di bawah.",
+        waveTitle: "Fase 8/8: Selesai! Mengaktifkan Pratinjau Live...",
+        waveSub: "Progres: 100% &bull; Terhubung ke 1.000+ marketplace dunia",
+        pct: 100,
+        delay: 4800
       }
     ];
 
@@ -636,8 +966,10 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
         p.stage = 4;
         p.suggest = ['Uji coba video player HLS', 'Lihat kuis & skor', 'Buka Radar cari klien', 'Aktifkan Make workflow'];
         p.updated = Date.now();
+        m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn-expand-preview" onclick="openLightbox()" style="padding:9px 18px;font-size:13px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Perbesar Pratinjau (3x) &#x2922;</button></div>';
+        finishWave();
         save();
-        toast('🚀 Platform EdTech LMS selesai dibuat & live!');
+        toast('\ud83d\ude80 Platform EdTech LMS selesai dibuat & live!');
         renderChat();
         renderTabs();
         renderSide();
@@ -645,6 +977,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       }
 
       var current = simSteps[stepIdx];
+      updateWave(current.pct, current.waveTitle, current.waveSub);
       var newStep = { label: current.step, done: false };
       m.steps.push(newStep);
       renderIf(p);
@@ -664,20 +997,21 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
           newStep.done = true;
           renderIf(p);
           stepIdx++;
-          setTimeout(runNext, 350);
+          setTimeout(runNext, 400);
         }
       }
       typeChar();
     }
 
-    setTimeout(runNext, 350);
+    setTimeout(runNext, 400);
   }
   function renderIf(p) { if (cur() === p) renderThread(); }
   function stopRun() {
     var p = cur(); if (!p || !p.busy) return;
     runId++; p.busy = false; p.suggest = [];
+    finishWave();
     p.msgs.push({ role: 'agent', text: 'Dihentikan. Tidak ada perubahan lain yang saya lakukan.', steps: [] });
-    save(); renderChat(); renderTabs();
+    save(); renderChat(); renderTabs(); renderSide();
   }
   function send(text) {
     var p = cur(); text = (text || '').trim(); if (!p || !text || p.busy) return;
@@ -714,6 +1048,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       if (m.role === 'user') { h += '<div class="msg me"><div class="bubble"></div></div>'; return; }
       var body = m.text.split('\n\n').map(function (x) { return '<p>' + esc(x).replace(/\n/g, '<br>') + '</p>'; }).join('');
       if (m.steps && m.steps.length) body += '<ul class="steps">' + m.steps.map(function (s) { return '<li class="' + (s.done ? 'done' : '') + '"><span class="ck">' + (s.done ? I.check : '') + '</span>' + esc(s.label) + '</li>'; }).join('') + '</ul>';
+      if (m.actionHtml) body += m.actionHtml;
       var isLastActive = (p.busy && m === p.msgs[p.msgs.length - 1]);
       var cursorHtml = isLastActive ? '<span class="cursor"></span>' : '';
       h += '<div class="msg agent"><span class="bot">' + I.bot + '</span><div class="body">' + body + cursorHtml + '</div></div>';
@@ -778,10 +1113,10 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   }
   function codeFor(f) {
     if (f === 'HeroSection.tsx') return '// components/HeroSection.tsx\nimport React from "react";\n\nexport default function HeroSection() {\n  return (\n    <section className="relative overflow-hidden bg-slate-950 py-24 text-white">\n      <div className="mx-auto max-w-6xl px-6 text-center">\n        <span className="rounded-full bg-violet-600/20 px-4 py-1.5 text-xs font-semibold text-violet-400 border border-violet-500/30">\n          Platform AI EdTech #1 Global\n        </span>\n        <h1 className="mt-6 text-5xl font-black tracking-tight sm:text-6xl">\n          Kuasai Keahlian Masa Depan dengan Mentor AI\n        </h1>\n        <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">\n          Akses 120+ kursus bersertifikasi, video interaktif HLS, dan evaluasi adaptif realtime.\n        </p>\n        <div className="mt-8 flex justify-center gap-4">\n          <a href="#courses" className="rounded-xl bg-violet-600 px-6 py-3 font-bold hover:bg-violet-500 transition">\n            Mulai Belajar Gratis\n          </a>\n          <a href="#demo" className="rounded-xl border border-slate-700 px-6 py-3 font-semibold hover:bg-slate-900 transition">\n            Tonton Preview Video\n          </a>\n        </div>\n      </div>\n    </section>\n  );\n}';
-    if (f === 'CourseCard.tsx') return '// components/CourseCard.tsx\nimport React from "react";\n\nexport const CourseCard = ({ title, lessons, rating, instructor }: any) => (\n  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-violet-500">\n    <div className="aspect-video w-full rounded-xl bg-slate-800 flex items-center justify-center font-bold text-violet-400">\n      HLS Video Lesson Player\n    </div>\n    <h3 className="mt-4 font-bold text-white text-base">{title}</h3>\n    <div className="mt-2 flex items-center justify-between text-xs text-slate-400">\n      <span>{instructor}</span>\n      <span>⭐ {rating} &middot; {lessons} Bab</span>\n    </div>\n  </div>\n);';
+    if (f === 'CourseCard.tsx') return '// components/CourseCard.tsx\nimport React from "react";\n\nexport const CourseCard = ({ title, lessons, rating, instructor }: any) => (\n  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-violet-500">\n    <div className="aspect-video w-full rounded-xl bg-slate-800 flex items-center justify-center font-bold text-violet-400">\n      HLS Video Lesson Player\n    </div>\n    <h3 className="mt-4 font-bold text-white text-base">{title}</h3>\n    <div className="mt-2 flex items-center justify-between text-xs text-slate-400">\n      <span>{instructor}</span>\n      <span>\u2b50 {rating} &middot; {lessons} Bab</span>\n    </div>\n  </div>\n);';
     if (f === 'VideoPlayer.tsx') return '// components/VideoPlayer.tsx\nimport React, { useRef, useEffect } from "react";\nimport Hls from "hls.js";\n\nexport default function VideoPlayer({ src }: { src: string }) {\n  const videoRef = useRef<HTMLVideoElement>(null);\n  useEffect(() => {\n    if (videoRef.current && Hls.isSupported()) {\n      const hls = new Hls({ enableWorker: true, lowLatencyMode: true });\n      hls.loadSource(src);\n      hls.attachMedia(videoRef.current);\n      return () => hls.destroy();\n    }\n  }, [src]);\n  return (\n    <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl">\n      <video ref={videoRef} controls className="h-full w-full" poster="/cover.webp" />\n    </div>\n  );\n}';
     if (f === 'QuizEngine.tsx') return '// components/QuizEngine.tsx\nexport class QuizEngine {\n  private questions: any[];\n  private answers: Map<number, number> = new Map();\n  constructor(questions: any[]) { this.questions = questions; }\n  submit(id: number, opt: number) { this.answers.set(id, opt); }\n  score() {\n    let ok = 0;\n    this.questions.forEach(q => { if (this.answers.get(q.id) === q.answer) ok++; });\n    return { correct: ok, total: this.questions.length, pct: Math.round((ok/this.questions.length)*100) };\n  }\n}';
-    if (f === 'LMSDashboard.tsx') return '// components/LMSDashboard.tsx\nimport React from "react";\n\nexport default function LMSDashboard({ user, progress }: any) {\n  return (\n    <div className="p-8 space-y-6 bg-slate-950 text-white min-h-screen">\n      <header className="flex justify-between items-center border-b border-slate-800 pb-4">\n        <div>\n          <h1 className="text-2xl font-bold">Halo, {user?.name || "Siswa"} 👋</h1>\n          <p className="text-sm text-slate-400">Progres belajar & sertifikat Anda terverifikasi secara realtime.</p>\n        </div>\n      </header>\n      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Total Waktu Belajar</span>\n          <div className="text-2xl font-bold mt-1">18.5 Jam</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Kursus Selesai</span>\n          <div className="text-2xl font-bold mt-1">4 dari 6</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Rata-rata Skor Kuis</span>\n          <div className="text-2xl font-bold mt-1 text-emerald-400">94%</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Sertifikat Resmi</span>\n          <div className="text-2xl font-bold mt-1 text-violet-400">Terverifikasi QR</div>\n        </div>\n      </div>\n    </div>\n  );\n}';
+    if (f === 'LMSDashboard.tsx') return '// components/LMSDashboard.tsx\nimport React from "react";\n\nexport default function LMSDashboard({ user, progress }: any) {\n  return (\n    <div className="p-8 space-y-6 bg-slate-950 text-white min-h-screen">\n      <header className="flex justify-between items-center border-b border-slate-800 pb-4">\n        <div>\n          <h1 className="text-2xl font-bold">Halo, {user?.name || "Siswa"} \ud83d\udc4b</h1>\n          <p className="text-sm text-slate-400">Progres belajar & sertifikat Anda terverifikasi secara realtime.</p>\n        </div>\n      </header>\n      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Total Waktu Belajar</span>\n          <div className="text-2xl font-bold mt-1">18.5 Jam</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Kursus Selesai</span>\n          <div className="text-2xl font-bold mt-1">4 dari 6</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Rata-rata Skor Kuis</span>\n          <div className="text-2xl font-bold mt-1 text-emerald-400">94%</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Sertifikat Resmi</span>\n          <div className="text-2xl font-bold mt-1 text-violet-400">Terverifikasi QR</div>\n        </div>\n      </div>\n    </div>\n  );\n}';
     if (f === 'CertificateGenerator.tsx') return '// components/CertificateGenerator.tsx\nexport async function generateCertificate(studentName: string, courseTitle: string) {\n  return { certId: "CERT-" + Date.now().toString(36).toUpperCase(), student: studentName, course: courseTitle, issuedAt: new Date().toISOString() };\n}';
     if (f === 'auth.ts') return '// lib/auth.ts - Multi-Role Auth (Student, Instructor, Admin)\nexport const authConfig = {\n  providers: ["credentials", "google", "github"],\n  session: { strategy: "jwt" },\n  callbacks: { jwt({ token, user }: any) { if (user) token.role = user.role; return token; } }\n};';
     return '// api/webhooks.ts - 1.000+ Marketplace Auto-Enrollment Webhook\nexport async function POST(req: Request) {\n  const payload = await req.json();\n  // Sinkronisasi transaksi & murid dari Udemy, Tokopedia, Shopee\n  return Response.json({ status: "enrolled", timestamp: Date.now() });\n}';
@@ -795,15 +1130,30 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       h += p.assets.length ? '<ul class="files">' + p.assets.map(function (a, i) { return '<li>' + I.file + '<span class="nm"></span><span class="sz">' + size(a.size) + '</span><button type="button" data-rm="' + i + '" aria-label="Hapus aset">' + I.x + '</button></li>'; }).join('') + '</ul>' : '<div class="empty"><b>Belum ada aset</b><span>File yang Anda unggah akan muncul di daftar ini.</span></div>';
       h += '<div class="tip"><h4>' + esc(TIPS[tip][0]) + '</h4><p>' + esc(TIPS[tip][1]) + '</p></div><div class="car"><button class="nav" type="button" id="tp" aria-label="Sebelumnya">' + I.prev + '</button><div class="dots">' + TIPS.map(function (t, i) { return '<button type="button" data-tip="' + i + '" aria-label="Tips ' + (i + 1) + '" aria-current="' + (i === tip) + '"></button>'; }).join('') + '</div><button class="nav" type="button" id="tn" aria-label="Berikutnya">' + I.next + '</button></div>';
     } else if (uiMode === 'live') {
+      var isGenerating = (p && p.busy);
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
         '<div class="chrome"><i></i><i></i><i></i>' +
         '<span class="url" style="display:flex;align-items:center;gap:8px">' +
         '<span style="padding:1px 7px;border-radius:99px;background:var(--ok);color:#fff;font-weight:700;font-size:10px;letter-spacing:.02em">LIVE</span> ' +
         'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform</span>' +
-        '<a href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" style="font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:600;margin-left:auto;white-space:nowrap">Buka Tab Penuh &#x2197;</a>' +
+        '<button type="button" class="btn-expand-preview" id="btnExpand3x" title="Perbesar tampilan pratinjau 3x">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
+        'Perbesar 3x' +
+        '</button>' +
         '</div>' +
         '<div style="flex:1;min-height:540px;position:relative;background:#06080f">' +
-        '<iframe id="wsLiveFrame" src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Platform" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>' +
+        '<div id="waveLoading" class="wave-loading-wrap' + (isGenerating ? '' : ' done') + '">' +
+        '<div class="wave-ai-core">' +
+        '<svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>' +
+        '</div>' +
+        '<div class="sound-wave-bars">' +
+        '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>' +
+        '</div>' +
+        '<div class="wave-status-text" id="waveStatusText">' + esc(liveGenStatus.title || 'AI Agent sedang men-generate arsitektur EdTech LMS...') + '</div>' +
+        '<div class="wave-progress-bar"><div class="wave-progress-fill" id="waveFill" style="width:' + (liveGenStatus.pct || 4) + '%"></div></div>' +
+        '<div class="wave-sub-text" id="waveSubText">' + (liveGenStatus.sub || 'Progres: ' + (liveGenStatus.pct || 4) + '% &bull; Inisialisasi Edge Environment') + '</div>' +
+        '</div>' +
+        '<iframe id="wsLiveFrame" src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Platform" style="position:absolute;inset:0;width:100%;height:100%;border:0;opacity:' + (isGenerating ? '0' : '1') + ';transition:opacity 0.8s ease" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>' +
         '</div>' +
         '</div>';
     } else if (uiMode === 'radar') {
@@ -913,7 +1263,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     }
     if (c('#jump')) { var th = $('#thread'); th.scrollTop = th.scrollHeight; return; }
     if ((el = c('[data-wa]'))) { window.open('https://wa.me/?text=' + el.dataset.wa, '_blank', 'noopener'); return; }
-    if ((el = c('[data-copy]'))) { try { navigator.clipboard.writeText(decodeURIComponent(el.dataset.copy)); toast('✅ Proposal disalin!'); } catch(e){ toast('Salin gagal'); } return; }
+    if ((el = c('[data-copy]'))) { try { navigator.clipboard.writeText(decodeURIComponent(el.dataset.copy)); toast('\u2705 Proposal disalin!'); } catch(e){ toast('Salin gagal'); } return; }
     if ((el = c('[data-new-project]'))) {
       var defName = 'proyek-' + (state.projects.length + 1);
       var name = window.prompt ? window.prompt('Nama proyek baru (huruf & angka):', defName) : defName;
@@ -959,12 +1309,15 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     if ((el = c('[data-o]'))) { if (live.picked < 0) { live.picked = +el.dataset.o; if (live.picked === QUIZ[live.qi].a) live.score++; drawQuiz(); } return; }
     if (c('[data-qn]')) { if (live.qi === QUIZ.length - 1) live.done = true; else { live.qi++; live.picked = -1; } drawQuiz(); return; }
     if (c('[data-qr]')) { live.qi = 0; live.score = 0; live.picked = -1; live.done = false; drawQuiz(); return; }
+    if (c('#btnExpand3x')) { openLightbox(); return; }
+    if (c('#btnCloseLightbox')) { closeLightbox(); return; }
+    if (t && t.id === 'previewLightbox') { closeLightbox(); return; }
     if ((el = c('[data-f]'))) { codeFile = el.dataset.f; renderSide(); return; }
   });
   document.addEventListener('keydown', function (e) {
     var tg = e.target;
     if ((e.key === 'Enter' || e.key === ' ') && tg.matches && tg.matches('div.tab[data-t]')) { e.preventDefault(); go(tg.dataset.t); }
-    if (e.key === 'Escape') closeMenu();
+    if (e.key === 'Escape') { closeMenu(); closeLightbox(); }
   });
   document.addEventListener('input', function (e) {
     if (e.target.id === 'msg') { fit(); updSend(); }
