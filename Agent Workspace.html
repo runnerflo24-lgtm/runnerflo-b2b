@@ -352,20 +352,54 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   inset: 0 !important;
   z-index: 9998 !important;
   background: var(--bg) !important;
-  padding: 12px !important;
+  display: grid !important;
+  grid-template-columns: 380px 1fr !important;
   gap: 12px !important;
+  padding: 12px !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  box-sizing: border-box !important;
 }
 .work.ws-stage-1 .chat {
-  width: 420px !important;
-  min-width: 360px !important;
-  max-width: 450px !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: 100% !important;
   flex: none !important;
   display: flex !important;
 }
 .work.ws-stage-1 .side {
-  flex: 1 !important;
+  width: 100% !important;
   height: 100% !important;
   max-height: none !important;
+  border-radius: 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border: 1px solid var(--line) !important;
+}
+.work.ws-stage-1 .sbar {
+  display: none !important; /* Hilangkan tab-tab header (Aset, Live, Kode, Radar, Workflow, dll) */
+}
+.work.ws-stage-1 .pane {
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 1 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.work.ws-stage-1 .browser {
+  flex: 1 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 /* Workspace Stage 2: Layar penuh 100% tanpa keluar tab */
@@ -377,6 +411,10 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   padding: 0 !important;
   margin: 0 !important;
   display: flex !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  box-sizing: border-box !important;
 }
 .work.ws-stage-2 .chat {
   display: none !important;
@@ -387,15 +425,32 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   height: 100dvh !important;
   border-radius: 0 !important;
   border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
 }
 .work.ws-stage-2 .sbar {
   display: none !important;
 }
+.work.ws-stage-2 .pane {
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 1 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
 .work.ws-stage-2 .browser {
+  flex: 1 !important;
   height: 100vh !important;
   height: 100dvh !important;
+  min-height: 0 !important;
   border-radius: 0 !important;
   border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .btn-expand-preview {
