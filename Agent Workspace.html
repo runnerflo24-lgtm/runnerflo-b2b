@@ -346,21 +346,30 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   border-color: var(--danger);
 }
 
-/* Workspace Stage 1 / View 2 (Melebar Penuh seperti screenshot):
-   Tetap ada header (.topbar & .sbar), Chat 380px di kiri,
-   ruang kosong di tengah dimanfaatkan penuh oleh Preview card! */
+/* Sembunyikan topbar header atas saat mode perbesar aktif */
+body.ws-stage-1-active .topbar,
+body.ws-stage-2-active .topbar {
+  display: none !important;
+}
+
+/* Workspace Stage 1: Layar Penuh KECUALI Chat AI (Header atas .topbar disembunyikan!) */
 .work.ws-stage-1 {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9998 !important;
+  background: var(--bg) !important;
   display: grid !important;
   grid-template-columns: 380px 1fr !important;
   gap: 12px !important;
-  padding: 12px max(12px, env(safe-area-inset-right, 0px)) 12px max(12px, env(safe-area-inset-left, 0px)) !important;
-  min-height: 0 !important;
-  height: 100% !important;
-  width: 100% !important;
+  padding: 12px !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
   box-sizing: border-box !important;
-  position: static !important;
-  z-index: auto !important;
-  inset: auto !important;
 }
 .work.ws-stage-1 .chat {
   width: 100% !important;
@@ -967,6 +976,10 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       if (wsCurrentStage === 1) workEl.classList.add('ws-stage-1');
       else if (wsCurrentStage === 2) workEl.classList.add('ws-stage-2');
     }
+    document.body.classList.remove('ws-stage-1-active', 'ws-stage-2-active');
+    if (wsCurrentStage === 1) document.body.classList.add('ws-stage-1-active');
+    else if (wsCurrentStage === 2) document.body.classList.add('ws-stage-2-active');
+
     var tw = $('#togWide');
     if (tw) {
       if (wsCurrentStage === 1) {
@@ -976,7 +989,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       } else {
         tw.classList.remove('active');
         tw.setAttribute('aria-pressed', 'false');
-        tw.title = 'Ganti Tampilan: Melebar Penuh (380px : Full)';
+        tw.title = 'Perbesar Tampilan (Layar Penuh Kecuali Chat AI)';
       }
     }
     var lbl = $('#wsStageLabel'), bdg = $('#wsStageBadge'), rBtn = $('#wsBtnRestore'), rLbl = $('#wsRestoreLabel');
@@ -990,7 +1003,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s1_tag;
       if (rBtn) rBtn.style.display = 'inline-flex';
       if (rLbl) rLbl.textContent = WS_STAGE_TEXT.rst;
-      document.body.style.overflow = '';
+      document.body.style.overflow = 'hidden';
     } else if (wsCurrentStage === 2) {
       if (lbl) lbl.textContent = WS_STAGE_TEXT.s2_lbl;
       if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s2_tag;
