@@ -346,25 +346,26 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   border-color: var(--danger);
 }
 
-/* Workspace Stage 1: Layar penuh KECUALI Chat AI */
+/* Workspace Stage 1 / View 2 (Melebar Penuh seperti screenshot):
+   Tetap ada header (.topbar & .sbar), Chat 380px di kiri,
+   ruang kosong di tengah dimanfaatkan penuh oleh Preview card! */
 .work.ws-stage-1 {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 9998 !important;
-  background: var(--bg) !important;
   display: grid !important;
   grid-template-columns: 380px 1fr !important;
   gap: 12px !important;
-  padding: 12px !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  height: 100dvh !important;
+  padding: 12px max(12px, env(safe-area-inset-right, 0px)) 12px max(12px, env(safe-area-inset-left, 0px)) !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
   box-sizing: border-box !important;
+  position: static !important;
+  z-index: auto !important;
+  inset: auto !important;
 }
 .work.ws-stage-1 .chat {
   width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
+  max-width: 380px !important;
+  min-width: 340px !important;
   height: 100% !important;
   flex: none !important;
   display: flex !important;
@@ -380,26 +381,31 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   border: 1px solid var(--line) !important;
 }
 .work.ws-stage-1 .sbar {
-  display: none !important; /* Hilangkan tab-tab header (Aset, Live, Kode, Radar, Workflow, dll) */
+  display: flex !important; /* TETAP ADA HEADER TABS (.sbar) */
 }
 .work.ws-stage-1 .pane {
-  padding: 0 !important;
+  padding: 14px !important;
   margin: 0 !important;
   flex: 1 !important;
   height: 100% !important;
   min-height: 0 !important;
-  overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
 }
 .work.ws-stage-1 .browser {
   flex: 1 !important;
   height: 100% !important;
-  min-height: 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
+  min-height: 520px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
   display: flex !important;
   flex-direction: column !important;
+}
+
+#togWide.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 /* Workspace Stage 2: Layar penuh 100% tanpa keluar tab */
@@ -602,6 +608,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     <section class="card side" aria-label="Pratinjau">
       <div class="sbar">
         <button class="sq" type="button" id="togChat" aria-label="Tampilkan atau sembunyikan chat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
+        <button class="sq" type="button" id="togWide" title="Ganti Tampilan: Normal (50:50) / Melebar Penuh" aria-label="Ganti mode lebar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
         <div class="toggle" role="group" aria-label="Mode tampilan" id="modes">
           <button type="button" data-m="preview" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>Aset</button>
           <button type="button" data-m="live" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Live</button>
@@ -960,6 +967,18 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       if (wsCurrentStage === 1) workEl.classList.add('ws-stage-1');
       else if (wsCurrentStage === 2) workEl.classList.add('ws-stage-2');
     }
+    var tw = $('#togWide');
+    if (tw) {
+      if (wsCurrentStage === 1) {
+        tw.classList.add('active');
+        tw.setAttribute('aria-pressed', 'true');
+        tw.title = 'Kembalikan ke Tampilan Normal (50:50)';
+      } else {
+        tw.classList.remove('active');
+        tw.setAttribute('aria-pressed', 'false');
+        tw.title = 'Ganti Tampilan: Melebar Penuh (380px : Full)';
+      }
+    }
     var lbl = $('#wsStageLabel'), bdg = $('#wsStageBadge'), rBtn = $('#wsBtnRestore'), rLbl = $('#wsRestoreLabel');
     if (wsCurrentStage === 0) {
       if (lbl) lbl.textContent = WS_STAGE_TEXT.s0_lbl;
@@ -971,7 +990,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s1_tag;
       if (rBtn) rBtn.style.display = 'inline-flex';
       if (rLbl) rLbl.textContent = WS_STAGE_TEXT.rst;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = '';
     } else if (wsCurrentStage === 2) {
       if (lbl) lbl.textContent = WS_STAGE_TEXT.s2_lbl;
       if (bdg) bdg.innerHTML = WS_STAGE_TEXT.s2_tag;
@@ -1418,6 +1437,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     if (c('#buildBtn')) { openMenu('build', $('#buildBtn')); return; }
     if ((el = c('#menu [data-v]'))) { if ($('#menu').dataset.k === 'mode') state.mode = el.dataset.v; else state.build = el.dataset.v; save(); closeMenu(); renderChat(); return; }
     if (c('#togChat')) { $('#work').classList.toggle('hide-chat'); return; }
+    if (c('#togWide')) { if (wsCurrentStage === 1) wsSetStage(0); else wsSetStage(1); return; }
     if ((el = c('#modes button'))) { uiMode = el.dataset.m; renderSide(); return; }
     if (c('#theme')) {
       var root = document.documentElement, cv = root.getAttribute('data-theme');
