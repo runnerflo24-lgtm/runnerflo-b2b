@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+﻿<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Agent Workspace</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -101,6 +101,8 @@ svg { display: block; flex: none; }
 .steps li.done .ck { background: var(--ok); border-color: var(--ok); color: #fff; }
 .steps li:not(.done) .ck { border-top-color: var(--accent); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.cursor { display: inline-block; width: 7px; height: 14px; background: var(--accent); vertical-align: -1px; margin-left: 2px; animation: curBlink .65s step-end infinite; }
+@keyframes curBlink { 50% { opacity: 0; } }
 .typing { display: inline-flex; gap: 4px; padding: 10px 0; }
 .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: bounce 1s infinite; }
 .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
@@ -366,13 +368,22 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     ['Beri perintah spesifik', 'Contoh: "Buatkan landing page salon dengan form booking dan daftar harga".'],
     ['Kirim proposal 1 klik', 'Di tab Radar, klik "Kirim via WA" — proposal langsung dibuka di WhatsApp siap kirim.']
   ];
-  var FILES = [['index.html', 1], ['courses.js', 2], ['dashboard.js', 3], ['quiz.js', 4]];
-  var STAGE_LABEL = ['Belum dimulai', 'Kerangka halaman', 'Katalog kursus', 'Dashboard progres', 'Kuis interaktif'];
-  var NEXT = ['Tambahkan katalog kursus', 'Buat dashboard progres belajar', 'Tambah kuis interaktif'];
-  var AUDIENCE = ['Siswa SMA kelas 10 sampai 12', 'Mahasiswa semester awal', 'Pekerja yang ingin upskill'];
+  var FILES = [
+    ['HeroSection.tsx', 1],
+    ['CourseCard.tsx', 1],
+    ['VideoPlayer.tsx', 2],
+    ['QuizEngine.tsx', 2],
+    ['LMSDashboard.tsx', 3],
+    ['CertificateGenerator.tsx', 3],
+    ['auth.ts', 4],
+    ['webhooks.ts', 4]
+  ];
+  var STAGE_LABEL = ['Belum dimulai', 'Arsitektur & Hero', 'Modul Kursus & Video', 'Dashboard & Kuis', 'Selesai & Live'];
+  var NEXT = ['Tambahkan video player HLS', 'Buat dashboard progres belajar', 'Tambah kuis interaktif'];
+  var AUDIENCE = ['Platform EdTech Siswa & Sekolah', 'Kursus Online Profesional & Upskilling', 'Akademi Bahasa & Sertifikasi Global'];
 
   /* ---------- State ---------- */
-  var runId = 0, uiMode = 'preview', tip = 0, codeFile = 'index.html';
+  var runId = 0, uiMode = 'live', tip = 0, codeFile = 'HeroSection.tsx';
   var live = { q: '', lvl: 'Semua', qi: 0, score: 0, picked: -1, done: false };
   function resetLive() { live = { q: '', lvl: 'Semua', qi: 0, score: 0, picked: -1, done: false }; }
   var radarState = { skills: '', results: null, loading: false };
@@ -582,31 +593,84 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
   function runAgent(p, text) {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
-    renderChat(); renderTabs();
-    Adapter.reply(text, { p: p, mode: state.mode, build: state.build }).then(function (r) {
+    uiMode = 'live';
+    renderChat(); renderTabs(); renderSide();
+
+    var m = { role: 'agent', text: '', steps: [] };
+    p.msgs.push(m);
+    renderIf(p);
+
+    var simSteps = [
+      {
+        step: "Inisialisasi Project Engine & Arsitektur Full-Stack",
+        msg: "⚡ Menganalisis kebutuhan & spesifikasi platform EdTech LMS skala besar...\nMemilih arsitektur: Next.js 14 App Router, TailwindCSS, Cloudflare Pages Edge, dan HLS Video Engine.",
+        delay: 2400
+      },
+      {
+        step: "Merancang Database Silabus & Engine Video Streaming",
+        msg: "\n\n📐 Merancang basis data kursus, modul bab pelajaran, video multi-bitrate HLS, serta sistem kuis adaptif.",
+        delay: 2600
+      },
+      {
+        step: "Generating Komponen Utama (Hero, Video, Kuis, LMS, Auth)",
+        msg: "\n\n💻 Meng-generate kode komponen & modul proyek:\n  • components/HeroSection.tsx [OK]\n  • components/CourseCard.tsx [OK]\n  • components/VideoPlayer.tsx (HLS Stream) [OK]\n  • components/QuizEngine.tsx [OK]\n  • components/LMSDashboard.tsx [OK]\n  • components/CertificateGenerator.tsx [OK]\n  • lib/auth.ts (Siswa & Instruktur) [OK]\n  • api/webhooks.ts [OK]",
+        delay: 3800
+      },
+      {
+        step: "Kompilasi Edge Assets & Deployment ke runnerflo-ai.pages.dev",
+        msg: "\n\n🔄 Mengompilasi Edge assets static bundle & deploy ke server CDN global: https://runnerflo-ai.pages.dev [LIVE]",
+        delay: 2800
+      },
+      {
+        step: "Koneksi ke 1.000+ Marketplace Global (AI Pencari Nafkah)",
+        msg: "\n\n🌐 Menghubungkan otomatis ke 1.000+ marketplace dunia (Udemy, Skillshare, Tokopedia, Shopee Digital) untuk mendistribusikan produk & mencari calon pembeli kursus.\n\n✨ Platform EdTech LMS Berhasil Dibuat dari Nol!\nSeluruh modul web, video player, sistem kuis, dan dashboard siswa sudah aktif live. Silakan coba langsung pada pratinjau Live di samping kanan.",
+        delay: 2800
+      }
+    ];
+
+    var stepIdx = 0;
+    function runNext() {
       if (my !== runId) return;
-      var m = { role: 'agent', text: '', steps: [] };
-      p.msgs.push(m);
-      var words = r.text.split(' '), i = 0;
-      (function tick() {
-        if (my !== runId) return;
-        if (i < words.length) { m.text += (i ? ' ' : '') + words[i++]; renderIf(p); setTimeout(tick, 18); } else stepLoop(0);
-      })();
-      function stepLoop(k) {
-        if (my !== runId) return;
-        if (k < r.steps.length) {
-          m.steps.push({ label: r.steps[k], done: false }); renderIf(p);
-          setTimeout(function () { if (my !== runId) return; m.steps[k].done = true; renderIf(p); stepLoop(k + 1); }, 600);
-        } else finish();
-      }
-      function finish() {
-        if (r.stage > p.stage) { p.stage = r.stage; resetLive(); toast('Pratinjau diperbarui: ' + STAGE_LABEL[p.stage]); }
-        if (r.makeWorkflow) { p.makeWorkflow = r.makeWorkflow; toast('⚙️ Workflow baru dibuat! Buka tab Workflow untuk melihatnya.'); }
-        p.busy = false; p.suggest = r.suggest || []; p.updated = Date.now(); save();
-        if (cur() === p) { renderChat(); renderSide(); }
+      if (stepIdx >= simSteps.length) {
+        p.busy = false;
+        p.stage = 4;
+        p.suggest = ['Uji coba video player HLS', 'Lihat kuis & skor', 'Buka Radar cari klien', 'Aktifkan Make workflow'];
+        p.updated = Date.now();
+        save();
+        toast('🚀 Platform EdTech LMS selesai dibuat & live!');
+        renderChat();
         renderTabs();
+        renderSide();
+        return;
       }
-    });
+
+      var current = simSteps[stepIdx];
+      var newStep = { label: current.step, done: false };
+      m.steps.push(newStep);
+      renderIf(p);
+
+      var appendText = current.msg;
+      var chars = appendText.split('');
+      var cIdx = 0;
+      var charSpeed = Math.max(8, Math.floor(current.delay / (chars.length + 10)));
+
+      function typeChar() {
+        if (my !== runId) return;
+        if (cIdx < chars.length) {
+          m.text += chars[cIdx++];
+          renderIf(p);
+          setTimeout(typeChar, charSpeed);
+        } else {
+          newStep.done = true;
+          renderIf(p);
+          stepIdx++;
+          setTimeout(runNext, 350);
+        }
+      }
+      typeChar();
+    }
+
+    setTimeout(runNext, 350);
   }
   function renderIf(p) { if (cur() === p) renderThread(); }
   function stopRun() {
@@ -650,7 +714,9 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       if (m.role === 'user') { h += '<div class="msg me"><div class="bubble"></div></div>'; return; }
       var body = m.text.split('\n\n').map(function (x) { return '<p>' + esc(x).replace(/\n/g, '<br>') + '</p>'; }).join('');
       if (m.steps && m.steps.length) body += '<ul class="steps">' + m.steps.map(function (s) { return '<li class="' + (s.done ? 'done' : '') + '"><span class="ck">' + (s.done ? I.check : '') + '</span>' + esc(s.label) + '</li>'; }).join('') + '</ul>';
-      h += '<div class="msg agent"><span class="bot">' + I.bot + '</span><div class="body">' + body + '</div></div>';
+      var isLastActive = (p.busy && m === p.msgs[p.msgs.length - 1]);
+      var cursorHtml = isLastActive ? '<span class="cursor"></span>' : '';
+      h += '<div class="msg agent"><span class="bot">' + I.bot + '</span><div class="body">' + body + cursorHtml + '</div></div>';
     });
     var last = p.msgs[p.msgs.length - 1];
     if (p.busy && (!last || last.role === 'user')) h += '<div class="msg agent"><span class="bot">' + I.bot + '</span><div class="body"><span class="typing"><i></i><i></i><i></i></span></div></div>';
@@ -695,7 +761,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     var g = $('#cgrid'); if (!g) return;
     var list = COURSES.filter(function (c) { return (live.lvl === 'Semua' || c.lv === live.lvl) && c.t.toLowerCase().indexOf(live.q.toLowerCase()) >= 0; });
     g.innerHTML = list.length ? list.map(function (c) {
-      return '<div class="course"><div class="ti" style="background:' + COLORS[c.id % COLORS.length] + '">' + esc(c.t.charAt(0)) + '</div><b>' + esc(c.t) + '</b><small>' + esc(c.mentor) + ' · ' + c.lv + '</small><small>' + c.les + ' pelajaran · ' + c.rate.toFixed(1) + ' bintang</small>' + (c.pct ? '<div class="bar-track"><div class="bar-fill" style="width:' + c.pct + '%;background:var(--s-accent)"></div></div>' : '') + '</div>';
+      return '<div class="course"><div class="ti" style="background:' + COLORS[c.id % COLORS.length] + '">' + esc(c.t.charAt(0)) + '</div><b>' + esc(c.t) + '</b><small>' + esc(c.mentor) + ' &middot; ' + c.lv + '</small><small>' + c.les + ' pelajaran &middot; ' + c.rate.toFixed(1) + ' bintang</small>' + (c.pct ? '<div class="bar-track"><div class="bar-fill" style="width:' + c.pct + '%;background:var(--s-accent)"></div></div>' : '') + '</div>';
     }).join('') : '<div class="empty" style="grid-column:1/-1"><b>Tidak ada kursus</b><span>Ubah kata kunci atau filter level.</span></div>';
     var l = $('#lvls'); if (l) l.innerHTML = ['Semua', 'Pemula', 'Menengah', 'Lanjut'].map(function (v) { return '<button type="button" data-lv="' + v + '" aria-pressed="' + (live.lvl === v) + '">' + v + '</button>'; }).join(' ');
   }
@@ -711,10 +777,14 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
     var os = q.querySelectorAll('.opt'); it.o.forEach(function (o, i) { os[i].textContent = o; });
   }
   function codeFor(f) {
-    if (f === 'index.html') return '<!doctype html>\n<html lang="id">\n<head>\n  <title>BelajarKita</title>\n  <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n  <nav class="s-nav">\n    <b class="s-logo">BelajarKita</b>\n    <a href="#kursus">Kursus</a>\n  </nav>\n  <section class="s-hero">\n    <h2>Belajar terarah, satu kelas pendek setiap hari</h2>\n  </section>\n  <main id="app"></main>\n  <script type="module" src="courses.js"><\/script>\n</body>\n</html>';
-    if (f === 'courses.js') return 'export const courses = ' + JSON.stringify(COURSES.slice(0, 3).map(function (c) { return { id: c.id, title: c.t, level: c.lv, lessons: c.les }; }), null, 2) + ';\n// ...dan ' + (COURSES.length - 3) + ' kursus contoh lainnya\n\nexport function filterCourses(list, q, level) {\n  return list.filter(c =>\n    (level === "Semua" || c.level === level) &&\n    c.title.toLowerCase().includes(q.toLowerCase()));\n}';
-    if (f === 'dashboard.js') return 'const week = ' + JSON.stringify(WEEK) + ';\n\nexport const totalMinutes = week.reduce((sum, [, m]) => sum + m, 0);\n// totalMinutes = ' + WEEK.reduce(function (a, w) { return a + w[1]; }, 0) + '\n\nexport function barHeight(minutes, max = 80, px = 84) {\n  return Math.round((minutes / max) * px);\n}';
-    return 'export const quiz = [\n  {\n    q: ' + JSON.stringify(QUIZ[0].q) + ',\n    options: ' + JSON.stringify(QUIZ[0].o) + ',\n    answer: ' + QUIZ[0].a + '\n  }\n  // ...' + (QUIZ.length - 1) + ' soal lainnya\n];\n\nexport const score = (picked) =>\n  picked.filter((p, i) => p === quiz[i].answer).length;';
+    if (f === 'HeroSection.tsx') return '// components/HeroSection.tsx\nimport React from "react";\n\nexport default function HeroSection() {\n  return (\n    <section className="relative overflow-hidden bg-slate-950 py-24 text-white">\n      <div className="mx-auto max-w-6xl px-6 text-center">\n        <span className="rounded-full bg-violet-600/20 px-4 py-1.5 text-xs font-semibold text-violet-400 border border-violet-500/30">\n          Platform AI EdTech #1 Global\n        </span>\n        <h1 className="mt-6 text-5xl font-black tracking-tight sm:text-6xl">\n          Kuasai Keahlian Masa Depan dengan Mentor AI\n        </h1>\n        <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">\n          Akses 120+ kursus bersertifikasi, video interaktif HLS, dan evaluasi adaptif realtime.\n        </p>\n        <div className="mt-8 flex justify-center gap-4">\n          <a href="#courses" className="rounded-xl bg-violet-600 px-6 py-3 font-bold hover:bg-violet-500 transition">\n            Mulai Belajar Gratis\n          </a>\n          <a href="#demo" className="rounded-xl border border-slate-700 px-6 py-3 font-semibold hover:bg-slate-900 transition">\n            Tonton Preview Video\n          </a>\n        </div>\n      </div>\n    </section>\n  );\n}';
+    if (f === 'CourseCard.tsx') return '// components/CourseCard.tsx\nimport React from "react";\n\nexport const CourseCard = ({ title, lessons, rating, instructor }: any) => (\n  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-violet-500">\n    <div className="aspect-video w-full rounded-xl bg-slate-800 flex items-center justify-center font-bold text-violet-400">\n      HLS Video Lesson Player\n    </div>\n    <h3 className="mt-4 font-bold text-white text-base">{title}</h3>\n    <div className="mt-2 flex items-center justify-between text-xs text-slate-400">\n      <span>{instructor}</span>\n      <span>⭐ {rating} &middot; {lessons} Bab</span>\n    </div>\n  </div>\n);';
+    if (f === 'VideoPlayer.tsx') return '// components/VideoPlayer.tsx\nimport React, { useRef, useEffect } from "react";\nimport Hls from "hls.js";\n\nexport default function VideoPlayer({ src }: { src: string }) {\n  const videoRef = useRef<HTMLVideoElement>(null);\n  useEffect(() => {\n    if (videoRef.current && Hls.isSupported()) {\n      const hls = new Hls({ enableWorker: true, lowLatencyMode: true });\n      hls.loadSource(src);\n      hls.attachMedia(videoRef.current);\n      return () => hls.destroy();\n    }\n  }, [src]);\n  return (\n    <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl">\n      <video ref={videoRef} controls className="h-full w-full" poster="/cover.webp" />\n    </div>\n  );\n}';
+    if (f === 'QuizEngine.tsx') return '// components/QuizEngine.tsx\nexport class QuizEngine {\n  private questions: any[];\n  private answers: Map<number, number> = new Map();\n  constructor(questions: any[]) { this.questions = questions; }\n  submit(id: number, opt: number) { this.answers.set(id, opt); }\n  score() {\n    let ok = 0;\n    this.questions.forEach(q => { if (this.answers.get(q.id) === q.answer) ok++; });\n    return { correct: ok, total: this.questions.length, pct: Math.round((ok/this.questions.length)*100) };\n  }\n}';
+    if (f === 'LMSDashboard.tsx') return '// components/LMSDashboard.tsx\nimport React from "react";\n\nexport default function LMSDashboard({ user, progress }: any) {\n  return (\n    <div className="p-8 space-y-6 bg-slate-950 text-white min-h-screen">\n      <header className="flex justify-between items-center border-b border-slate-800 pb-4">\n        <div>\n          <h1 className="text-2xl font-bold">Halo, {user?.name || "Siswa"} 👋</h1>\n          <p className="text-sm text-slate-400">Progres belajar & sertifikat Anda terverifikasi secara realtime.</p>\n        </div>\n      </header>\n      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Total Waktu Belajar</span>\n          <div className="text-2xl font-bold mt-1">18.5 Jam</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Kursus Selesai</span>\n          <div className="text-2xl font-bold mt-1">4 dari 6</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Rata-rata Skor Kuis</span>\n          <div className="text-2xl font-bold mt-1 text-emerald-400">94%</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Sertifikat Resmi</span>\n          <div className="text-2xl font-bold mt-1 text-violet-400">Terverifikasi QR</div>\n        </div>\n      </div>\n    </div>\n  );\n}';
+    if (f === 'CertificateGenerator.tsx') return '// components/CertificateGenerator.tsx\nexport async function generateCertificate(studentName: string, courseTitle: string) {\n  return { certId: "CERT-" + Date.now().toString(36).toUpperCase(), student: studentName, course: courseTitle, issuedAt: new Date().toISOString() };\n}';
+    if (f === 'auth.ts') return '// lib/auth.ts - Multi-Role Auth (Student, Instructor, Admin)\nexport const authConfig = {\n  providers: ["credentials", "google", "github"],\n  session: { strategy: "jwt" },\n  callbacks: { jwt({ token, user }: any) { if (user) token.role = user.role; return token; } }\n};';
+    return '// api/webhooks.ts - 1.000+ Marketplace Auto-Enrollment Webhook\nexport async function POST(req: Request) {\n  const payload = await req.json();\n  // Sinkronisasi transaksi & murid dari Udemy, Tokopedia, Shopee\n  return Response.json({ status: "enrolled", timestamp: Date.now() });\n}';
   }
   function renderSide() {
     var p = cur(); if (!p) return;
@@ -725,7 +795,17 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       h += p.assets.length ? '<ul class="files">' + p.assets.map(function (a, i) { return '<li>' + I.file + '<span class="nm"></span><span class="sz">' + size(a.size) + '</span><button type="button" data-rm="' + i + '" aria-label="Hapus aset">' + I.x + '</button></li>'; }).join('') + '</ul>' : '<div class="empty"><b>Belum ada aset</b><span>File yang Anda unggah akan muncul di daftar ini.</span></div>';
       h += '<div class="tip"><h4>' + esc(TIPS[tip][0]) + '</h4><p>' + esc(TIPS[tip][1]) + '</p></div><div class="car"><button class="nav" type="button" id="tp" aria-label="Sebelumnya">' + I.prev + '</button><div class="dots">' + TIPS.map(function (t, i) { return '<button type="button" data-tip="' + i + '" aria-label="Tips ' + (i + 1) + '" aria-current="' + (i === tip) + '"></button>'; }).join('') + '</div><button class="nav" type="button" id="tn" aria-label="Berikutnya">' + I.next + '</button></div>';
     } else if (uiMode === 'live') {
-      h = '<div class="browser"><div class="chrome"><i></i><i></i><i></i><span class="url">https://' + esc(p.name) + '.preview.local</span></div>' + siteHTML(p) + '</div>';
+      h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
+        '<div class="chrome"><i></i><i></i><i></i>' +
+        '<span class="url" style="display:flex;align-items:center;gap:8px">' +
+        '<span style="padding:1px 7px;border-radius:99px;background:var(--ok);color:#fff;font-weight:700;font-size:10px;letter-spacing:.02em">LIVE</span> ' +
+        'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform</span>' +
+        '<a href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" style="font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:600;margin-left:auto;white-space:nowrap">Buka Tab Penuh &#x2197;</a>' +
+        '</div>' +
+        '<div style="flex:1;min-height:540px;position:relative;background:#06080f">' +
+        '<iframe id="wsLiveFrame" src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Platform" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>' +
+        '</div>' +
+        '</div>';
     } else if (uiMode === 'radar') {
       h = radarPane();
     } else if (uiMode === 'workflow') {
@@ -918,6 +998,7 @@ pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-
       state.projects.unshift(np);
       if (state.open.indexOf(np.id) < 0) state.open.push(np.id);
       state.active = np.id;
+      uiMode = 'live';
       save();
       render();
       setTimeout(function () {

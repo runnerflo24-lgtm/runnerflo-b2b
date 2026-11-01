@@ -566,7 +566,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
     <h1>AI yang <em>mencari nafkah</em> untuk Anda.</h1>
     <p class="sub">Buat AI aplikasi atau AI agent, lalu AI Veltra otomatis mencari klien dan memasarkannya ke 100+ marketplace dunia. Tanpa setup apa pun. Coba tanyakan langsung.</p>
     <div class="chat" id="chat">
-      <div class="log" id="log" aria-live="polite"></div>
       <div class="comp">
         <textarea id="q" rows="1" placeholder="Tanya apa saja tentang AI agent untuk bisnis Anda..." aria-label="Pesan"></textarea>
         <button class="send" id="send" aria-label="Kirim ke Workspace"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
@@ -577,18 +576,18 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
         <span>9.500+ Ide Aplikasi AI Siap Pakai</span>
       </button>
-      <button id="chip-demo" type="button" aria-label="Lihat Demo: AI Web EdTech & LMS"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="6 3 20 12 6 21 6 3"/></svg>Contoh: AI Web EdTech &amp; LMS &#x2192;</button>
+      <button id="chip-demo" type="button" aria-label="Lihat Contoh AI Game Generator"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="6 3 20 12 6 21 6 3"/></svg>Contoh: AI Game Generator &#x2192;</button>
       <button id="chip-workspace" type="button" aria-label="Buka Agent Workspace" style="color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Agent Workspace &#x2197;</button>
       <button type="button">Otomatiskan balasan WhatsApp pelanggan</button>
       <button type="button">Berapa biaya membuat AI agent?</button>
       <button type="button">Bagaimana AI mencari klien untuk saya?</button>
     </div>
     <p class="note">Asisten demo Veltra. Jawaban bisa keliru; untuk estimasi akurat, pesan audit gratis.</p>
-    <!-- ====== KOTAK PREVIEW WEB (Contoh Nyata: Web EdTech, Video, & Sistem LMS Lengkap) ====== -->
+    <!-- ====== KOTAK PREVIEW WEB (Contoh Nyata: Runnerflo AI 3D Game) ====== -->
     <div class="pv" id="preview">
-      <div class="pv-bar"><i></i><i></i><i></i><span class="pv-url"><span class="pv-tag">LIVE</span> runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform</span></div>
+      <div class="pv-bar"><i></i><i></i><i></i><span class="pv-url">kuis-game-3d-console.pages.dev</span></div>
       <div class="pv-body" id="pv-body">
-        <iframe id="demo-frame" src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - Web EdTech, Video & Sistem LMS Lengkap" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>
+        <iframe id="demo-frame" src="https://kuis-game-3d-console.pages.dev" title="Runnerflo AI 3D Game Generator - Contoh Nyata" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>
       </div>
     </div>
   </div>
@@ -773,200 +772,46 @@ if(!RM){new IntersectionObserver(e=>{vis=e[0].isIntersecting}).observe(hero);req
 
 /* ===== Hubungkan Chat AI & Chips ke Agent Workspace ===== */
 function goToWorkspace(val){
-  const ta=document.getElementById("q");
+  const ta = document.getElementById("q");
   const text = (typeof val === "string" ? val : (ta ? ta.value : "")).trim();
   let dest = "Agent%20Workspace.html";
   if(text) dest += "?q=" + encodeURIComponent(text);
   window.location.href = dest;
 }
 
-let isSimulating = false;
-function runAiSimulation(promptText){
-  if(isSimulating) return;
-  const chat = document.getElementById("chat");
-  const log = document.getElementById("log");
-  const ta = document.getElementById("q");
-  const sendBtn = document.getElementById("send");
-  const preview = document.getElementById("preview");
-  const frame = document.getElementById("demo-frame");
-  const pvUrl = document.querySelector(".pv-url");
-  
-  const query = (promptText || (ta ? ta.value : "") || "Buatkan platform EdTech LMS lengkap dengan video streaming, kuis interaktif, dan sistem LMS lengkap").trim();
-  if(ta) { ta.value = ""; ta.style.height = "auto"; }
-  if(sendBtn) sendBtn.disabled = true;
-  isSimulating = true;
-  
-  if(chat) chat.classList.add("on");
-  if(log){
-    // User message bubble
-    const uMsg = document.createElement("div");
-    uMsg.className = "m u";
-    uMsg.innerHTML = '<p>' + query.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + '</p>';
-    log.appendChild(uMsg);
-    
-    // Agent message container
-    const aMsg = document.createElement("div");
-    aMsg.className = "m";
-    aMsg.innerHTML = '<div class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg></div><div class="stream" id="stream-out"></div>';
-    log.appendChild(aMsg);
-    log.scrollTop = log.scrollHeight;
-  }
-  
-  const streamOut = document.getElementById("stream-out");
-  const cursor = document.createElement("span");
-  cursor.className = "cursor";
-  if(streamOut) streamOut.appendChild(cursor);
-  
-  // Rangkaian langkah simulasi AI pembuatan EdTech LMS
-  const steps = [
-    { text: "⚡ [1/5] Inisialisasi Project Engine...", speed: 18, pause: 350 },
-    { text: "    Menganalisis arsitektur platform EdTech LMS skala besar...", speed: 16, pause: 500 },
-    { text: "    Tech Stack: Next.js 14, TailwindCSS, Cloudflare Pages Edge, HLS Video", speed: 14, pause: 450, hl: true },
-    { text: "", speed: 0, pause: 200 },
-    { text: "📐 [2/5] Merancang modul EdTech LMS & basis data kursus...", speed: 18, pause: 400 },
-    { text: "    ├─ Skema Course & Lesson Multi-tier (Video, Dokumen, Silabus)", speed: 14, pause: 300 },
-    { text: "    ├─ Engine Kuis Adaptif & Evaluasi Skor Realtime", speed: 14, pause: 300 },
-    { text: "    └─ Dashboard Siswa & Mentor Terintegrasi", speed: 14, pause: 350 },
-    { text: "", speed: 0, pause: 200 },
-    { text: "💻 [3/5] Meng-generate kode komponen & modul proyek...", speed: 18, pause: 450 },
-    { text: "    • Generating: components/HeroSection.tsx (Hero & Catalog CTA) ... [OK]", speed: 12, pause: 400, cyan: true },
-    { text: "    • Generating: components/CourseCard.tsx (Katalog Kursus Dinamis) ... [OK]", speed: 12, pause: 400, cyan: true },
-    { text: "    • Generating: components/VideoPlayer.tsx (HLS Stream & Multi-Bitrate) ... [OK]", speed: 12, pause: 450, cyan: true },
-    { text: "    • Generating: components/QuizEngine.tsx (Engine Kuis Interaktif) ... [OK]", speed: 12, pause: 450, cyan: true },
-    { text: "    • Generating: components/LMSDashboard.tsx (Progress Tracker Siswa) ... [OK]", speed: 12, pause: 450, cyan: true },
-    { text: "    • Generating: components/CertificateGenerator.tsx (Verifikasi QR & PDF) ... [OK]", speed: 12, pause: 450, cyan: true },
-    { text: "    • Generating: lib/auth.ts (Autentikasi Multi-Role & Session) ... [OK]", speed: 12, pause: 400, cyan: true },
-    { text: "    • Generating: api/webhooks.ts (Payment Gateway & Auto-Enrollment) ... [OK]", speed: 12, pause: 400, cyan: true },
-    { text: "", speed: 0, pause: 200 },
-    { text: "🔄 [4/5] Mengompilasi Edge Assets & Mengaktifkan Live Preview...", speed: 18, pause: 600, triggerIframe: true },
-    { text: "    • Build statis berhasil: 16 rute modul selesai", speed: 14, pause: 350 },
-    { text: "    • CDN Edge deployment: runnerflo-ai.pages.dev [READY]", speed: 14, pause: 500, ok: true },
-    { text: "", speed: 0, pause: 200 },
-    { text: "🌐 [5/5] Menghubungkan ke 1.000+ Marketplace Global (AI Pencari Nafkah)...", speed: 18, pause: 500 },
-    { text: "    ✓ Udemy Partner Network &mdash; Terkoneksi otomatis", speed: 12, pause: 300, ok: true },
-    { text: "    ✓ Skillshare &amp; Coursera Partner API &mdash; Distribusi aktif", speed: 12, pause: 300, ok: true },
-    { text: "    ✓ Tokopedia &amp; Shopee Edukasi Digital &mdash; Katalog live", speed: 12, pause: 300, ok: true },
-    { text: "    ✓ +996 channel distribusi internasional aktif mencari calon pembeli", speed: 12, pause: 500, ok: true },
-    { text: "", speed: 0, pause: 250 },
-    { text: "✨ Platform EdTech LMS Berhasil Dibuat & Siap Digunakan!", speed: 16, pause: 400, bold: true, ok: true },
-    { text: "   Silakan eksplorasi aplikasi interaktif live pada kotak preview di bawah:", speed: 14, pause: 400 }
-  ];
-  
-  let stepIdx = 0;
-  function runNextStep(){
-    if(!streamOut) return;
-    if(stepIdx >= steps.length){
-      // Selesai simulasi
-      cursor.remove();
-      if(sendBtn) sendBtn.disabled = false;
-      isSimulating = false;
-      
-      const actions = document.createElement("div");
-      actions.className = "sim-actions";
-      actions.innerHTML = '<button type="button" class="sim-btn-primary" id="btn-open-ws">Buka &amp; Edit di Agent Workspace &#x2197;</button>' +
-        '<a href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" class="sim-btn-secondary">Buka Tab Penuh &#x2197;</a>';
-      streamOut.appendChild(actions);
-      
-      const btnWs = document.getElementById("btn-open-ws");
-      if(btnWs){
-        btnWs.addEventListener("click", function(){
-          goToWorkspace(query);
-        });
-      }
-      if(log) log.scrollTop = log.scrollHeight;
-      return;
-    }
-    
-    const curr = steps[stepIdx++];
-    
-    if(curr.triggerIframe){
-      if(frame && !frame.src.includes("runnerflo-ai.pages.dev")){
-        frame.src = "https://runnerflo-ai.pages.dev";
-      }
-      if(pvUrl){
-        pvUrl.innerHTML = '<span class="pv-tag">LIVE</span> runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform';
-      }
-      if(preview){
-        preview.classList.add("live-active");
-        setTimeout(function(){
-          preview.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 500);
-      }
-    }
-    
-    if(!curr.text){
-      const br = document.createElement("div");
-      br.style.height = "6px";
-      streamOut.insertBefore(br, cursor);
-      setTimeout(runNextStep, curr.pause || 150);
-      return;
-    }
-    
-    const lineDiv = document.createElement("div");
-    lineDiv.className = "s-line" + (curr.hl ? " hl" : "") + (curr.ok ? " ok" : "") + (curr.cyan ? " cyan" : "") + (curr.bold ? " bold" : "");
-    streamOut.insertBefore(lineDiv, cursor);
-    
-    let charIdx = 0;
-    const fullText = curr.text;
-    function typeChar(){
-      if(charIdx < fullText.length){
-        lineDiv.textContent += fullText.charAt(charIdx++);
-        if(log) log.scrollTop = log.scrollHeight;
-        setTimeout(typeChar, curr.speed || 15);
-      } else {
-        setTimeout(runNextStep, curr.pause || 250);
-      }
-    }
-    typeChar();
-  }
-  
-  runNextStep();
-}
-
 (()=>{
-const ta=document.getElementById("q"),sb=document.getElementById("send");
+const ta = document.getElementById("q"), sb = document.getElementById("send");
 if(ta){
-  ta.addEventListener("input",()=>{
-    ta.style.height="auto";
-    ta.style.height=Math.min(ta.scrollHeight,140)+"px";
+  ta.addEventListener("input", ()=>{
+    ta.style.height = "auto";
+    ta.style.height = Math.min(ta.scrollHeight, 140) + "px";
   });
-  ta.addEventListener("keydown",e=>{
-    if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){
+  ta.addEventListener("keydown", e => {
+    if(e.key === "Enter" && !e.shiftKey && !e.isComposing){
       e.preventDefault();
-      runAiSimulation();
+      goToWorkspace();
     }
   });
 }
 if(sb){
-  sb.addEventListener("click",(e)=>{
+  sb.addEventListener("click", e => {
     e.preventDefault();
-    runAiSimulation();
+    goToWorkspace();
   });
 }
-document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b=>{
-  b.addEventListener("click",(e)=>{
+document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b => {
+  b.addEventListener("click", e => {
     e.preventDefault();
     if(b.id === "chip-demo"){
-      const frame = document.getElementById("demo-frame");
-      const pvUrl = document.querySelector(".pv-url");
-      const preview = document.getElementById("preview");
-      if(frame && !frame.src.includes("runnerflo-ai.pages.dev")){
-        frame.src = "https://runnerflo-ai.pages.dev";
-      }
-      if(pvUrl){
-        pvUrl.innerHTML = '<span class="pv-tag">LIVE</span> runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform';
-      }
-      if(preview){
-        preview.classList.add("live-active");
-        preview.scrollIntoView({behavior:"smooth", block:"center"});
-      }
+      var pv = document.getElementById("preview");
+      if(pv) pv.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     if(b.id === "chip-workspace"){
       window.location.href = "Agent%20Workspace.html";
       return;
     }
-    runAiSimulation(b.textContent);
+    goToWorkspace(b.textContent);
   });
 });
 })();
