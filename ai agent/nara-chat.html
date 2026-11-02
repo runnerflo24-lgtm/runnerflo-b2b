@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nara – AI Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f7;--panel:#fff;--ink:#111318;--mute:#7b8190;--line:#e8eaee;--soft:#f3f4f6;--btn:#111318;--btnink:#fff;--user:#111318;--userink:#fff}
+:root[data-theme=dark]{--bg:#0d0e11;--panel:#16181d;--ink:#eef0f4;--mute:#8d93a1;--line:#272a31;--soft:#1e2127;--btn:#eef0f4;--btnink:#111318;--user:#eef0f4;--userink:#111318}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:Manrope,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:13px;display:flex}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #6c8cff;outline-offset:2px}
+.app{display:grid;grid-template-columns:210px 1fr 230px;width:100%;height:100%;background:var(--panel)}
+aside{display:flex;flex-direction:column;padding:16px 14px;border-right:1px solid var(--line);gap:4px;overflow:auto}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;margin-bottom:12px}
+.logo i{width:22px;height:22px;border-radius:7px;background:conic-gradient(#6c8cff,#c46cff,#ff8a6c,#6c8cff)}
+.search{background:var(--soft);border-radius:10px;padding:9px 11px;color:var(--mute);width:100%;text-align:left;margin-bottom:8px}
+.nav{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;color:var(--mute);font-weight:600;width:100%;text-align:left}
+.nav:hover{background:var(--soft)}.nav.on{background:var(--soft);color:var(--ink)}
+.grp{color:var(--mute);font-size:11px;font-weight:700;margin:14px 10px 4px}
+.sp{flex:1}
+.theme{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:10px;padding:3px;margin-bottom:10px}
+.theme button{padding:7px;border-radius:8px;font-weight:600;color:var(--mute)}
+.theme button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px #0002}
+.me{display:flex;align-items:center;gap:9px;font-weight:700}.me small{display:block;color:var(--mute);font-weight:500;font-size:11px}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#ffb88c,#de6262);flex:none}
+main{display:flex;flex-direction:column;min-width:0;height:100%}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);font-weight:700;font-size:14px}
+.pri{background:var(--btn);color:var(--btnink);padding:8px 14px;border-radius:10px;font-weight:700}
+.stage{flex:1;overflow:auto;display:flex;flex-direction:column}
+.welcome{margin:auto;text-align:center;max-width:440px;padding:20px}
+.welcome h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.welcome p{color:var(--mute);line-height:1.5;margin-bottom:22px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;font-weight:700;text-align:left}
+.card:hover{background:var(--soft)}
+.card b{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex:none}
+.card em{margin-left:auto;color:var(--mute);font-style:normal}
+.msgs{width:100%;max-width:700px;margin:0 auto;padding:22px 20px;display:flex;flex-direction:column;gap:16px}
+.m{max-width:88%;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+.m.u{align-self:flex-end;background:var(--user);color:var(--userink);padding:10px 14px;border-radius:16px 16px 4px 16px}
+.m.a{align-self:flex-start}
+.m.err{color:#e5484d}
+.m pre{background:var(--soft);padding:12px;border-radius:10px;overflow:auto;margin:8px 0;white-space:pre;font:12px ui-monospace,monospace}
+.m code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:12px}
+.m pre code{background:none;padding:0}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mute);margin-right:4px;animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-4px);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.dots span{animation:none}}
+.composer{padding:0 20px 8px;width:100%;max-width:740px;margin:0 auto;position:relative}
+.box{border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 6px 24px #0000000d;padding:10px 12px}
+.box textarea{width:100%;border:0;background:none;color:var(--ink);font:inherit;resize:none;max-height:140px;padding:2px;outline:0}
+.tools{display:flex;align-items:center;gap:4px;margin-top:6px;color:var(--mute);font-size:12px;font-weight:600}
+.tools button{padding:5px 8px;border-radius:7px}.tools button:hover{background:var(--soft)}
+.tools button.rec{color:#e5484d}
+.cnt{margin-left:auto;padding-right:6px}
+.send{background:var(--btn);color:var(--btnink);width:28px;height:28px;border-radius:8px;display:grid;place-items:center}
+.send:disabled{opacity:.35;cursor:default}
+.chip{display:inline-block;background:var(--soft);padding:3px 8px;border-radius:7px;margin:0 4px 6px 0;font-size:11px;font-weight:600}
+.chip button{margin-left:4px;color:var(--mute)}
+.foot{text-align:center;color:var(--mute);font-size:11px;padding:4px 0 10px}
+.pop{position:absolute;bottom:100%;left:20px;right:20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px #00000022;padding:6px;margin-bottom:6px;display:none}
+.pop.show{display:block}.pop button{display:block;width:100%;text-align:left;padding:9px 10px;border-radius:8px}.pop button:hover{background:var(--soft)}
+.right{border-left:1px solid var(--line);padding:16px 12px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.right h4{font-size:12px;color:var(--mute);display:flex;justify-content:space-between;margin:2px 6px 6px}
+.proj{width:100%;text-align:left;padding:10px;border:1px solid var(--line);border-radius:10px;line-height:1.4;display:block}
+.proj small{color:var(--mute);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proj b{display:flex;justify-content:space-between;gap:6px}
+.proj.on{background:var(--soft)}
+.proj .x{color:var(--mute);opacity:0}.proj:hover .x{opacity:1}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:20px;width:min(440px,92vw);margin:auto}
+dialog::backdrop{background:#0006}
+dialog label{display:block;font-weight:700;margin:12px 0 5px}
+dialog input,dialog textarea,dialog select{width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
+dialog p{color:var(--mute);margin-top:4px;line-height:1.45;font-size:12px}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--btn);color:var(--btnink);padding:9px 14px;border-radius:10px;font-weight:600;display:none}
+@media(max-width:900px){.app{grid-template-columns:1fr}aside,.right{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo"><i></i>Nara</div>
+    <button class="search" id="qsearch">⌕ Cari percakapan</button>
+    <button class="nav on" data-nav="chat">✦ AI Chat</button>
+    <button class="nav" data-nav="projects">▢ Proyek</button>
+    <button class="nav" data-nav="templates">❏ Template</button>
+    <button class="nav" data-nav="docs">▤ Dokumen</button>
+    <button class="nav" data-nav="history">◷ Riwayat</button>
+    <div class="grp">Pengaturan &amp; bantuan</div>
+    <button class="nav" id="openSettings">⚙ Pengaturan</button>
+    <button class="nav" data-nav="help">? Bantuan</button>
+    <div class="sp"></div>
+    <div class="theme"><button data-t="light" class="on">Terang</button><button data-t="dark">Gelap</button></div>
+    <div class="me"><div class="av"></div><div>Pengguna<small>Akun lokal</small></div></div>
+  </aside>
+
+  <main>
+    <div class="top"><span id="title">AI Chat</span><button class="pri" id="newChat">+ Chat baru</button></div>
+    <div class="stage" id="stage"></div>
+    <div class="composer">
+      <div class="pop" id="pop"></div>
+      <div class="box">
+        <div id="chips"></div>
+        <textarea id="inp" rows="1" maxlength="3000" placeholder="Tulis pesan untuk Nara…"></textarea>
+        <div class="tools">
+          <button id="attach">＋ Lampir</button>
+          <button id="voice">● Pesan suara</button>
+          <button id="prompts">▤ Jelajahi prompt</button>
+          <span class="cnt" id="cnt">0/3.000</span>
+          <button class="send" id="send" aria-label="Kirim" disabled>➤</button>
+        </div>
+      </div>
+      <div class="foot">Nara bisa keliru. Periksa kembali informasi penting.</div>
+      <input type="file" id="file" hidden multiple accept=".txt,.md,.json,.csv,.js,.py,.html,.css">
+    </div>
+  </main>
+
+  <div class="right">
+    <h4><span>Proyek</span><span id="pcount"></span></h4>
+    <div id="plist"></div>
+  </div>
+</div>
+
+<dialog id="settings">
+  <h3>Pengaturan</h3>
+  <label for="s-key">Claude API key (khusus pengujian lokal)</label>
+  <input id="s-key" type="password" placeholder="sk-ant-…" autocomplete="off">
+  <p>Untuk produksi, jangan simpan key di browser. Arahkan ke backend proxy di <code>CONFIG.proxyUrl</code>.</p>
+  <label for="s-model">Model</label>
+  <select id="s-model"><option>claude-sonnet-5-5</option><option>claude-opus-5-5</option><option>claude-haiku-5-5</option></select>
+  <label for="s-sys">Instruksi sistem</label>
+  <textarea id="s-sys" rows="3"></textarea>
+  <div class="row"><button class="nav" style="width:auto" id="s-cancel">Batal</button><button class="pri" id="s-save">Simpan</button></div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   KONFIGURASI — ubah bagian ini untuk integrasi Claude API
+   ============================================================ */
+const CONFIG = {
+  appName: 'Nara',
+  proxyUrl: '/api/chat',        // endpoint backend Anda (disarankan untuk produksi)
+  model: 'claude-sonnet-5-5',
+  maxTokens: 1024,
+  system: 'Kamu adalah Nara, asisten AI yang ramah dan ringkas. Jawab dalam bahasa pengguna.'
+};
+
+/* ============================================================
+   askClaude — SATU-SATUNYA fungsi yang perlu Anda sambungkan.
+   Input : messages = [{role:'user'|'assistant', content:'...'}]
+   Output: string teks balasan
+   ============================================================ */
+async function askClaude(messages){
+  const s = load('settings', {});
+  const model = s.model || CONFIG.model;
+  const system = s.system || CONFIG.system;
+
+  // Mode 1 (uji lokal): API key dari Pengaturan, langsung ke Anthropic
+  if (s.key) {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'content-type':'application/json','x-api-key':s.key,
+        'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model, max_tokens:CONFIG.maxTokens, system, messages})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error?.message || 'Permintaan gagal ('+r.status+')');
+    return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+  }
+
+  // Mode 2 (produksi): backend Anda meneruskan ke Claude, balas {text:"..."}
+  const r = await fetch(CONFIG.proxyUrl, {
+    method:'POST', headers:{'content-type':'application/json'},
+    body: JSON.stringify({model, system, max_tokens:CONFIG.maxTokens, messages})
+  });
+  if (!r.ok) throw new Error('Isi API key di Pengaturan, atau sediakan endpoint '+CONFIG.proxyUrl+' (status '+r.status+').');
+  return (await r.json()).text;
+}
+
+/* ===================== STATE & UTIL ===================== */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+function load(k,d){ try{ return JSON.parse(localStorage.getItem('nara:'+k)) ?? d }catch{ return d } }
+function save(k,v){ try{ localStorage.setItem('nara:'+k, JSON.stringify(v)) }catch{} }
+const uid = () => Math.random().toString(36).slice(2,9);
+const esc = t => t.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let chats = load('chats', []), cur = null, files = [], busy = false, view = 'chat';
+function toast(t){ const el=$('#toast'); el.textContent=t; el.style.display='block'; clearTimeout(toast.h); toast.h=setTimeout(()=>el.style.display='none',2200) }
+
+function md(t){
+  return esc(t)
+    .replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>'<pre><code>'+c.replace(/\n$/,'')+'</code></pre>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>');
+}
+
+/* ===================== RENDER ===================== */
+const QUICK = [
+  ['Tulis naskah','✎','#fde7c8','Bantu saya menulis naskah iklan untuk '],
+  ['Buat gambar','◐','#d6ecff','Buatkan deskripsi gambar (prompt) detail untuk '],
+  ['Buat avatar','☺','#d9f5d0','Buatkan konsep avatar karakter untuk '],
+  ['Tulis kode','⌘','#fbd5e8','Tuliskan kode untuk ']
+];
+const PROMPTS = ['Ringkas teks berikut menjadi 5 poin','Jelaskan konsep ini seperti saya berusia 10 tahun','Perbaiki tata bahasa dan gaya tulisan ini','Buat rencana belajar 7 hari untuk topik ','Review kode ini dan cari bug-nya'];
+
+function renderStage(){
+  const st = $('#stage'), c = chats.find(x=>x.id===cur);
+  if (view !== 'chat') {
+    const names = {projects:'Proyek',templates:'Template',docs:'Dokumen',history:'Riwayat',help:'Bantuan'};
+    $('#title').textContent = names[view];
+    st.innerHTML = `<div class="welcome"><h1>${names[view]}</h1><p>${view==='history'||view==='projects'?'Pilih percakapan di panel kanan atau cari lewat kolom pencarian.':'Bagian ini siap Anda kembangkan. Tambahkan fitur sesuai kebutuhan.'}</p></div>`;
+    return;
+  }
+  $('#title').textContent = c ? c.title : 'AI Chat';
+  if (!c || !c.msgs.length) {
+    st.innerHTML = `<div class="welcome"><h1>Selamat datang di ${CONFIG.appName}</h1><p>Mulai dengan satu tugas, Nara yang mengerjakan sisanya. Bingung mulai dari mana?</p><div class="cards">${QUICK.map((q,i)=>`<button class="card" data-q="${i}"><b style="background:${q[2]}">${q[1]}</b>${q[0]}<em>＋</em></button>`).join('')}</div></div>`;
+    $$('.card').forEach(b=>b.onclick=()=>{ $('#inp').value=QUICK[b.dataset.q][3]; onInput(); $('#inp').focus() });
+    return;
+  }
+  st.innerHTML = '<div class="msgs">'+c.msgs.map(m=>`<div class="m ${m.role==='user'?'u':'a'}${m.err?' err':''}">${m.role==='user'?esc(m.content):md(m.content)}</div>`).join('')+(busy?'<div class="m a"><span class="dots"><span></span><span></span><span></span></span></div>':'')+'</div>';
+  st.scrollTop = st.scrollHeight;
+}
+
+function renderList(){
+  const q = ($('#plist').dataset.q||'').toLowerCase();
+  const list = chats.filter(c=>c.title.toLowerCase().includes(q));
+  $('#pcount').textContent = '('+chats.length+')';
+  $('#plist').innerHTML = list.length ? list.map(c=>`<button class="proj ${c.id===cur?'on':''}" data-id="${c.id}"><b><span>${esc(c.title)}</span><span class="x" data-del="${c.id}" title="Hapus">✕</span></b><small>${esc(c.msgs[c.msgs.length-1]?.content||'Kosong')}</small></button>`).join('') : '<p style="color:var(--mute);padding:6px">Belum ada proyek.</p>';
+  $$('.proj').forEach(b=>b.onclick=e=>{
+    if (e.target.dataset.del){ chats=chats.filter(c=>c.id!==e.target.dataset.del); if(cur===e.target.dataset.del)cur=null; save('chats',chats); }
+    else { cur=b.dataset.id; view='chat'; setNav('chat'); }
+    renderAll();
+  });
+}
+function renderAll(){ renderStage(); renderList() }
+function setNav(n){ $$('.nav[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===n)) }
+
+/* ===================== KIRIM PESAN ===================== */
+async function send(){
+  const inp = $('#inp'); let text = inp.value.trim();
+  if ((!text && !files.length) || busy) return;
+  const extra = files.map(f=>`\n\n[Lampiran: ${f.name}]\n${f.text}`).join('');
+  let c = chats.find(x=>x.id===cur);
+  if (!c){ c = {id:uid(), title:(text||files[0].name).slice(0,40), msgs:[]}; chats.unshift(c); cur = c.id }
+  view = 'chat'; setNav('chat');
+  c.msgs.push({role:'user', content:text+extra});
+  inp.value=''; files=[]; renderChips(); onInput();
+  busy = true; save('chats',chats); renderAll();
+  try {
+    const history = c.msgs.filter(m=>!m.err).map(({role,content})=>({role,content}));
+    c.msgs.push({role:'assistant', content: await askClaude(history)});
+  } catch(e){ c.msgs.push({role:'assistant', content:'Gagal: '+e.message, err:true}) }
+  busy = false; save('chats',chats); renderAll();
+}
+
+function onInput(){
+  const i=$('#inp'); i.style.height='auto'; i.style.height=Math.min(i.scrollHeight,140)+'px';
+  $('#cnt').textContent = i.value.length.toLocaleString('id-ID')+'/3.000';
+  $('#send').disabled = !(i.value.trim()||files.length);
+}
+function renderChips(){
+  $('#chips').innerHTML = files.map((f,i)=>`<span class="chip">${esc(f.name)}<button data-r="${i}" aria-label="Hapus">✕</button></span>`).join('');
+  $$('#chips button').forEach(b=>b.onclick=()=>{ files.splice(b.dataset.r,1); renderChips(); onInput() });
+}
+
+/* ===================== EVENT ===================== */
+$('#inp').addEventListener('input', onInput);
+$('#inp').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send() } });
+$('#send').onclick = send;
+$('#newChat').onclick = ()=>{ cur=null; view='chat'; setNav('chat'); renderAll(); $('#inp').focus() };
+
+$('#attach').onclick = ()=>$('#file').click();
+$('#file').onchange = async e=>{
+  for (const f of e.target.files){
+    if (f.size>200000){ toast(f.name+' terlalu besar (maks 200 KB)'); continue }
+    files.push({name:f.name, text:await f.text()});
+  }
+  e.target.value=''; renderChips(); onInput();
+};
+
+$('#prompts').onclick = ()=>{
+  const p=$('#pop'); p.innerHTML=PROMPTS.map(t=>`<button>${t}</button>`).join(''); p.classList.toggle('show');
+  $$('#pop button').forEach(b=>b.onclick=()=>{ $('#inp').value=b.textContent; p.classList.remove('show'); onInput(); $('#inp').focus() });
+};
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec=null;
+$('#voice').onclick = ()=>{
+  if (!SR) return toast('Browser ini tidak mendukung input suara');
+  const b=$('#voice');
+  if (rec){ rec.stop(); return }
+  rec = new SR(); rec.lang='id-ID'; rec.interimResults=false;
+  rec.onresult = e=>{ $('#inp').value += (e.results[0][0].transcript+' '); onInput() };
+  rec.onend = ()=>{ rec=null; b.classList.remove('rec') };
+  rec.onerror = ()=>toast('Mikrofon tidak dapat diakses');
+  b.classList.add('rec'); rec.start();
+};
+
+$$('.nav[data-nav]').forEach(b=>b.onclick=()=>{ view=b.dataset.nav; setNav(view); renderAll() });
+$('#qsearch').onclick = ()=>{ const q=prompt('Cari percakapan:',$('#plist').dataset.q||''); if(q===null)return; $('#plist').dataset.q=q; renderList() };
+
+function theme(t){ document.documentElement.dataset.theme=t; $$('.theme button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); save('theme',t) }
+$$('.theme button').forEach(b=>b.onclick=()=>theme(b.dataset.t));
+theme(load('theme', matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+
+const dlg=$('#settings');
+$('#openSettings').onclick = ()=>{ const s=load('settings',{}); $('#s-key').value=s.key||''; $('#s-model').value=s.model||CONFIG.model; $('#s-sys').value=s.system||CONFIG.system; dlg.showModal() };
+$('#s-cancel').onclick = ()=>dlg.close();
+$('#s-save').onclick = ()=>{ save('settings',{key:$('#s-key').value.trim(),model:$('#s-model').value,system:$('#s-sys').value}); dlg.close(); toast('Pengaturan disimpan') };
+
+document.addEventListener('click', e=>{ if(!e.target.closest('#pop,#prompts')) $('#pop').classList.remove('show') });
+renderAll(); onInput();
+</script>
+</body>
+</html>

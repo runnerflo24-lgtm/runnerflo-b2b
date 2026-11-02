@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Narasi – Chat dengan NarasiAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f8fc; --card:#fff; --ink:#14162b; --muted:#7a7f98; --line:#e6e8f2;
+  --brand:#5b4ee8; --brand-soft:#ecebff; --user:#5b4ee8; --user-ink:#fff;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#12131f; --card:#1b1d2e; --ink:#eef0fb; --muted:#9aa0bd; --line:#2a2d44; --brand:#8b80ff; --brand-soft:#2a2850; --user:#6b5ff0;}
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);
+  background:var(--bg)}
+.window{width:100%;height:100vh;height:100dvh;background:var(--bg);display:flex;overflow:hidden}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;height:100%}
+aside{width:260px;flex:none;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:10px;padding:14px 12px;transition:margin-left .2s}
+.window.collapsed aside{margin-left:-261px}
+.new{font:inherit;font-size:13px;font-weight:500;color:var(--brand);background:var(--brand-soft);border:0;border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.new:hover{background:var(--brand);color:#fff}
+aside h3{font-size:11px;font-weight:600;color:var(--muted);padding:6px 8px 0}
+.list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.item{display:flex;align-items:center;border-radius:8px}
+.item:hover,.item.on{background:var(--bg)}
+.item .t{flex:1;min-width:0;font:inherit;font-size:13px;color:var(--ink);background:none;border:0;text-align:left;padding:9px 10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .x{font:inherit;font-size:16px;line-height:1;color:var(--muted);background:none;border:0;cursor:pointer;padding:6px 10px;opacity:0}
+.item:hover .x,.item .x:focus-visible{opacity:1}
+.item .x:hover{color:#b42318}
+.empty{font-size:12px;color:var(--muted);padding:8px 10px;line-height:1.5}
+.scrim{display:none}
+@media (max-width:760px){
+  aside{position:fixed;top:0;bottom:0;left:0;z-index:30;transform:translateX(-100%);transition:transform .2s;margin-left:0!important}
+  .window.drawer aside{transform:none}
+  .window.drawer .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25}
+}
+.bar{display:flex;align-items:center;gap:6px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.bar i{width:9px;height:9px;border-radius:50%;display:block}
+.bar i:nth-child(1){background:#ff5f57}.bar i:nth-child(2){background:#febc2e}.bar i:nth-child(3){background:#28c840}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--card);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:8px;font:inherit;font-weight:600;font-size:17px;color:var(--ink);background:none;border:0;cursor:pointer;padding:4px 8px;margin-left:-8px;border-radius:8px}
+.logo:hover{background:var(--bg)}
+.logo svg{color:var(--brand)}
+nav{display:flex;gap:28px}
+nav a{font-size:12px;color:var(--muted);text-decoration:none;font-weight:500}
+nav a:hover{color:var(--ink)}
+main{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width:860px;margin:0 auto;padding:0 24px}
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+.hero[hidden],.thread[hidden]{display:none}
+.orb{width:64px;height:64px;border-radius:50%;background:var(--brand-soft);display:grid;place-items:center;
+  box-shadow:0 0 0 14px color-mix(in srgb,var(--brand) 8%,transparent),0 0 0 28px color-mix(in srgb,var(--brand) 5%,transparent);margin-bottom:12px}
+.orb span{width:32px;height:32px;border-radius:10px;background:var(--brand);display:grid;place-items:center;color:#fff}
+.hero h1{font-size:30px;font-weight:700;letter-spacing:-.02em}
+.hero p{max-width:440px;font-size:12px;line-height:1.6;color:var(--muted)}
+.thread{flex:1;min-height:0;overflow-y:auto;padding:24px 0;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.msg{max-width:78%;padding:11px 15px;border-radius:14px;font-size:14px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+.msg.user{align-self:flex-end;background:var(--user);color:var(--user-ink);border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.err{align-self:flex-start;background:#fff1f0;color:#b42318;border:1px solid #fecdca;font-size:13px}
+.dots{display:inline-flex;gap:4px;padding:4px 0}
+.dots b{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.1s infinite}
+.dots b:nth-child(2){animation-delay:.15s}.dots b:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.panel h2{font-size:12px;font-weight:600;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:11px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  padding:7px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--brand);background:var(--brand-soft)}
+.chip svg{color:var(--brand);flex:none}
+.composer{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px 10px 18px;margin-bottom:24px}
+.composer:focus-within{border-color:var(--brand)}
+.composer textarea{flex:1;border:0;outline:0;resize:none;font:inherit;font-size:13px;background:transparent;color:var(--ink);max-height:120px;padding:6px 0}
+.composer textarea::placeholder{color:var(--muted)}
+.back{font:inherit;font-size:11px;color:var(--muted);background:none;border:0;cursor:pointer;display:flex;align-items:center;gap:5px;padding:6px}
+.back:hover{color:var(--ink)}
+.send{width:30px;height:30px;border:0;border-radius:8px;background:var(--brand-soft);color:var(--brand);cursor:pointer;display:grid;place-items:center}
+.send:hover:not(:disabled){background:var(--brand);color:#fff}
+.send:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (max-width:640px){main,header{padding-left:16px;padding-right:16px}nav{gap:14px}.msg{max-width:90%}.back span{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="window" id="win">
+<aside id="side" aria-label="Riwayat chat">
+  <button class="new" id="newChat" type="button">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Chat baru
+  </button>
+  <h3>Riwayat</h3>
+  <div class="list" id="list"></div>
+</aside>
+<div class="scrim" id="scrim"></div>
+<div class="col">
+  <header>
+    <button class="logo" id="menuBtn" type="button" aria-label="Buka atau tutup riwayat chat" aria-expanded="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h10M4 12h16M4 17h8"/></svg>
+      Narasi
+    </button>
+    <nav><a href="#">Dasbor</a><a href="#">Unggahan</a><a href="#">Tagihan</a></nav>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="orb"><span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1"/></svg>
+      </span></div>
+      <h1>Ngobrol dengan NarasiAI</h1>
+      <p>Dengan kekuatan audio, chatbot kami mengubah kontenmu sesuai kebutuhan dan preferensimu, lengkap dengan kustomisasi di setiap langkah.</p>
+    </section>
+
+    <section class="thread" id="thread" hidden aria-live="polite"></section>
+
+    <div class="panel" id="suggest">
+      <h2>Saran prompt untukmu</h2>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Tulis perintah untuk chatbot kami…" aria-label="Pesan"></textarea>
+      <button class="back" id="back" type="button">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
+        <span>Kembali ke Hasil</span>
+      </button>
+      <button class="send" id="send" type="button" aria-label="Kirim">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21 23 12 2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </main>
+</div>
+</div>
+
+<script>
+/* =====================================================
+   KONFIGURASI – ubah bagian ini saja untuk integrasi
+   ===================================================== */
+const CONFIG = {
+  // Endpoint backend-mu (lihat server.js). Kosongkan untuk mode demo/mock.
+  apiUrl: "/api/chat",
+  // System prompt yang dikirim ke Claude lewat backend.
+  system: "Kamu adalah NarasiAI, asisten penulisan yang membantu menyunting dan mengembangkan naskah. Jawab dalam bahasa yang sama dengan pengguna.",
+  // Dipanggil saat tombol "Kembali ke Hasil" ditekan (default: reset chat).
+  onBack: null,
+  suggestions: [
+    "Buat lebih deskriptif dan hidup",
+    "Ringkas dan buat lebih padat",
+    "Tambahkan gaya dan kreativitas",
+    "Sederhanakan bahasa agar jelas",
+    "Tambahkan kesan mendesak dan antusias",
+    "Sesuaikan untuk target audiensku",
+  ],
+};
+
+/* =====================================================
+   FUNGSI UTAMA – panggilan ke Claude (via backend)
+   messages: [{role:"user"|"assistant", content:"..."}]
+   return  : string jawaban
+   ===================================================== */
+async function callClaude(messages) {
+  if (!CONFIG.apiUrl) { // mode demo tanpa backend
+    await new Promise(r => setTimeout(r, 900));
+    return "(Mode demo) Kamu menulis: \"" + messages[messages.length - 1].content + "\". Isi CONFIG.apiUrl untuk terhubung ke Claude.";
+  }
+  const res = await fetch(CONFIG.apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, system: CONFIG.system }),
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error || "Permintaan gagal (" + res.status + ")");
+  }
+  const data = await res.json();
+  return data.text;
+}
+
+/* ================== UI ================== */
+const $ = id => document.getElementById(id);
+const hero = $("hero"), thread = $("thread"), input = $("input"), sendBtn = $("send"), suggest = $("suggest");
+let history = [], busy = false;
+
+/* ===== Riwayat chat (disimpan di localStorage) ===== */
+const KEY = "narasi_chats_v1";
+let chats = [], currentId = null;
+try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { chats = []; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(chats.slice(0, 50))); } catch {} }
+
+function ensureChat(firstText) {
+  if (currentId) return;
+  const c = { id: Date.now().toString(36), title: firstText.slice(0, 40), messages: history };
+  chats.unshift(c); currentId = c.id;
+}
+function renderList() {
+  const list = $("list"); list.innerHTML = "";
+  if (!chats.length) { list.innerHTML = '<p class="empty">Belum ada riwayat. Mulai chat pertamamu.</p>'; return; }
+  chats.forEach(c => {
+    const row = document.createElement("div");
+    row.className = "item" + (c.id === currentId ? " on" : "");
+    const t = document.createElement("button");
+    t.className = "t"; t.type = "button"; t.textContent = c.title || "Chat tanpa judul"; t.title = c.title;
+    t.onclick = () => openChat(c.id);
+    const x = document.createElement("button");
+    x.className = "x"; x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Hapus chat");
+    x.onclick = () => deleteChat(c.id);
+    row.append(t, x); list.appendChild(row);
+  });
+}
+function openChat(id) {
+  const c = chats.find(c => c.id === id); if (!c) return;
+  currentId = id; history = c.messages; thread.innerHTML = "";
+  history.forEach(m => addMsg(m.role === "user" ? "user" : "ai", m.content));
+  renderList(); closeDrawer();
+}
+function deleteChat(id) {
+  chats = chats.filter(c => c.id !== id); save();
+  if (id === currentId) reset(); else renderList();
+}
+
+/* ===== Sidebar: klik logo untuk buka/tutup ===== */
+const win = $("win"), mq = matchMedia("(max-width:760px)");
+function setExpanded() { $("menuBtn").setAttribute("aria-expanded", String(mq.matches ? win.classList.contains("drawer") : !win.classList.contains("collapsed"))); }
+function toggleSide() { win.classList.toggle(mq.matches ? "drawer" : "collapsed"); setExpanded(); }
+function closeDrawer() { if (mq.matches) { win.classList.remove("drawer"); setExpanded(); } }
+$("menuBtn").onclick = toggleSide;
+$("scrim").onclick = closeDrawer;
+$("newChat").onclick = () => { reset(); closeDrawer(); };
+mq.addEventListener("change", () => { win.classList.remove("drawer"); setExpanded(); });
+setExpanded();
+
+const sparkle = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>';
+CONFIG.suggestions.forEach(t => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.type = "button"; b.innerHTML = sparkle;
+  b.append(document.createTextNode(t));
+  b.onclick = () => send(t);
+  $("chips").appendChild(b);
+});
+
+function addMsg(cls, text) {
+  hero.hidden = true; thread.hidden = false;
+  const d = document.createElement("div");
+  d.className = "msg " + cls; d.textContent = text;
+  thread.appendChild(d); thread.scrollTop = thread.scrollHeight;
+  return d;
+}
+
+async function send(text) {
+  text = (text ?? input.value).trim();
+  if (!text || busy) return;
+  busy = true; sendBtn.disabled = true; input.value = ""; resize();
+  addMsg("user", text);
+  history.push({ role: "user", content: text });
+  ensureChat(text);
+
+  const bubble = addMsg("ai", "");
+  bubble.innerHTML = '<span class="dots"><b></b><b></b><b></b></span>';
+  try {
+    const reply = await callClaude(history);
+    bubble.textContent = reply;
+    history.push({ role: "assistant", content: reply });
+  } catch (err) {
+    bubble.className = "msg err";
+    bubble.textContent = "Gagal mendapat jawaban: " + err.message + ". Periksa koneksi atau konfigurasi API, lalu coba lagi.";
+    history.pop(); // buang pesan user yang gagal agar riwayat tetap konsisten
+  } finally {
+    save(); renderList();
+    busy = false; sendBtn.disabled = false; thread.scrollTop = thread.scrollHeight; input.focus();
+  }
+}
+
+function reset() {
+  currentId = null; history = []; thread.innerHTML = ""; thread.hidden = true; hero.hidden = false; input.value = ""; resize(); renderList();
+}
+function resize() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 120) + "px"; }
+
+sendBtn.onclick = () => send();
+input.addEventListener("input", resize);
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+});
+renderList();
+$("back").onclick = () => (CONFIG.onBack ? CONFIG.onBack() : reset());
+</script>
+</body>
+</html>
