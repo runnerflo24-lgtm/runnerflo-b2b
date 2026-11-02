@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lumo AI</title>
+<title>Lumo AI – Spesialis Surat & Dokumen Resmi</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
 :root{--ac:#3f5fd6;--bd:#dfe1e8;--mu:#5a5e6c;--tx:#12141a;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--tx)}
@@ -85,12 +85,12 @@ main{flex:1;padding:20px;background:#fff;display:flex;flex-direction:column;alig
   </aside>
   <main id="main">
     <button class="ib" id="op" data-i="panel" title="Buka sidebar"></button>
-    <div id="hero"><h1>Hai, ada yang bisa dibantu?</h1><p>Lumo adalah asisten AI yang cepat dan cerdas, dibuat untuk memberi jawaban akurat dan berguna setiap saat.</p></div>
+    <div id="hero"><h1>Lumo AI — Spesialis Surat & Dokumen Resmi</h1><p>Asisten AI khusus pembuatan surat kedinasan, surat undangan resmi, nota dinas, MoU kerja sama, dan korespondensi formal bisnis sesuai kaidah baku.</p></div>
     <div id="msgs"></div>
     <div id="dock">
       <div class="cmp">
         <div id="fl"></div>
-        <textarea id="in" rows="1" placeholder="Tanya apa saja…"></textarea>
+        <textarea id="in" rows="1" placeholder="Tulis instruksi surat atau dokumen resmi yang ingin dibuat…"></textarea>
         <div class="row">
           <button class="ib" id="at" data-i="clip" title="Lampirkan file"></button>
           <input type="file" id="fi" multiple hidden accept="image/*,.pdf,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css">
@@ -105,10 +105,10 @@ main{flex:1;padding:20px;background:#fff;display:flex;flex-direction:column;alig
         </div>
       </div>
       <div class="chips">
-        <button class="chip" data-m="deep"><i data-i="search"></i>Riset Mendalam</button>
-        <button class="chip" data-m="image"><i data-i="image"></i>Buat Gambar</button>
-        <button class="chip" data-m="news"><i data-i="news"></i>Berita Terbaru</button>
-        <button class="chip" data-m="video"><i data-i="play"></i>Buat Video</button>
+        <button class="chip" data-m="undangan"><i data-i="edit"></i>Surat Undangan Dinas</button>
+        <button class="chip" data-m="mou"><i data-i="edit"></i>Nota Kesepahaman (MoU)</button>
+        <button class="chip" data-m="edaran"><i data-i="edit"></i>Surat Edaran Resmi</button>
+        <button class="chip" data-m="kuasa"><i data-i="edit"></i>Surat Kuasa Legal</button>
       </div>
     </div>
   </main>
@@ -117,23 +117,31 @@ main{flex:1;padding:20px;background:#fff;display:flex;flex-direction:column;alig
 <script>
 /* ============ KONFIGURASI (ubah di sini) ============ */
 const CONFIG={
-  API_URL:'/api/chat',               // endpoint proxy (lihat server.js)
+  API_URL:'/api/chat',
   MAX_TOKENS:4096,
-  SYSTEM:'Kamu adalah Lumo, asisten AI yang ramah dan akurat. Jawab dalam bahasa yang dipakai pengguna.',
-  USER:{name:'Adam Wathon',plan:'Free'},
+  SYSTEM:`Kamu adalah LUMO, AI Spesialis Pembuatan Surat dan Dokumen Resmi Kedinasan serta Korespondensi Formal Bisnis.
+KEBERADAAN DAN TUGAS UTAMA:
+- Membantu menyusun, merapikan, dan memformat berbagai surat resmi: surat undangan kedinasan, surat dinas instansi/kantor, nota dinas, surat edaran, MoU (Nota Kesepahaman) kerja sama, surat keputusan (SK), surat kuasa, surat perjanjian kerja/kontrak, surat rekomendasi, dan surat lamaran kerja profesional.
+- Gunakan struktur surat formal standar Indonesia yang rapi: Kop Surat / Kepala Surat, Nomor Surat, Lampiran, Hal/Perihal, Tanggal, Tujuan Penerima, Salam Pembuka, Paragraf Pembuka, Isi/Inti Surat (Hari, Tanggal, Waktu, Tempat, Agenda), Paragraf Penutup, Tanda Tangan, dan Tembusan.
+- Bahasa: Sangat formal, sopan, baku (PUEBI/EYD), lugas, dan berbobot kedinasan/legal.
+
+GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
+- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan SURAT, DOKUMEN RESMI, NOTA DINAS, MOU, PERJANJIAN, ATAU KORESPONDENSI FORMAL.
+- Jika pengguna meminta hal di luar topik tersebut (misalnya: membuat kode game/web, resep masakan, matematika/sains, modul ajar sekolah, cerita fiksi, curhat, crypto, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN SOPAN, dan mengarahkan pengguna kembali ke tugas utamamu.
+- Contoh balasan penolakan:
+  "Mohon maaf yang sebesar-besarnya, saya adalah Lumo — AI yang dirancang khusus untuk pembuatan Surat & Dokumen Resmi Kedinasan serta Dokumen Formal Bisnis. Saya tidak memiliki wewenang untuk membahas topik di luar surat dan dokumen resmi. Silakan sampaikan kebutuhan Anda terkait surat resmi, undangan kedinasan, MoU, atau dokumen formal yang ingin disusun."`,
+  USER:{name:'Eksekutif',plan:'Pro'},
   MODELS:[
-    {id:'claude-sonnet-5-5',name:'Claude Sonnet 5.5'},
-    {id:'claude-opus-5-5',name:'Claude Opus 5.5'},
-    {id:'claude-haiku-5-5',name:'Claude Haiku 5.5'}
+    {id:'claude-3-5-sonnet-20241022',name:'Claude 3.5 Sonnet'},
+    {id:'claude-3-5-haiku-20241022',name:'Claude 3.5 Haiku'},
+    {id:'claude-sonnet-5-5',name:'Claude Sonnet 5.5'}
   ]
 };
-// Mode untuk chip di bawah input. Gambar/video: Claude tidak membuat piksel, jadi
-// gambar dibuat sebagai SVG & video sebagai storyboard. Sambungkan API lain di sini bila perlu.
 const MODES={
-  deep:{ph:'Topik apa yang ingin diriset mendalam?',web:true,sys:'Lakukan riset mendalam: telusuri beberapa sumber, bandingkan, lalu beri laporan terstruktur dengan kesimpulan dan sumber.'},
-  image:{ph:'Gambar apa yang ingin dibuat?',sys:'Buat gambar yang diminta sebagai SVG lengkap (viewBox 0 0 800 600) di dalam satu blok ```svg. Setelah itu beri penjelasan singkat.'},
-  news:{ph:'Berita apa yang ingin dicari?',web:true,sys:'Cari berita terbaru terkait permintaan pengguna, rangkum dengan tanggal dan sumber.'},
-  video:{ph:'Video apa yang ingin dibuat?',sys:'Buat naskah dan storyboard per adegan (durasi, visual, narasi) serta prompt siap pakai untuk generator video.'}
+  undangan:{ph:'Sebutkan instansi pengundang, tujuan acara, waktu, dan tempat surat undangan dinas…',sys:'Susun draf Surat Undangan Kedinasan/Formal lengkap dengan nomor surat, perihal, rincian hari/tanggal/waktu/tempat, dan kolom tanda tangan pimpinan.'},
+  mou:{ph:'Sebutkan pihak pertama, pihak kedua, serta ruang lingkup nota kesepahaman (MoU)…',sys:'Susun draf Nota Kesepahaman (MoU) lengkap dengan pasal-pasal kesepakatan, hak & kewajiban, jangka waktu, dan ketentuan penutup.'},
+  edaran:{ph:'Sebutkan perihal dan poin-poin instruksi surat edaran resmi yang ingin dibuat…',sys:'Susun draf Surat Edaran Resmi dengan landasan hukum, poin-poin instruksi bernomor urut jelas, dan penutup formal.'},
+  kuasa:{ph:'Sebutkan pihak pemberi kuasa, penerima kuasa, serta wewenang yang diberikan…',sys:'Susun draf Surat Kuasa Legal lengkap dengan identitas kedua pihak, rincian kuasa khusus, klausul tanggung jawab, dan tempat materai.'}
 };
 /* ===================================================== */
 const $=s=>document.querySelector(s);
@@ -160,9 +168,10 @@ const ic=n=>`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke=
 const paintIcons=(r=document)=>[...(r.querySelectorAll?r.querySelectorAll('[data-i]'):[]),...(r.dataset&&r.dataset.i?[r]:[])].forEach(e=>e.innerHTML=ic(e.dataset.i));
 
 /* ---------- state ---------- */
-const K='lumo-v1';
-let S={chats:[],projects:['Personal','Kerja','Belajar'],active:null,proj:null,model:CONFIG.MODELS[0].id,web:false,system:CONFIG.SYSTEM};
+const K='lumo-v2';
+let S={chats:[],projects:['Dinas','Bisnis','Legalitas'],active:null,proj:null,model:CONFIG.MODELS[0].id,web:false,system:CONFIG.SYSTEM};
 try{Object.assign(S,JSON.parse(localStorage.getItem(K)||'{}'))}catch{}
+S.system=CONFIG.SYSTEM;
 let busy=false,ctrl=null,att=[],mode=null;
 const save=()=>{try{localStorage.setItem(K,JSON.stringify({...S,chats:S.chats.map(c=>({...c,messages:c.messages.map(m=>({...m,content:Array.isArray(m.content)?m.content.filter(b=>b.type==='text'):m.content}))}))}))}catch{}};
 const cur=()=>S.chats.find(c=>c.id===S.active);

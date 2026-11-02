@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Narasi – Chat dengan NarasiAI</title>
+<title>Narasi AI – Spesialis Storytelling & Naskah Kreatif</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -112,19 +112,19 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width
       <div class="orb"><span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1"/></svg>
       </span></div>
-      <h1>Ngobrol dengan NarasiAI</h1>
-      <p>Dengan kekuatan audio, chatbot kami mengubah kontenmu sesuai kebutuhan dan preferensimu, lengkap dengan kustomisasi di setiap langkah.</p>
+      <h1>Ngobrol dengan Narasi AI</h1>
+      <p>Spesialis Storytelling, Penulisan Naskah Video (Reels, TikTok, Shorts), Voiceover, dan Narasi Emosional Brand yang memikat.</p>
     </section>
 
     <section class="thread" id="thread" hidden aria-live="polite"></section>
 
     <div class="panel" id="suggest">
-      <h2>Saran prompt untukmu</h2>
+      <h2>Saran topik narasi &amp; naskah</h2>
       <div class="chips" id="chips"></div>
     </div>
 
     <div class="composer">
-      <textarea id="input" rows="1" placeholder="Tulis perintah untuk chatbot kami…" aria-label="Pesan"></textarea>
+      <textarea id="input" rows="1" placeholder="Tulis ide cerita atau topik naskah video yang ingin dibuat…" aria-label="Pesan"></textarea>
       <button class="back" id="back" type="button">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
         <span>Kembali ke Hasil</span>
@@ -142,19 +142,29 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width
    KONFIGURASI – ubah bagian ini saja untuk integrasi
    ===================================================== */
 const CONFIG = {
-  // Endpoint backend-mu (lihat server.js). Kosongkan untuk mode demo/mock.
+  // Endpoint backend Cloudflare Pages
   apiUrl: "/api/chat",
   // System prompt yang dikirim ke Claude lewat backend.
-  system: "Kamu adalah NarasiAI, asisten penulisan yang membantu menyunting dan mengembangkan naskah. Jawab dalam bahasa yang sama dengan pengguna.",
+  system: `Kamu adalah NARASI, AI Spesialis Storytelling, Penulisan Naskah (Scriptwriting), dan Narasi Konten Kreatif.
+KEBERADAAN DAN TUGAS UTAMA:
+- Membantu kreator konten, agensi, dan brand menyusun skrip video berbobot (Reels, TikTok, YouTube Shorts, YouTube Video), naskah voiceover/dubbing, storytelling brand (origin story, testimonial storytelling), alur cerita fiksi/non-fiksi, naskah podcast, dan narasi presentasi emosional.
+- Gunakan struktur narasi memikat: Hook 3 detik pertama yang mencengkeram, Pacing / Retensi, Konflik / Emosi cerita, Klimaks / Insight berharga, dan Call to Action (CTA) naratif yang natural.
+- Format penulisan skrip: Cantumkan panduan [Visual/Scene], [Audio/BGM], dan [Teks Narasi/Voiceover].
+- Bahasa: Mengalir, imajinatif, emosional, kaya metafora, puitis namun komunikatif.
+
+GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
+- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan STORYTELLING, NASKAH VIDEO/AUDIO, NARASI BRAND, ATAU PENULISAN CERITA KREATIF.
+- Jika pengguna meminta hal di luar storytelling dan narasi naskah (misalnya: pembuatan modul ajar RPP, surat perjanjian MoU, coding program/game, konsultasi pajak, formula excel, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN RAMAH.
+- Contoh balasan penolakan:
+  "Halo! Mohon maaf, saya adalah Narasi — AI yang berfokus penuh pada seni Storytelling dan Penulisan Naskah Kreatif (video scripts, voiceover, dan narasi brand). Saya tidak melayani tugas di luar penulisan cerita dan naskah. Yuk, ceritakan ide naskah, konsep video, atau cerita apa yang ingin kita hidupkan hari ini?"`,
   // Dipanggil saat tombol "Kembali ke Hasil" ditekan (default: reset chat).
   onBack: null,
   suggestions: [
-    "Buat lebih deskriptif dan hidup",
-    "Ringkas dan buat lebih padat",
-    "Tambahkan gaya dan kreativitas",
-    "Sederhanakan bahasa agar jelas",
-    "Tambahkan kesan mendesak dan antusias",
-    "Sesuaikan untuk target audiensku",
+    "Skrip video Reels 45 detik tentang perjalanan merintis usaha",
+    "Storytelling brand origin story untuk produk artisan kopi lokal",
+    "Naskah voiceover sinematik bertema pantang menyerah",
+    "Hook 3 detik pertama yang membuat penonton berhenti scrolling",
+    "Narasi emosional penutup kampanye sosial kemanusiaan",
   ],
 };
 

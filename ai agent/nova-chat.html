@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nova Chat</title>
+<title>Nova AI – Konsultan B2B Lead Gen & Pertumbuhan Bisnis</title>
 <style>
 :root{--bg:#eef1f7;--surface:#fff;--soft:#f6f8fc;--line:#e4e8f1;--text:#161a2b;--mute:#7a8399;--brand:#2b5cf0;--brand-soft:#e8eefe;--err:#c62f3b;--shadow:0 10px 40px rgba(40,60,120,.10)}
 :root[data-theme="dark"]{--bg:#0d1019;--surface:#161a27;--soft:#1b2030;--line:#262c3f;--text:#eef1fa;--mute:#8b94ad;--brand:#6b8cff;--brand-soft:#1f2848;--err:#ff7a85}
@@ -131,7 +131,7 @@ label.gr{display:flex;align-items:center;gap:10px}
   <section class="main">
 <div class="view" id="v-chat">
     <header class="top">
-      <h1>Ask AI</h1>
+      <h1>Nova AI — Konsultan B2B Growth</h1>
       <div class="tr">
         <button class="ib" id="newbtn" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
         <div class="av" role="img" aria-label="Profile"></div>
@@ -139,16 +139,16 @@ label.gr{display:flex;align-items:center;gap:10px}
     </header>
 
     <div class="bar">
-      <div class="hello"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#2b5cf0"/><path d="M16 6l2.4 7.6L26 16l-7.6 2.4L16 26l-2.4-7.6L6 16l7.6-2.4z" fill="#fff"/></svg><span>Hi, I'm Nova. How can I help you?</span></div>
-      <select class="pill" id="role" aria-label="Role"><option>Engineer</option><option>Designer</option><option>Product Manager</option></select>
-      <button class="pill" id="hist"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>History</button>
+      <div class="hello"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#2b5cf0"/><path d="M16 6l2.4 7.6L26 16l-7.6 2.4L16 26l-2.4-7.6L6 16l7.6-2.4z" fill="#fff"/></svg><span>Halo, saya Nova. Konsultan Lead Gen &amp; Pertumbuhan B2B Anda.</span></div>
+      <select class="pill" id="role" aria-label="Role"><option>B2B Strategist</option><option>Lead Gen Specialist</option><option>Pitching &amp; Sales Closer</option></select>
+      <button class="pill" id="hist"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Riwayat</button>
     </div>
 
     <div class="stage" id="stage">
       <div class="empty" id="empty">
         <div class="orb"><svg viewBox="0 0 32 32"><path d="M16 4l3.2 9.8L29 17l-9.8 3.2L16 30l-3.2-9.8L3 17l9.8-3.2z" fill="#2b5cf0"/></svg></div>
-        <h2>Nova Chat</h2>
-        <p>Ask me about your project! Attach images, PDFs, videos or files.</p>
+        <h2>Nova AI — B2B Growth &amp; Lead Gen</h2>
+        <p>Konsultasikan target akuisisi klien B2B, cold email outreach, skrip pitching, dan penawaran retainer bernilai tinggi.</p>
       </div>
       <div class="msgs" id="msgs" hidden></div>
     </div>
@@ -159,7 +159,7 @@ label.gr{display:flex;align-items:center;gap:10px}
       <div class="chips" id="chips"></div>
       <div class="row">
         <button class="ib" type="button" id="attach" aria-label="Attach files"><svg viewBox="0 0 24 24"><path d="M20 11l-8.5 8.5a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L14 7"/></svg></button>
-        <textarea id="q" rows="1" placeholder="Type your message here" aria-label="Message"></textarea>
+        <textarea id="q" rows="1" placeholder="Konsultasikan strategi B2B, lead gen, atau pitching Anda di sini…" aria-label="Message"></textarea>
         <button class="send" id="send" type="submit"><svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2-6z"/></svg><span id="sl">Send</span></button>
       </div>
       <input type="file" id="file" multiple hidden>
@@ -183,9 +183,9 @@ label.gr{display:flex;align-items:center;gap:10px}
 <script>
 /* ============ CONFIG: isi di sini ============ */
 const CONFIG = {
-  API_KEY: "ISI_API_KEY_CLAUDE_DISINI",   // untuk testing lokal saja
-  PROXY_URL: "",                           // produksi: isi URL backend Anda (tanpa API key di browser)
-  MODEL: "claude-sonnet-5-5",
+  API_KEY: "",
+  PROXY_URL: "/api/chat",                  // Cloudflare Pages Function proxy
+  MODEL: "claude-3-5-sonnet-20241022",
   MAX_TOKENS: 4096,
   VIDEO_FRAMES: 6,                         // jumlah frame yang diambil dari video
   MAX_FILE_MB: 30
@@ -196,15 +196,17 @@ const $ = id => document.getElementById(id);
 const get = (k, d) => { try { const v = localStorage.getItem("nova." + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const put = (k, v) => { try { localStorage.setItem("nova." + k, JSON.stringify(v)); } catch (e) {} };
 function applyTheme(t) { if (t && t !== "auto") document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme"); }
-Object.assign(CONFIG, get("settings", {})); applyTheme(CONFIG.theme);
-const ROLES = {"Engineer":"software engineering","Designer":"product and UI design","Product Manager":"product management"};
+Object.assign(CONFIG, get("settings", {}));
+CONFIG.PROXY_URL = "/api/chat";
+applyTheme(CONFIG.theme);
+const ROLES = {"B2B Strategist":"B2B growth strategy and market expansion","Lead Gen Specialist":"outbound B2B lead generation and outreach","Pitching & Sales Closer":"B2B sales pitching and client closing"};
 const SUG = [
- ["User Auth Flow","Show me the login flow for user authentication"],
- ["Payment Rules","What business rules apply to payment processing?"],
- ["Dashboard Bugs","Are there any open bugs on the dashboard?"],
- ["Trading API","Explain the API endpoints for the trading platform"],
- ["Dashboard Owner","Who is responsible for the crypto dashboard?"],
- ["Deployment Logs","Show me recent deployments and their status"]
+ ["Cold Outreach B2B","Buatkan 3-step cold email sequence bernilai tinggi untuk direktur operasional"],
+ ["Pitching Penawaran","Susun skrip pitching meeting 15 menit penawaran jasa B2B korporat"],
+ ["Pemetaan ICP","Bagaimana cara memetakan profil klien ideal (ICP) dengan tiket transaksi tinggi?"],
+ ["Keberatan Harga","Berikan framework menjawab keberatan harga mahal dari calon klien B2B"],
+ ["Pesan LinkedIn","Buatkan draf pesan koneksi LinkedIn yang personal tanpa terkesan spam"],
+ ["Kontrak Retainer","Bagaimana menyusun struktur penawaran kontrak bulanan (retainer) yang menarik?"]
 ];
 const IC = ["M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z","M3 7h18v10H3zM3 11h18","M12 8v5M12 16h.01M4 20h16L12 4z","M8 8l-4 4 4 4M16 8l4 4-4 4","M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 20a7 7 0 0 1 14 0","M6 4h12v16H6zM9 9h6M9 13h6"];
 
@@ -366,7 +368,17 @@ async function send(text) {
   try {
     const res = await fetch(CONFIG.PROXY_URL || "https://api.anthropic.com/v1/messages", {method:"POST", headers, signal:ctrl.signal, body: JSON.stringify({
       model: CONFIG.MODEL, max_tokens: CONFIG.MAX_TOKENS, stream: true,
-      system: "You are Nova, an AI assistant helping a user in the role of " + ROLES[chat.role] + ". Reply in the language the user writes in. Use Markdown for structure and code.",
+      system: `Kamu adalah NOVA, AI Konsultan Khusus Pertumbuhan B2B, Lead Generation, dan Strategi Akuisisi Klien Korporat (Fokus: ${ROLES[chat.role] || 'B2B Growth Strategy'}).
+KEBERADAAN DAN TUGAS UTAMA:
+- Membantu founder, agency owner, B2B sales, dan UMKM mengembangkan bisnis: menyusun cold email sequence B2B yang tinggi open-rate & reply-rate, pesan koneksi LinkedIn yang personal, skrip pitching & meeting penawaran klien besar, kerangka proposal bernilai tinggi, strategi penetapan harga B2B (retainer / value-based), dan pemetaan Ideal Customer Profile (ICP).
+- Analisis tajam, berbasis data dan psikologi pengambilan keputusan direktur/manajemen perusahaan.
+- Bahasa: Profesional, tajam, bernada konsultan bisnis level eksekutif, strategis, dan berorientasi pada ROI.
+
+GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
+- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan STRATEGI BISNIS B2B, LEAD GENERATION, OUTBOUND SALES, PITCHING KLIEN, DAN AKUISISI BISNIS.
+- Jika pengguna meminta hal di luar B2B/lead generation (misalnya: menulis puisi cinta, modul ajar sekolah, surat dinas kelurahan, resep makanan, cerita dongeng, coding game, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN TEGAS.
+- Contoh balasan penolakan:
+  "Mohon maaf, saya adalah Nova — AI Konsultan khusus Lead Generation dan Strategi Bisnis B2B. Fokus saya terbatas pada akuisisi klien, outbound sales, pitching proposal, dan pipeline pendapatan korporat. Mari fokus ke pertumbuhan bisnis Anda: target profil klien apa yang sedang ingin Anda akusisi saat ini?"`,
       messages: chat.msgs.map(m => ({role:m.role, content:m.api}))})});
     if (!res.ok) { let j = {}; try { j = await res.json(); } catch (e) {} throw new Error((j.error && j.error.message) || "Request failed (HTTP " + res.status + ")"); }
     const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "";

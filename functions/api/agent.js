@@ -83,8 +83,14 @@ INSTRUKSI KETAT:
       formattedMessages.push({ role: 'user', content: userText || 'Mulai rancang platform saya.' });
     }
 
-    // Claude 5.5: claude-sonnet-5-5 (Primary) | Fallback: claude-opus-5-5, claude-haiku-5-5
-    const candidateModels = ['claude-sonnet-5-5', 'claude-opus-5-5', 'claude-haiku-5-5'];
+    // Claude Sonnet 3.5 / Haiku / Sonnet 5.5 candidate models
+    const candidateModels = [
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-sonnet-latest',
+      'claude-3-5-haiku-20241022',
+      'claude-3-haiku-20240307',
+      'claude-sonnet-5-5'
+    ];
     let lastError = null;
     let agentResult = null;
 

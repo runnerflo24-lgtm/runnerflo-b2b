@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nara – AI Chat</title>
+<title>Nara AI – Spesialis Modul Ajar & Kurikulum</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4f5f7;--panel:#fff;--ink:#111318;--mute:#7b8190;--line:#e8eaee;--soft:#f3f4f6;--btn:#111318;--btnink:#fff;--user:#111318;--userink:#fff}
@@ -145,11 +145,21 @@ dialog p{color:var(--mute);margin-top:4px;line-height:1.45;font-size:12px}
    KONFIGURASI — ubah bagian ini untuk integrasi Claude API
    ============================================================ */
 const CONFIG = {
-  appName: 'Nara',
-  proxyUrl: '/api/chat',        // endpoint backend Anda (disarankan untuk produksi)
-  model: 'claude-sonnet-5-5',
-  maxTokens: 1024,
-  system: 'Kamu adalah Nara, asisten AI yang ramah dan ringkas. Jawab dalam bahasa pengguna.'
+  appName: 'Nara AI',
+  proxyUrl: '/api/chat',        // endpoint Cloudflare Pages Function
+  model: 'claude-3-5-sonnet-20241022',
+  maxTokens: 2048,
+  system: `Kamu adalah NARA, AI Asisten Pendidikan & Spesialis Modul Ajar, RPP, dan Perangkat Kurikulum Merdeka.
+KEBERADAAN DAN TUGAS UTAMA:
+- Membantu guru, dosen, pendidik, dan pengajar menyusun Modul Ajar lengkap Kurikulum Merdeka, Rencana Pelaksanaan Pembelajaran (RPP), Lembar Kerja Peserta Didik (LKPD), Alur Tujuan Pembelajaran (ATP), Capaian Pembelajaran (CP), Profil Pelajar Pancasila, rubrik asesmen (diagnostik, formatif, sumatif), serta skenario pembelajaran interaktif.
+- Struktur Modul Ajar yang disusun harus lengkap: Identitas Modul, Fase/Kelas, Capaian & Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik, Kegiatan Pembelajaran (Pendahuluan, Inti, Penutup), Asesmen, dan Lembar Kerja.
+- Bahasa: Edukatif, sistematis, ramah, profesional guru, jelas, dan mudah diaplikasikan di kelas.
+
+GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
+- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan MODUL AJAR, RPP, LKPD, KURIKULUM, PENDIDIKAN, DAN PERANGKAT PEMBELAJARAN.
+- Jika pengguna meminta hal di luar pendidikan & modul ajar (misalnya: surat kuasa dinas, coding website/game, strategi akuisisi klien sales, resep masakan, script komedi, crypto/keuangan non-edukasi, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN SOPAN.
+- Contoh balasan penolakan:
+  "Mohon maaf, saya adalah Nara — AI khusus penyusunan Modul Ajar, RPP, LKPD, dan Perangkat Pembelajaran Kurikulum Merdeka. Saya tidak dapat melayani topik di luar bidang pendidikan. Silakan informasikan mata pelajaran, kelas/fase, serta materi ajar yang ingin Anda rancang bersama saya!"`
 };
 
 /* ============================================================
@@ -202,24 +212,30 @@ function md(t){
 
 /* ===================== RENDER ===================== */
 const QUICK = [
-  ['Tulis naskah','✎','#fde7c8','Bantu saya menulis naskah iklan untuk '],
-  ['Buat gambar','◐','#d6ecff','Buatkan deskripsi gambar (prompt) detail untuk '],
-  ['Buat avatar','☺','#d9f5d0','Buatkan konsep avatar karakter untuk '],
-  ['Tulis kode','⌘','#fbd5e8','Tuliskan kode untuk ']
+  ['Modul Ajar','✎','#fde7c8','Buatkan Modul Ajar Kurikulum Merdeka lengkap untuk materi '],
+  ['Lembar LKPD','◐','#d6ecff','Susun Lembar Kerja Peserta Didik (LKPD) interaktif untuk materi '],
+  ['Rubrik Asesmen','☺','#d9f5d0','Rancang rubrik asesmen formatif dan sumatif untuk materi '],
+  ['Alur ATP & CP','⌘','#fbd5e8','Susun Alur Tujuan Pembelajaran (ATP) dan Capaian Pembelajaran untuk ']
 ];
-const PROMPTS = ['Ringkas teks berikut menjadi 5 poin','Jelaskan konsep ini seperti saya berusia 10 tahun','Perbaiki tata bahasa dan gaya tulisan ini','Buat rencana belajar 7 hari untuk topik ','Review kode ini dan cari bug-nya'];
+const PROMPTS = [
+  'Buatkan modul ajar Kurikulum Merdeka lengkap untuk Fase D Kelas 7',
+  'Susun LKPD interaktif dan rubrik penilaian untuk materi ekosistem',
+  'Rancang asesmen diagnostik kognitif dan non-kognitif awal semester',
+  'Buat pertanyaan pemantik dan aktivitas diferensiasi pembelajaran',
+  'Susun rencana pelaksanaan proyek P5 tema gaya hidup berkelanjutan'
+];
 
 function renderStage(){
   const st = $('#stage'), c = chats.find(x=>x.id===cur);
   if (view !== 'chat') {
-    const names = {projects:'Proyek',templates:'Template',docs:'Dokumen',history:'Riwayat',help:'Bantuan'};
+    const names = {projects:'Proyek Modul',templates:'Template RPP',docs:'Dokumen LKPD',history:'Riwayat',help:'Bantuan'};
     $('#title').textContent = names[view];
     st.innerHTML = `<div class="welcome"><h1>${names[view]}</h1><p>${view==='history'||view==='projects'?'Pilih percakapan di panel kanan atau cari lewat kolom pencarian.':'Bagian ini siap Anda kembangkan. Tambahkan fitur sesuai kebutuhan.'}</p></div>`;
     return;
   }
-  $('#title').textContent = c ? c.title : 'AI Chat';
+  $('#title').textContent = c ? c.title : 'Nara AI — Modul Ajar';
   if (!c || !c.msgs.length) {
-    st.innerHTML = `<div class="welcome"><h1>Selamat datang di ${CONFIG.appName}</h1><p>Mulai dengan satu tugas, Nara yang mengerjakan sisanya. Bingung mulai dari mana?</p><div class="cards">${QUICK.map((q,i)=>`<button class="card" data-q="${i}"><b style="background:${q[2]}">${q[1]}</b>${q[0]}<em>＋</em></button>`).join('')}</div></div>`;
+    st.innerHTML = `<div class="welcome"><h1>Nara AI — Modul Ajar & Kurikulum</h1><p>Penyusun Modul Ajar Kurikulum Merdeka, RPP, LKPD, dan rubrik asesmen pendidikan profesional.</p><div class="cards">${QUICK.map((q,i)=>`<button class="card" data-q="${i}"><b style="background:${q[2]}">${q[1]}</b>${q[0]}<em>＋</em></button>`).join('')}</div></div>`;
     $$('.card').forEach(b=>b.onclick=()=>{ $('#inp').value=QUICK[b.dataset.q][3]; onInput(); $('#inp').focus() });
     return;
   }
