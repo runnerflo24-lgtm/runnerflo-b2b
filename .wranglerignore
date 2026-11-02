@@ -1,0 +1,4 @@
+modul ajar/
+node_modules/
+.wrangler/
+.git/
