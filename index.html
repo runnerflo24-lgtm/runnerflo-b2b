@@ -86,34 +86,71 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .btn-ideas-highlight{background:color-mix(in srgb,var(--acc) 18%,var(--card))!important;border-color:var(--acc)!important;color:var(--ink)!important;font-weight:700!important;display:inline-flex!important;align-items:center!important;gap:8px!important;box-shadow:0 0 20px -5px color-mix(in srgb,var(--acc) 45%,transparent)}
 .btn-ideas-highlight svg{color:var(--acc)}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
-.games-marquee-wrap{width:100%;overflow:hidden;position:relative;margin:40px auto 0;padding:8px 0 32px}
-.games-section-header{display:flex;align-items:center;justify-content:space-between;padding:0 24px 14px;flex-wrap:wrap;gap:10px}
-.games-section-title{font-size:13px;font-weight:700;color:var(--mut);letter-spacing:0.05em;text-transform:uppercase}
-.games-track{display:flex;gap:20px;width:max-content;animation:slideGames 65s linear infinite;will-change:transform}
-.games-track:hover{animation-play-state:paused}
-.games-marquee-wrap.g-paused .games-track{animation-play-state:paused}
-@keyframes slideGames{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.game-box{width:min(740px,80vw);aspect-ratio:16/9;flex:none;border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 6px 28px -8px rgba(0,0,0,.6);cursor:pointer;transition:width .35s ease,box-shadow .3s,border-color .3s}
-.game-box:hover{border-color:rgba(200,255,62,.3);box-shadow:0 10px 36px -10px rgba(0,0,0,.75)}
-.game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none}
-.game-box.g-expanded iframe{pointer-events:auto}
-/* poster overlay - shows before game loads */
+/* ===== DIGITAL ASSET EXAMPLES SHOWCASE ===== */
+.showcase-outer{width:100%;margin:40px auto 0;position:relative}
+.games-section-header{display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 18px;flex-wrap:wrap;gap:16px}
+.showcase-title-group{max-width:540px}
+.showcase-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.08em;color:var(--acc);background:rgba(200,255,62,.1);border:1px solid rgba(200,255,62,.25);padding:3px 10px;border-radius:99px;margin-bottom:8px}
+.games-section-title{font-size:26px;font-weight:800;letter-spacing:-0.02em;color:var(--fg);margin:0 0 6px}
+.showcase-subtitle{font-size:13.5px;color:var(--mut);line-height:1.5;margin:0}
+
+/* Filter Tabs */
+.showcase-filter-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.filter-tab{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--mut);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px)}
+.filter-tab:hover{border-color:var(--acc);color:var(--fg)}
+.filter-tab.active{background:var(--acc);color:var(--on);border-color:var(--acc);font-weight:700}
+.tab-count{font-size:11px;opacity:0.8;padding:1px 6px;border-radius:99px;background:rgba(0,0,0,0.18)}
+.filter-tab.active .tab-count{background:rgba(0,0,0,0.25)}
+
+/* Showcase Track & Container */
+.games-marquee-wrap{width:100%;overflow-x:auto;overflow-y:hidden;position:relative;padding:12px 0 16px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+.games-marquee-wrap::-webkit-scrollbar{display:none}
+.games-track{display:flex;gap:20px;width:max-content;will-change:transform,scroll-position}
+
+/* Card Styling: 740px default (90% perbesar) */
+.game-box{width:min(740px,80vw);aspect-ratio:16/9;flex:none;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 8px 30px -10px rgba(0,0,0,.7);cursor:pointer;transition:width .35s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+.game-box:hover{border-color:rgba(200,255,62,.4);box-shadow:0 14px 44px -10px rgba(0,0,0,.85)}
+.game-box.is-hidden{display:none !important}
+
+/* Badges on card */
+.game-box-tag{position:absolute;top:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:rgba(8,12,22,0.85);border:1px solid rgba(255,255,255,0.16);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:0.02em;backdrop-filter:blur(8px);pointer-events:none;transition:opacity .25s}
+.game-box-tag .tag-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);display:inline-block}
+
+.game-box-title-bar{position:absolute;bottom:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:rgba(8,12,22,0.88);border:1px solid rgba(255,255,255,0.18);color:#fff;font-size:13px;font-weight:700;backdrop-filter:blur(8px);pointer-events:none;transition:opacity .25s}
+.game-box-title-bar .title-icon{font-size:14px}
+
+.game-box.g-expanded .game-box-tag,
+.game-box.g-expanded .game-box-title-bar{opacity:0;pointer-events:none}
+
+/* Thumbnail & Overlay */
 .game-box-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;transition:opacity .35s ease}
 .game-box.g-expanded .game-box-thumb{opacity:0;pointer-events:none}
 .game-box-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background .2s}
-.game-box:hover .game-box-overlay{background:rgba(0,0,0,.25)}
-.game-box-playbtn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:20px;padding-left:4px;opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.game-box:hover .game-box-overlay{background:rgba(0,0,0,.3)}
+.game-box-playbtn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:99px;background:var(--acc);color:var(--on);font-size:13px;font-weight:800;letter-spacing:0.02em;opacity:0;transform:scale(.85);transition:opacity .2s,transform .2s;box-shadow:0 6px 24px rgba(200,255,62,.45)}
 .game-box:hover .game-box-playbtn{opacity:1;transform:scale(1)}
 .game-box.g-expanded .game-box-overlay{display:none}
-/* expanded state - single card fills section */
-.game-box.g-expanded{width:min(1100px,95vw);border-color:var(--acc)}
-/* open-tab btn appears on expanded card */
-.game-box-openbtn{position:absolute;top:12px;right:12px;z-index:20;display:none;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:rgba(10,15,28,.8);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;backdrop-filter:blur(10px);text-decoration:none;transition:all .2s}
+
+/* Iframe */
+.game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none}
+.game-box.g-expanded iframe{pointer-events:auto}
+
+/* Expanded State */
+.game-box.g-expanded{width:min(1120px,95vw);border-color:var(--acc);box-shadow:0 20px 60px -15px rgba(0,0,0,.95)}
+.game-box-openbtn{position:absolute;top:14px;right:14px;z-index:20;display:none;align-items:center;gap:6px;padding:7px 16px;border-radius:99px;background:rgba(10,15,28,.88);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px);text-decoration:none;transition:all .2s}
 .game-box.g-expanded .game-box-openbtn{display:inline-flex}
-.game-box-openbtn:hover{background:var(--acc);color:var(--on);border-color:var(--acc)}
-/* close btn */
-.game-box-closebtn{position:absolute;top:12px;left:12px;z-index:20;display:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(10,15,28,.8);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(10px);transition:all .2s}
+.game-box-openbtn:hover{background:var(--acc);color:var(--on);border-color:var(--acc);transform:scale(1.04)}
+.game-box-closebtn{position:absolute;top:14px;left:14px;z-index:20;display:none;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(10,15,28,.88);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(10px);transition:all .2s}
 .game-box.g-expanded .game-box-closebtn{display:inline-flex}
+.game-box-closebtn:hover{background:#ff4d4f;border-color:#ff4d4f;color:#fff}
+
+/* Showcase Controls (Bawah) */
+.showcase-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px auto 10px;padding:0 20px}
+.nav-scroll-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--fg);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px)}
+.nav-scroll-btn:hover{background:var(--acc);color:var(--on);border-color:var(--acc);transform:translateY(-1px)}
+.nav-pause-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--mut);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px)}
+.nav-pause-btn:hover{color:var(--fg);border-color:rgba(255,255,255,.3)}
+.showcase-instruction{text-align:center;font-size:12px;color:var(--mut);margin-top:6px;letter-spacing:0.01em}
 /* Stage 1 & Stage 2 Global Hide: Sembunyikan elemen lain yang menghalangi iframe */
 body.pv-stage-1-active .nav,
 body.pv-stage-2-active .nav,
@@ -651,104 +688,422 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
       <button type="button">Bagaimana AI mencari klien untuk saya?</button>
     </div>
     <p class="note">Asisten demo Veltra. Jawaban bisa keliru; untuk estimasi akurat, pesan audit gratis.</p>
-    <!-- ====== 5 GAME SHOWCASE (poster, on-demand load, infinite loop) ====== -->
-    <div class="games-marquee-wrap" id="games-marquee-wrap">
+    <!-- ====== DIGITAL ASSET EXAMPLES (Showcase Lengkap: Game, Template, Ilustrasi) ====== -->
+    <div class="showcase-outer" id="showcase-container">
       <div class="games-section-header">
-        <span class="games-section-title">🎮 Demo Game</span>
-      </div>
-      <div class="games-track" id="games-track">
-        <div class="game-box" data-src="/game/card-arena.html" data-url="/game/card-arena.html">
-          <img class="game-box-thumb" src="/thumbs/game-card-arena.jpg" alt="Card Arena 3D" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        <div class="showcase-title-group">
+          <span class="showcase-badge">PORTOFOLIO INTERAKTIF</span>
+          <h2 class="games-section-title">Digital Asset Examples</h2>
+          <p class="showcase-subtitle">Koleksi aset live: Web 3D & Games, Enterprise Web Templates, dan Ilustrasi Vektor Biologi.</p>
         </div>
-        <div class="game-box" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html">
-          <img class="game-box-thumb" src="/thumbs/game-happy-bird.jpg" alt="Flappy Bird 3D" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html">
-          <img class="game-box-thumb" src="/thumbs/game-skybound.jpg" alt="Skybound Courier" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/snake.html" data-url="/game/snake.html">
-          <img class="game-box-thumb" src="/thumbs/game-snake.jpg" alt="Hyper Snake 3D" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/world.html" data-url="/game/world.html">
-          <img class="game-box-thumb" src="/thumbs/game-world.jpg" alt="3D World" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="3D World" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/card-arena.html" data-url="/game/card-arena.html" aria-hidden="true" tabindex="-1">
-          <img class="game-box-thumb" src="/thumbs/game-card-arena.jpg" alt="Card Arena 3D" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html" aria-hidden="true" tabindex="-1">
-          <img class="game-box-thumb" src="/thumbs/game-happy-bird.jpg" alt="Flappy Bird 3D" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html" aria-hidden="true" tabindex="-1">
-          <img class="game-box-thumb" src="/thumbs/game-skybound.jpg" alt="Skybound Courier" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/snake.html" data-url="/game/snake.html" aria-hidden="true" tabindex="-1">
-          <img class="game-box-thumb" src="/thumbs/game-snake.jpg" alt="Hyper Snake 3D" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
-        </div>
-        <div class="game-box" data-src="/game/world.html" data-url="/game/world.html" aria-hidden="true" tabindex="-1">
-          <img class="game-box-thumb" src="/thumbs/game-world.jpg" alt="3D World" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶</span>
-          </div>
-          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Tab Baru</a>
-          <span class="game-box-closebtn">✕</span>
-          <iframe src="" title="3D World" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        <div class="showcase-filter-tabs">
+          <button class="filter-tab active" data-filter="all">Semua Aset <span class="tab-count">17</span></button>
+          <button class="filter-tab" data-filter="game">🎮 3D & Game <span class="tab-count">5</span></button>
+          <button class="filter-tab" data-filter="template">🌐 Web Template <span class="tab-count">4</span></button>
+          <button class="filter-tab" data-filter="ilustrasi">🎨 Ilustrasi <span class="tab-count">8</span></button>
         </div>
       </div>
-    </div>
+
+      <div class="games-marquee-wrap" id="games-marquee-wrap">
+        <div class="games-track" id="games-track">
+        <div class="game-box" data-cat="game" data-src="/game/card-arena.html" data-url="/game/card-arena.html">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🃏</span> Card Arena 3D</div>
+          <img class="game-box-thumb" src="/thumbs/game-card-arena.jpg" alt="Card Arena 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🐦</span> Flappy Bird 3D</div>
+          <img class="game-box-thumb" src="/thumbs/game-happy-bird.jpg" alt="Flappy Bird 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🚀</span> Skybound Courier</div>
+          <img class="game-box-thumb" src="/thumbs/game-skybound.jpg" alt="Skybound Courier" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/snake.html" data-url="/game/snake.html">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🐍</span> Hyper Snake 3D</div>
+          <img class="game-box-thumb" src="/thumbs/game-snake.jpg" alt="Hyper Snake 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/world.html" data-url="/game/world.html">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Sandbox</div>
+          <div class="game-box-title-bar"><span class="title-icon">🌍</span> 3D World Sandbox</div>
+          <img class="game-box-thumb" src="/thumbs/game-world.jpg" alt="3D World Sandbox" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="3D World Sandbox" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/arcvale/" data-url="/template/arcvale/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">🏢</span> Arcvale Tech Portal</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-arcvale.jpg" alt="Arcvale Tech Portal" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/arcvale/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Arcvale Tech Portal" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/learnary/" data-url="/template/learnary/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">🎓</span> Learnary LMS Platform</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-learnary.jpg" alt="Learnary LMS Platform" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/learnary/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Learnary LMS Platform" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/orvane-nova/" data-url="/template/orvane-nova/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">✨</span> Orvane Nova Agency</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-orvane.jpg" alt="Orvane Nova Agency" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/orvane-nova/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Orvane Nova Agency" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/tarnwick/" data-url="/template/tarnwick/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">🏛️</span> Tarnwick Modern Living</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-tarnwick.jpg" alt="Tarnwick Modern Living" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/tarnwick/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Tarnwick Modern Living" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/beetle/" data-url="/ilustrasi/beetle/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪲</span> Beetle Anatomy Vector</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-beetle.jpg" alt="Beetle Anatomy Vector" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/beetle/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Beetle Anatomy Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/butterfly/" data-url="/ilustrasi/butterfly/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🦋</span> Morpho Butterfly Vector</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-butterfly.jpg" alt="Morpho Butterfly Vector" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/butterfly/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Morpho Butterfly Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/dragonfly/" data-url="/ilustrasi/dragonfly/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪰</span> Dragonfly Vector Art</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-dragonfly.jpg" alt="Dragonfly Vector Art" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/dragonfly/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Dragonfly Vector Art" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/cockroach/" data-url="/ilustrasi/cockroach/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪳</span> Cockroach Vector Study</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-cockroach.jpg" alt="Cockroach Vector Study" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/cockroach/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Cockroach Vector Study" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/housefly/" data-url="/ilustrasi/housefly/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪰</span> Detailed Vector Housefly</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-housefly.jpg" alt="Detailed Vector Housefly" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/housefly/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Detailed Vector Housefly" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/mosquito/" data-url="/ilustrasi/mosquito/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🦟</span> Mosquito Vector Anatomy</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-mosquito.jpg" alt="Mosquito Vector Anatomy" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/mosquito/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Mosquito Vector Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/wasp/" data-url="/ilustrasi/wasp/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🐝</span> Wasp Biology Illustration</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-wasp.jpg" alt="Wasp Biology Illustration" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/wasp/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Wasp Biology Illustration" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/louse/" data-url="/ilustrasi/louse/">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🔬</span> Vector Louse Anatomy</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-louse.jpg" alt="Vector Louse Anatomy" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/louse/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Vector Louse Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/card-arena.html" data-url="/game/card-arena.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🃏</span> Card Arena 3D</div>
+          <img class="game-box-thumb" src="/thumbs/game-card-arena.jpg" alt="Card Arena 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🐦</span> Flappy Bird 3D</div>
+          <img class="game-box-thumb" src="/thumbs/game-happy-bird.jpg" alt="Flappy Bird 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🚀</span> Skybound Courier</div>
+          <img class="game-box-thumb" src="/thumbs/game-skybound.jpg" alt="Skybound Courier" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/snake.html" data-url="/game/snake.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
+          <div class="game-box-title-bar"><span class="title-icon">🐍</span> Hyper Snake 3D</div>
+          <img class="game-box-thumb" src="/thumbs/game-snake.jpg" alt="Hyper Snake 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="game" data-src="/game/world.html" data-url="/game/world.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> 3D Sandbox</div>
+          <div class="game-box-title-bar"><span class="title-icon">🌍</span> 3D World Sandbox</div>
+          <img class="game-box-thumb" src="/thumbs/game-world.jpg" alt="3D World Sandbox" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="3D World Sandbox" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/arcvale/" data-url="/template/arcvale/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">🏢</span> Arcvale Tech Portal</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-arcvale.jpg" alt="Arcvale Tech Portal" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/arcvale/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Arcvale Tech Portal" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/learnary/" data-url="/template/learnary/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">🎓</span> Learnary LMS Platform</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-learnary.jpg" alt="Learnary LMS Platform" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/learnary/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Learnary LMS Platform" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/orvane-nova/" data-url="/template/orvane-nova/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">✨</span> Orvane Nova Agency</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-orvane.jpg" alt="Orvane Nova Agency" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/orvane-nova/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Orvane Nova Agency" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="template" data-src="/template/tarnwick/" data-url="/template/tarnwick/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
+          <div class="game-box-title-bar"><span class="title-icon">🏛️</span> Tarnwick Modern Living</div>
+          <img class="game-box-thumb" src="/thumbs/tpl-tarnwick.jpg" alt="Tarnwick Modern Living" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/template/tarnwick/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Tarnwick Modern Living" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/beetle/" data-url="/ilustrasi/beetle/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪲</span> Beetle Anatomy Vector</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-beetle.jpg" alt="Beetle Anatomy Vector" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/beetle/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Beetle Anatomy Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/butterfly/" data-url="/ilustrasi/butterfly/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🦋</span> Morpho Butterfly Vector</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-butterfly.jpg" alt="Morpho Butterfly Vector" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/butterfly/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Morpho Butterfly Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/dragonfly/" data-url="/ilustrasi/dragonfly/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪰</span> Dragonfly Vector Art</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-dragonfly.jpg" alt="Dragonfly Vector Art" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/dragonfly/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Dragonfly Vector Art" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/cockroach/" data-url="/ilustrasi/cockroach/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪳</span> Cockroach Vector Study</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-cockroach.jpg" alt="Cockroach Vector Study" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/cockroach/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Cockroach Vector Study" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/housefly/" data-url="/ilustrasi/housefly/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🪰</span> Detailed Vector Housefly</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-housefly.jpg" alt="Detailed Vector Housefly" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/housefly/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Detailed Vector Housefly" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/mosquito/" data-url="/ilustrasi/mosquito/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🦟</span> Mosquito Vector Anatomy</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-mosquito.jpg" alt="Mosquito Vector Anatomy" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/mosquito/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Mosquito Vector Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/wasp/" data-url="/ilustrasi/wasp/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🐝</span> Wasp Biology Illustration</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-wasp.jpg" alt="Wasp Biology Illustration" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/wasp/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Wasp Biology Illustration" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/louse/" data-url="/ilustrasi/louse/" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
+          <div class="game-box-title-bar"><span class="title-icon">🔬</span> Vector Louse Anatomy</div>
+          <img class="game-box-thumb" src="/thumbs/ilus-louse.jpg" alt="Vector Louse Anatomy" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Buka Interaktif</span>
+          </div>
+          <a class="game-box-openbtn" href="/ilustrasi/louse/" target="_blank">↗ Buka di Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Vector Louse Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        </div>
+      </div>
+
+      <!-- Navigasi Geser & Kontrol Bawah -->
+      <div class="showcase-controls">
+        <button class="nav-scroll-btn btn-prev" id="btnPrev" title="Geser ke Kiri">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Sebelumnya</span>
+        </button>
+
+        <button class="nav-pause-btn" id="btnPlayPause" title="Jeda / Lanjutkan Auto Geser">
+          <span class="icon-pause">⏸ Jeda</span>
+          <span class="icon-play" style="display:none">▶ Putar</span>
+        </button>
+
+        <button class="nav-scroll-btn btn-next" id="btnNext" title="Geser ke Kanan">
+          <span>Berikutnya</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+
+      <div class="showcase-instruction">
+        <span>💡 <strong>Tips:</strong> Klik kartu untuk mencoba live interaktif · Klik 2x atau tombol ↗ untuk buka di tab penuh</span>
+      </div>
     </div>
   </div>
 </section>
@@ -1172,73 +1527,149 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
 </script>
 
 <script>
-// ===== GAME CAROUSEL LOGIC =====
+// ===== DIGITAL ASSET EXAMPLES (Showcase Controller) =====
 (function(){
+  var wrap = document.getElementById('games-marquee-wrap');
+  var track = document.getElementById('games-track');
+  var btnPrev = document.getElementById('btnPrev');
+  var btnNext = document.getElementById('btnNext');
+  var btnPlayPause = document.getElementById('btnPlayPause');
   var currentExpanded = null;
+  var isPaused = false;
+  var isHovered = false;
+  var animSpeed = 1.35; // Kecepatan smooth auto-scroll (lebih cepat dan dinamis)
 
+  // Infinite Scroll Loop via requestAnimationFrame
+  function tick() {
+    if (!isPaused && !isHovered && !currentExpanded && wrap) {
+      wrap.scrollLeft += animSpeed;
+      var halfScroll = wrap.scrollWidth / 2;
+      if (wrap.scrollLeft >= halfScroll) {
+        wrap.scrollLeft -= halfScroll;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // Hover Pause/Resume
+  if (wrap) {
+    wrap.addEventListener('mouseenter', function(){ isHovered = true; });
+    wrap.addEventListener('mouseleave', function(){ isHovered = false; });
+  }
+
+  // Tombol Geser Kiri / Kanan
+  var scrollStep = 540;
+  if (btnPrev) {
+    btnPrev.addEventListener('click', function(){
+      if (wrap) {
+        wrap.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+        var halfScroll = wrap.scrollWidth / 2;
+        if (wrap.scrollLeft <= 0) {
+          wrap.scrollLeft += halfScroll;
+        }
+      }
+    });
+  }
+  if (btnNext) {
+    btnNext.addEventListener('click', function(){
+      if (wrap) {
+        wrap.scrollBy({ left: scrollStep, behavior: 'smooth' });
+        var halfScroll = wrap.scrollWidth / 2;
+        if (wrap.scrollLeft >= halfScroll) {
+          wrap.scrollLeft -= halfScroll;
+        }
+      }
+    });
+  }
+
+  // Tombol Jeda / Putar
+  if (btnPlayPause) {
+    btnPlayPause.addEventListener('click', function(){
+      isPaused = !isPaused;
+      var pIcon = btnPlayPause.querySelector('.icon-pause');
+      var playIcon = btnPlayPause.querySelector('.icon-play');
+      if (isPaused) {
+        if(pIcon) pIcon.style.display = 'none';
+        if(playIcon) playIcon.style.display = 'inline';
+      } else {
+        if(pIcon) pIcon.style.display = 'inline';
+        if(playIcon) playIcon.style.display = 'none';
+      }
+    });
+  }
+
+  // Filter Tabs
+  var tabs = document.querySelectorAll('.filter-tab');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      var filter = tab.getAttribute('data-filter');
+      var boxes = document.querySelectorAll('.game-box');
+      boxes.forEach(function(b){
+        var cat = b.getAttribute('data-cat');
+        if (filter === 'all' || cat === filter) {
+          b.classList.remove('is-hidden');
+        } else {
+          b.classList.add('is-hidden');
+        }
+      });
+      // reset scroll position smoothly
+      if (wrap) wrap.scrollLeft = 0;
+    });
+  });
+
+  // Expand / Interactive Mode
   function expandCard(box) {
-    // If already expanded → open in new tab
     if (box === currentExpanded) {
       var url = box.getAttribute('data-url');
       if(url) window.open(url, '_blank');
       return;
     }
-    // Collapse previous
-    if(currentExpanded) collapseCard(currentExpanded);
+    if (currentExpanded) collapseCard(currentExpanded);
 
-    // Load iframe if not loaded
     var iframe = box.querySelector('iframe');
-    if(iframe && !iframe.src) {
+    if (iframe && !iframe.src) {
       var src = box.getAttribute('data-src');
       if(src) iframe.src = src;
     }
 
     box.classList.add('g-expanded');
     currentExpanded = box;
-    // Pause animation
-    document.getElementById('games-marquee-wrap').classList.add('g-paused');
-    // Scroll card into view
-    box.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 
   function collapseCard(box) {
     box.classList.remove('g-expanded');
     currentExpanded = null;
-    document.getElementById('games-marquee-wrap').classList.remove('g-paused');
   }
 
   document.querySelectorAll('.game-box').forEach(function(box){
-    // Click poster / card → expand
     box.addEventListener('click', function(e){
-      // Ignore if clicking open-btn or close-btn
       if(e.target.closest('.game-box-openbtn') || e.target.closest('.game-box-closebtn')) return;
-      // If already expanded, clicks go to iframe - ignore
       if(box.classList.contains('g-expanded')) return;
       expandCard(box);
     });
 
-    // Close button
     var closeBtn = box.querySelector('.game-box-closebtn');
-    if(closeBtn){
+    if (closeBtn) {
       closeBtn.addEventListener('click', function(e){
         e.stopPropagation();
         collapseCard(box);
       });
     }
 
-    // Open tab button
     var openBtn = box.querySelector('.game-box-openbtn');
-    if(openBtn){
+    if (openBtn) {
       openBtn.addEventListener('click', function(e){
         e.stopPropagation();
-        // href handles it
       });
     }
   });
 
-  // ESC to close
   document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && currentExpanded) collapseCard(currentExpanded);
+    if (e.key === 'Escape' && currentExpanded) collapseCard(currentExpanded);
   });
 })();
 </script>
