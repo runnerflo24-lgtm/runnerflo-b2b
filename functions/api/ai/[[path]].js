@@ -414,8 +414,10 @@ ${safeGlbUrl ? `Gunakan THREE.GLTFLoader untuk memuat model 3D player dari URL: 
         // Graceful fallback without API key
         const lastMsg = formattedMessages[formattedMessages.length - 1]?.content || '';
         const agentName = (typeof system === 'string' ? system : '').match(/KAMU ADALAH ([A-Z]+)/i)?.[1] || 'AI';
+        const fallbackTxt = `Halo! Saya ${agentName}. Untuk menggunakan layanan ini, administrator perlu mengonfigurasi API key Claude di pengaturan Cloudflare Pages. Silakan hubungi admin Runnerflo untuk informasi lebih lanjut.`;
         return new Response(JSON.stringify({
-          content: [{ type: 'text', text: `Halo! Saya ${agentName}. Untuk menggunakan layanan ini, administrator perlu mengonfigurasi API key Claude di pengaturan Cloudflare Pages. Silakan hubungi admin Runnerflo untuk informasi lebih lanjut.` }],
+          content: [{ type: 'text', text: fallbackTxt }],
+          text: fallbackTxt,
           model: 'fallback',
           stop_reason: 'end_turn'
         }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -455,7 +457,8 @@ ${safeGlbUrl ? `Gunakan THREE.GLTFLoader untuk memuat model 3D player dari URL: 
 
         if (anthropicRes.ok) {
           const data = await anthropicRes.json();
-          return new Response(JSON.stringify(data), {
+          const textStr = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+          return new Response(JSON.stringify({ ...data, text: textStr }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
