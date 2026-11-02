@@ -387,5 +387,101 @@ ${safeGlbUrl ? `Gunakan THREE.GLTFLoader untuk memuat model 3D player dari URL: 
     }
   }
 
+  // CLAUDE CHAT PROXY — for AI Agents (Lumo, Nara, Narasi, Nova)
+  // Route: POST /api/ai/chat
+  if (pathname === '/api/ai/chat' && request.method === 'POST') {
+    try {
+      const body = await request.json().catch(() => ({}));
+      let { messages = [], system = '', model = 'claude-3-5-sonnet-20241022', stream = false, max_tokens = 2048 } = body;
+
+      const authHeader = request.headers.get('Authorization') || request.headers.get('x-api-key') || '';
+      const cleanHeaderKey = authHeader.replace(/^Bearer\s+/i, '').trim();
+      const envKey = (env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY)) || '';
+      const anthropicKey = cleanHeaderKey || envKey;
+
+      // Normalize messages
+      const formattedMessages = [];
+      for (const m of (Array.isArray(messages) ? messages : [])) {
+        if (!m) continue;
+        const role = (m.role === 'assistant' || m.role === 'agent') ? 'assistant' : 'user';
+        let content = m.content;
+        if (typeof content !== 'string' && !Array.isArray(content)) content = m.text || '';
+        if (content) formattedMessages.push({ role, content });
+      }
+      if (formattedMessages.length === 0) formattedMessages.push({ role: 'user', content: 'Halo' });
+
+      if (!anthropicKey) {
+        // Graceful fallback without API key
+        const lastMsg = formattedMessages[formattedMessages.length - 1]?.content || '';
+        const agentName = (typeof system === 'string' ? system : '').match(/KAMU ADALAH ([A-Z]+)/i)?.[1] || 'AI';
+        return new Response(JSON.stringify({
+          content: [{ type: 'text', text: `Halo! Saya ${agentName}. Untuk menggunakan layanan ini, administrator perlu mengonfigurasi API key Claude di pengaturan Cloudflare Pages. Silakan hubungi admin Runnerflo untuk informasi lebih lanjut.` }],
+          model: 'fallback',
+          stop_reason: 'end_turn'
+        }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+
+      const modelCandidates = [
+        'claude-3-5-sonnet-20241022',
+        'claude-3-5-sonnet-latest',
+        'claude-3-5-haiku-20241022',
+        'claude-3-haiku-20240307'
+      ];
+
+      // Normalize model alias
+      const resolvedModel = modelCandidates.includes(model) ? model : modelCandidates[0];
+
+      // Build Anthropic request body
+      const reqBody = {
+        model: resolvedModel,
+        max_tokens: Math.min(Number(max_tokens) || 2048, 4096),
+        messages: formattedMessages
+      };
+      if (system && typeof system === 'string' && system.trim()) {
+        reqBody.system = system.trim();
+      }
+
+      for (const candidate of modelCandidates) {
+        reqBody.model = candidate;
+        const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(reqBody)
+        });
+
+        if (anthropicRes.ok) {
+          const data = await anthropicRes.json();
+          return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const errData = await anthropicRes.json().catch(() => ({}));
+        // If model not found, try next; otherwise return error immediately
+        if (anthropicRes.status !== 404 && anthropicRes.status !== 400) {
+          return new Response(JSON.stringify({ error: errData.error?.message || 'Claude API error', status: anthropicRes.status }), {
+            status: anthropicRes.status,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+      }
+
+      return new Response(JSON.stringify({ error: 'Semua model Claude tidak tersedia saat ini.' }), {
+        status: 503,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
   return new Response(JSON.stringify({ error: 'Route not found' }), { status: 404, headers: corsHeaders });
 }

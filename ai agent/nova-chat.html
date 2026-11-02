@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -184,7 +184,7 @@ label.gr{display:flex;align-items:center;gap:10px}
 /* ============ CONFIG: isi di sini ============ */
 const CONFIG = {
   API_KEY: "",
-  PROXY_URL: "/api/chat",                  // Cloudflare Pages Function proxy
+  PROXY_URL: "/api/ai/chat",                  // Cloudflare Pages Function proxy
   MODEL: "claude-3-5-sonnet-20241022",
   MAX_TOKENS: 4096,
   VIDEO_FRAMES: 6,                         // jumlah frame yang diambil dari video
@@ -197,7 +197,7 @@ const get = (k, d) => { try { const v = localStorage.getItem("nova." + k); retur
 const put = (k, v) => { try { localStorage.setItem("nova." + k, JSON.stringify(v)); } catch (e) {} };
 function applyTheme(t) { if (t && t !== "auto") document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme"); }
 Object.assign(CONFIG, get("settings", {}));
-CONFIG.PROXY_URL = "/api/chat";
+CONFIG.PROXY_URL = "/api/ai/chat";
 applyTheme(CONFIG.theme);
 const ROLES = {"B2B Strategist":"B2B growth strategy and market expansion","Lead Gen Specialist":"outbound B2B lead generation and outreach","Pitching & Sales Closer":"B2B sales pitching and client closing"};
 const SUG = [
