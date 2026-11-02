@@ -87,7 +87,7 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .btn-ideas-highlight svg{color:var(--acc)}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
 /* ===== DIGITAL ASSET EXAMPLES SHOWCASE ===== */
-.showcase-outer{width:100%;margin:40px auto 0;position:relative}
+.showcase-outer{width:100%;margin:36px auto 0;position:relative}
 .games-section-header{display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 18px;flex-wrap:wrap;gap:16px}
 .showcase-title-group{max-width:540px}
 .showcase-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.08em;color:var(--acc);background:rgba(200,255,62,.1);border:1px solid rgba(200,255,62,.25);padding:3px 10px;border-radius:99px;margin-bottom:8px}
@@ -105,50 +105,27 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 /* Showcase Track & Container */
 .games-marquee-wrap{width:100%;overflow-x:auto;overflow-y:hidden;position:relative;padding:12px 0 16px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
 .games-marquee-wrap::-webkit-scrollbar{display:none}
-.games-track{display:flex;gap:20px;width:max-content;will-change:transform,scroll-position}
+.games-track{display:flex;gap:20px;width:max-content;will-change:scroll-position}
 
-/* Card Styling: Proporsional (Tinggi ~340px, Lebar Ramping ~520px) */
-.game-box{width:min(520px,74vw);aspect-ratio:16/10.5;flex:none;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 8px 30px -10px rgba(0,0,0,.7);cursor:pointer;transition:width .35s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
-.game-box:hover{border-color:rgba(200,255,62,.4);box-shadow:0 14px 44px -10px rgba(0,0,0,.85)}
+/* Card Styling: Ramping, proporsional, nyaman dilihat */
+.game-box{width:min(500px,72vw);aspect-ratio:16/10.5;flex:none;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 8px 30px -10px rgba(0,0,0,.7);cursor:pointer;transition:transform .3s ease,box-shadow .3s,border-color .3s}
+.game-box:hover{transform:translateY(-4px);border-color:rgba(200,255,62,.45);box-shadow:0 14px 44px -10px rgba(0,0,0,.9)}
 .game-box.is-hidden{display:none !important}
 
 /* Badges on card */
-.game-box-tag{position:absolute;top:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:rgba(8,12,22,0.85);border:1px solid rgba(255,255,255,0.16);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:0.02em;backdrop-filter:blur(8px);pointer-events:none;transition:opacity .25s}
+.game-box-tag{position:absolute;top:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:rgba(8,12,22,0.85);border:1px solid rgba(255,255,255,0.16);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:0.02em;backdrop-filter:blur(8px);pointer-events:none}
 .game-box-tag .tag-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);display:inline-block}
 
-.game-box-title-bar{position:absolute;bottom:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:rgba(8,12,22,0.88);border:1px solid rgba(255,255,255,0.18);color:#fff;font-size:13px;font-weight:700;backdrop-filter:blur(8px);pointer-events:none;transition:opacity .25s}
+.game-box-title-bar{position:absolute;bottom:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:rgba(8,12,22,0.88);border:1px solid rgba(255,255,255,0.18);color:#fff;font-size:13px;font-weight:700;backdrop-filter:blur(8px);pointer-events:none}
 .game-box-title-bar .title-icon{font-size:14px}
 
-.game-box.g-expanded .game-box-tag,
-.game-box.g-expanded .game-box-title-bar{opacity:0;pointer-events:none}
-
 /* Thumbnail & Overlay */
-.game-box-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;transition:opacity .35s ease}
-.game-box.g-expanded .game-box-thumb{opacity:0;pointer-events:none}
+.game-box-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;transition:transform .4s ease}
+.game-box:hover .game-box-thumb{transform:scale(1.03)}
 .game-box-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background .2s}
-.game-box:hover .game-box-overlay{background:rgba(0,0,0,.3)}
-.game-box-playbtn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:99px;background:var(--acc);color:var(--on);font-size:13px;font-weight:800;letter-spacing:0.02em;opacity:0;transform:scale(.85);transition:opacity .2s,transform .2s;box-shadow:0 6px 24px rgba(200,255,62,.45)}
+.game-box:hover .game-box-overlay{background:rgba(0,0,0,.35)}
+.game-box-playbtn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:99px;background:var(--acc);color:var(--on);font-size:13px;font-weight:800;letter-spacing:0.02em;opacity:0;transform:scale(.85);transition:opacity .2s,transform .2s;box-shadow:0 6px 24px rgba(200,255,62,.5)}
 .game-box:hover .game-box-playbtn{opacity:1;transform:scale(1)}
-.game-box.g-expanded .game-box-overlay{display:none}
-
-/* Spinner saat loading iframe */
-.game-box-spinner{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#07090f;color:var(--mut);font-size:13px;font-weight:600;transition:opacity .3s}
-.game-box-spinner.is-hidden{opacity:0;pointer-events:none;display:none}
-.spinner-circle{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--acc);animation:spinLoader .8s linear infinite}
-@keyframes spinLoader{to{transform:rotate(360deg)}}
-
-/* Iframe */
-.game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none;z-index:1;background:#07090f}
-.game-box.g-expanded iframe{pointer-events:auto;z-index:8}
-
-/* Expanded State */
-.game-box.g-expanded{width:min(1080px,95vw);border-color:var(--acc);box-shadow:0 20px 60px -15px rgba(0,0,0,.95)}
-.game-box-openbtn{position:absolute;top:14px;right:14px;z-index:25;display:none;align-items:center;gap:6px;padding:7px 16px;border-radius:99px;background:rgba(10,15,28,.88);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px);text-decoration:none;transition:all .2s}
-.game-box.g-expanded .game-box-openbtn{display:inline-flex}
-.game-box-openbtn:hover{background:var(--acc);color:var(--on);border-color:var(--acc);transform:scale(1.04)}
-.game-box-closebtn{position:absolute;top:14px;left:14px;z-index:25;display:none;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(10,15,28,.88);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(10px);transition:all .2s}
-.game-box.g-expanded .game-box-closebtn{display:inline-flex}
-.game-box-closebtn:hover{background:#ff4d4f;border-color:#ff4d4f;color:#fff}
 
 /* Showcase Controls (Bawah) */
 .showcase-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px auto 10px;padding:0 20px}
@@ -157,6 +134,42 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .nav-pause-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--mut);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px)}
 .nav-pause-btn:hover{color:var(--fg);border-color:rgba(255,255,255,.3)}
 .showcase-instruction{text-align:center;font-size:12px;color:var(--mut);margin-top:6px;letter-spacing:0.01em}
+
+/* ===== FULLSCREEN INTERACTIVE VIEWER (Di Bawah Header B2B) ===== */
+body.fs-view-active{overflow:hidden !important}
+body.fs-view-active .nav{z-index:999999 !important;position:sticky !important;background:rgba(6,8,15,0.95) !important}
+
+.asset-fullscreen-view{position:fixed;top:64px;left:0;right:0;bottom:0;z-index:999990;background:#06080f;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.asset-fullscreen-view.active{opacity:1;pointer-events:auto}
+
+.fs-top-bar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(12,17,30,0.96);border-bottom:1px solid var(--line);backdrop-filter:blur(12px);flex-shrink:0}
+.fs-info{display:flex;align-items:center;gap:10px;overflow:hidden}
+.fs-tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;background:rgba(200,255,62,.12);color:var(--acc);border:1px solid rgba(200,255,62,.3);white-space:nowrap}
+.fs-title{font-size:14px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs-actions{display:flex;align-items:center;gap:10px}
+.fs-btn-tab{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,0.08);border:1px solid var(--line);color:var(--fg);font-size:12px;font-weight:600;text-decoration:none;transition:all .2s}
+.fs-btn-tab:hover{border-color:var(--acc);color:var(--acc);background:rgba(200,255,62,0.08)}
+.fs-btn-close{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:rgba(255,77,79,0.15);border:1px solid rgba(255,77,79,0.35);color:#ff7875;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.fs-btn-close:hover{background:#ff4d4f;color:#fff;border-color:#ff4d4f}
+
+.fs-body{flex:1;position:relative;width:100%;height:calc(100% - 54px);overflow:hidden;background:#05070c}
+.fs-iframe{width:100%;height:100%;border:0;display:block;background:#05070c}
+
+/* Loading Overlay dengan Progress Bar */
+.fs-loading{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:#06080f;transition:opacity .35s ease,visibility .35s}
+.fs-loading.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.fs-loading-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(22px) brightness(0.22);transform:scale(1.08)}
+
+.fs-loading-card{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 36px;border-radius:24px;background:rgba(10,15,28,0.85);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(20px);box-shadow:0 20px 50px -10px rgba(0,0,0,0.85);max-width:420px;width:90%}
+.fs-spinner-glow{width:46px;height:46px;border-radius:50%;border:3.5px solid rgba(255,255,255,0.1);border-top-color:var(--acc);animation:spinGlow .8s linear infinite;margin-bottom:16px}
+@keyframes spinGlow{to{transform:rotate(360deg)}}
+.fs-loading-title{font-size:16px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-0.01em}
+.fs-loading-sub{font-size:12px;color:var(--mut);margin-bottom:20px;line-height:1.4}
+
+.fs-progress-wrap{width:100%;height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,0.1)}
+.fs-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--vio),var(--acc));border-radius:99px;box-shadow:0 0 14px var(--acc);transition:width .25s ease}
+.fs-progress-text{font-size:12px;font-weight:700;color:var(--acc);margin-top:10px;letter-spacing:0.02em}
+
 /* Stage 1 & Stage 2 Global Hide: Sembunyikan elemen lain yang menghalangi iframe */
 body.pv-stage-1-active .nav,
 body.pv-stage-2-active .nav,
@@ -719,10 +732,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -731,10 +742,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -743,10 +752,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/snake.html" data-url="/game/snake.html">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -755,10 +762,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/world.html" data-url="/game/world.html">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Sandbox</div>
@@ -767,10 +772,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="3D World Sandbox" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/arcvale/" data-url="/template/arcvale/">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -779,10 +782,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/arcvale/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Arcvale Tech Portal" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/learnary/" data-url="/template/learnary/">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -791,10 +792,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/learnary/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Learnary LMS Platform" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/orvane-nova/" data-url="/template/orvane-nova/">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -803,10 +802,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/orvane-nova/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Orvane Nova Agency" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/tarnwick/" data-url="/template/tarnwick/">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -815,10 +812,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/tarnwick/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Tarnwick Modern Living" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/beetle/" data-url="/ilustrasi/beetle/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -827,10 +822,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/beetle/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Beetle Anatomy Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/butterfly/" data-url="/ilustrasi/butterfly/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -839,10 +832,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/butterfly/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Morpho Butterfly Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/dragonfly/" data-url="/ilustrasi/dragonfly/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -851,10 +842,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/dragonfly/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Dragonfly Vector Art" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/cockroach/" data-url="/ilustrasi/cockroach/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -863,10 +852,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/cockroach/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Cockroach Vector Study" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/housefly/" data-url="/ilustrasi/housefly/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -875,10 +862,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/housefly/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Detailed Vector Housefly" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/mosquito/" data-url="/ilustrasi/mosquito/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -887,10 +872,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/mosquito/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Mosquito Vector Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/wasp/" data-url="/ilustrasi/wasp/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -899,10 +882,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/wasp/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Wasp Biology Illustration" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/louse/" data-url="/ilustrasi/louse/">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -911,10 +892,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/louse/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Vector Louse Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/card-arena.html" data-url="/game/card-arena.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -923,10 +902,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -935,10 +912,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -947,10 +922,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/snake.html" data-url="/game/snake.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
@@ -959,10 +932,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="game" data-src="/game/world.html" data-url="/game/world.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Sandbox</div>
@@ -971,10 +942,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="3D World Sandbox" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/arcvale/" data-url="/template/arcvale/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -983,10 +952,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/arcvale/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Arcvale Tech Portal" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/learnary/" data-url="/template/learnary/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -995,10 +962,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/learnary/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Learnary LMS Platform" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/orvane-nova/" data-url="/template/orvane-nova/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -1007,10 +972,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/orvane-nova/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Orvane Nova Agency" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="template" data-src="/template/tarnwick/" data-url="/template/tarnwick/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Web Template</div>
@@ -1019,10 +982,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/template/tarnwick/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Tarnwick Modern Living" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/beetle/" data-url="/ilustrasi/beetle/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1031,10 +992,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/beetle/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Beetle Anatomy Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/butterfly/" data-url="/ilustrasi/butterfly/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1043,10 +1002,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/butterfly/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Morpho Butterfly Vector" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/dragonfly/" data-url="/ilustrasi/dragonfly/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1055,10 +1012,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/dragonfly/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Dragonfly Vector Art" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/cockroach/" data-url="/ilustrasi/cockroach/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1067,10 +1022,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/cockroach/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Cockroach Vector Study" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/housefly/" data-url="/ilustrasi/housefly/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1079,10 +1032,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/housefly/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Detailed Vector Housefly" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/mosquito/" data-url="/ilustrasi/mosquito/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1091,10 +1042,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/mosquito/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Mosquito Vector Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/wasp/" data-url="/ilustrasi/wasp/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1103,10 +1052,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/wasp/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Wasp Biology Illustration" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         <div class="game-box" data-cat="ilustrasi" data-src="/ilustrasi/louse/" data-url="/ilustrasi/louse/" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Vektor Biologi</div>
@@ -1115,10 +1062,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
-          <a class="game-box-openbtn" href="/ilustrasi/louse/" target="_blank">↗ Buka di Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
-          <div class="game-box-spinner is-hidden"><div class="spinner-circle"></div><span>Memuat live interaktif...</span></div>
-          <iframe title="Vector Louse Anatomy" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+          
+          
         </div>
         </div>
       </div>
@@ -1146,6 +1091,43 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
       </div>
     </div>
   </div>
+
+<!-- ====== ASSET FULLSCREEN VIEW (Di Bawah Header B2B) ====== -->
+<div class="asset-fullscreen-view" id="assetFsView">
+  <div class="fs-top-bar">
+    <div class="fs-info">
+      <span class="fs-tag" id="fsTag">3D Asset</span>
+      <span class="fs-title" id="fsTitle">Nama Aset</span>
+    </div>
+    <div class="fs-actions">
+      <a class="fs-btn-tab" id="fsOpenTab" href="#" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        <span>Buka Tab Baru</span>
+      </a>
+      <button class="fs-btn-close" id="fsCloseBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <span>Tutup</span>
+      </button>
+    </div>
+  </div>
+  <div class="fs-body">
+    <!-- Loading Overlay dengan Progress Bar & Thumbnail Blur -->
+    <div class="fs-loading" id="fsLoading">
+      <img class="fs-loading-bg" id="fsLoadingBg" src="" alt="Preview">
+      <div class="fs-loading-card">
+        <div class="fs-spinner-glow"></div>
+        <div class="fs-loading-title" id="fsLoadingTitle">Memuat Live Interaktif...</div>
+        <div class="fs-loading-sub">Menginisialisasi runtime WebGL, Canvas, & aset 3D</div>
+        <div class="fs-progress-wrap">
+          <div class="fs-progress-bar" id="fsProgressBar"></div>
+        </div>
+        <div class="fs-progress-text" id="fsProgressText">0%</div>
+      </div>
+    </div>
+    <!-- Interactive Frame -->
+    <iframe class="fs-iframe" id="fsIframe" src="" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+  </div>
+</div>
 </section>
 
 <main class="wrap">
@@ -1573,17 +1555,17 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
   var btnPrev = document.getElementById('btnPrev');
   var btnNext = document.getElementById('btnNext');
   var btnPlayPause = document.getElementById('btnPlayPause');
-  var currentExpanded = null;
   var isPaused = false;
   var isHovered = false;
-  var manualCooldown = 0; // Jeda auto-scroll saat tombol navigasi ditekan
-  var animSpeed = 1.35;
+  var isFsActive = false;
+  var manualCooldown = 0;
+  var animSpeed = 2.6; // Kecepatan gerak lebih cepat & dinamis (sebelumnya 1.35)
 
-  // Auto-scroll continuous loop
+  // Auto-scroll loop
   function tick() {
     if (manualCooldown > 0) {
       manualCooldown--;
-    } else if (!isPaused && !isHovered && !currentExpanded && wrap) {
+    } else if (!isPaused && !isHovered && !isFsActive && wrap) {
       wrap.scrollLeft += animSpeed;
       var halfScroll = wrap.scrollWidth / 2;
       if (wrap.scrollLeft >= halfScroll) {
@@ -1603,15 +1585,13 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
   // Navigasi Tombol Geser: Sebelumnya / Berikutnya
   function scrollByCard(direction) {
     if (!wrap) return;
-    // Beri jeda 4 detik agar auto-scroll tidak melawan perpindahan kartu
-    manualCooldown = 240;
+    manualCooldown = 220; // jeda 3.5s
 
-    var step = 540; // perkiraan lebar card + gap
+    var step = 520;
     var current = wrap.scrollLeft;
     var halfScroll = wrap.scrollWidth / 2;
 
     if (direction < 0 && current <= 40) {
-      // Loop ke kanan dulu, lalu geser ke kiri dengan mulus
       wrap.scrollLeft = halfScroll;
       current = halfScroll;
     }
@@ -1669,66 +1649,98 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
     });
   });
 
-  // Buka Interaktif (Live Game / Template / Ilustrasi)
-  function expandCard(box) {
-    if (box === currentExpanded) {
-      var url = box.getAttribute('data-url');
-      if(url) window.open(url, '_blank');
-      return;
-    }
-    if (currentExpanded) collapseCard(currentExpanded);
+  // ===== FULLSCREEN LIVE INTERACTIVE VIEWER =====
+  var fsView = document.getElementById('assetFsView');
+  var fsTitle = document.getElementById('fsTitle');
+  var fsTag = document.getElementById('fsTag');
+  var fsOpenTab = document.getElementById('fsOpenTab');
+  var fsCloseBtn = document.getElementById('fsCloseBtn');
+  var fsIframe = document.getElementById('fsIframe');
+  var fsLoading = document.getElementById('fsLoading');
+  var fsLoadingBg = document.getElementById('fsLoadingBg');
+  var fsLoadingTitle = document.getElementById('fsLoadingTitle');
+  var fsProgressBar = document.getElementById('fsProgressBar');
+  var fsProgressText = document.getElementById('fsProgressText');
+  var progressTimer = null;
 
-    var iframe = box.querySelector('iframe');
-    var targetSrc = box.getAttribute('data-src');
-    var spinner = box.querySelector('.game-box-spinner');
+  function openFullscreen(box) {
+    var url = box.getAttribute('data-src') || box.getAttribute('data-url');
+    var thumb = (box.querySelector('.game-box-thumb') || {}).src || '';
+    var title = (box.querySelector('.game-box-title-bar') || {}).innerText || 'Interactive Asset';
+    var tag = (box.querySelector('.game-box-tag') || {}).innerText || 'Live Preview';
 
-    if (iframe && targetSrc) {
-      var currentSrcAttr = iframe.getAttribute('src');
-      if (!currentSrcAttr || currentSrcAttr !== targetSrc) {
-        if (spinner) spinner.classList.remove('is-hidden');
-        iframe.onload = function() {
-          if (spinner) spinner.classList.add('is-hidden');
-        };
-        iframe.setAttribute('src', targetSrc);
-        iframe.src = targetSrc;
+    if (!url) return;
+
+    isFsActive = true;
+    document.body.classList.add('fs-view-active');
+
+    // Set info & tab link
+    if (fsTitle) fsTitle.innerText = title;
+    if (fsTag) fsTag.innerText = tag;
+    if (fsOpenTab) fsOpenTab.href = url;
+    if (fsLoadingTitle) fsLoadingTitle.innerText = 'Memuat ' + title + '...';
+    if (fsLoadingBg && thumb) fsLoadingBg.src = thumb;
+
+    // Reset & Animate Progress Bar
+    if (fsProgressBar) fsProgressBar.style.width = '0%';
+    if (fsProgressText) fsProgressText.innerText = '0%';
+    if (fsLoading) fsLoading.classList.remove('is-hidden');
+
+    if (progressTimer) clearInterval(progressTimer);
+    var p = 0;
+    progressTimer = setInterval(function(){
+      if (p < 88) {
+        p += Math.floor(Math.random() * 12) + 6;
+        if (p > 88) p = 88;
+        if (fsProgressBar) fsProgressBar.style.width = p + '%';
+        if (fsProgressText) fsProgressText.innerText = p + '%';
       }
+    }, 180);
+
+    // Buka viewer
+    if (fsView) fsView.classList.add('active');
+
+    // Load iframe
+    if (fsIframe) {
+      fsIframe.onload = function() {
+        if (progressTimer) clearInterval(progressTimer);
+        if (fsProgressBar) fsProgressBar.style.width = '100%';
+        if (fsProgressText) fsProgressText.innerText = '100%';
+        setTimeout(function(){
+          if (fsLoading) fsLoading.classList.add('is-hidden');
+        }, 300);
+      };
+      fsIframe.src = url;
     }
-
-    box.classList.add('g-expanded');
-    currentExpanded = box;
-    box.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 
-  function collapseCard(box) {
-    box.classList.remove('g-expanded');
-    currentExpanded = null;
+  function closeFullscreen() {
+    isFsActive = false;
+    document.body.classList.remove('fs-view-active');
+    if (fsView) fsView.classList.remove('active');
+    if (progressTimer) clearInterval(progressTimer);
+    // Unload iframe to release GPU / WebGL context immediately
+    if (fsIframe) fsIframe.src = 'about:blank';
   }
 
+  // Click card to open in fullscreen
   document.querySelectorAll('.game-box').forEach(function(box){
     box.addEventListener('click', function(e){
-      if(e.target.closest('.game-box-openbtn') || e.target.closest('.game-box-closebtn')) return;
-      if(box.classList.contains('g-expanded')) return;
-      expandCard(box);
+      openFullscreen(box);
     });
-
-    var closeBtn = box.querySelector('.game-box-closebtn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        collapseCard(box);
-      });
-    }
-
-    var openBtn = box.querySelector('.game-box-openbtn');
-    if (openBtn) {
-      openBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-      });
-    }
   });
 
+  if (fsCloseBtn) {
+    fsCloseBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      closeFullscreen();
+    });
+  }
+
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && currentExpanded) collapseCard(currentExpanded);
+    if (e.key === 'Escape' && isFsActive) {
+      closeFullscreen();
+    }
   });
 })();
 </script>
