@@ -98,12 +98,13 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none}
 .game-box.g-expanded iframe{pointer-events:auto}
 /* poster overlay - shows before game loads */
-.game-box-poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#0d1120 0%,#111827 100%);z-index:5;transition:opacity .4s ease}
-.game-box-poster.hidden{opacity:0;pointer-events:none}
-.game-box-poster-icon{width:52px;height:52px;border-radius:50%;background:rgba(200,255,62,.15);border:2px solid rgba(200,255,62,.4);display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .2s,background .2s}
-.game-box:hover .game-box-poster-icon{transform:scale(1.1);background:rgba(200,255,62,.25)}
-.game-box-poster-name{font-size:13px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:0.04em}
-.game-box-poster-hint{font-size:11px;color:rgba(255,255,255,.4)}
+.game-box-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;transition:opacity .35s ease}
+.game-box.g-expanded .game-box-thumb{opacity:0;pointer-events:none}
+.game-box-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background .2s}
+.game-box:hover .game-box-overlay{background:rgba(0,0,0,.25)}
+.game-box-playbtn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:20px;padding-left:4px;opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.game-box:hover .game-box-playbtn{opacity:1;transform:scale(1)}
+.game-box.g-expanded .game-box-overlay{display:none}
 /* expanded state - single card fills section */
 .game-box.g-expanded{width:min(1100px,95vw);border-color:var(--acc)}
 /* open-tab btn appears on expanded card */
@@ -653,107 +654,97 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
     <!-- ====== 5 GAME SHOWCASE (poster, on-demand load, infinite loop) ====== -->
     <div class="games-marquee-wrap" id="games-marquee-wrap">
       <div class="games-section-header">
-        <span class="games-section-title">🎮 Demo Game · Klik untuk mainkan</span>
+        <span class="games-section-title">🎮 Demo Game</span>
       </div>
       <div class="games-track" id="games-track">
         <div class="game-box" data-src="/game/card-arena.html" data-url="/game/card-arena.html">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🃏</div>
-            <div class="game-box-poster-name">Card Arena 3D</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-card-arena.jpg" alt="Card Arena 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🐦</div>
-            <div class="game-box-poster-name">Flappy Bird 3D</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-happy-bird.jpg" alt="Flappy Bird 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🚀</div>
-            <div class="game-box-poster-name">Skybound Courier</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-skybound.jpg" alt="Skybound Courier" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/snake.html" data-url="/game/snake.html">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🐍</div>
-            <div class="game-box-poster-name">Hyper Snake 3D</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-snake.jpg" alt="Hyper Snake 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/world.html" data-url="/game/world.html">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🌍</div>
-            <div class="game-box-poster-name">3D World</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-world.jpg" alt="3D World" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="3D World" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/card-arena.html" data-url="/game/card-arena.html" aria-hidden="true" tabindex="-1">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🃏</div>
-            <div class="game-box-poster-name">Card Arena 3D</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-card-arena.jpg" alt="Card Arena 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html" aria-hidden="true" tabindex="-1">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🐦</div>
-            <div class="game-box-poster-name">Flappy Bird 3D</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-happy-bird.jpg" alt="Flappy Bird 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html" aria-hidden="true" tabindex="-1">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🚀</div>
-            <div class="game-box-poster-name">Skybound Courier</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-skybound.jpg" alt="Skybound Courier" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/snake.html" data-url="/game/snake.html" aria-hidden="true" tabindex="-1">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🐍</div>
-            <div class="game-box-poster-name">Hyper Snake 3D</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-snake.jpg" alt="Hyper Snake 3D" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
         <div class="game-box" data-src="/game/world.html" data-url="/game/world.html" aria-hidden="true" tabindex="-1">
-          <div class="game-box-poster">
-            <div class="game-box-poster-icon">🌍</div>
-            <div class="game-box-poster-name">3D World</div>
-            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          <img class="game-box-thumb" src="/thumbs/game-world.jpg" alt="3D World" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶</span>
           </div>
-          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka Tab Baru</a>
-          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Tab Baru</a>
+          <span class="game-box-closebtn">✕</span>
           <iframe src="" title="3D World" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
       </div>
@@ -1201,9 +1192,6 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
       var src = box.getAttribute('data-src');
       if(src) iframe.src = src;
     }
-    // Hide poster
-    var poster = box.querySelector('.game-box-poster');
-    if(poster) poster.classList.add('hidden');
 
     box.classList.add('g-expanded');
     currentExpanded = box;
