@@ -33,15 +33,19 @@ export async function onRequest(context) {
     const history = Array.isArray(body.history) ? body.history : [];
     const makeApiKey = env.MAKE_API_KEY || '';
 
-    const systemPrompt = `Kamu adalah Runnerflo B2B AI Agent — platform pembangun bisnis berbasis AI untuk UMKM Indonesia.
-Proyek: "${projectName}" | Stage: ${currentStage}/4 | Mode: ${mode} | Build: ${build}
-Make.com API: ${makeApiKey ? 'tersedia' : 'belum dikonfigurasi'}
+    const tripoKey = (env && (env.TRIPO_API_KEY || env.TRIPO_KEY)) || '';
 
-KEMAMPUANMU:
-1. Bangun platform digital (landing page, katalog, dashboard, sistem booking, dll)
-2. Rancang workflow otomasi bisnis menggunakan Make.com (WhatsApp, email, Google Sheets, payment)
-3. Buat proposal & strategi bisnis
-4. Hubungkan fitur "Runnerflo Scout" — AI pencari klien/peluang kerja
+    const systemPrompt = `Kamu adalah Runnerflo B2B AI Agent — platform pembangun bisnis, AI agent, dan game 3D untuk UMKM dan kreator Indonesia.
+Proyek: "${projectName}" | Stage: ${currentStage}/4 | Mode: ${mode} | Build: ${build}
+Make.com API: ${makeApiKey ? 'tersedia (siap orkestrasi workflow)' : 'belum dikonfigurasi'}
+Tripo 3D AI: ${tripoKey ? 'tersedia (siap generate model & game 3D)' : 'belum dikonfigurasi'}
+
+KEMAMPUANMU (Generasi Claude 5.5):
+1. Bangun platform digital & AI Agent (landing page, katalog, dashboard, sistem booking, dll)
+2. Rancang dan orkestrasi workflow otomasi bisnis menggunakan Make.com (WhatsApp, email, Google Sheets, payment, trigger webhook)
+3. Buat dan rancang game 3D WebGL (Three.js + Tripo 3D PBR texture image-to-model / text-to-model)
+4. Buat proposal & strategi bisnis
+5. Hubungkan fitur "Runnerflo Scout" — AI pencari klien/peluang kerja otomatis
 
 INSTRUKSI KETAT:
 - Balas dalam Bahasa Indonesia yang profesional dan ramah
@@ -52,15 +56,22 @@ INSTRUKSI KETAT:
   "steps": ["Langkah 1 selesai", "Langkah 2 selesai", "Langkah 3 selesai"],
   "stage": <integer 0-4, naik jika build diminta>,
   "suggest": ["Saran singkat 1", "Saran singkat 2", "Saran singkat 3"],
-  "makeWorkflow": null
+  "makeWorkflow": null,
+  "game3d": null
 }
-- Field "makeWorkflow" diisi HANYA jika user minta otomasi/automasi/Make/workflow, isinya object blueprint Make.com scenario. Kalau tidak relevan, isi null.
-- Jika makeWorkflow diisi, formatnya:
+- Field "makeWorkflow" diisi jika user minta otomasi/automasi/Make/workflow, isinya object blueprint Make.com scenario:
 {
   "name": "Nama Workflow",
   "trigger": "webhook|schedule|email|whatsapp",
   "steps": ["Deskripsi step 1", "Deskripsi step 2"],
   "apps": ["WhatsApp Business", "Gmail", "Google Sheets"]
+}
+- Field "game3d" diisi jika user minta game 3D/model 3D, berisi:
+{
+  "title": "Nama Game 3D",
+  "genre": "Genre",
+  "prompt3d": "Prompt model 3D untuk Tripo",
+  "status": "ready"
 }`;
 
     const formattedMessages = [];
@@ -72,8 +83,8 @@ INSTRUKSI KETAT:
       formattedMessages.push({ role: 'user', content: userText || 'Mulai rancang platform saya.' });
     }
 
-    // Primary: claude-sonnet-5-5 | Fallback: claude-haiku-5-5
-    const candidateModels = ['claude-sonnet-5-5', 'claude-haiku-5-5'];
+    // Claude 5.5: claude-sonnet-5-5 (Primary) | Fallback: claude-opus-5-5, claude-haiku-5-5
+    const candidateModels = ['claude-sonnet-5-5', 'claude-opus-5-5', 'claude-haiku-5-5'];
     let lastError = null;
     let agentResult = null;
 

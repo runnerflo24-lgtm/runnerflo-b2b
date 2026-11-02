@@ -975,12 +975,46 @@ body.ws-stage-2-active .topbar {
         steps.forEach(function(s){ h += '<div class="fi-row"><div class="fi-dot"></div><span style="font-size:13px">'+esc(s)+'</span></div>'; });
         h += '</div>';
       }
-      h += '<div class="flow-actions"><button class="activate-btn" onclick="toast(\'Hubungkan MAKE_API_KEY dulu di Cloudflare \u2192 Settings \u2192 Env Variables\')">\u26a1 Aktifkan di Make.com</button><button onclick="window.open(\'https://make.com\',\'_blank\')">Buka Make.com \u2192</button></div>';
-      h += '<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">Tambahkan MAKE_API_KEY di Cloudflare Pages untuk mengaktifkan workflow otomatis.</p>';
+      h += '<div class="flow-actions"><button class="activate-btn" onclick="activateMakeWorkflow()">⚡ Aktifkan di Make.com</button><button onclick="window.open(\'https://make.com\',\'_blank\')">Buka Make.com →</button></div>';
+      h += '<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">Otomatisasi akan disinkronkan langsung ke akun Make.com Anda via MAKE_API_KEY.</p>';
     }
     h += '</div>';
     return h;
   }
+
+  window.activateMakeWorkflow = function() {
+    var p = cur();
+    var wf = p && p.makeWorkflow ? p.makeWorkflow : null;
+    if (!wf) {
+      toast('Belum ada blueprint workflow.');
+      return;
+    }
+    toast('Menghubungkan ke Make.com API...');
+    fetch('/api/make', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'create',
+        name: wf.name || 'Runnerflo AI Workflow',
+        blueprint: {
+          name: wf.name || 'Runnerflo Workflow',
+          flow: (wf.apps || []).map(function(app, idx) {
+            return { id: idx + 1, module: app, title: (wf.steps && wf.steps[idx]) || app };
+          })
+        }
+      })
+    }).then(function(res) { return res.json(); }).then(function(data) {
+      if (data.success && data.scenarioId) {
+        toast('Sukses! Scenario Make.com ID: ' + data.scenarioId + ' dibuat!');
+      } else if (data.error) {
+        toast(data.error);
+      } else {
+        toast('Workflow diproses!');
+      }
+    }).catch(function(err) {
+      toast('Make.com API: ' + err.message);
+    });
+  };
 
   var liveGenStatus = {
     title: 'AI Agent sedang men-generate arsitektur EdTech LMS...',

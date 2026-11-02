@@ -86,26 +86,18 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .btn-ideas-highlight{background:color-mix(in srgb,var(--acc) 18%,var(--card))!important;border-color:var(--acc)!important;color:var(--ink)!important;font-weight:700!important;display:inline-flex!important;align-items:center!important;gap:8px!important;box-shadow:0 0 20px -5px color-mix(in srgb,var(--acc) 45%,transparent)}
 .btn-ideas-highlight svg{color:var(--acc)}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
-.pv{width:min(1040px,100%);margin:48px auto 0;text-align:left;border:1px solid var(--line);border-radius:20px;background:var(--card);backdrop-filter:blur(20px);overflow:hidden;box-shadow:0 50px 100px -40px rgba(0,0,0,.85),0 0 80px -30px color-mix(in srgb,var(--vio) 55%,transparent);transition:border-color .4s,box-shadow .4s}
-.pv.live-active{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc),0 50px 100px -40px rgba(0,0,0,.85),0 0 80px -20px color-mix(in srgb,var(--acc) 45%,transparent)}
-.pv-bar{display:flex;align-items:center;gap:7px;padding:10px 16px;border-bottom:1px solid var(--line)}
-.bar-dots{display:flex;align-items:center;gap:7px;flex:none}
-.bar-dots i{width:11px;height:11px;border-radius:50%;cursor:pointer;transition:transform .15s,opacity .15s;display:inline-block}
-.bar-dots .dot-red{background:#ff5f56;opacity:.85}
-.bar-dots .dot-yellow{background:#ffbd2e;opacity:.85}
-.bar-dots .dot-green{background:#27c93f;opacity:.85}
-.bar-dots i:hover{transform:scale(1.25);opacity:1}
-.pv-url{flex:1;margin-left:10px;padding:5px 14px;border-radius:99px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px}
-.bar-actions{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
-.stage-btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:all .2s;text-decoration:none}
-.stage-btn:hover{background:var(--acc);color:var(--on);border-color:var(--acc)}
-.stage-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--mut);transition:all .2s}
-.stage-btn:hover .stage-tag{background:rgba(0,0,0,.25);color:#fff}
-.stage-btn.restore-btn{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--mut)}
-.stage-btn.restore-btn:hover{background:#ff5f56;color:#fff;border-color:#ff5f56}
-.pv-body{aspect-ratio:16/9;min-height:480px;position:relative}
-.pv-body iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-
+.games-marquee-wrap{width:100%;overflow:hidden;position:relative;margin:44px auto 0;padding:16px 0 32px;mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%)}
+.games-track{display:flex;gap:28px;width:max-content;animation:slideLeftToRight 55s linear infinite;will-change:transform}
+.games-track:hover{animation-play-state:paused}
+@keyframes slideLeftToRight{0%{transform:translateX(-50%)}100%{transform:translateX(0%)}}
+.game-box{width:min(780px,85vw);aspect-ratio:16/9;min-height:380px;flex:none;border-radius:20px;overflow:hidden;position:relative;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(20px);box-shadow:0 25px 60px -20px rgba(0,0,0,.85),0 0 50px -15px color-mix(in srgb,var(--vio) 40%,transparent);transition:transform .3s ease,border-color .3s,box-shadow .3s}
+.game-box:hover{transform:translateY(-4px) scale(1.01);border-color:var(--acc);box-shadow:0 30px 80px -20px rgba(0,0,0,.9),0 0 50px -10px color-mix(in srgb,var(--acc) 50%,transparent)}
+.game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.game-box-bar{position:absolute;top:14px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;pointer-events:none;z-index:10}
+.game-tag-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:99px;background:rgba(10,15,29,0.78);border:1px solid rgba(255,255,255,0.16);backdrop-filter:blur(12px);color:#fff;font-size:12px;font-weight:700;letter-spacing:0.02em;box-shadow:0 4px 14px rgba(0,0,0,0.4)}
+.game-tag-pill span.live-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);display:inline-block}
+.game-open-link{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:rgba(10,15,29,0.78);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(12px);color:#fff;font-size:11.5px;font-weight:600;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,0.4)}
+.game-open-link:hover{background:var(--acc);color:var(--on);border-color:var(--acc);transform:scale(1.05)}
 /* Stage 1 & Stage 2 Global Hide: Sembunyikan elemen lain yang menghalangi iframe */
 body.pv-stage-1-active .nav,
 body.pv-stage-2-active .nav,
@@ -643,29 +635,90 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
       <button type="button">Bagaimana AI mencari klien untuk saya?</button>
     </div>
     <p class="note">Asisten demo Veltra. Jawaban bisa keliru; untuk estimasi akurat, pesan audit gratis.</p>
-    <!-- ====== KOTAK PREVIEW WEB (Contoh Nyata: Runnerflo AI 3D Game) ====== -->
-    <div class="pv" id="preview">
-      <div class="pv-bar">
-        <div class="bar-dots" title="Kontrol Ukuran">
-          <i class="dot-red" id="btn-restore-dot" title="Kecilkan / Normal"></i>
-          <i class="dot-yellow" id="btn-stage1-dot" title="Tahap 1: Layar Penuh Kecuali Chat AI"></i>
-          <i class="dot-green" id="btn-stage2-dot" title="Tahap 2: Layar Penuh"></i>
+    <!-- ====== 5 GAME SHOWCASE RUNNER (Ukuran 75%, Bergeser Kiri ke Kanan, Tanpa Header) ====== -->
+    <div class="games-marquee-wrap" id="games-marquee-wrap">
+      <div class="games-track" id="games-track">
+        <!-- Set 1: 5 Game Asli -->
+        <div class="game-box">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Card Arena</div>
+            <a href="/game/card-arena.html" target="_blank" class="game-open-link" title="Buka Game Card Arena">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/card-arena.html" title="Card Arena 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
-        <span class="pv-url"><span style="padding:1px 7px;border-radius:99px;background:var(--acc);color:var(--on);font-weight:700;font-size:10px;margin-right:6px">LIVE</span> kuis-game-3d-console.pages.dev</span>
-        <div class="bar-actions">
-          <button class="stage-btn" id="btn-next-stage" title="Perbesar Tampilan">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-            <span id="stage-label">Perbesar</span>
-            <span class="stage-tag" id="stage-badge">Tahap 1/3</span>
-          </button>
-          <button class="stage-btn restore-btn" id="btn-restore" title="Kembalikan ke Ukuran Normal" style="display:none">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>
-            <span id="restore-label">Kecilkan</span>
-          </button>
+
+        <div class="game-box">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Flappy Bird 3D</div>
+            <a href="/game/happy-bird-3d.html" target="_blank" class="game-open-link" title="Buka Game Flappy Bird 3D">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/happy-bird-3d.html" title="Flappy Bird 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
         </div>
-      </div>
-      <div class="pv-body" id="pv-body">
-        <iframe id="demo-frame" src="https://kuis-game-3d-console.pages.dev" title="Runnerflo AI 3D Game Generator - Contoh Nyata" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>
+
+        <div class="game-box">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Skybound Courier</div>
+            <a href="/game/skybound-courier.html" target="_blank" class="game-open-link" title="Buka Game Skybound Courier">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/skybound-courier.html" title="Skybound Courier 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <div class="game-box">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Hyper Snake 3D</div>
+            <a href="/game/snake.html" target="_blank" class="game-open-link" title="Buka Game Hyper Snake 3D">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/snake.html" title="Hyper Snake 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <div class="game-box">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> 3D World Template</div>
+            <a href="/game/world.html" target="_blank" class="game-open-link" title="Buka Game 3D World Template">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/world.html" title="3D World Template" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <!-- Set 2: Duplikasi 5 Game untuk Seamless Infinite Scroll Kiri ke Kanan -->
+        <div class="game-box" aria-hidden="true">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Card Arena</div>
+            <a href="/game/card-arena.html" target="_blank" class="game-open-link" tabindex="-1">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/card-arena.html" title="Card Arena 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <div class="game-box" aria-hidden="true">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Flappy Bird 3D</div>
+            <a href="/game/happy-bird-3d.html" target="_blank" class="game-open-link" tabindex="-1">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/happy-bird-3d.html" title="Flappy Bird 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <div class="game-box" aria-hidden="true">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Skybound Courier</div>
+            <a href="/game/skybound-courier.html" target="_blank" class="game-open-link" tabindex="-1">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/skybound-courier.html" title="Skybound Courier 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <div class="game-box" aria-hidden="true">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> Hyper Snake 3D</div>
+            <a href="/game/snake.html" target="_blank" class="game-open-link" tabindex="-1">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/snake.html" title="Hyper Snake 3D" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+
+        <div class="game-box" aria-hidden="true">
+          <div class="game-box-bar">
+            <div class="game-tag-pill"><span class="live-dot"></span> 3D World Template</div>
+            <a href="/game/world.html" target="_blank" class="game-open-link" tabindex="-1">Buka Game &#x2197;</a>
+          </div>
+          <iframe src="/game/world.html" title="3D World Template" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
       </div>
     </div>
   </div>
@@ -881,7 +934,7 @@ document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b => {
   b.addEventListener("click", e => {
     e.preventDefault();
     if(b.id === "chip-demo"){
-      var pv = document.getElementById("preview");
+      var pv = document.getElementById("games-marquee-wrap") || document.getElementById("preview");
       if(pv) pv.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
