@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biological Cockroach Vector</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    svg {
+      width: 90vw;
+      height: 90vh;
+      max-width: 800px;
+      max-height: 800px;
+      filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.35));
+    }
+  </style>
+</head>
+<body>
+
+  <svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Body Chitin Gradient Base -->
+      <radialGradient id="bodyBaseGrad" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
+        <stop offset="0%" stop-color="#b0521c"/>
+        <stop offset="50%" stop-color="#6e2508"/>
+        <stop offset="85%" stop-color="#3b0f02"/>
+        <stop offset="100%" stop-color="#1f0600"/>
+      </radialGradient>
+
+      <!-- Pronotum Shield Gradient -->
+      <radialGradient id="pronotumGrad" cx="50%" cy="45%" r="55%">
+        <stop offset="0%" stop-color="#d4732b"/>
+        <stop offset="40%" stop-color="#7a2404"/>
+        <stop offset="75%" stop-color="#2b0900"/>
+        <stop offset="100%" stop-color="#120200"/>
+      </radialGradient>
+
+      <!-- Glossy Shell Overlay Gradient -->
+      <linearGradient id="glaze" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"/>
+        <stop offset="30%" stop-color="#ffffff" stop-opacity="0.05"/>
+        <stop offset="70%" stop-color="#000000" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0.7"/>
+      </linearGradient>
+
+      <!-- Wing Translucency Gradient -->
+      <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#4a1503" stop-opacity="0.95"/>
+        <stop offset="50%" stop-color="#8c330d" stop-opacity="0.9"/>
+        <stop offset="85%" stop-color="#4a1503" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#1e0500" stop-opacity="0.98"/>
+      </linearGradient>
+
+      <!-- Leg Joint Gradient -->
+      <linearGradient id="legGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#541b06"/>
+        <stop offset="50%" stop-color="#8a3510"/>
+        <stop offset="100%" stop-color="#240700"/>
+      </linearGradient>
+
+      <!-- Soft Shadow Def -->
+      <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+      </filter>
+    </defs>
+
+    <g id="cockroach" transform="translate(0, 0)">
+      
+      <g id="antennae" stroke="#4a1905" stroke-linecap="round" fill="none">
+        <!-- Left Antenna -->
+        <path d="M288 165 C 270 130, 220 90, 120 40 C 70 15, 30 10, 10 25" stroke-width="2.5" opacity="0.9"/>
+        <path d="M288 165 C 270 130, 220 90, 120 40 C 70 15, 30 10, 10 25" stroke="#ff9d42" stroke-width="0.8" opacity="0.5"/>
+        <!-- Right Antenna -->
+        <path d="M312 165 C 330 130, 380 90, 480 40 C 530 15, 570 10, 590 25" stroke-width="2.5" opacity="0.9"/>
+        <path d="M312 165 C 330 130, 380 90, 480 40 C 530 15, 570 10, 590 25" stroke="#ff9d42" stroke-width="0.8" opacity="0.5"/>
+      </g>
+
+      <g id="legs" stroke-linejoin="round" stroke-linecap="round">
+        
+        <!-- HIND LEGS (BACK) -->
+        <!-- Left Hind Leg -->
+        <g id="hind-leg-left">
+          <!-- Coxa & Femur -->
+          <path d="M250 420 L 170 460 L 100 520" stroke="url(#legGrad)" stroke-width="14" fill="none"/>
+          <!-- Tibia -->
+          <path d="M100 520 L 50 660" stroke="url(#legGrad)" stroke-width="9" fill="none"/>
+          <!-- Tarsus (Foot segments) -->
+          <path d="M50 660 L 35 710 L 25 735 L 20 745 L 15 748" stroke="#3b0f02" stroke-width="4" fill="none"/>
+          <!-- Tibial Spines -->
+          <path d="M100 520 L 90 535 M90 540 L 78 558 M80 560 L 68 580 M70 585 L 58 605 M60 610 L 48 630 M52 640 L 42 655" stroke="#240700" stroke-width="3"/>
+          <path d="M98 528 L 92 512 M88 548 L 82 532 M78 568 L 72 552 M68 588 L 62 572 M58 618 L 52 602" stroke="#1f0600" stroke-width="2.5"/>
+        </g>
+
+        <!-- Right Hind Leg -->
+        <g id="hind-leg-right">
+          <!-- Coxa & Femur -->
+          <path d="M350 420 L 430 460 L 500 520" stroke="url(#legGrad)" stroke-width="14" fill="none"/>
+          <!-- Tibia -->
+          <path d="M500 520 L 550 660" stroke="url(#legGrad)" stroke-width="9" fill="none"/>
+          <!-- Tarsus -->
+          <path d="M550 660 L 565 710 L 575 735 L 580 745 L 585 748" stroke="#3b0f02" stroke-width="4" fill="none"/>
+          <!-- Tibial Spines -->
+          <path d="M500 520 L 510 535 M510 540 L 522 558 M520 560 L 532 580 M530 585 L 542 605 M540 610 L 552 630 M548 640 L 558 655" stroke="#240700" stroke-width="3"/>
+          <path d="M502 528 L 508 512 M512 548 L 518 532 M522 568 L 528 552 M532 588 L 538 572 M542 618 L 548 602" stroke="#1f0600" stroke-width="2.5"/>
+        </g>
+
+        <!-- MIDDLE LEGS -->
+        <!-- Left Mid Leg -->
+        <g id="mid-leg-left">
+          <path d="M255 310 L 160 320 L 90 380" stroke="url(#legGrad)" stroke-width="13" fill="none"/>
+          <path d="M90 380 L 45 490" stroke="url(#legGrad)" stroke-width="8" fill="none"/>
+          <path d="M45 490 L 30 535 L 20 555 L 15 565" stroke="#3b0f02" stroke-width="3.5" fill="none"/>
+          <!-- Spines -->
+          <path d="M90 380 L 78 395 M80 405 L 68 420 M70 430 L 58 445 M60 455 L 48 470" stroke="#240700" stroke-width="3"/>
+        </g>
+
+        <!-- Right Mid Leg -->
+        <g id="mid-leg-right">
+          <path d="M345 310 L 440 320 L 510 380" stroke="url(#legGrad)" stroke-width="13" fill="none"/>
+          <path d="M510 380 L 555 490" stroke="url(#legGrad)" stroke-width="8" fill="none"/>
+          <path d="M555 490 L 570 535 L 580 555 L 585 565" stroke="#3b0f02" stroke-width="3.5" fill="none"/>
+          <!-- Spines -->
+          <path d="M510 380 L 522 395 M520 405 L 532 420 M530 430 L 542 445 M540 455 L 552 470" stroke="#240700" stroke-width="3"/>
+        </g>
+
+        <!-- FRONT LEGS -->
+        <!-- Left Fore Leg -->
+        <g id="fore-leg-left">
+          <path d="M265 220 L 180 190 L 130 230" stroke="url(#legGrad)" stroke-width="11" fill="none"/>
+          <path d="M130 230 L 95 310" stroke="url(#legGrad)" stroke-width="7" fill="none"/>
+          <path d="M95 310 L 82 345 L 75 360 L 70 368" stroke="#3b0f02" stroke-width="3" fill="none"/>
+          <!-- Spines -->
+          <path d="M130 230 L 120 245 M120 255 L 110 270 M110 280 L 100 295" stroke="#240700" stroke-width="2.5"/>
+        </g>
+
+        <!-- Right Fore Leg -->
+        <g id="fore-leg-right">
+          <path d="M335 220 L 420 190 L 470 230" stroke="url(#legGrad)" stroke-width="11" fill="none"/>
+          <path d="M470 230 L 505 310" stroke="url(#legGrad)" stroke-width="7" fill="none"/>
+          <path d="M505 310 L 518 345 L 525 360 L 530 368" stroke="#3b0f02" stroke-width="3" fill="none"/>
+          <!-- Spines -->
+          <path d="M470 230 L 480 245 M480 255 L 490 270 M490 280 L 500 295" stroke="#240700" stroke-width="2.5"/>
+        </g>
+
+      </g>
+
+      <g id="anal-cerci">
+        <!-- Left Cercus -->
+        <path d="M265 715 L 245 755 L 238 770" stroke="#3a1205" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M265 715 L 245 755 L 238 770" stroke="#7a2b0d" stroke-width="2" stroke-dasharray="2,3" stroke-linecap="round" fill="none"/>
+        <!-- Right Cercus -->
+        <path d="M335 715 L 355 755 L 362 770" stroke="#3a1205" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M335 715 L 355 755 L 362 770" stroke="#7a2b0d" stroke-width="2" stroke-dasharray="2,3" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <g id="head">
+        <!-- Head Capsule (partially tucked under pronotum) -->
+        <path d="M275 160 C 275 145, 285 135, 300 135 C 315 135, 325 145, 325 160 C 325 175, 315 185, 300 185 C 285 185, 275 175, 275 160 Z" fill="#1f0500"/>
+        <!-- Compound Eyes -->
+        <ellipse cx="278" cy="155" rx="5" ry="8" fill="#0a0200" transform="rotate(-15, 278, 155)"/>
+        <ellipse cx="322" cy="155" rx="5" ry="8" fill="#0a0200" transform="rotate(15, 322, 155)"/>
+        <!-- Palps / Mouthparts -->
+        <path d="M292 182 L 285 198 L 280 205" stroke="#541c06" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M308 182 L 315 198 L 320 205" stroke="#541c06" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <g id="main-body">
+        
+        <!-- Base Abdomen Underbody (visible at margins) -->
+        <path d="M240 250 C 210 350, 210 550, 260 720 C 300 735, 300 735, 340 720 C 390 550, 390 350, 360 250 Z" fill="url(#bodyBaseGrad)"/>
+
+        <!-- Abdominal Segmentation Lines (subtle under wings) -->
+        <g stroke="#1a0400" stroke-width="3" opacity="0.6" fill="none">
+          <path d="M228 360 C 270 375, 330 375, 372 360"/>
+          <path d="M225 410 C 270 425, 330 425, 375 410"/>
+          <path d="M223 460 C 270 475, 330 475, 377 460"/>
+          <path d="M225 510 C 270 525, 330 525, 375 510"/>
+          <path d="M230 560 C 270 575, 330 575, 370 560"/>
+          <path d="M238 610 C 270 622, 330 622, 362 610"/>
+          <path d="M246 660 C 270 670, 330 670, 354 660"/>
+        </g>
+
+        <!-- LEFT WING (ELYTRON) -->
+        <g id="left-wing">
+          <path d="M297 225 C 250 250, 205 380, 212 520 C 218 630, 270 710, 298 745 C 299 700, 299 350, 297 225 Z" fill="url(#wingGrad)"/>
+          
+          <!-- Wing Veins Detail -->
+          <g stroke="#260801" stroke-width="1.2" opacity="0.75" fill="none">
+            <path d="M296 230 C 270 280, 230 380, 222 520 C 217 610, 255 680, 295 735"/>
+            <path d="M285 270 C 255 350, 240 450, 235 550 C 232 620, 260 670, 292 720"/>
+            <path d="M290 320 C 270 400, 255 490, 252 570 C 250 630, 275 675, 292 705"/>
+            <!-- Costal cross veins -->
+            <path d="M260 260 L 245 280 M248 300 L 232 320 M238 350 L 225 375 M230 400 L 220 425 M225 460 L 218 485"/>
+            <path d="M272 350 L 255 380 M262 410 L 248 440 M255 480 L 242 510 M250 540 L 240 570"/>
+          </g>
+          
+          <!-- Wing Highlight/Specular -->
+          <path d="M295 230 C 255 270, 220 380, 224 500 C 226 550, 235 600, 245 630 C 230 520, 250 360, 295 230 Z" fill="url(#glaze)"/>
+        </g>
+
+        <!-- RIGHT WING (ELYTRON) - Overlapping left slightly at center -->
+        <g id="right-wing">
+          <path d="M294 225 C 350 250, 395 380, 388 520 C 382 630, 330 710, 302 745 C 301 700, 301 350, 294 225 Z" fill="url(#wingGrad)"/>
+          
+          <!-- Wing Veins Detail -->
+          <g stroke="#260801" stroke-width="1.2" opacity="0.75" fill="none">
+            <path d="M304 230 C 330 280, 370 380, 378 520 C 383 610, 345 680, 305 735"/>
+            <path d="M315 270 C 345 350, 360 450, 365 550 C 368 620, 340 670, 308 720"/>
+            <path d="M310 320 C 330 400, 345 490, 348 570 C 350 630, 325 675, 308 705"/>
+            <!-- Costal cross veins -->
+            <path d="M340 260 L 355 280 M352 300 L 368 320 M362 350 L 375 375 M370 400 L 380 425 M375 460 L 382 485"/>
+            <path d="M328 350 L 345 380 M338 410 L 352 440 M345 480 L 358 510 M350 540 L 360 570"/>
+          </g>
+
+          <!-- Wing Highlight/Specular -->
+          <path d="M305 230 C 345 270, 380 380, 376 500 C 374 550, 365 600, 355 630 C 370 520, 350 360, 305 230 Z" fill="url(#glaze)"/>
+        </g>
+
+        <!-- Center Seamless Wing Join Line -->
+        <path d="M298 225 L 300 742" stroke="#120300" stroke-width="1.5" opacity="0.8"/>
+
+        <!-- PRONOTUM (HEAD SHIELD) -->
+        <g id="pronotum">
+          <!-- Main Shield Outer Shape -->
+          <path d="M300 150 C 230 150, 220 200, 235 245 C 250 280, 350 280, 365 245 C 380 200, 370 150, 300 150 Z" fill="url(#pronotumGrad)"/>
+          
+          <!-- Distinctive Dark Pattern on Pronotum (Periplaneta americana characteristic) -->
+          <path d="M300 168 C 265 168, 252 190, 260 220 C 268 245, 285 255, 300 255 C 315 255, 332 245, 340 220 C 348 190, 335 168, 300 168 Z" fill="#0d0200" opacity="0.95"/>
+          
+          <!-- Inner Warm Accent in Dark Pattern -->
+          <path d="M300 180 C 280 180, 272 195, 277 212 C 282 228, 290 236, 300 236 C 310 236, 318 228, 323 212 C 328 195, 320 180, 300 180 Z" fill="#521a04" opacity="0.7"/>
+
+          <!-- Pronotum Gloss / 3D Highlight Rim -->
+          <path d="M300 153 C 240 153, 230 198, 240 238 C 232 200, 245 158, 300 158 C 355 158, 368 200, 360 238 C 370 198, 360 153, 300 153 Z" fill="#ffffff" opacity="0.25"/>
+        </g>
+
+        <!-- MESONOTUM / METANOTUM VISIBLE BORDER -->
+        <path d="M255 260 C 280 270, 320 270, 345 260 C 355 272, 340 282, 300 284 C 260 282, 245 272, 255 260 Z" fill="#1c0500"/>
+
+      </g>
+
+    </g>
+  </svg>
+
+</body>
+</html>

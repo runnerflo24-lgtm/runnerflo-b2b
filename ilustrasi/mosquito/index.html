@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biological Mosquito Illustration</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: transparent !important;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65" />
+                <stop offset="50%" stop-color="#cbd5e1" stop-opacity="0.4" />
+                <stop offset="100%" stop-color="#64748b" stop-opacity="0.25" />
+            </linearGradient>
+            
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1e293b" />
+                <stop offset="50%" stop-color="#334155" />
+                <stop offset="100%" stop-color="#0f172a" />
+            </linearGradient>
+
+            <linearGradient id="stripeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#e2e8f0" />
+            </linearGradient>
+
+            <radialGradient id="eyeGrad" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="40%" stop-color="#0284c7" />
+                <stop offset="100%" stop-color="#0369a1" />
+            </radialGradient>
+
+            <radialGradient id="proboscisTip" cx="50%" cy="0%" r="100%">
+                <stop offset="0%" stop-color="#ef4444" />
+                <stop offset="100%" stop-color="#7f1d1d" />
+            </radialGradient>
+        </defs>
+
+        <g id="mosquito">
+            <!-- HEAD & HEAD APPENDAGES -->
+            <g id="headGroup">
+                <!-- Proboscis / Piercing Needle -->
+                <path d="M 500,320 L 500,90" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+                <path d="M 500,320 L 500,90" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <path d="M 498,90 L 502,90 L 500,82 Z" fill="url(#proboscisTip)"/>
+                
+                <!-- Maxillary Palps -->
+                <path d="M 496,310 C 485,260 470,240 460,220" stroke="#334155" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M 504,310 C 515,260 530,240 540,220" stroke="#334155" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+                <!-- Feathered/Plumose Antennae -->
+                <g id="leftAntenna">
+                    <path d="M 492,325 C 460,280 410,230 360,180" stroke="#475569" stroke-width="2.5" fill="none"/>
+                    <path d="M 480,310 L 465,300 M 470,295 L 450,285 M 460,280 L 435,268 M 445,260 L 420,248 M 430,240 L 400,225 M 415,220 L 385,205 M 395,200 L 370,185 M 380,180 L 355,165" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+
+                <g id="rightAntenna">
+                    <path d="M 508,325 C 540,280 590,230 640,180" stroke="#475569" stroke-width="2.5" fill="none"/>
+                    <path d="M 520,310 L 535,300 M 530,295 L 550,285 M 540,280 L 565,268 M 555,260 L 580,248 M 570,240 L 600,225 M 585,220 L 615,205 M 605,200 L 630,185 M 620,180 L 645,165" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+
+                <!-- Head Capsule -->
+                <circle cx="500" cy="335" r="22" fill="#1e293b" />
+
+                <!-- Compound Eyes -->
+                <ellipse cx="484" cy="332" rx="12" ry="16" fill="url(#eyeGrad)" transform="rotate(-15 484 332)"/>
+                <ellipse cx="516" cy="332" rx="12" ry="16" fill="url(#eyeGrad)" transform="rotate(15 516 332)"/>
+                <ellipse cx="484" cy="332" rx="11" ry="15" fill="none" stroke="#0f172a" stroke-width="1" stroke-dasharray="2 2" transform="rotate(-15 484 332)" opacity="0.6"/>
+                <ellipse cx="516" cy="332" rx="11" ry="15" fill="none" stroke="#0f172a" stroke-width="1" stroke-dasharray="2 2" transform="rotate(15 516 332)" opacity="0.6"/>
+            </g>
+
+            <g id="thoraxGroup">
+                <path d="M 465,350 C 465,335 535,335 535,350 C 555,390 550,450 530,480 C 510,495 490,495 470,480 C 450,450 445,390 465,350 Z" fill="url(#bodyGrad)" stroke="#0f172a" stroke-width="3"/>
+                <path d="M 475,360 C 485,380 470,430 462,445" stroke="url(#stripeGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 525,360 C 515,380 530,430 538,445" stroke="url(#stripeGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 500,360 L 500,440" stroke="url(#stripeGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M 475,475 C 500,485 500,485 525,475 C 515,495 485,495 475,475 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+            </g>
+
+            <g id="legsGroup" stroke="#1e293b" stroke-linecap="round" stroke-linejoin="round">
+                <!-- FORELEGS -->
+                <g>
+                    <path d="M 465,370 L 380,330 L 260,250 L 170,180 L 110,120" stroke-width="8" fill="none"/>
+                    <circle cx="380" cy="330" r="5" fill="#f8fafc"/>
+                    <circle cx="260" cy="250" r="4.5" fill="#f8fafc"/>
+                    <circle cx="170" cy="180" r="4" fill="#f8fafc"/>
+                    <path d="M 230,230 L 220,223" stroke="#f8fafc" stroke-width="7"/>
+                    <path d="M 150,165 L 142,158" stroke="#f8fafc" stroke-width="6"/>
+                </g>
+                <g>
+                    <path d="M 535,370 L 620,330 L 740,250 L 830,180 L 890,120" stroke-width="8" fill="none"/>
+                    <circle cx="620" cy="330" r="5" fill="#f8fafc"/>
+                    <circle cx="740" cy="250" r="4.5" fill="#f8fafc"/>
+                    <circle cx="830" cy="180" r="4" fill="#f8fafc"/>
+                    <path d="M 770,230 L 780,223" stroke="#f8fafc" stroke-width="7"/>
+                    <path d="M 850,165 L 858,158" stroke="#f8fafc" stroke-width="6"/>
+                </g>
+
+                <!-- MIDLEGS -->
+                <g>
+                    <path d="M 460,420 L 310,400 L 190,440 L 100,500 L 40,560" stroke-width="8.5" fill="none"/>
+                    <circle cx="310" cy="400" r="5.5" fill="#f8fafc"/>
+                    <circle cx="190" cy="440" r="5" fill="#f8fafc"/>
+                    <circle cx="100" cy="500" r="4.5" fill="#f8fafc"/>
+                    <path d="M 160,450 L 148,458" stroke="#f8fafc" stroke-width="7"/>
+                    <path d="M 80,513 L 70,523" stroke="#f8fafc" stroke-width="6"/>
+                </g>
+                <g>
+                    <path d="M 540,420 L 690,400 L 810,440 L 900,500 L 960,560" stroke-width="8.5" fill="none"/>
+                    <circle cx="690" cy="400" r="5.5" fill="#f8fafc"/>
+                    <circle cx="810" cy="440" r="5" fill="#f8fafc"/>
+                    <circle cx="900" cy="500" r="4.5" fill="#f8fafc"/>
+                    <path d="M 840,450 L 852,458" stroke="#f8fafc" stroke-width="7"/>
+                    <path d="M 920,513 L 930,523" stroke="#f8fafc" stroke-width="6"/>
+                </g>
+
+                <!-- HINDLEGS -->
+                <g>
+                    <path d="M 470,470 L 330,520 L 220,680 L 160,820 L 110,940" stroke-width="9" fill="none"/>
+                    <circle cx="330" cy="520" r="6" fill="#f8fafc"/>
+                    <circle cx="220" cy="680" r="5.5" fill="#f8fafc"/>
+                    <circle cx="160" cy="820" r="5" fill="#f8fafc"/>
+                    <path d="M 280,590 L 268,610" stroke="#f8fafc" stroke-width="8"/>
+                    <path d="M 195,735 L 185,760" stroke="#f8fafc" stroke-width="7"/>
+                    <path d="M 142,860 L 134,882" stroke="#f8fafc" stroke-width="6"/>
+                </g>
+                <g>
+                    <path d="M 530,470 L 670,520 L 780,680 L 840,820 L 890,940" stroke-width="9" fill="none"/>
+                    <circle cx="670" cy="520" r="6" fill="#f8fafc"/>
+                    <circle cx="780" cy="680" r="5.5" fill="#f8fafc"/>
+                    <circle cx="840" cy="820" r="5" fill="#f8fafc"/>
+                    <path d="M 720,590 L 732,610" stroke="#f8fafc" stroke-width="8"/>
+                    <path d="M 805,735 L 815,760" stroke="#f8fafc" stroke-width="7"/>
+                    <path d="M 858,860 L 866,882" stroke="#f8fafc" stroke-width="6"/>
+                </g>
+            </g>
+
+            <g id="abdomenGroup">
+                <!-- Segments 1-7 -->
+                <path d="M 472,488 C 472,488 528,488 528,488 C 532,510 528,525 522,530 C 500,535 500,535 478,530 C 472,525 468,510 472,488 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 474,520 C 500,530 500,530 526,520" stroke="url(#stripeGrad)" stroke-width="4" fill="none"/>
+
+                <path d="M 474,528 C 478,530 522,530 526,528 C 530,555 525,575 518,580 C 500,587 500,587 482,580 C 475,575 470,555 474,528 Z" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 476,570 C 500,582 500,582 524,570" stroke="url(#stripeGrad)" stroke-width="5" fill="none"/>
+
+                <path d="M 476,578 C 482,580 518,580 524,578 C 528,605 522,630 514,635 C 500,642 500,642 486,635 C 478,630 472,605 476,578 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 480,590 C 500,600 500,600 520,590" fill="#dc2626" opacity="0.3"/>
+                <path d="M 478,622 C 500,635 500,635 522,622" stroke="url(#stripeGrad)" stroke-width="5" fill="none"/>
+
+                <path d="M 478,633 C 484,635 516,635 522,633 C 525,658 518,680 510,685 C 500,690 500,690 490,685 C 482,680 475,658 478,633 Z" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 480,672 C 500,683 500,683 520,672" stroke="url(#stripeGrad)" stroke-width="5" fill="none"/>
+
+                <path d="M 480,683 C 486,685 514,685 520,683 C 523,705 515,725 508,730 C 500,734 500,734 492,730 C 485,725 477,705 480,683 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 482,718 C 500,727 500,727 518,718" stroke="url(#stripeGrad)" stroke-width="4.5" fill="none"/>
+
+                <path d="M 482,728 C 488,730 512,730 518,728 C 520,745 512,765 506,770 C 500,773 500,773 494,770 C 488,765 480,745 482,728 Z" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 484,758 C 500,766 500,766 516,758" stroke="url(#stripeGrad)" stroke-width="4" fill="none"/>
+
+                <path d="M 485,768 C 490,770 510,770 515,768 C 517,783 510,800 504,805 C 500,808 500,808 496,805 C 490,800 483,783 485,768 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                <path d="M 487,794 C 500,801 500,801 513,794" stroke="url(#stripeGrad)" stroke-width="3.5" fill="none"/>
+
+                <path d="M 488,804 C 492,806 508,806 512,804 C 514,818 505,830 500,835 C 495,830 486,818 488,804 Z" fill="#0f172a" stroke="#0f172a" stroke-width="1.5"/>
+            </g>
+
+            <!-- LEFT WING -->
+            <g id="leftWing" transform="rotate(22 470 410)">
+                <path d="M 470,410 C 420,320 310,220 250,200 C 210,185 190,205 210,230 C 250,280 370,430 455,445 Z" fill="url(#wingGrad)" stroke="#475569" stroke-width="2"/>
+                <g fill="none" stroke="#334155" stroke-opacity="0.75" stroke-linecap="round">
+                    <path d="M 470,410 C 420,320 310,220 250,200 C 210,185 190,205 210,230" stroke-width="3" stroke="#1e293b"/>
+                    <path d="M 460,400 C 415,320 320,230 260,212" stroke-width="2"/>
+                    <path d="M 450,405 C 380,330 300,260 220,220" stroke-width="1.8"/>
+                    <path d="M 330,285 C 280,260 235,238 225,235" stroke-width="1.2"/>
+                    <path d="M 310,298 C 265,280 230,265 220,250" stroke-width="1.2"/>
+                    <path d="M 440,415 C 360,360 280,320 235,280" stroke-width="1.5"/>
+                    <path d="M 320,340 C 270,320 245,305 230,295" stroke-width="1.2"/>
+                    <path d="M 420,430 C 350,400 290,370 260,335" stroke-width="1.5"/>
+                    <path d="M 380,415 C 330,395 300,380 280,365" stroke-width="1.2"/>
+                    <path d="M 450,438 C 400,430 340,415 310,395" stroke-width="1.5"/>
+                    <path d="M 340,290 L 335,310"/>
+                    <path d="M 290,308 L 285,328"/>
+                    <path d="M 350,355 L 342,375"/>
+                </g>
+                <path d="M 210,230 C 250,280 370,430 455,445" stroke="#94a3b8" stroke-width="1" stroke-dasharray="1 2" fill="none" opacity="0.8"/>
+            </g>
+
+            <!-- RIGHT WING -->
+            <g id="rightWing" transform="rotate(-22 530 410)">
+                <path d="M 530,410 C 580,320 690,220 750,200 C 790,185 810,205 790,230 C 750,280 630,430 545,445 Z" fill="url(#wingGrad)" stroke="#475569" stroke-width="2"/>
+                <g fill="none" stroke="#334155" stroke-opacity="0.75" stroke-linecap="round">
+                    <path d="M 530,410 C 580,320 690,220 750,200 C 790,185 810,205 790,230" stroke-width="3" stroke="#1e293b"/>
+                    <path d="M 540,400 C 585,320 680,230 740,212" stroke-width="2"/>
+                    <path d="M 550,405 C 620,330 700,260 780,220" stroke-width="1.8"/>
+                    <path d="M 670,285 C 720,260 765,238 775,235" stroke-width="1.2"/>
+                    <path d="M 690,298 C 735,280 770,265 780,250" stroke-width="1.2"/>
+                    <path d="M 560,415 C 640,360 720,320 765,280" stroke-width="1.5"/>
+                    <path d="M 680,340 C 730,320 755,305 770,295" stroke-width="1.2"/>
+                    <path d="M 580,430 C 650,400 710,370 740,335" stroke-width="1.5"/>
+                    <path d="M 620,415 C 670,395 700,380 720,365" stroke-width="1.2"/>
+                    <path d="M 550,438 C 600,430 660,415 690,395" stroke-width="1.5"/>
+                    <path d="M 660,290 L 665,310"/>
+                    <path d="M 710,308 L 715,328"/>
+                    <path d="M 650,355 L 658,375"/>
+                </g>
+                <path d="M 790,230 C 750,280 630,430 545,445" stroke="#94a3b8" stroke-width="1" stroke-dasharray="1 2" fill="none" opacity="0.8"/>
+            </g>
+
+            <!-- Halteres (Balancers) -->
+            <g id="halteres">
+                <path d="M 460,450 C 440,460 425,470 420,480" stroke="#64748b" stroke-width="2" fill="none"/>
+                <circle cx="420" cy="480" r="4" fill="#cbd5e1"/>
+                
+                <path d="M 540,450 C 560,460 575,470 580,480" stroke="#64748b" stroke-width="2" fill="none"/>
+                <circle cx="580" cy="480" r="4" fill="#cbd5e1"/>
+            </g>
+        </g>
+    </svg>
+</body>
+</html>

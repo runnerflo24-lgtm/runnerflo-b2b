@@ -86,21 +86,33 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .btn-ideas-highlight{background:color-mix(in srgb,var(--acc) 18%,var(--card))!important;border-color:var(--acc)!important;color:var(--ink)!important;font-weight:700!important;display:inline-flex!important;align-items:center!important;gap:8px!important;box-shadow:0 0 20px -5px color-mix(in srgb,var(--acc) 45%,transparent)}
 .btn-ideas-highlight svg{color:var(--acc)}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
-.games-marquee-wrap{width:100%;overflow:hidden;position:relative;margin:44px auto 0;padding:8px 0 32px}
-.games-section-header{display:flex;align-items:center;justify-content:space-between;padding:0 24px 16px;flex-wrap:wrap;gap:10px}
+.games-marquee-wrap{width:100%;overflow:hidden;position:relative;margin:40px auto 0;padding:8px 0 32px}
+.games-section-header{display:flex;align-items:center;justify-content:space-between;padding:0 24px 14px;flex-wrap:wrap;gap:10px}
 .games-section-title{font-size:13px;font-weight:700;color:var(--mut);letter-spacing:0.05em;text-transform:uppercase}
-.games-expand-btns{display:flex;gap:8px}
-.games-expand-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--mut);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px)}
-.games-expand-btn:hover{border-color:var(--acc);color:var(--acc)}
-.games-expand-btn.g-active{background:var(--acc);color:var(--on);border-color:var(--acc)}
-.games-track{display:flex;gap:20px;width:max-content;animation:slideGames 60s linear infinite;will-change:transform}
+.games-track{display:flex;gap:20px;width:max-content;animation:slideGames 65s linear infinite;will-change:transform}
 .games-track:hover{animation-play-state:paused}
+.games-marquee-wrap.g-paused .games-track{animation-play-state:paused}
 @keyframes slideGames{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.game-box{width:min(520px,72vw);aspect-ratio:16/9;flex:none;border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;transition:transform .3s ease,border-color .3s,box-shadow .3s;box-shadow:0 6px 24px -8px rgba(0,0,0,.55)}
-.game-box:hover{transform:translateY(-3px);border-color:rgba(200,255,62,.35);box-shadow:0 12px 36px -10px rgba(0,0,0,.7)}
-.game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.games-marquee-wrap.g-sz-1 .game-box{width:min(820px,88vw)}
-.games-marquee-wrap.g-sz-2 .game-box{width:min(1050px,96vw)}
+.game-box{width:min(740px,80vw);aspect-ratio:16/9;flex:none;border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 6px 28px -8px rgba(0,0,0,.6);cursor:pointer;transition:width .35s ease,box-shadow .3s,border-color .3s}
+.game-box:hover{border-color:rgba(200,255,62,.3);box-shadow:0 10px 36px -10px rgba(0,0,0,.75)}
+.game-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;pointer-events:none}
+.game-box.g-expanded iframe{pointer-events:auto}
+/* poster overlay - shows before game loads */
+.game-box-poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#0d1120 0%,#111827 100%);z-index:5;transition:opacity .4s ease}
+.game-box-poster.hidden{opacity:0;pointer-events:none}
+.game-box-poster-icon{width:52px;height:52px;border-radius:50%;background:rgba(200,255,62,.15);border:2px solid rgba(200,255,62,.4);display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .2s,background .2s}
+.game-box:hover .game-box-poster-icon{transform:scale(1.1);background:rgba(200,255,62,.25)}
+.game-box-poster-name{font-size:13px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:0.04em}
+.game-box-poster-hint{font-size:11px;color:rgba(255,255,255,.4)}
+/* expanded state - single card fills section */
+.game-box.g-expanded{width:min(1100px,95vw);border-color:var(--acc)}
+/* open-tab btn appears on expanded card */
+.game-box-openbtn{position:absolute;top:12px;right:12px;z-index:20;display:none;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:rgba(10,15,28,.8);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;backdrop-filter:blur(10px);text-decoration:none;transition:all .2s}
+.game-box.g-expanded .game-box-openbtn{display:inline-flex}
+.game-box-openbtn:hover{background:var(--acc);color:var(--on);border-color:var(--acc)}
+/* close btn */
+.game-box-closebtn{position:absolute;top:12px;left:12px;z-index:20;display:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(10,15,28,.8);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(10px);transition:all .2s}
+.game-box.g-expanded .game-box-closebtn{display:inline-flex}
 /* Stage 1 & Stage 2 Global Hide: Sembunyikan elemen lain yang menghalangi iframe */
 body.pv-stage-1-active .nav,
 body.pv-stage-2-active .nav,
@@ -638,28 +650,114 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
       <button type="button">Bagaimana AI mencari klien untuk saya?</button>
     </div>
     <p class="note">Asisten demo Veltra. Jawaban bisa keliru; untuk estimasi akurat, pesan audit gratis.</p>
-    <!-- ====== 5 GAME SHOWCASE (deploy terpisah, lazy load, 3-stage expand) ====== -->
+    <!-- ====== 5 GAME SHOWCASE (poster, on-demand load, infinite loop) ====== -->
     <div class="games-marquee-wrap" id="games-marquee-wrap">
       <div class="games-section-header">
-        <span class="games-section-title">🎮 Demo Game</span>
-        <div class="games-expand-btns">
-          <button class="games-expand-btn" id="gBtn1" onclick="gamesExpand(1)">⛶ Perbesar</button>
-          <button class="games-expand-btn" id="gBtn2" onclick="gamesExpand(2)">⤢ Layar Lebar</button>
-          <button class="games-expand-btn" onclick="gamesOpenTab()">↗ Tab Baru</button>
-        </div>
+        <span class="games-section-title">🎮 Demo Game · Klik untuk mainkan</span>
       </div>
       <div class="games-track" id="games-track">
-        <div class="game-box" data-url="https://runnerflo-game-card-arena.pages.dev"><iframe data-src="https://runnerflo-game-card-arena.pages.dev" title="Card Arena" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-happy-bird.pages.dev"><iframe data-src="https://runnerflo-game-happy-bird.pages.dev" title="Flappy Bird 3D" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-skybound.pages.dev"><iframe data-src="https://runnerflo-game-skybound.pages.dev" title="Skybound Courier" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-snake.pages.dev"><iframe data-src="https://runnerflo-game-snake.pages.dev" title="Hyper Snake 3D" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-world.pages.dev"><iframe data-src="https://runnerflo-game-world.pages.dev" title="3D World" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-card-arena.pages.dev" aria-hidden="true"><iframe data-src="https://runnerflo-game-card-arena.pages.dev" title="Card Arena" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-happy-bird.pages.dev" aria-hidden="true"><iframe data-src="https://runnerflo-game-happy-bird.pages.dev" title="Flappy Bird 3D" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-skybound.pages.dev" aria-hidden="true"><iframe data-src="https://runnerflo-game-skybound.pages.dev" title="Skybound Courier" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-snake.pages.dev" aria-hidden="true"><iframe data-src="https://runnerflo-game-snake.pages.dev" title="Hyper Snake 3D" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
-        <div class="game-box" data-url="https://runnerflo-game-world.pages.dev" aria-hidden="true"><iframe data-src="https://runnerflo-game-world.pages.dev" title="3D World" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe></div>
+        <div class="game-box" data-src="/game/card-arena.html" data-url="/game/card-arena.html">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🃏</div>
+            <div class="game-box-poster-name">Card Arena 3D</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🐦</div>
+            <div class="game-box-poster-name">Flappy Bird 3D</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🚀</div>
+            <div class="game-box-poster-name">Skybound Courier</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/snake.html" data-url="/game/snake.html">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🐍</div>
+            <div class="game-box-poster-name">Hyper Snake 3D</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/world.html" data-url="/game/world.html">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🌍</div>
+            <div class="game-box-poster-name">3D World</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="3D World" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/card-arena.html" data-url="/game/card-arena.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🃏</div>
+            <div class="game-box-poster-name">Card Arena 3D</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/card-arena.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Card Arena 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/happy-bird-3d.html" data-url="/game/happy-bird-3d.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🐦</div>
+            <div class="game-box-poster-name">Flappy Bird 3D</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/happy-bird-3d.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Flappy Bird 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/skybound-courier.html" data-url="/game/skybound-courier.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🚀</div>
+            <div class="game-box-poster-name">Skybound Courier</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/skybound-courier.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Skybound Courier" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/snake.html" data-url="/game/snake.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🐍</div>
+            <div class="game-box-poster-name">Hyper Snake 3D</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/snake.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="Hyper Snake 3D" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
+        <div class="game-box" data-src="/game/world.html" data-url="/game/world.html" aria-hidden="true" tabindex="-1">
+          <div class="game-box-poster">
+            <div class="game-box-poster-icon">🌍</div>
+            <div class="game-box-poster-name">3D World</div>
+            <div class="game-box-poster-hint">Klik untuk mainkan</div>
+          </div>
+          <a class="game-box-openbtn" href="/game/world.html" target="_blank">↗ Buka Tab Baru</a>
+          <span class="game-box-closebtn" title="Tutup">✕</span>
+          <iframe src="" title="3D World" allow="autoplay;fullscreen;xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+        </div>
       </div>
+    </div>
     </div>
   </div>
 </section>
@@ -1081,42 +1179,80 @@ try{document.documentElement.classList.add("js");
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.documentElement.classList.remove("js")}
 </script>
+
 <script>
+// ===== GAME CAROUSEL LOGIC =====
 (function(){
-  var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(!e.isIntersecting) return;
-      var ifr = e.target.querySelector('iframe[data-src]');
-      if(ifr){ ifr.src = ifr.getAttribute('data-src'); ifr.removeAttribute('data-src'); }
-      obs.unobserve(e.target);
-    });
-  },{rootMargin:'300px'});
-  document.querySelectorAll('.game-box').forEach(function(b){ obs.observe(b); });
-})();
-var _gStage=0;
-function gamesExpand(s){
-  var wrap=document.getElementById('games-marquee-wrap');
-  var b1=document.getElementById('gBtn1');
-  var b2=document.getElementById('gBtn2');
-  if(_gStage===s){
-    wrap.classList.remove('g-sz-1','g-sz-2');
-    if(b1)b1.classList.remove('g-active');
-    if(b2)b2.classList.remove('g-active');
-    _gStage=0;
-  }else{
-    wrap.classList.remove('g-sz-1','g-sz-2');
-    if(b1)b1.classList.remove('g-active');
-    if(b2)b2.classList.remove('g-active');
-    wrap.classList.add('g-sz-'+s);
-    if(s===1&&b1)b1.classList.add('g-active');
-    if(s===2&&b2)b2.classList.add('g-active');
-    _gStage=s;
+  var currentExpanded = null;
+
+  function expandCard(box) {
+    // If already expanded → open in new tab
+    if (box === currentExpanded) {
+      var url = box.getAttribute('data-url');
+      if(url) window.open(url, '_blank');
+      return;
+    }
+    // Collapse previous
+    if(currentExpanded) collapseCard(currentExpanded);
+
+    // Load iframe if not loaded
+    var iframe = box.querySelector('iframe');
+    if(iframe && !iframe.src) {
+      var src = box.getAttribute('data-src');
+      if(src) iframe.src = src;
+    }
+    // Hide poster
+    var poster = box.querySelector('.game-box-poster');
+    if(poster) poster.classList.add('hidden');
+
+    box.classList.add('g-expanded');
+    currentExpanded = box;
+    // Pause animation
+    document.getElementById('games-marquee-wrap').classList.add('g-paused');
+    // Scroll card into view
+    box.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
   }
-}
-function gamesOpenTab(){
-  var box=document.querySelector('.game-box[data-url]');
-  if(box)window.open(box.getAttribute('data-url'),'_blank');
-}
+
+  function collapseCard(box) {
+    box.classList.remove('g-expanded');
+    currentExpanded = null;
+    document.getElementById('games-marquee-wrap').classList.remove('g-paused');
+  }
+
+  document.querySelectorAll('.game-box').forEach(function(box){
+    // Click poster / card → expand
+    box.addEventListener('click', function(e){
+      // Ignore if clicking open-btn or close-btn
+      if(e.target.closest('.game-box-openbtn') || e.target.closest('.game-box-closebtn')) return;
+      // If already expanded, clicks go to iframe - ignore
+      if(box.classList.contains('g-expanded')) return;
+      expandCard(box);
+    });
+
+    // Close button
+    var closeBtn = box.querySelector('.game-box-closebtn');
+    if(closeBtn){
+      closeBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        collapseCard(box);
+      });
+    }
+
+    // Open tab button
+    var openBtn = box.querySelector('.game-box-openbtn');
+    if(openBtn){
+      openBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        // href handles it
+      });
+    }
+  });
+
+  // ESC to close
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && currentExpanded) collapseCard(currentExpanded);
+  });
+})();
 </script>
 </body>
 </html>

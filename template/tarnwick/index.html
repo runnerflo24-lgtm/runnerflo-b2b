@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<style id="rf-universal-hero-fix">
+  /* ── Normalise gigantic brutalist typography across all edtech templates & mobile optimization ── */
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+  }
+  h1, .hero h1, .hc h1, .hero-content h1, .hero-title, header h1, [class*="hero"] h1, main h1, section:first-of-type h1 {
+    font-size: clamp(30px, 4vw, 50px) !important;
+    line-height: 1.16 !important;
+    letter-spacing: -0.03em !important;
+    max-width: 900px !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-transform: none !important;
+  }
+  h1 span, h1 i, h1 em, h1 a, h1 b, h1 strong {
+    font-size: inherit !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
+    padding-left: 0 !important;
+  }
+  .hero p, .hc p, .hero-content p, [class*="hero"] p, p.sub, p.tagline, p.fade-in, p.lead {
+    font-size: clamp(14px, 1.6vw, 17px) !important;
+    line-height: 1.65 !important;
+    max-width: 680px !important;
+    opacity: 0.9 !important;
+    margin-top: 14px !important;
+    margin-bottom: 24px !important;
+  }
+  .hero, .hc, [class*="hero"] {
+    min-height: auto !important;
+    padding-top: clamp(32px, 6vh, 72px) !important;
+    padding-bottom: clamp(32px, 6vh, 72px) !important;
+  }
+  @media (max-width: 640px) {
+    h1, .hero h1, .hc h1, .hero-content h1, .hero-title, header h1, [class*="hero"] h1, main h1, section:first-of-type h1 {
+      font-size: clamp(24px, 7vw, 34px) !important;
+      line-height: 1.2 !important;
+    }
+    .hero p, .hc p, .hero-content p, [class*="hero"] p, p.sub, p.tagline, p.fade-in, p.lead {
+      font-size: 14px !important;
+      line-height: 1.55 !important;
+      margin-top: 10px !important;
+      margin-bottom: 18px !important;
+    }
+    .hero, .hc, [class*="hero"] {
+      padding-top: 24px !important;
+      padding-bottom: 28px !important;
+    }
+  }
+</style>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tarnwick — Learn by doing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04110D;--em:#0A231C;--em2:#0F3329;--g:#C9A45C;--gl:#F3E0AE;--pl:#EFEDE6;--t:#14211D;--mut:#6A7671;--dm:#A9B8B0;--s:"Cormorant Garamond","Times New Roman",serif;--gt:linear-gradient(100deg,#8C6A2F 0%,#F3E0AE 35%,#C9A45C 55%,#FFF6DA 70%,#8C6A2F 100%);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:var(--bg);color:#EDE8DC;font:400 15px/1.6 "Inter Tight",system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3,.d{font-family:var(--s);font-weight:500;letter-spacing:-.02em;line-height:.94;margin:0}
+a{color:inherit;text-decoration:none}
+.gold{background:var(--gt);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 7s linear infinite}
+@keyframes sh{to{background-position:-250% 0}}
+.wrap{padding:0 clamp(18px,3.4vw,52px);position:relative;z-index:2}
+nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+.logo{font:600 30px var(--s);letter-spacing:.03em}
+nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:6px;border:1px solid #C9A45C44;border-radius:99px;background:#ffffff0a;backdrop-filter:blur(14px)}
+nav li a{display:block;padding:7px 16px;border-radius:99px;font-size:13px;color:var(--dm);transition:.35s}
+nav li a:hover{background:#C9A45C22;color:var(--gl)}
+.navr{display:flex;gap:10px}
+.btn{position:relative;overflow:hidden;display:inline-block;padding:12px 26px;border-radius:99px;background:var(--gt);background-size:220% 100%;color:#1a1408;font-size:13px;font-weight:500;letter-spacing:.03em;box-shadow:0 0 30px #C9A45C55;transition:.5s}
+.btn:hover{background-position:100% 0;box-shadow:0 0 56px #F3E0AEaa;transform:translateY(-2px)}
+.btn.o{background:transparent;color:var(--gl);box-shadow:none;border:1px solid #C9A45C77}
+@media(max-width:760px){nav ul{display:none}}
+/* hero */
+.hero{position:relative;min-height:min(92vh,880px);overflow:hidden;background:radial-gradient(60% 70% at 78% 45%,#1c4a3b,transparent 70%),var(--bg);--mx:70%;--my:40%}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(500px circle at var(--mx) var(--my),#C9A45C22,transparent 70%);pointer-events:none}
+#dust{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hc{position:relative;z-index:3;padding:clamp(40px,9vh,110px) 0 60px;max-width:1300px}
+.hc small{display:inline-flex;gap:10px;align-items:center;font-size:12px;letter-spacing:.16em;color:var(--g);margin-bottom:26px}
+.hc small:before{content:"";width:34px;height:1px;background:var(--g)}
+.hc h1{font-size:clamp(70px,13.4vw,220px);line-height:.86}
+.hc h1 span{display:block;overflow:hidden;padding:.08em 0 .04em}
+.hc h1 i{display:block;font-style:italic;transform:translateY(108%);animation:up 1.5s cubic-bezier(.16,1,.3,1) forwards}
+.hc h1 span:nth-child(2) i{animation-delay:.2s,0s;padding-left:.9em}
+.hc h1 span:nth-child(2) i.gold{animation:up 1.5s cubic-bezier(.16,1,.3,1) .2s forwards,sh 7s linear 1.7s infinite}
+@keyframes up{to{transform:none}}
+.hc p{max-width:330px;color:var(--dm);font-size:14px;margin:34px 0 28px}
+.arm-w{position:absolute;right:1%;top:50%;--S:min(48vw,560px);width:var(--S);height:var(--S);margin-top:calc(var(--S)/-2);perspective:1400px;z-index:2}
+.m{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.tt{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(-18deg) rotateZ(16deg)}
+.sp{position:absolute;inset:0;transform-style:preserve-3d;animation:sp 36s linear infinite}
+@keyframes sp{to{transform:rotateY(360deg)}}
+.r{position:absolute;inset:0;border-radius:50%;border:1px solid #F3E0AE99;box-shadow:0 0 22px #C9A45C44,inset 0 0 22px #C9A45C22}
+.r:after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--gl);box-shadow:0 0 16px 4px #F3E0AEaa}
+.r.d{border-style:dashed;border-color:#C9A45C77;inset:-9%}
+.r.d:after{display:none}
+.r.t{inset:8%}.r.t:after{display:none}
+.core{position:absolute;inset:38%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFF6DA,#C9A45C 45%,#4a3612 100%);box-shadow:0 0 90px 30px #C9A45C66;animation:pu 4s ease-in-out infinite}
+@keyframes pu{50%{box-shadow:0 0 130px 46px #F3E0AE77}}
+.halo{position:absolute;inset:-25%;background:radial-gradient(circle,#C9A45C33,transparent 62%);pointer-events:none}
+@media(max-width:860px){.arm-w{position:relative;right:auto;top:auto;margin:0 auto 30px;--S:min(86vw,420px)}.hero{min-height:0}.hc{padding-bottom:10px}.hc h1 span:nth-child(2) i{padding-left:0}}
+/* gallery */
+.gal{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:clamp(12px,2vw,28px);align-items:end;padding:30px 0 20px}
+.gal .sc:nth-child(1){height:clamp(260px,34vw,470px)}.gal .sc:nth-child(2){height:clamp(320px,42vw,580px)}.gal .sc:nth-child(3){height:clamp(230px,30vw,410px)}
+.sc{position:relative;overflow:hidden;border-radius:999px 999px 6px 6px;border:1px solid #C9A45C66;box-shadow:0 30px 80px #0008,0 0 40px #C9A45C22;--p:0}
+.sc svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity .6s}
+.l1{transform:translateY(calc(var(--p)*34px))}.l2{transform:translateY(calc(var(--p)*20px))}.l3{transform:translateY(calc(var(--p)*8px))}.sn{transform:translateY(calc(var(--p)*-26px))}
+.gcap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:26px 0 0;color:var(--dm);font-size:14px}
+.gcap b{color:var(--gl);font-weight:500;border-bottom:1px solid var(--g)}
+@media(max-width:700px){.gal{grid-template-columns:1fr 1fr}.gal .sc:nth-child(3){display:none}}
+.mq{overflow:hidden;white-space:nowrap;padding:70px 0 40px}
+.mq div{display:inline-block;animation:mq 42s linear infinite;font-size:clamp(56px,9.4vw,150px);font-family:var(--s);font-style:italic;letter-spacing:-.02em}
+.mq.r div{animation-direction:reverse;font-style:normal;color:transparent;-webkit-text-stroke:1px #14211D77}
+.mq em{font-style:normal;color:var(--g);font-size:.34em;vertical-align:middle;padding:0 .7em;-webkit-text-stroke:0;text-shadow:0 0 20px var(--g)}
+@keyframes mq{to{transform:translateX(-50%)}}
+/* pearl */
+.pl{background:var(--pl);color:var(--t);position:relative}
+.about{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:90px 0 10px}
+.about h3{font-size:clamp(34px,5vw,70px);max-width:15ch;line-height:1}
+.about p{max-width:300px;color:var(--mut);font-size:14px;margin:0}
+.logos{display:flex;gap:clamp(24px,5vw,76px);justify-content:center;flex-wrap:wrap;padding:60px 0;margin-top:60px;border-top:1px solid #14211D22;font:600 26px var(--s);color:#14211D66}
+.logos span{transition:.4s}.logos span:hover{color:#9a7530}
+/* dark sections */
+.dk{background:radial-gradient(70% 60% at 20% 0%,#123d31,transparent 70%),var(--bg);position:relative;overflow:hidden}
+.sec{padding:clamp(70px,10vw,140px) 0}
+.tabs{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(24px,5vw,80px);align-items:center}
+.img{aspect-ratio:1/1.12;max-width:520px}
+.img .sc{height:100%}
+.tl button{all:unset;display:block;width:100%;cursor:pointer;font:500 clamp(34px,5vw,74px)/1.08 var(--s);color:#EDE8DC33;padding:4px 0;transition:.5s;position:relative}
+.tl button:hover{color:#EDE8DC88}
+.tl button[aria-selected=true]{color:var(--gl);font-style:italic;padding-left:34px;text-shadow:0 0 40px #C9A45C66}
+.tl button:before{content:"";position:absolute;left:0;top:52%;width:0;height:1px;background:var(--g);transition:width .6s}
+.tl button[aria-selected=true]:before{width:22px}
+.tl button:focus-visible{outline:1px solid var(--gl);outline-offset:4px}
+.tl p{color:var(--dm);font-size:14px;max-width:42ch;min-height:70px;margin-top:24px}
+@media(max-width:760px){.tabs{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:30px 0 10px;border-top:1px solid #14211D22;border-bottom:1px solid #14211D22}
+.stats div{padding:36px 10px;text-align:center;border-right:1px solid #14211D22}.stats div:last-child{border:0}
+.stats b{display:block;font:500 clamp(48px,7.6vw,112px)/1 var(--s);letter-spacing:-.03em}
+.stats span{font-size:12px;color:var(--mut);letter-spacing:.07em}
+@media(max-width:600px){.stats{grid-template-columns:1fr}.stats div{border-right:0;border-bottom:1px solid #14211D22}}
+.quote{font:italic 500 clamp(30px,4.6vw,66px)/1.04 var(--s);text-align:center;max-width:22ch;margin:90px auto 24px}
+.qm{display:flex;justify-content:center;gap:34px;font-size:12px;color:var(--mut);flex-wrap:wrap;letter-spacing:.04em;padding-bottom:110px}.qm b{color:var(--t);font-weight:500}
+.plan{display:grid;grid-template-columns:1fr 1.25fr;gap:clamp(24px,4vw,64px)}
+.plan h2{font-size:clamp(48px,6.6vw,100px)}
+.plan .l{color:var(--dm);font-size:14px;max-width:34ch;margin-top:24px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.c{--mx:50%;--my:50%;position:relative;padding:28px;min-height:230px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0f3329,#071a14);border-radius:4px;transition:transform .6s cubic-bezier(.16,1,.3,1),box-shadow .6s;isolation:isolate}
+.c:before{content:"";position:absolute;inset:0;border-radius:4px;padding:1px;background:conic-gradient(from var(--a,0deg),#C9A45C33 0 60%,#F3E0AE 80%,#C9A45C33);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:rot 7s linear infinite}
+@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes rot{to{--a:360deg}}
+.c:after{content:"";position:absolute;inset:0;background:radial-gradient(280px circle at var(--mx) var(--my),#C9A45C33,transparent 70%);opacity:0;transition:.4s;z-index:-1}
+.c:hover{transform:translateY(-8px);box-shadow:0 24px 60px #000a,0 0 50px #C9A45C33}.c:hover:after{opacity:1}
+.c p{margin:0;font-size:13px;color:var(--dm)}
+.c strong{font:500 32px/1 var(--s);color:var(--gl)}
+.ic{width:24px;height:24px;border:1px solid var(--g);transform:rotate(45deg);margin:8px 0;box-shadow:0 0 18px #C9A45C88,inset 0 0 10px #C9A45C55}
+@media(max-width:860px){.plan,.cards{grid-template-columns:1fr}}
+.faq{display:grid;grid-template-columns:1fr 1.2fr;gap:30px;padding:120px 0 90px}
+.faq h2{font-size:clamp(48px,6.6vw,104px)}
+details{border-top:1px solid #14211D33;padding:26px 0}
+details:last-child{border-bottom:1px solid #14211D33}
+summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;font:500 clamp(22px,2.4vw,30px) var(--s)}
+summary::after{content:"+";color:#9a7530;font-family:"Inter Tight";transition:transform .4s}details[open] summary::after{transform:rotate(45deg)}
+details p{margin:14px 0 0;color:var(--mut);max-width:48ch;font-size:14px}
+@media(max-width:760px){.faq{grid-template-columns:1fr}}
+.work h2{font-size:clamp(42px,6.2vw,92px);max-width:12ch;margin:0 0 34px auto;text-align:right}
+.row{display:grid;grid-template-columns:1fr 150px auto;gap:24px;align-items:center;border-top:1px solid #14211D33;padding:26px 0;transition:.6s cubic-bezier(.16,1,.3,1)}
+.row:hover{padding-left:20px;background:linear-gradient(90deg,#C9A45C22,transparent)}
+.row .t{font:500 clamp(24px,3vw,44px) var(--s)}
+.row .sc{height:120px;border-radius:999px 999px 4px 4px}
+.row small{color:var(--mut);text-align:right}
+@media(max-width:760px){.row{grid-template-columns:1fr 100px}.row small{grid-column:1/-1;text-align:left}}
+.blog{display:grid;grid-template-columns:1fr 1fr;gap:34px;padding:40px 0 120px}
+.post{display:grid;grid-template-columns:.8fr 1fr;gap:22px;align-items:center}
+.post .sc{height:260px}
+.post h3{font-size:32px;line-height:1.02}
+@media(max-width:760px){.blog{grid-template-columns:1fr}}
+.cta{text-align:center;padding:clamp(100px,14vw,190px) 0 40px}
+.cta:before{content:"";position:absolute;left:50%;top:40%;width:80vw;height:80vw;max-width:1100px;max-height:1100px;transform:translate(-50%,-50%);background:radial-gradient(circle,#C9A45C33,transparent 62%);animation:pu2 6s ease-in-out infinite}
+@keyframes pu2{50%{opacity:.55;transform:translate(-50%,-50%) scale(1.12)}}
+.cta h2{font-size:clamp(44px,7.4vw,120px);max-width:14ch;margin:0 auto 42px;position:relative}
+.cta .btn{position:relative}
+.cta footer{position:relative;margin-top:110px;font-size:12px;display:flex;justify-content:space-between;color:var(--dm);border-top:1px solid #C9A45C44;padding-top:22px}
+.rv{opacity:0;transform:translateY(34px);transition:opacity 1.2s cubic-bezier(.16,1,.3,1),transform 1.2s cubic-bezier(.16,1,.3,1)}
+.rv.on{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.hc h1 i{transform:none}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<header class="hero" id="hero">
+<canvas id="dust"></canvas>
+<div class="wrap">
+<nav><a class="logo" href="#">Tarnwick</a>
+<ul><li><a href="#">Home</a></li><li><a href="#tracks">Tracks</a></li><li><a href="#plan">Plans</a></li><li><a href="#faq">FAQ</a></li><li><a href="#stories">Stories</a></li></ul>
+<div class="navr"><a class="btn o" href="#">Log in</a><a class="btn" href="#">Start free</a></div></nav>
+<div class="hc"><small>COHORT 07 · OPENS IN OCTOBER</small>
+<h1><span><i>Learn by</i></span><span><i class="gold">doing.</i></span></h1>
+<p>Project-based courses in data, design and code, taught by working practitioners who review every submission you make.</p><a class="btn" href="#tracks">Explore tracks</a></div>
+</div>
+<div class="arm-w" aria-hidden="true"><div class="halo"></div><div class="m" id="m"><div class="tt"><div class="sp">
+<div class="r" style="transform:rotateY(0)"></div><div class="r" style="transform:rotateY(30deg)"></div><div class="r" style="transform:rotateY(60deg)"></div><div class="r" style="transform:rotateY(90deg)"></div><div class="r" style="transform:rotateY(120deg)"></div><div class="r" style="transform:rotateY(150deg)"></div>
+<div class="r d" style="transform:rotateX(90deg)"></div>
+<div class="r t" style="transform:rotateX(90deg) translateZ(calc(var(--S)*.3))"></div><div class="r t" style="transform:rotateX(90deg) translateZ(calc(var(--S)*-.3))"></div>
+</div><div class="core"></div></div></div></div>
+</header>
+
+<div class="dk"><div class="wrap">
+<div class="gal" id="gal"><div class="sc rv" data-s="0"></div><div class="sc rv" data-s="1"></div><div class="sc rv" data-s="2"></div></div>
+<div class="gcap rv"><span>Live studios, weekly critiques and a portfolio you can actually show.</span><b>Browse open tracks</b></div>
+<div class="mq" aria-hidden="true"><div class="d"><span class="gold">Hands-on learning</span><em>◆</em><span class="gold">Practical craft</span><em>◆</em><span class="gold">Hands-on learning</span><em>◆</em><span class="gold">Practical craft</span><em>◆</em><span class="gold">Hands-on learning</span><em>◆</em><span class="gold">Practical craft</span><em>◆</em><span class="gold">Hands-on learning</span><em>◆</em><span class="gold">Practical craft</span><em>◆</em></div></div>
+</div></div>
+
+<div class="pl"><div class="wrap">
+<div class="about rv"><h3>Real briefs. Real feedback. Real progress.</h3><p>Every track is built around shipped work, not slide decks. You finish with proof, not just certificates.</p></div>
+<div class="logos"><span>Northbeam</span><span>Coralline</span><span>Junipr</span><span>Halcyon Labs</span><span>Ostara</span></div>
+</div></div>
+
+<section class="dk sec" id="tracks"><div class="wrap"><div class="tabs">
+<div class="img rv"><div class="sc" id="tsc" data-s="0"></div></div>
+<div class="tl" role="tablist">
+<button role="tab" aria-selected="true" data-t="0">Product Design</button>
+<button role="tab" aria-selected="false" data-t="1">Data Storytelling</button>
+<button role="tab" aria-selected="false" data-t="2">Frontend Craft</button>
+<button role="tab" aria-selected="false" data-t="3">Growth Analytics</button>
+<p id="tp">Design interfaces from research to prototype, then defend your decisions in a live review with a mentor.</p>
+</div></div></div></section>
+
+<div class="pl"><div class="wrap">
+<div class="mq r" aria-hidden="true"><div class="d">Sharper thinking<em>◆</em>Bolder work<em>◆</em>Sharper thinking<em>◆</em>Bolder work<em>◆</em>Sharper thinking<em>◆</em>Bolder work<em>◆</em></div></div>
+<div class="stats rv"><div><b data-n="12400">0</b><span>LEARNERS SHIPPED A PROJECT</span></div><div><b data-n="94">0</b><span>PERCENT FINISH THEIR TRACK</span></div><div><b data-n="48">0</b><span>HOUR REVIEW PROMISE</span></div></div>
+<p class="quote rv">“Twelve weeks in, I was shipping work my team used the same day.”</p>
+<div class="qm"><span>Mara Ellison</span><b>Junior Analyst, Coralline</b><span>Cohort 05</span></div>
+</div></div>
+
+<section class="dk sec" id="plan"><div class="wrap"><div class="plan">
+<div class="rv"><h2>One flat<br><span class="gold"><i>monthly fee.</i></span></h2><p class="l">Every track, every live session and every review is included. Pause whenever life gets busy.</p></div>
+<div class="cards">
+<div class="c rv"><p>Join any track and switch whenever you like. No add-ons and no surprise charges.</p><div class="ic"></div><strong>Unlimited tracks</strong></div>
+<div class="c rv"><p>Submit a project and get written feedback from a mentor within two working days.</p><div class="ic"></div><strong>48-hour reviews</strong></div>
+<div class="c rv"><p>Every mentor has at least six years in the field and stays with your cohort throughout.</p><div class="ic"></div><strong>Working mentors</strong></div>
+<div class="c rv"><p>A private channel per cohort, office hours twice a week and a reply from a human.</p><div class="ic"></div><strong>Always reachable</strong></div>
+</div></div></div></section>
+
+<div class="pl"><div class="wrap">
+<section class="faq" id="faq"><h2 class="rv">Common<br><i>questions</i></h2>
+<div class="rv">
+<details><summary>Do I need prior experience?</summary><p>No. Each track starts from zero and ramps up through small projects.</p></details>
+<details><summary>How many hours a week should I plan for?</summary><p>Most learners spend six to eight hours, including one live session.</p></details>
+<details><summary>Can I pause my plan?</summary><p>Yes. Pause for up to three months and pick up where you stopped.</p></details>
+</div></section>
+<section class="work" id="stories"><h2 class="rv">Outcomes you can <i>measure</i></h2>
+<a class="row rv" href="#"><span class="t">Harbor Freight Co.</span><div class="sc" data-s="3"></div><small>2026<br>Analytics track</small></a>
+<a class="row rv" href="#"><span class="t">Ostara Studio</span><div class="sc" data-s="2"></div><small>2026<br>Design track</small></a>
+<a class="row rv" href="#"><span class="t">Daniel Okafor, Portfolio</span><div class="sc" data-s="1"></div><small>2025<br>Frontend track</small></a>
+</section>
+<section class="blog">
+<a class="post rv" href="#"><div class="sc" data-s="4"></div><h3>Why small projects beat long lectures</h3></a>
+<a class="post rv" href="#"><div class="sc" data-s="0"></div><h3>Building a portfolio in eight weeks</h3></a>
+</section>
+</div></div>
+
+<section class="dk cta"><div class="wrap"><h2 class="rv">One good project away from your <span class="gold"><i>next role.</i></span></h2><a class="btn" href="#">Join the next cohort</a>
+<footer><span>© 2026 Tarnwick</span><span>Privacy · Terms</span></footer></div></section>
+
+<script>
+const P=[["#1E5A4C","#F3E0AE","#FFF6DA","#0E3A30","#0A2A22","#061913",0],["#04110D","#3F7A69","#EFEDE6","#0F3329","#0A231C","#04110D",1],["#F3E0AE","#B98F45","#FFFFFF","#7B6234","#3F3A1F","#0A231C",0],["#DCE6DF","#7FA598","#FFFFFF","#4C7A6C","#245245","#0A231C",0],["#2A160C","#C98B4A","#FFE7B8","#5A3418","#2E1B0E","#0C0704",0]];
+let n=0;
+function sv(k){const [a,b,s,h1,h2,h3,st]=P[k%P.length],i=++n;let stars='';if(st)for(let j=0;j<26;j++)stars+=`<circle cx="${(j*97)%300}" cy="${(j*53)%200}" r="${j%3?.8:1.4}" fill="#fff" opacity=".7"/>`;
+return `<svg viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><radialGradient id="s${i}"><stop offset="0" stop-color="${s}"/><stop offset=".45" stop-color="${s}" stop-opacity=".5"/><stop offset="1" stop-color="${s}" stop-opacity="0"/></radialGradient></defs><rect width="300" height="420" fill="url(#g${i})"/>${stars}<g class="sn"><circle cx="150" cy="190" r="110" fill="url(#s${i})"/><circle cx="150" cy="190" r="34" fill="${s}"/></g><path class="l1" d="M-20 300Q60 240 140 290T320 270V460H-20Z" fill="${h1}"/><path class="l2" d="M-20 340Q90 290 170 335T320 320V460H-20Z" fill="${h2}"/><path class="l3" d="M-20 385Q80 350 160 380T320 370V460H-20Z" fill="${h3}"/></svg>`}
+const fill=()=>document.querySelectorAll('.sc[data-s]:not([data-f])').forEach(e=>{e.innerHTML=sv(+e.dataset.s);e.dataset.f=1});fill();
+const T=[["Design interfaces from research to prototype, then defend your decisions in a live review with a mentor.",0],["Turn messy spreadsheets into clear narratives that leaders act on, using real company datasets.",1],["Build fast, accessible interfaces and ship them to a live URL you can share.",2],["Learn to test, measure and iterate on funnels using actual product data.",4]];
+document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.t,e=document.getElementById('tsc');
+document.querySelectorAll('[role=tab]').forEach(x=>x.setAttribute('aria-selected',x===b));
+document.getElementById('tp').textContent=T[i][0];e.style.opacity=0;setTimeout(()=>{e.innerHTML=sv(T[i][1]);e.style.opacity=1},300)}));
+document.getElementById('tsc').style.transition='opacity .3s';
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');e.target.querySelectorAll('[data-n]').forEach(n=>{const t=+n.dataset.n,s=performance.now();(function f(k){const p=Math.min(1,(k-s)/2200);n.textContent=Math.round(t*(1-Math.pow(1-p,4))).toLocaleString('en-US');if(p<1)requestAnimationFrame(f)})(s)});io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.rv').forEach(x=>io.observe(x));
+document.querySelectorAll('.c').forEach(c=>c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')}));
+const hero=document.getElementById('hero'),m=document.getElementById('m');
+hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+hero.style.setProperty('--mx',(e.clientX-r.left)+'px');hero.style.setProperty('--my',(e.clientY-r.top)+'px');m.style.transform=`rotateY(${x*24}deg) rotateX(${-y*18}deg)`});
+const scs=[...document.querySelectorAll('.sc')];
+function par(){const h=innerHeight;scs.forEach(s=>{const r=s.getBoundingClientRect();if(r.bottom<0||r.top>h)return;s.style.setProperty('--p',Math.max(-1,Math.min(1,((r.top+r.height/2)-h/2)/h)).toFixed(3))})}
+addEventListener('scroll',par,{passive:true});par();
+const cv=document.getElementById('dust'),cx=cv.getContext('2d');let W,H,D=[];
+function rs(){W=cv.width=hero.clientWidth;H=cv.height=hero.clientHeight}rs();addEventListener('resize',rs);
+for(let i=0;i<70;i++)D.push({x:Math.random(),y:Math.random(),r:Math.random()*1.8+.4,v:Math.random()*.00035+.0001,o:Math.random()*6});
+if(!matchMedia('(prefers-reduced-motion:reduce)').matches)(function f(t){cx.clearRect(0,0,W,H);D.forEach(d=>{d.y-=d.v;d.x+=Math.sin(t/2500+d.o)*.0002;if(d.y<-.02){d.y=1.02;d.x=Math.random()}const a=.25+.45*Math.abs(Math.sin(t/1200+d.o));cx.beginPath();cx.arc(d.x*W,d.y*H,d.r,0,7);cx.fillStyle=`rgba(243,224,174,${a})`;cx.shadowColor='#C9A45C';cx.shadowBlur=10;cx.fill()});requestAnimationFrame(f)})(0);
+</script>
+</body>
+</html>

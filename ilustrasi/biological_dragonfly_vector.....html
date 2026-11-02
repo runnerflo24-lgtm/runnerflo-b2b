@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biological Dragonfly Vector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* SVG visual interaction and subtle shimmer effects */
+        .dragonfly-svg {
+            width: 100%;
+            height: 100%;
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
+            transition: filter 0.4s ease;
+        }
+
+        .wing-shimmer {
+            transition: opacity 0.4s ease, filter 0.4s ease;
+        }
+
+        .dragonfly-svg:hover .wing-shimmer {
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7));
+        }
+    </style>
+</head>
+<body>
+
+    <svg id="dragonflySvg" class="dragonfly-svg" viewBox="0 0 800 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Body Gradients -->
+            <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0f766e" />
+                <stop offset="50%" stop-color="#14b8a6" />
+                <stop offset="100%" stop-color="#042f2e" />
+            </linearGradient>
+
+            <radialGradient id="eyeGradLeft" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#2dd4bf" />
+                <stop offset="40%" stop-color="#0f766e" />
+                <stop offset="85%" stop-color="#022c22" />
+                <stop offset="100%" stop-color="#000000" />
+            </radialGradient>
+
+            <radialGradient id="eyeGradRight" cx="60%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#2dd4bf" />
+                <stop offset="40%" stop-color="#0f766e" />
+                <stop offset="85%" stop-color="#022c22" />
+                <stop offset="100%" stop-color="#000000" />
+            </radialGradient>
+
+            <linearGradient id="thoraxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#134e4a" />
+                <stop offset="35%" stop-color="#0d9488" />
+                <stop offset="70%" stop-color="#115e59" />
+                <stop offset="100%" stop-color="#022c22" />
+            </linearGradient>
+
+            <linearGradient id="abdomenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0f766e" />
+                <stop offset="20%" stop-color="#0284c7" />
+                <stop offset="50%" stop-color="#0369a1" />
+                <stop offset="80%" stop-color="#0f172a" />
+                <stop offset="100%" stop-color="#0284c7" />
+            </linearGradient>
+
+            <!-- Iridescent Wing Gradients -->
+            <linearGradient id="wingBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
+                <stop offset="25%" stop-color="#e0f2fe" stop-opacity="0.55" />
+                <stop offset="50%" stop-color="#bae6fd" stop-opacity="0.4" />
+                <stop offset="75%" stop-color="#ccfbf1" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#f0f9ff" stop-opacity="0.65" />
+            </linearGradient>
+
+            <linearGradient id="wingHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4" />
+                <stop offset="50%" stop-color="#818cf8" stop-opacity="0.2" />
+                <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.4" />
+            </linearGradient>
+
+            <!-- Soft Depth Filter -->
+            <filter id="wingGlow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0284c7" flood-opacity="0.15" />
+            </filter>
+        </defs>
+
+        <g id="abdomen-group">
+            <path d="M 388,380 L 412,380 L 410,430 L 390,430 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <path d="M 389,430 L 411,430 L 409,485 L 391,485 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="389" y1="450" x2="411" y2="450" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+            
+            <path d="M 390,485 L 410,485 L 408,540 L 392,540 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="390" y1="510" x2="410" y2="510" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+            
+            <path d="M 391,540 L 409,540 L 407,595 L 393,595 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="391" y1="565" x2="409" y2="565" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+            
+            <path d="M 392,595 L 408,595 L 406,650 L 394,650 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="392" y1="620" x2="408" y2="620" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+            
+            <path d="M 393,650 L 407,650 L 405,705 L 395,705 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="393" y1="675" x2="407" y2="675" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+            
+            <path d="M 394,705 L 406,705 L 404,760 L 396,760 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="394" y1="730" x2="406" y2="730" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+
+            <path d="M 395,760 L 405,760 L 403,810 L 397,810 Z" fill="url(#abdomenGrad)" stroke="#042f2e" stroke-width="1.5" />
+            <line x1="395" y1="785" x2="405" y2="785" stroke="#38bdf8" stroke-width="1.5" opacity="0.8" />
+
+            <path d="M 397,810 L 403,810 L 400,845 Z" fill="#0f172a" stroke="#042f2e" stroke-width="1.5" />
+            <path d="M 397,810 C 392,825 388,835 385,848 C 387,842 393,828 398,812 Z" fill="#0f766e" />
+            <path d="M 403,810 C 408,825 412,835 415,848 C 413,842 407,828 402,812 Z" fill="#0f766e" />
+        </g>
+
+        <g id="legs-group" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M 375,250 Q 330,230 300,200 Q 280,180 260,195" />
+            <path d="M 425,250 Q 470,230 500,200 Q 520,180 540,195" />
+            <path d="M 320,223 L 315,230 M 310,215 L 305,222 M 300,200 L 293,207" stroke-width="1.5" stroke="#1e293b" />
+            <path d="M 480,223 L 485,230 M 490,215 L 495,222 M 500,200 L 507,207" stroke-width="1.5" stroke="#1e293b" />
+
+            <path d="M 370,290 Q 310,290 270,270 Q 240,250 220,280" />
+            <path d="M 430,290 Q 490,290 530,270 Q 560,250 580,280" />
+            <path d="M 330,290 L 328,300 M 300,283 L 297,293 M 270,270 L 265,280" stroke-width="1.5" stroke="#1e293b" />
+            <path d="M 470,290 L 472,300 M 500,283 L 503,293 M 530,270 L 535,280" stroke-width="1.5" stroke="#1e293b" />
+
+            <path d="M 375,340 Q 300,360 250,380 Q 210,400 190,440" />
+            <path d="M 425,340 Q 500,360 550,380 Q 590,400 610,440" />
+            <path d="M 330,352 L 327,362 M 290,365 L 286,375 M 250,380 L 243,390" stroke-width="1.5" stroke="#1e293b" />
+            <path d="M 470,352 L 473,362 M 510,365 L 514,375 M 550,380 L 557,390" stroke-width="1.5" stroke="#1e293b" />
+        </g>
+
+        <g id="thorax-group">
+            <path d="M 370,230 C 370,200 430,200 430,230 C 445,260 445,340 425,380 C 400,395 400,395 375,380 C 355,340 355,260 370,230 Z" fill="url(#thoraxGrad)" stroke="#042f2e" stroke-width="2" />
+            <path d="M 370,240 Q 400,265 430,240" fill="none" stroke="#2dd4bf" stroke-width="2" opacity="0.6" />
+            <path d="M 365,275 Q 400,300 435,275" fill="none" stroke="#2dd4bf" stroke-width="2.5" opacity="0.7" />
+            <path d="M 362,310 Q 400,335 438,310" fill="none" stroke="#2dd4bf" stroke-width="2.5" opacity="0.7" />
+            <path d="M 367,345 Q 400,365 433,345" fill="none" stroke="#2dd4bf" stroke-width="2" opacity="0.6" />
+            <line x1="400" y1="210" x2="400" y2="385" stroke="#042f2e" stroke-width="2.5" />
+        </g>
+
+        <g id="forewings-group" filter="url(#wingGlow)">
+            <g id="left-forewing">
+                <path d="M 385,245 C 280,210 140,140 35,90 C 20,83 15,105 30,118 C 110,180 250,260 375,275 Z" fill="url(#wingBaseGrad)" stroke="#0f172a" stroke-width="1.8" />
+                <path d="M 385,245 C 280,210 140,140 35,90 C 20,83 15,105 30,118 C 110,180 250,260 375,275 Z" fill="url(#wingHighlight)" class="wing-shimmer" />
+                <path d="M 385,245 C 280,210 140,140 35,90" fill="none" stroke="#0284c7" stroke-width="2.5" />
+                <path d="M 380,247 C 275,214 145,147 50,102" fill="none" stroke="#0f172a" stroke-width="1.5" />
+                <path d="M 375,252 C 260,225 160,170 80,130" fill="none" stroke="#0f172a" stroke-width="1.2" />
+                <path d="M 370,258 C 280,242 190,200 110,155" fill="none" stroke="#0f172a" stroke-width="1" />
+                <polygon points="70,101 95,110 90,115 65,106" fill="#0f172a" opacity="0.85" />
+                <path d="M 320,224 L 322,236 M 280,209 L 282,222 M 240,192 L 242,206 M 200,173 L 202,188 M 160,153 L 162,169 M 120,133 L 122,150 M 80,111 L 82,128" stroke="#334155" stroke-width="0.8" opacity="0.7" />
+                <path d="M 340,242 L 335,255 M 300,232 L 295,247 M 260,220 L 255,237 M 220,205 L 215,223 M 180,188 L 175,208 M 140,168 L 135,189 M 100,147 L 95,168" stroke="#334155" stroke-width="0.8" opacity="0.6" />
+                <path d="M 360,260 Q 300,250 220,225 M 310,240 Q 230,225 150,195 M 250,220 Q 180,200 110,170" stroke="#0284c7" stroke-width="0.7" opacity="0.5" />
+            </g>
+
+            <g id="right-forewing">
+                <path d="M 415,245 C 520,210 660,140 765,90 C 780,83 785,105 770,118 C 690,180 550,260 425,275 Z" fill="url(#wingBaseGrad)" stroke="#0f172a" stroke-width="1.8" />
+                <path d="M 415,245 C 520,210 660,140 765,90 C 780,83 785,105 770,118 C 690,180 550,260 425,275 Z" fill="url(#wingHighlight)" class="wing-shimmer" />
+                <path d="M 415,245 C 520,210 660,140 765,90" fill="none" stroke="#0284c7" stroke-width="2.5" />
+                <path d="M 420,247 C 525,214 655,147 750,102" fill="none" stroke="#0f172a" stroke-width="1.5" />
+                <path d="M 425,252 C 540,225 640,170 720,130" fill="none" stroke="#0f172a" stroke-width="1.2" />
+                <path d="M 430,258 C 520,242 610,200 690,155" fill="none" stroke="#0f172a" stroke-width="1" />
+                <polygon points="730,101 705,110 710,115 735,106" fill="#0f172a" opacity="0.85" />
+                <path d="M 480,224 L 478,236 M 520,209 L 518,222 M 560,192 L 558,206 M 600,173 L 598,188 M 640,153 L 638,169 M 680,133 L 678,150 M 720,111 L 718,128" stroke="#334155" stroke-width="0.8" opacity="0.7" />
+                <path d="M 460,242 L 465,255 M 500,232 L 505,247 M 540,220 L 545,237 M 580,205 L 585,223 M 620,188 L 625,208 M 660,168 L 665,189 M 700,147 L 705,168" stroke="#334155" stroke-width="0.8" opacity="0.6" />
+                <path d="M 440,260 Q 500,250 580,225 M 490,240 Q 570,225 650,195 M 550,220 Q 620,200 690,170" stroke="#0284c7" stroke-width="0.7" opacity="0.5" />
+            </g>
+        </g>
+
+        <g id="hindwings-group" filter="url(#wingGlow)">
+            <g id="left-hindwing">
+                <path d="M 380,285 C 270,270 120,230 20,200 C 10,197 10,218 25,232 C 100,295 240,360 375,320 Z" fill="url(#wingBaseGrad)" stroke="#0f172a" stroke-width="1.8" />
+                <path d="M 380,285 C 270,270 120,230 20,200 C 10,197 10,218 25,232 C 100,295 240,360 375,320 Z" fill="url(#wingHighlight)" class="wing-shimmer" />
+                <path d="M 380,285 C 270,270 120,230 20,200" fill="none" stroke="#0284c7" stroke-width="2.5" />
+                <path d="M 378,290 C 265,275 125,237 38,210" fill="none" stroke="#0f172a" stroke-width="1.5" />
+                <path d="M 375,297 C 270,288 150,255 60,228" fill="none" stroke="#0f172a" stroke-width="1.2" />
+                <polygon points="50,208 75,215 70,221 45,214" fill="#0f172a" opacity="0.85" />
+                <path d="M 340,281 L 341,293 M 300,274 L 301,288 M 260,265 L 261,280 M 220,253 L 221,270 M 180,241 L 181,259 M 140,229 L 141,248 M 100,218 L 101,237" stroke="#334155" stroke-width="0.8" opacity="0.7" />
+                <path d="M 350,305 Q 280,315 180,280 M 310,315 Q 230,310 130,265 M 260,315 Q 180,295 90,250" stroke="#0284c7" stroke-width="0.8" opacity="0.6" />
+                <path d="M 355,300 C 320,335 280,340 250,315 C 270,295 320,285 355,300 Z" fill="none" stroke="#0f172a" stroke-width="1" opacity="0.8" />
+            </g>
+
+            <g id="right-hindwing">
+                <path d="M 420,285 C 530,270 680,230 780,200 C 790,197 790,218 775,232 C 700,295 560,360 425,320 Z" fill="url(#wingBaseGrad)" stroke="#0f172a" stroke-width="1.8" />
+                <path d="M 420,285 C 530,270 680,230 780,200 C 790,197 790,218 775,232 C 700,295 560,360 425,320 Z" fill="url(#wingHighlight)" class="wing-shimmer" />
+                <path d="M 420,285 C 530,270 680,230 780,200" fill="none" stroke="#0284c7" stroke-width="2.5" />
+                <path d="M 422,290 C 535,275 675,237 762,210" fill="none" stroke="#0f172a" stroke-width="1.5" />
+                <path d="M 425,297 C 530,288 650,255 740,228" fill="none" stroke="#0f172a" stroke-width="1.2" />
+                <polygon points="750,208 725,215 730,221 755,214" fill="#0f172a" opacity="0.85" />
+                <path d="M 460,281 L 459,293 M 500,274 L 499,288 M 540,265 L 539,280 M 580,253 L 579,270 M 620,241 L 619,259 M 660,229 L 659,248 M 700,218 L 699,237" stroke="#334155" stroke-width="0.8" opacity="0.7" />
+                <path d="M 450,305 Q 520,315 620,280 M 490,315 Q 570,310 670,265 M 540,315 Q 620,295 710,250" stroke="#0284c7" stroke-width="0.8" opacity="0.6" />
+                <path d="M 445,300 C 480,335 520,340 550,315 C 530,295 480,285 445,300 Z" fill="none" stroke="#0f172a" stroke-width="1" opacity="0.8" />
+            </g>
+        </g>
+
+        <g id="head-group">
+            <path d="M 370,195 C 360,170 380,150 400,150 C 420,150 440,170 430,195 C 420,210 380,210 370,195 Z" fill="url(#headGrad)" stroke="#042f2e" stroke-width="2" />
+            
+            <ellipse cx="368" cy="182" rx="28" ry="24" fill="url(#eyeGradLeft)" stroke="#042f2e" stroke-width="1.5" />
+            <ellipse cx="432" cy="182" rx="28" ry="24" fill="url(#eyeGradRight)" stroke="#042f2e" stroke-width="1.5" />
+
+            <ellipse cx="360" cy="174" rx="8" ry="5" fill="#ffffff" opacity="0.65" transform="rotate(-20 360 174)" />
+            <ellipse cx="440" cy="174" rx="8" ry="5" fill="#ffffff" opacity="0.65" transform="rotate(20 440 174)" />
+            <circle cx="372" cy="188" r="3" fill="#ffffff" opacity="0.4" />
+            <circle cx="428" cy="188" r="3" fill="#ffffff" opacity="0.4" />
+
+            <circle cx="400" cy="165" r="2.5" fill="#f59e0b" />
+            <circle cx="393" cy="170" r="2" fill="#f59e0b" />
+            <circle cx="407" cy="170" r="2" fill="#f59e0b" />
+
+            <path d="M 390,160 Q 385,148 382,142" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" fill="none" />
+            <path d="M 410,160 Q 415,148 418,142" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" fill="none" />
+
+            <path d="M 390,200 Q 400,208 410,200 C 405,212 395,212 390,200 Z" fill="#0d9488" stroke="#042f2e" stroke-width="1" />
+        </g>
+    </svg>
+
+</body>
+</html>

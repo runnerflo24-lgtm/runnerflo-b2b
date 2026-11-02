@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<style id="rf-universal-hero-fix">
+  /* ── Normalise gigantic brutalist typography across all edtech templates & mobile optimization ── */
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+  }
+  h1, .hero h1, .hc h1, .hero-content h1, .hero-title, header h1, [class*="hero"] h1, main h1, section:first-of-type h1 {
+    font-size: clamp(30px, 4vw, 50px) !important;
+    line-height: 1.16 !important;
+    letter-spacing: -0.03em !important;
+    max-width: 900px !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-transform: none !important;
+  }
+  h1 span, h1 i, h1 em, h1 a, h1 b, h1 strong {
+    font-size: inherit !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
+    padding-left: 0 !important;
+  }
+  .hero p, .hc p, .hero-content p, [class*="hero"] p, p.sub, p.tagline, p.fade-in, p.lead {
+    font-size: clamp(14px, 1.6vw, 17px) !important;
+    line-height: 1.65 !important;
+    max-width: 680px !important;
+    opacity: 0.9 !important;
+    margin-top: 14px !important;
+    margin-bottom: 24px !important;
+  }
+  .hero, .hc, [class*="hero"] {
+    min-height: auto !important;
+    padding-top: clamp(32px, 6vh, 72px) !important;
+    padding-bottom: clamp(32px, 6vh, 72px) !important;
+  }
+  @media (max-width: 640px) {
+    h1, .hero h1, .hc h1, .hero-content h1, .hero-title, header h1, [class*="hero"] h1, main h1, section:first-of-type h1 {
+      font-size: clamp(24px, 7vw, 34px) !important;
+      line-height: 1.2 !important;
+    }
+    .hero p, .hc p, .hero-content p, [class*="hero"] p, p.sub, p.tagline, p.fade-in, p.lead {
+      font-size: 14px !important;
+      line-height: 1.55 !important;
+      margin-top: 10px !important;
+      margin-bottom: 18px !important;
+    }
+    .hero, .hc, [class*="hero"] {
+      padding-top: 24px !important;
+      padding-bottom: 28px !important;
+    }
+  }
+</style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learnary — Learning your team actually enjoys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFCF5; --surface:#FFFFFF; --line:#EFE6D2;
+  --ink:#2B2A2E; --muted:#726F7A;
+  --green:#3FBF57; --green-dk:#2E9C41; --blue:#3AA8FF; --blue-dk:#1F86D6;
+  --yellow:#FFC22E; --yellow-dk:#E6A400; --pink:#FF5A7A; --pink-dk:#E23F5F; --purple:#9B6DFF; --purple-dk:#7B4FE0;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth;}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{background:var(--bg); color:var(--ink); font-family:'Nunito',sans-serif; line-height:1.55; overflow-x:hidden;}
+h1,h2,h3{font-family:'Baloo 2',sans-serif; font-weight:700; line-height:1.12;}
+p{color:var(--muted); max-width:56ch;}
+a{color:inherit; text-decoration:none;}
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px; position:relative; z-index:2;}
+section{padding:96px 0; position:relative;}
+@media(max-width:640px){section{padding:56px 0;}}
+.pop-txt{color:var(--green-dk);}
+
+@keyframes bob{0%,100%{transform:translateY(0) rotate(var(--r,0deg));} 50%{transform:translateY(-14px) rotate(var(--r,0deg));}}
+@keyframes bounceIn{0%{opacity:0; transform:translateY(24px) scale(.94);} 60%{opacity:1; transform:translateY(-4px) scale(1.02);} 100%{opacity:1; transform:translateY(0) scale(1);}}
+@keyframes wiggle{0%,100%{transform:rotate(0deg);} 25%{transform:rotate(-3deg);} 75%{transform:rotate(3deg);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* 3D chunky buttons */
+.btn{display:inline-flex; align-items:center; gap:8px; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px; padding:14px 28px; border-radius:16px; border:none; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease;}
+.btn-primary{background:var(--blue); color:#fff; box-shadow:0 6px 0 var(--blue-dk);}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 0 var(--blue-dk);}
+.btn-primary:active{transform:translateY(4px); box-shadow:0 2px 0 var(--blue-dk);}
+.btn-ghost{background:#fff; color:var(--ink); border:2px solid var(--line); box-shadow:0 6px 0 var(--line);}
+.btn-ghost:hover{transform:translateY(-2px); box-shadow:0 8px 0 var(--line);}
+.btn-ghost:active{transform:translateY(4px); box-shadow:0 2px 0 var(--line);}
+
+nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:50; background:rgba(255,252,245,.92); backdrop-filter:blur(10px); border-bottom:2px solid var(--line);}
+.navbar{display:flex; align-items:center; justify-content:space-between; padding:16px 24px; max-width:1180px; margin:0 auto;}
+.logo{display:flex; align-items:center; gap:10px; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22px;}
+.logo-mark{width:32px; height:32px; border-radius:10px; background:var(--purple); display:flex; align-items:center; justify-content:center; font-size:16px;}
+.nav-links{display:flex; gap:30px; font-size:15px; font-weight:700; color:var(--muted);}
+.nav-links a:hover{color:var(--blue-dk);}
+.nav-cta{padding:11px 22px; font-size:14px;}
+
+/* hero */
+.hero{padding:70px 0 40px;}
+.hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:40px; align-items:center;}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;}}
+.badge-pill{display:inline-flex; align-items:center; gap:8px; background:#fff; border:2px solid var(--line); border-radius:100px; padding:8px 16px; font-weight:800; font-size:13px; color:var(--purple-dk); opacity:0; animation:bounceIn .7s .05s ease forwards;}
+.hero h1{font-size:clamp(34px,5vw,52px); margin-top:18px; opacity:0; animation:bounceIn .8s .15s ease forwards;}
+.hero p.lead{margin-top:18px; font-size:17.5px; max-width:44ch; opacity:0; animation:bounceIn .8s .3s ease forwards;}
+.hero-ctas{display:flex; gap:14px; margin-top:28px; flex-wrap:wrap; opacity:0; animation:bounceIn .8s .45s ease forwards;}
+.stars{display:flex; gap:10px; align-items:center; margin-top:26px; font-weight:800; font-size:13.5px; color:var(--muted); opacity:0; animation:bounceIn .8s .6s ease forwards;}
+.stars .s{color:var(--yellow);}
+
+.hero-art{position:relative; width:100%; aspect-ratio:1/1; max-width:440px; margin:0 auto;}
+.icon-chip{position:absolute; width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 6px 0 rgba(0,0,0,.08); animation:bob 4.5s ease-in-out infinite;}
+.icon-chip.i1{top:0; left:6%; background:var(--yellow); --r:-8deg; animation-delay:0s;}
+.icon-chip.i2{top:14%; right:2%; background:var(--pink); --r:6deg; animation-delay:.7s;}
+.icon-chip.i3{bottom:18%; left:0; background:var(--blue); --r:-6deg; animation-delay:1.4s;}
+.icon-chip.i4{bottom:2%; right:12%; background:var(--purple); --r:8deg; animation-delay:2.1s;}
+
+/* trust */
+.trust p{text-align:center; margin:0 auto 26px; color:var(--muted); font-weight:800; font-size:13px; letter-spacing:.03em;}
+.marquee{overflow:hidden; -webkit-mask:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);}
+.marquee-track{display:flex; gap:16px; width:max-content; animation:scroll 24s linear infinite;}
+.marquee-track div{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:16px; padding:11px 24px; border-radius:100px; border:2px solid var(--line); white-space:nowrap; background:#fff;}
+@keyframes scroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+
+.reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;}
+.reveal.in{opacity:1; transform:none;}
+@media(prefers-reduced-motion:reduce){.reveal,.hero *,.icon-chip{animation:none !important; opacity:1 !important; transform:none !important;}}
+
+/* progress/stats */
+.intro{display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center;}
+@media(max-width:900px){.intro{grid-template-columns:1fr;}}
+.stat-row{display:flex; gap:36px; margin-top:26px; flex-wrap:wrap;}
+.stat{background:#fff; border:2px solid var(--line); border-radius:18px; padding:16px 22px; box-shadow:0 5px 0 var(--line);}
+.stat b{font-family:'Baloo 2',sans-serif; font-size:30px; display:block; color:var(--pink-dk);}
+.stat span{font-size:12.5px; color:var(--muted); font-weight:700;}
+.progress-card{background:#fff; border:2px solid var(--line); border-radius:22px; padding:24px; box-shadow:0 8px 0 var(--line);}
+.p-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.p-row .name{font-weight:800; font-size:14px;}
+.p-track{background:#F0ECDD; border-radius:100px; height:12px; overflow:hidden; margin-top:6px;}
+.p-fill{height:100%; border-radius:100px;}
+.streak{display:flex; align-items:center; gap:10px; margin-top:18px; background:#FFF7E0; border:2px solid var(--yellow); border-radius:14px; padding:10px 14px; font-weight:800; font-size:13.5px; color:var(--yellow-dk);}
+
+/* bento programs */
+.bento{display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(2,140px); gap:16px; margin-top:44px;}
+@media(max-width:860px){.bento{grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(4,130px);}}
+.bento-item{border-radius:20px; border:2px solid var(--line); padding:18px; display:flex; flex-direction:column; justify-content:flex-end; transition:transform .3s; font-weight:800; font-size:14.5px; box-shadow:0 6px 0 var(--line);}
+.bento-item:hover{transform:translateY(-6px) rotate(-1deg);}
+.bento-item.big{grid-column:span 2; grid-row:span 2; font-size:18px;}
+.bg1{background:#E9FBEC;} .bg2{background:#EAF5FF;} .bg3{background:#FFEFF2;} .bg4{background:#FFF8E3;} .bg5{background:#F4EEFF;}
+
+.diff-head{max-width:640px; margin-bottom:40px;}
+.diff-list{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+@media(max-width:800px){.diff-list{grid-template-columns:1fr;}}
+.diff-card{border-radius:20px; border:2px solid var(--line); background:#fff; padding:26px; transition:transform .3s; box-shadow:0 6px 0 var(--line);}
+.diff-card:hover{transform:translateY(-6px);}
+.diff-emoji{width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px;}
+.diff-card h3{font-size:18px; margin-top:14px;}
+.diff-card p{font-size:14px; margin-top:8px;}
+
+.services{display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:start;}
+@media(max-width:900px){.services{grid-template-columns:1fr;}}
+.svc-item{display:flex; gap:16px; padding:18px; border-radius:18px; transition:background .3s;}
+.svc-item:hover{background:#fff;}
+.svc-icon{width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;}
+.svc-item h3{font-size:18px; font-weight:800;}
+.svc-item p{font-size:14px; margin-top:4px;}
+.svc-panel{border-radius:22px; border:2px solid var(--line); background:#fff; padding:28px; box-shadow:0 8px 0 var(--line);}
+
+.case{border-radius:24px; background:#fff; border:2px solid var(--line); display:grid; grid-template-columns:1fr 1fr; overflow:hidden; box-shadow:0 8px 0 var(--line);}
+@media(max-width:800px){.case{grid-template-columns:1fr;}}
+.case-visual{min-height:240px; background:linear-gradient(150deg,#EAF5FF,#FFEFF2); display:flex; align-items:center; justify-content:center; font-size:64px;}
+.case-body{padding:40px;}
+.case-stats{display:flex; gap:36px; margin:22px 0;}
+.case-stats b{font-family:'Baloo 2',sans-serif; font-size:30px; display:block; color:var(--pink-dk);}
+.case-stats span{font-size:12px; color:var(--muted); font-weight:700;}
+
+.steps{display:flex; gap:10px; margin:34px 0 40px; flex-wrap:wrap;}
+.step-tab{padding:10px 18px; border-radius:100px; border:2px solid var(--line); font-size:13px; font-weight:800; color:var(--muted); cursor:pointer; background:#fff; transition:all .25s;}
+.step-tab.active{background:var(--purple); color:#fff; border-color:var(--purple-dk); box-shadow:0 4px 0 var(--purple-dk);}
+.step-list{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+@media(max-width:800px){.step-list{grid-template-columns:1fr;}}
+.step-card{border:2px solid var(--line); border-radius:20px; padding:24px; background:#fff; box-shadow:0 6px 0 var(--line); transition:transform .3s;}
+.step-card:hover{transform:translateY(-6px);}
+.step-num{font-family:'Baloo 2',sans-serif; font-size:16px; color:var(--blue-dk);}
+
+.cta-band{border-radius:28px; text-align:center; padding:64px 24px; background:linear-gradient(120deg,var(--purple),var(--pink)); position:relative; overflow:hidden;}
+.cta-band h2{color:#fff; font-size:clamp(28px,4.4vw,40px); max-width:16ch; margin:0 auto 26px;}
+.cta-band .btn-ghost{background:#fff; box-shadow:0 6px 0 #b34f78;}
+.confetti{position:absolute; width:10px; height:10px; border-radius:3px; opacity:.9; animation:bob 3.5s ease-in-out infinite;}
+.two-cta{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:26px; position:relative; z-index:2;}
+@media(max-width:700px){.two-cta{grid-template-columns:1fr;}}
+.mini-cta{border-radius:18px; padding:20px; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,.18); border:2px solid rgba(255,255,255,.3); color:#fff; transition:transform .3s;}
+.mini-cta:hover{transform:translateY(-4px);}
+.mini-cta h3{font-size:15px; font-weight:800;}
+.mini-cta span:first-of-type{font-size:12.5px; opacity:.9;}
+
+footer{border-top:2px solid var(--line); padding:56px 0 30px; font-size:13.5px; color:var(--muted);}
+.foot-grid{display:grid; grid-template-columns:1.3fr 1fr 1fr 1.2fr; gap:32px;}
+@media(max-width:800px){.foot-grid{grid-template-columns:1fr 1fr;}}
+.foot-grid h4{color:var(--ink); font-size:13px; margin-bottom:12px; font-weight:800;}
+.foot-grid ul{list-style:none;}
+.foot-grid li{margin-bottom:8px;}
+.foot-grid li a:hover{color:var(--blue-dk);}
+.sub-row{display:flex; gap:8px; margin-top:16px;}
+.sub-row input{flex:1; padding:11px 14px; border-radius:100px; border:2px solid var(--line); background:#fff; color:var(--ink); font-size:13.5px;}
+.sub-row button{background:var(--blue); color:#fff; border:0; padding:11px 20px; border-radius:100px; font-weight:800; font-size:13.5px; box-shadow:0 4px 0 var(--blue-dk);}
+.foot-bottom{margin-top:44px; padding-top:20px; border-top:2px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navbar">
+    <div class="logo"><span class="logo-mark">🌱</span>Learnary</div>
+    <div class="nav-links">
+      <a href="#programs">Programs</a>
+      <a href="#solutions">Solutions</a>
+      <a href="#method">Method</a>
+      <a href="#about">About</a>
+    </div>
+    <a href="#" class="btn btn-primary nav-cta">Book a demo</a>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <div class="hero-grid">
+    <div>
+      <div class="badge-pill">🎉 Loved by 60+ growing teams</div>
+      <h1>Training your team will actually <span class="pop-txt">look forward to.</span></h1>
+      <p class="lead">Learnary turns onboarding and skills training into bite-sized, coached paths — with progress people can see and managers actually check.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn btn-primary">Start a free pilot</a>
+        <a href="#" class="btn btn-ghost">See how it works</a>
+      </div>
+      <div class="stars"><span class="s">★★★★★</span> 4.9/5 from L&amp;D teams</div>
+    </div>
+
+    <div class="hero-art">
+      <svg viewBox="0 0 300 300" width="100%" height="100%">
+        <circle cx="150" cy="160" r="95" fill="#3AA8FF"/>
+        <circle cx="150" cy="160" r="95" fill="none" stroke="#1F86D6" stroke-width="6"/>
+        <circle cx="120" cy="145" r="10" fill="#2B2A2E"/>
+        <circle cx="180" cy="145" r="10" fill="#2B2A2E"/>
+        <path d="M120 185 Q150 210 180 185" stroke="#2B2A2E" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <circle cx="98" cy="120" r="9" fill="#fff" opacity=".5"/>
+      </svg>
+      <div class="icon-chip i1">📘</div>
+      <div class="icon-chip i2">💡</div>
+      <div class="icon-chip i3">🏆</div>
+      <div class="icon-chip i4">🚀</div>
+    </div>
+  </div>
+</header>
+
+<section class="trust wrap reveal">
+  <p>CHOSEN BY PEOPLE TEAMS SCALING FAST</p>
+  <div class="marquee"><div class="marquee-track">
+    <div>Arbor</div><div>Northline</div><div>Mira Health</div><div>Kestrel</div><div>Vantree</div><div>Boro</div>
+    <div>Arbor</div><div>Northline</div><div>Mira Health</div><div>Kestrel</div><div>Vantree</div><div>Boro</div>
+  </div></div>
+</section>
+
+<section class="wrap reveal">
+  <div class="intro">
+    <div>
+      <h2>Built on how adults actually retain skills — not how courses are easiest to publish.</h2>
+      <div class="stat-row">
+        <div class="stat"><b>4.2x</b><span>faster time-to-competency</span></div>
+        <div class="stat"><b>92%</b><span>cohort completion rate</span></div>
+      </div>
+    </div>
+    <div class="progress-card">
+      <div class="p-row"><span class="name">Onboarding path</span><b>82%</b></div>
+      <div class="p-track"><div class="p-fill" style="width:82%; background:var(--green);"></div></div>
+      <div class="p-row" style="margin-top:16px;"><span class="name">Compliance refresh</span><b>55%</b></div>
+      <div class="p-track"><div class="p-fill" style="width:55%; background:var(--blue);"></div></div>
+      <div class="streak">🔥 12-week team learning streak!</div>
+    </div>
+  </div>
+</section>
+
+<section id="programs" class="wrap reveal">
+  <h2 style="max-width:20ch;">Programs shaped around the teams that use them</h2>
+  <div class="bento">
+    <div class="bento-item big bg1">🏥 Healthcare onboarding</div>
+    <div class="bento-item bg2">💰 Financial compliance</div>
+    <div class="bento-item bg3">💻 Technology upskilling</div>
+    <div class="bento-item bg4">🦺 Manufacturing safety</div>
+    <div class="bento-item bg5">🛍️ Retail &amp; service teams</div>
+  </div>
+</section>
+
+<section id="method" class="wrap reveal">
+  <div class="diff-head">
+    <h2>What makes Learnary different</h2>
+    <p>Most platforms optimize for content libraries. We optimize for the moment a skill actually transfers into someone's job.</p>
+  </div>
+  <div class="diff-list">
+    <div class="diff-card"><div class="diff-emoji" style="background:#E9FBEC;">🧑‍🏫</div><h3>Designed with your experts</h3><p>Courseware built with the people who already do the job well.</p></div>
+    <div class="diff-card"><div class="diff-emoji" style="background:#EAF5FF;">🎯</div><h3>Coaching, not just content</h3><p>Live checkpoints so managers catch gaps before they become habits.</p></div>
+    <div class="diff-card"><div class="diff-emoji" style="background:#FFF8E3;">📊</div><h3>Reporting managers open</h3><p>Dashboards built for five-minute Monday check-ins, not quarterly audits.</p></div>
+  </div>
+</section>
+
+<section id="solutions" class="wrap reveal">
+  <div class="services">
+    <div>
+      <div class="svc-item"><div class="svc-icon" style="background:#E9FBEC;">📋</div><div><h3>Onboarding programs</h3><p>Structured 30/60/90 paths that get new hires productive without burying managers in admin.</p></div></div>
+      <div class="svc-item"><div class="svc-icon" style="background:#EAF5FF;">🧩</div><div><h3>Custom learning builds</h3><p>Courseware written with your subject experts, not stock templates.</p></div></div>
+      <div class="svc-item"><div class="svc-icon" style="background:#FFEFF2;">🔍</div><div><h3>Skills-gap assessments</h3><p>Baseline every team, then route people to the right path automatically.</p></div></div>
+      <div class="svc-item"><div class="svc-icon" style="background:#F4EEFF;">✅</div><div><h3>Compliance &amp; certification</h3><p>Renewals, audit trails, and reminders handled without spreadsheets.</p></div></div>
+    </div>
+    <div class="svc-panel">
+      <div class="p-row"><span class="name">Team mastery</span><b>★ Level 7</b></div>
+      <div class="p-track"><div class="p-fill" style="width:70%; background:var(--purple);"></div></div>
+      <div class="streak" style="margin-top:20px; background:#F4EEFF; border-color:var(--purple);">🎓 214 certificates earned this quarter</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap reveal">
+  <div class="badge-pill" style="margin-bottom:14px;">✨ Case study</div>
+  <h2 style="max-width:18ch; margin-bottom:24px;">Cutting new-hire ramp time for a national logistics network</h2>
+  <div class="case">
+    <div class="case-visual">📦</div>
+    <div class="case-body">
+      <p>Warehouse teams were losing three weeks to inconsistent, paper-based onboarding across 40 sites.</p>
+      <p style="margin-top:10px;">Learnary replaced it with a single mobile-first path and live manager checkpoints.</p>
+      <div class="case-stats">
+        <div><b>3.1x</b><span>faster ramp-up</span></div>
+        <div><b>44%</b><span>fewer support tickets</span></div>
+      </div>
+      <a href="#" class="btn btn-primary">Read the full story</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap reveal">
+  <h2 style="max-width:16ch;">Our rollout, start to scale</h2>
+  <div class="steps">
+    <div class="step-tab active">Stage 1</div>
+    <div class="step-tab">Stage 2</div>
+    <div class="step-tab">Stage 3</div>
+  </div>
+  <div class="step-list">
+    <div class="step-card"><div class="step-num">01</div><h3 style="margin-top:10px; font-size:18px;">Map the roles</h3><p style="margin-top:8px; font-size:14px;">We audit what each role actually needs to know.</p></div>
+    <div class="step-card"><div class="step-num">02</div><h3 style="margin-top:10px; font-size:18px;">Build the path</h3><p style="margin-top:8px; font-size:14px;">Content, coaching, and checkpoints go live in weeks.</p></div>
+    <div class="step-card"><div class="step-num">03</div><h3 style="margin-top:10px; font-size:18px;">Track and adjust</h3><p style="margin-top:8px; font-size:14px;">Managers see progress; we tune paths on real data.</p></div>
+  </div>
+</section>
+
+<section class="wrap reveal">
+  <div class="cta-band">
+    <div class="confetti" style="top:10%; left:8%; background:#fff;"></div>
+    <div class="confetti" style="top:20%; right:12%; background:var(--yellow); animation-delay:.5s;"></div>
+    <div class="confetti" style="bottom:16%; left:20%; background:var(--pink); animation-delay:1s;"></div>
+    <div class="confetti" style="bottom:24%; right:22%; background:#fff; animation-delay:1.5s;"></div>
+    <h2>Ready to make training something people finish?</h2>
+    <a href="#" class="btn btn-ghost">Book a free rollout call</a>
+    <div class="two-cta">
+      <div class="mini-cta"><div><h3>Scaling past 200 employees?</h3><span>Talk to sales</span></div><span>&#8594;</span></div>
+      <div class="mini-cta"><div><h3>Need a hand designing paths?</h3><span>Talk to our curriculum team</span></div><span>&#8594;</span></div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="foot-grid">
+    <div>
+      <div class="logo" style="margin-bottom:14px;"><span class="logo-mark">🌱</span>Learnary</div>
+      <p style="max-width:32ch;">Learning platform for teams that measure growth in performance, not seat time.</p>
+      <div class="sub-row"><input type="email" placeholder="Work email"><button>Subscribe</button></div>
+    </div>
+    <div><h4>Product</h4><ul><li><a href="#">Programs</a></li><li><a href="#">Solutions</a></li><li><a href="#">Pricing</a></li><li><a href="#">Integrations</a></li></ul></div>
+    <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Case studies</a></li><li><a href="#">Contact</a></li></ul></div>
+    <div><h4>Contact</h4><p>hello@learnary.example</p><p style="margin-top:6px;">+1 415 555 0148</p><p style="margin-top:14px;">140 Learning Way<br>Austin, TX 73301</p></div>
+  </div>
+  <div class="foot-bottom">
+    <span>&copy; 2026 Learnary. All rights reserved.</span>
+    <span>Privacy &middot; Terms</span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.step-tab').forEach((t)=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.step-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

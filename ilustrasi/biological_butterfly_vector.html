@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biological Butterfly Illustration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        svg {
+            width: 85vw;
+            height: 85vh;
+            max-width: 900px;
+            max-height: 900px;
+            filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.25));
+        }
+    </style>
+</head>
+<body>
+
+    <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Wing Base Gradient Left -->
+            <linearGradient id="wingOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF5500"/>
+                <stop offset="45%" stop-color="#FF7700"/>
+                <stop offset="80%" stop-color="#FFAA00"/>
+                <stop offset="100%" stop-color="#FFD700"/>
+            </linearGradient>
+
+            <!-- Wing Accent Blue Gradient -->
+            <radialGradient id="wingIridescent" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.8"/>
+                <stop offset="50%" stop-color="#0088FF" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#0000AA" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- Body Shading Gradient -->
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#111111"/>
+                <stop offset="30%" stop-color="#2C2C2C"/>
+                <stop offset="50%" stop-color="#4F4F4F"/>
+                <stop offset="70%" stop-color="#2C2C2C"/>
+                <stop offset="100%" stop-color="#0A0A0A"/>
+            </linearGradient>
+
+            <linearGradient id="veinDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0F0F14"/>
+                <stop offset="100%" stop-color="#1C1B24"/>
+            </linearGradient>
+
+            <!-- Soft Glow Filter -->
+            <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g id="butterfly" transform="translate(0, 20)">
+            
+            <!-- Left Hindwing Base -->
+            <path d="M 490 520 C 430 550, 250 560, 210 680 C 180 770, 260 900, 370 910 C 450 915, 475 830, 495 680 Z" 
+                  fill="url(#wingOrange)" stroke="#111" stroke-width="3"/>
+            
+            <!-- Right Hindwing Base -->
+            <path d="M 510 520 C 570 550, 750 560, 790 680 C 820 770, 740 900, 630 910 C 550 915, 525 830, 505 680 Z" 
+                  fill="url(#wingOrange)" stroke="#111" stroke-width="3"/>
+
+            <!-- Hindwing Black Margins & Spots (Left) -->
+            <path d="M 210 680 C 230 790, 280 890, 370 910 C 450 915, 475 830, 495 680 C 490 750, 440 895, 370 895 C 290 895, 225 800, 210 680 Z" 
+                  fill="#111118"/>
+            <circle cx="270" cy="830" r="14" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="315" cy="865" r="11" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="365" cy="880" r="10" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="415" cy="870" r="9" stroke="#FF3300" stroke-width="4" fill="#111"/>
+
+            <!-- Hindwing Black Margins & Spots (Right) -->
+            <path d="M 790 680 C 770 790, 720 890, 630 910 C 550 915, 525 830, 505 680 C 510 750, 560 895, 630 895 C 710 895, 775 800, 790 680 Z" 
+                  fill="#111118"/>
+            <circle cx="730" cy="830" r="14" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="685" cy="865" r="11" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="635" cy="880" r="10" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="585" cy="870" r="9" stroke="#FF3300" stroke-width="4" fill="#111"/>
+
+
+            <!-- Left Forewing Outer Layer -->
+            <path d="M 485 490 C 430 350, 220 160, 80 150 C 40 250, 60 420, 190 530 C 290 615, 440 560, 485 490 Z" 
+                  fill="url(#wingOrange)"/>
+            <path d="M 485 490 C 430 350, 220 160, 80 150 C 40 250, 60 420, 190 530 C 290 615, 440 560, 485 490 Z" 
+                  fill="url(#wingIridescent)"/>
+
+            <!-- Right Forewing Outer Layer -->
+            <path d="M 515 490 C 570 350, 780 160, 920 150 C 960 250, 940 420, 810 530 C 710 615, 560 560, 515 490 Z" 
+                  fill="url(#wingOrange)"/>
+            <path d="M 515 490 C 570 350, 780 160, 920 150 C 960 250, 940 420, 810 530 C 710 615, 560 560, 515 490 Z" 
+                  fill="url(#wingIridescent)"/>
+
+            <!-- Left Forewing Black Borders & Pattern -->
+            <path d="M 80 150 C 60 200, 50 300, 85 380 C 75 320, 95 240, 140 180 Z" fill="#111116"/>
+            <path d="M 80 150 C 200 160, 360 260, 485 490 C 460 520, 380 570, 190 530 C 100 490, 50 380, 80 150 Z" 
+                  fill="none" stroke="#111116" stroke-width="28" stroke-linejoin="round"/>
+            
+            <!-- Right Forewing Black Borders & Pattern -->
+            <path d="M 920 150 C 940 200, 950 300, 915 380 C 925 320, 905 240, 860 180 Z" fill="#111116"/>
+            <path d="M 920 150 C 800 160, 640 260, 515 490 C 540 520, 620 570, 810 530 C 900 490, 950 380, 920 150 Z" 
+                  fill="none" stroke="#111116" stroke-width="28" stroke-linejoin="round"/>
+
+
+            <!-- Left Wing Veins -->
+            <g stroke="url(#veinDark)" stroke-width="5" fill="none" stroke-linecap="round">
+                <!-- Discal Cell -->
+                <path d="M 470 470 C 400 410, 310 380, 260 410 C 230 430, 270 480, 350 490 C 420 500, 470 470, 470 470 Z" stroke-width="6"/>
+                <!-- Radiating Veins -->
+                <path d="M 260 410 L 140 260"/>
+                <path d="M 280 390 L 210 200"/>
+                <path d="M 330 385 L 310 180"/>
+                <path d="M 235 440 L 110 370"/>
+                <path d="M 250 475 L 125 460"/>
+                <path d="M 310 490 L 180 535"/>
+                <path d="M 380 495 L 280 560"/>
+
+                <!-- Hindwing Veins -->
+                <path d="M 480 560 C 440 610, 380 630, 340 620"/>
+                <path d="M 340 620 L 230 690"/>
+                <path d="M 340 620 L 280 770"/>
+                <path d="M 380 630 L 350 820"/>
+                <path d="M 420 625 L 420 830"/>
+            </g>
+
+            <!-- Right Wing Veins -->
+            <g stroke="url(#veinDark)" stroke-width="5" fill="none" stroke-linecap="round">
+                <!-- Discal Cell -->
+                <path d="M 530 470 C 600 410, 690 380, 740 410 C 770 430, 730 480, 650 490 C 580 500, 530 470, 530 470 Z" stroke-width="6"/>
+                <!-- Radiating Veins -->
+                <path d="M 740 410 L 860 260"/>
+                <path d="M 720 390 L 790 200"/>
+                <path d="M 670 385 L 690 180"/>
+                <path d="M 765 440 L 890 370"/>
+                <path d="M 750 475 L 875 460"/>
+                <path d="M 690 490 L 820 535"/>
+                <path d="M 620 495 L 720 560"/>
+
+                <!-- Hindwing Veins -->
+                <path d="M 520 560 C 560 610, 620 630, 660 620"/>
+                <path d="M 660 620 L 770 690"/>
+                <path d="M 660 620 L 720 770"/>
+                <path d="M 620 630 L 650 820"/>
+                <path d="M 580 625 L 580 830"/>
+            </g>
+
+
+            <!-- Left Wing Edge Spots -->
+            <g fill="#FFFFFF" opacity="0.95">
+                <circle cx="100" cy="170" r="5"/>
+                <circle cx="125" cy="190" r="6"/>
+                <circle cx="160" cy="180" r="6"/>
+                <circle cx="210" cy="165" r="7"/>
+                <circle cx="270" cy="160" r="6"/>
+                <circle cx="85" cy="240" r="6"/>
+                <circle cx="75" cy="290" r="6"/>
+                <circle cx="80" cy="340" r="6"/>
+                <circle cx="95" cy="390" r="7"/>
+                <circle cx="120" cy="440" r="6"/>
+                <circle cx="150" cy="485" r="6"/>
+                <circle cx="185" cy="520" r="6"/>
+                <!-- Interior Accent Spots -->
+                <ellipse cx="230" cy="250" rx="12" ry="6" transform="rotate(-30 230 250)"/>
+                <ellipse cx="290" cy="230" rx="10" ry="5" transform="rotate(-15 290 230)"/>
+                <ellipse cx="170" cy="300" rx="14" ry="7" transform="rotate(-45 170 300)"/>
+            </g>
+
+            <!-- Right Wing Edge Spots -->
+            <g fill="#FFFFFF" opacity="0.95">
+                <circle cx="900" cy="170" r="5"/>
+                <circle cx="875" cy="190" r="6"/>
+                <circle cx="840" cy="180" r="6"/>
+                <circle cx="790" cy="165" r="7"/>
+                <circle cx="730" cy="160" r="6"/>
+                <circle cx="915" cy="240" r="6"/>
+                <circle cx="925" cy="290" r="6"/>
+                <circle cx="920" cy="340" r="6"/>
+                <circle cx="905" cy="390" r="7"/>
+                <circle cx="880" cy="440" r="6"/>
+                <circle cx="850" cy="485" r="6"/>
+                <circle cx="815" cy="520" r="6"/>
+                <!-- Interior Accent Spots -->
+                <ellipse cx="770" cy="250" rx="12" ry="6" transform="rotate(30 770 250)"/>
+                <ellipse cx="710" cy="230" rx="10" ry="5" transform="rotate(15 710 230)"/>
+                <ellipse cx="830" cy="300" rx="14" ry="7" transform="rotate(45 830 300)"/>
+            </g>
+
+
+            <!-- Antennae -->
+            <g stroke="#1A1A1A" stroke-width="4" fill="none" stroke-linecap="round">
+                <!-- Left Antenna -->
+                <path d="M 492 370 C 470 280, 410 180, 320 130"/>
+                <path d="M 320 130 C 310 125, 300 120, 290 125" stroke-width="7"/>
+                <!-- Right Antenna -->
+                <path d="M 508 370 C 530 280, 590 180, 680 130"/>
+                <path d="M 680 130 C 690 125, 700 120, 710 125" stroke-width="7"/>
+            </g>
+
+            <!-- Antenna Clubs -->
+            <ellipse cx="288" cy="125" rx="12" ry="5" transform="rotate(20 288 125)" fill="#0D0D0D"/>
+            <ellipse cx="712" cy="125" rx="12" ry="5" transform="rotate(-20 712 125)" fill="#0D0D0D"/>
+
+            <!-- Head -->
+            <circle cx="500" cy="375" r="22" fill="url(#bodyGrad)"/>
+            <!-- Compound Eyes -->
+            <circle cx="484" cy="370" r="10" fill="#3B1200"/>
+            <circle cx="482" cy="368" r="8" fill="#0A0A0A"/>
+            <circle cx="480" cy="366" r="3" fill="#FFFFFF" opacity="0.8"/>
+            
+            <circle cx="516" cy="370" r="10" fill="#3B1200"/>
+            <circle cx="518" cy="368" r="8" fill="#0A0A0A"/>
+            <circle cx="520" cy="366" r="3" fill="#FFFFFF" opacity="0.8"/>
+
+            <!-- Thorax (Chest) -->
+            <path d="M 475 390 C 470 430, 475 490, 500 500 C 525 490, 530 430, 525 390 Z" fill="url(#bodyGrad)"/>
+            <!-- Thorax Texture/Segments -->
+            <g stroke="#111" stroke-width="3" opacity="0.6">
+                <line x1="480" y1="410" x2="520" y2="410"/>
+                <line x1="477" y1="430" x2="523" y2="430"/>
+                <line x1="476" y1="450" x2="524" y2="450"/>
+                <line x1="479" y1="470" x2="521" y2="470"/>
+            </g>
+            <!-- Thorax Fur/Highlight -->
+            <ellipse cx="500" cy="435" rx="14" ry="35" fill="#555" opacity="0.25"/>
+
+            <!-- Abdomen (Tail) -->
+            <path d="M 482 495 C 480 580, 490 670, 500 710 C 510 670, 520 580, 518 495 Z" fill="url(#bodyGrad)"/>
+            
+            <!-- Abdominal Rings (Biological Segmentation) -->
+            <g stroke="#0D0D0D" stroke-width="3" fill="none">
+                <path d="M 483 520 Q 500 530 517 520"/>
+                <path d="M 484 545 Q 500 555 516 545"/>
+                <path d="M 485 570 Q 500 580 515 570"/>
+                <path d="M 487 595 Q 500 605 513 595"/>
+                <path d="M 489 620 Q 500 628 511 620"/>
+                <path d="M 491 645 Q 500 652 509 645"/>
+                <path d="M 494 670 Q 500 675 506 670"/>
+            </g>
+
+            <!-- Abdomen Subtle Highlights -->
+            <path d="M 497 500 L 497 695" stroke="#777" stroke-width="2" opacity="0.3"/>
+
+        </g>
+    </svg>
+
+</body>
+</html>

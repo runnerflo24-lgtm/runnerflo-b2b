@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biological Beetle Visual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            max-width: 90vw;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.25));
+            user-select: none;
+        }
+
+        /* Subtle organic pulsing for realistic metallic sheen effect */
+        @keyframes metallicSheen {
+            0% { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+            50% { filter: drop-shadow(0 15px 25px rgba(25, 118, 210, 0.3)); }
+            100% { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+        }
+
+        .beetle-container {
+            animation: metallicSheen 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="beetle-container">
+        <svg id="biological-beetle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+            <defs>
+                <!-- Metallic Elytra Left/Right Gradient -->
+                <radialGradient id="elytraLeftGrad" cx="35%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#4db6ac"/>
+                    <stop offset="25%" stop-color="#00897b"/>
+                    <stop offset="65%" stop-color="#004d40"/>
+                    <stop offset="100%" stop-color="#001a14"/>
+                </radialGradient>
+                
+                <radialGradient id="elytraRightGrad" cx="65%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#4db6ac"/>
+                    <stop offset="25%" stop-color="#00897b"/>
+                    <stop offset="65%" stop-color="#004d40"/>
+                    <stop offset="100%" stop-color="#001a14"/>
+                </radialGradient>
+
+                <linearGradient id="elytraHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+                    <stop offset="50%" stop-color="#80cbd3" stop-opacity="0.1"/>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0.4"/>
+                </linearGradient>
+
+                <!-- Pronotum Gradient -->
+                <radialGradient id="pronotumGrad" cx="50%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#26a69a"/>
+                    <stop offset="40%" stop-color="#00695c"/>
+                    <stop offset="85%" stop-color="#00251a"/>
+                    <stop offset="100%" stop-color="#000e0a"/>
+                </radialGradient>
+
+                <!-- Head and Mandibles Dark Metallic -->
+                <radialGradient id="headGrad" cx="50%" cy="40%" r="60%">
+                    <stop offset="0%" stop-color="#37474f"/>
+                    <stop offset="50%" stop-color="#212121"/>
+                    <stop offset="100%" stop-color="#0a0a0a"/>
+                </radialGradient>
+
+                <!-- Legs Segmented Metallic Gradient -->
+                <linearGradient id="legGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2c3e50"/>
+                    <stop offset="50%" stop-color="#000000"/>
+                    <stop offset="100%" stop-color="#111111"/>
+                </linearGradient>
+
+                <!-- Gold/Copper Accent Gradient -->
+                <linearGradient id="accentGold" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#ffd54f"/>
+                    <stop offset="50%" stop-color="#ff8f00"/>
+                    <stop offset="100%" stop-color="#ff6f00"/>
+                </linearGradient>
+
+                <!-- Pattern/Texture Overlay -->
+                <pattern id="punctures" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <circle cx="2" cy="2" r="0.7" fill="#000000" opacity="0.3"/>
+                    <circle cx="7" cy="7" r="0.6" fill="#000000" opacity="0.25"/>
+                </pattern>
+            </defs>
+
+            <g id="hind-legs">
+                <!-- Left Hind Leg -->
+                <path d="M350 620 Q 220 680 120 780 T 60 920 T 40 960" fill="none" stroke="url(#legGrad)" stroke-width="16" stroke-linecap="round"/>
+                <path d="M350 620 Q 220 680 120 780 T 60 920 T 40 960" fill="none" stroke="#4db6ac" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+                <!-- Tarsal Claws Left -->
+                <path d="M40 960 Q 35 970 25 975 M40 960 Q 45 970 50 975" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+
+                <!-- Right Hind Leg -->
+                <path d="M450 620 Q 580 680 680 780 T 740 920 T 760 960" fill="none" stroke="url(#legGrad)" stroke-width="16" stroke-linecap="round"/>
+                <path d="M450 620 Q 580 680 680 780 T 740 920 T 760 960" fill="none" stroke="#4db6ac" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+                <!-- Tarsal Claws Right -->
+                <path d="M760 960 Q 765 970 775 975 M760 960 Q 755 970 750 975" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+            </g>
+
+            <g id="middle-legs">
+                <!-- Left Mid Leg -->
+                <path d="M340 450 Q 180 430 110 520 T 50 680 T 35 720" fill="none" stroke="url(#legGrad)" stroke-width="18" stroke-linecap="round"/>
+                <path d="M340 450 Q 180 430 110 520 T 50 680 T 35 720" fill="none" stroke="#80cbd3" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+                <!-- Tibial Spines -->
+                <path d="M110 520 L 100 535 M 90 560 L 80 575 M 70 600 L 60 615" stroke="#111" stroke-width="3"/>
+
+                <!-- Right Mid Leg -->
+                <path d="M460 450 Q 620 430 690 520 T 750 680 T 765 720" fill="none" stroke="url(#legGrad)" stroke-width="18" stroke-linecap="round"/>
+                <path d="M460 450 Q 620 430 690 520 T 750 680 T 765 720" fill="none" stroke="#80cbd3" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+                <!-- Tibial Spines -->
+                <path d="M690 520 L 700 535 M 710 560 L 720 575 M 730 600 L 740 615" stroke="#111" stroke-width="3"/>
+            </g>
+
+            <g id="front-legs">
+                <!-- Left Front Leg -->
+                <path d="M330 310 Q 160 250 120 170 T 90 70 T 75 40" fill="none" stroke="url(#legGrad)" stroke-width="20" stroke-linecap="round"/>
+                <path d="M330 310 Q 160 250 120 170 T 90 70 T 75 40" fill="none" stroke="#80cbd3" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+                <!-- Anterior Serrations/Spines -->
+                <path d="M160 250 L 145 240 M 140 210 L 125 200 M 120 170 L 105 160" stroke="#0a0a0a" stroke-width="4"/>
+
+                <!-- Right Front Leg -->
+                <path d="M470 310 Q 640 250 680 170 T 710 70 T 725 40" fill="none" stroke="url(#legGrad)" stroke-width="20" stroke-linecap="round"/>
+                <path d="M470 310 Q 640 250 680 170 T 710 70 T 725 40" fill="none" stroke="#80cbd3" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+                <!-- Anterior Serrations/Spines -->
+                <path d="M640 250 L 655 240 M 660 210 L 675 200 M 680 170 L 695 160" stroke="#0a0a0a" stroke-width="4"/>
+            </g>
+
+            <g id="head-and-antennae">
+                <!-- Left Antenna -->
+                <path d="M350 200 Q 280 160 220 170 T 170 160" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+                <!-- Feathered Antenna Tip (Lamellate) -->
+                <path d="M190 165 L 165 145 M 185 165 L 160 150 M 180 165 L 155 155 M 175 165 L 150 160" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+
+                <!-- Right Antenna -->
+                <path d="M450 200 Q 520 160 580 170 T 630 160" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+                <!-- Feathered Antenna Tip (Lamellate) -->
+                <path d="M610 165 L 635 145 M 615 165 L 640 150 M 620 165 L 645 155 M 625 165 L 650 160" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+
+                <!-- Head Base -->
+                <path d="M340 220 C 340 170, 460 170, 460 220 C 470 260, 330 260, 340 220 Z" fill="url(#headGrad)" stroke="#050505" stroke-width="3"/>
+
+                <!-- Compound Eyes -->
+                <ellipse cx="335" cy="215" rx="14" ry="20" fill="#ff6f00" opacity="0.85"/>
+                <ellipse cx="335" cy="215" rx="14" ry="20" fill="url(#headGrad)" opacity="0.4"/>
+                <ellipse cx="465" cy="215" rx="14" ry="20" fill="#ff6f00" opacity="0.85"/>
+                <ellipse cx="465" cy="215" rx="14" ry="20" fill="url(#headGrad)" opacity="0.4"/>
+
+                <!-- Cephalic Horn / Mandibles (Biological Stag/Rhinoceros Beetle Features) -->
+                <path d="M380 180 C 370 100, 310 70, 280 50 C 310 80, 360 110, 390 175 Z" fill="url(#headGrad)" stroke="#000" stroke-width="2"/>
+                <path d="M420 180 C 430 100, 490 70, 520 50 C 490 80, 440 110, 410 175 Z" fill="url(#headGrad)" stroke="#000" stroke-width="2"/>
+                
+                <!-- Center Horn Tip Accent -->
+                <path d="M395 185 L 400 110 L 405 185 Z" fill="url(#headGrad)"/>
+            </g>
+
+            <g id="pronotum">
+                <path d="M 280 260 C 310 230, 490 230, 520 260 C 560 310, 550 410, 510 430 C 450 445, 350 445, 290 430 C 250 410, 240 310, 280 260 Z" 
+                      fill="url(#pronotumGrad)" stroke="#001a14" stroke-width="4"/>
+                
+                <!-- Pronotum Punctuation Texture -->
+                <path d="M 280 260 C 310 230, 490 230, 520 260 C 560 310, 550 410, 510 430 C 450 445, 350 445, 290 430 C 250 410, 240 310, 280 260 Z" 
+                      fill="url(#punctures)" opacity="0.5"/>
+
+                <!-- Pronotum Metallic Highlights -->
+                <path d="M 300 270 Q 400 245 500 270 Q 525 320 490 310 Q 400 280 310 310 Q 280 300 300 270 Z" 
+                      fill="#ffffff" opacity="0.15"/>
+                
+                <path d="M 380 240 Q 400 235 420 240 Q 410 380 400 420 Q 390 380 380 240 Z" 
+                      fill="url(#accentGold)" opacity="0.2"/>
+            </g>
+
+            <g id="scutellum">
+                <polygon points="400,425 380,455 420,455" fill="#00251a" stroke="#000" stroke-width="2"/>
+                <polygon points="400,428 385,452 415,452" fill="url(#accentGold)" opacity="0.6"/>
+            </g>
+
+            <g id="elytra">
+                <!-- Left Elytron -->
+                <path d="M 396 458 C 340 455, 240 500, 230 650 C 220 780, 310 900, 396 935 C 396 780, 396 600, 396 458 Z" 
+                      fill="url(#elytraLeftGrad)" stroke="#000e0a" stroke-width="4"/>
+                
+                <path d="M 396 458 C 340 455, 240 500, 230 650 C 220 780, 310 900, 396 935 C 396 780, 396 600, 396 458 Z" 
+                      fill="url(#punctures)"/>
+
+                <path d="M 396 458 C 340 455, 240 500, 230 650 C 220 780, 310 900, 396 935 C 396 780, 396 600, 396 458 Z" 
+                      fill="url(#elytraHighlight)"/>
+
+                <!-- Right Elytron -->
+                <path d="M 404 458 C 460 455, 560 500, 570 650 C 580 780, 490 900, 404 935 C 404 780, 404 600, 404 458 Z" 
+                      fill="url(#elytraRightGrad)" stroke="#000e0a" stroke-width="4"/>
+
+                <path d="M 404 458 C 460 455, 560 500, 570 650 C 580 780, 490 900, 404 935 C 404 780, 404 600, 404 458 Z" 
+                      fill="url(#punctures)"/>
+
+                <path d="M 404 458 C 460 455, 560 500, 570 650 C 580 780, 490 900, 404 935 C 404 780, 404 600, 404 458 Z" 
+                      fill="url(#elytraHighlight)"/>
+
+                <!-- Elytral Striations (Longitudinal Ribbed Lines) -->
+                <!-- Left Striations -->
+                <path d="M 370 465 Q 310 550 300 700 T 370 915" fill="none" stroke="#00251a" stroke-width="2" opacity="0.6"/>
+                <path d="M 340 480 Q 280 570 270 720 T 340 890" fill="none" stroke="#00251a" stroke-width="2" opacity="0.6"/>
+                <path d="M 310 505 Q 250 600 245 720 T 310 850" fill="none" stroke="#00251a" stroke-width="2" opacity="0.6"/>
+                
+                <!-- Right Striations -->
+                <path d="M 430 465 Q 490 550 500 700 T 430 915" fill="none" stroke="#00251a" stroke-width="2" opacity="0.6"/>
+                <path d="M 460 480 Q 520 570 530 720 T 460 890" fill="none" stroke="#00251a" stroke-width="2" opacity="0.6"/>
+                <path d="M 490 505 Q 550 600 555 720 T 490 850" fill="none" stroke="#00251a" stroke-width="2" opacity="0.6"/>
+
+                <!-- Suture Line (Center division line) -->
+                <line x1="400" y1="458" x2="400" y2="937" stroke="#000a07" stroke-width="3"/>
+            </g>
+
+            <g id="highlights-and-reflections">
+                <!-- Pronotum Specular Spot -->
+                <ellipse cx="330" cy="300" rx="30" ry="12" fill="#ffffff" opacity="0.25" transform="rotate(-25 330 300)"/>
+                <ellipse cx="470" cy="300" rx="30" ry="12" fill="#ffffff" opacity="0.25" transform="rotate(25 470 300)"/>
+
+                <!-- Elytra Upper Specular Spot -->
+                <ellipse cx="310" cy="540" rx="45" ry="18" fill="#ffffff" opacity="0.2" transform="rotate(-35 310 540)"/>
+                <ellipse cx="490" cy="540" rx="45" ry="18" fill="#ffffff" opacity="0.2" transform="rotate(35 490 540)"/>
+            </g>
+        </svg>
+    </div>
+
+    <script>
+        /**
+         * Programmatic helper functions to copy SVG or HTML source code
+         * without rendering any visual buttons or UI on screen.
+         */
+        window.copyBeetleSVG = function() {
+            const svgElement = document.getElementById('biological-beetle');
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            copyToClipboard(svgString);
+            console.log("Beetle SVG code copied to clipboard.");
+        };
+
+        window.copyBeetleHTML = function() {
+            const htmlString = document.documentElement.outerHTML;
+            copyToClipboard(htmlString);
+            console.log("Beetle HTML page code copied to clipboard.");
+        };
+
+        function copyToClipboard(text) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wasp Vector Illustration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Pure Wasp Graphic Responsive Styling */
+        svg#wasp {
+            width: 90vw;
+            height: 90vh;
+            max-width: 800px;
+            max-height: 800px;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.4));
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        svg#wasp:active {
+            transform: scale(0.97);
+        }
+
+        /* Minimal subtle copy-feedback indicator */
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(15, 23, 42, 0.9);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 9999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- WASP VECTOR GRAPHIC -->
+    <svg id="wasp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+        <defs>
+            <!-- Body Gradients -->
+            <radialGradient id="headGrad" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#3a2f25"/>
+                <stop offset="60%" stop-color="#1c1610"/>
+                <stop offset="100%" stop-color="#0a0806"/>
+            </radialGradient>
+
+            <radialGradient id="eyeGrad" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#603212"/>
+                <stop offset="50%" stop-color="#281204"/>
+                <stop offset="100%" stop-color="#050200"/>
+            </radialGradient>
+
+            <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fcd34d"/>
+                <stop offset="50%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+
+            <linearGradient id="yellowHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fef08a"/>
+                <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+
+            <radialGradient id="thoraxGrad" cx="40%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#4a3b2c"/>
+                <stop offset="50%" stop-color="#211a12"/>
+                <stop offset="100%" stop-color="#0a0805"/>
+            </radialGradient>
+
+            <linearGradient id="legGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#92400e"/>
+                <stop offset="50%" stop-color="#451a03"/>
+                <stop offset="100%" stop-color="#180901"/>
+            </linearGradient>
+
+            <!-- Wing Gradients -->
+            <linearGradient id="wingGradMain" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(254, 243, 199, 0.6)"/>
+                <stop offset="40%" stop-color="rgba(224, 231, 255, 0.4)"/>
+                <stop offset="80%" stop-color="rgba(199, 210, 254, 0.3)"/>
+                <stop offset="100%" stop-color="rgba(245, 158, 11, 0.45)"/>
+            </linearGradient>
+
+            <linearGradient id="wingGradSub" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"/>
+                <stop offset="70%" stop-color="rgba(217, 119, 6, 0.25)"/>
+                <stop offset="100%" stop-color="rgba(180, 83, 9, 0.35)"/>
+            </linearGradient>
+
+            <linearGradient id="stingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#451a03"/>
+                <stop offset="50%" stop-color="#0f172a"/>
+                <stop offset="100%" stop-color="#000000"/>
+            </linearGradient>
+
+            <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="2" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+            </filter>
+        </defs>
+
+        <!-- 1. LEGS -->
+        <g id="legs" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Hind Leg Left -->
+            <g>
+                <path d="M 370 430 L 320 460" stroke="url(#legGrad)" stroke-width="12"/>
+                <path d="M 320 460 L 230 520" stroke="url(#legGrad)" stroke-width="14"/>
+                <path d="M 230 520 L 150 630" stroke="url(#legGrad)" stroke-width="9"/>
+                <path d="M 155 620 L 140 630 M 153 623 L 145 638" stroke="#d97706" stroke-width="3"/>
+                <path d="M 150 630 L 120 670 L 105 700 L 95 720 L 88 730 L 82 732" stroke="#f59e0b" stroke-width="5" fill="none"/>
+                <path d="M 82 732 Q 78 735 75 730" stroke="#451a03" stroke-width="3" fill="none"/>
+            </g>
+
+            <!-- Hind Leg Right -->
+            <g>
+                <path d="M 430 430 L 480 460" stroke="url(#legGrad)" stroke-width="12"/>
+                <path d="M 480 460 L 570 520" stroke="url(#legGrad)" stroke-width="14"/>
+                <path d="M 570 520 L 650 630" stroke="url(#legGrad)" stroke-width="9"/>
+                <path d="M 645 620 L 660 630 M 647 623 L 655 638" stroke="#d97706" stroke-width="3"/>
+                <path d="M 650 630 L 680 670 L 695 700 L 705 720 L 712 730 L 718 732" stroke="#f59e0b" stroke-width="5" fill="none"/>
+                <path d="M 718 732 Q 722 735 725 730" stroke="#451a03" stroke-width="3" fill="none"/>
+            </g>
+
+            <!-- Middle Leg Left -->
+            <g>
+                <path d="M 360 380 L 290 410" stroke="url(#legGrad)" stroke-width="11"/>
+                <path d="M 290 410 L 210 470" stroke="url(#legGrad)" stroke-width="12"/>
+                <path d="M 210 470 L 160 560" stroke="url(#legGrad)" stroke-width="8"/>
+                <path d="M 160 560 L 135 600 L 120 625 L 110 640 L 105 645" stroke="#f59e0b" stroke-width="4" fill="none"/>
+            </g>
+
+            <!-- Middle Leg Right -->
+            <g>
+                <path d="M 440 380 L 510 410" stroke="url(#legGrad)" stroke-width="11"/>
+                <path d="M 510 410 L 590 470" stroke="url(#legGrad)" stroke-width="12"/>
+                <path d="M 590 470 L 640 560" stroke="url(#legGrad)" stroke-width="8"/>
+                <path d="M 640 560 L 665 600 L 680 625 L 690 640 L 695 645" stroke="#f59e0b" stroke-width="4" fill="none"/>
+            </g>
+
+            <!-- Foreleg Left -->
+            <g>
+                <path d="M 365 320 L 280 320" stroke="url(#legGrad)" stroke-width="10"/>
+                <path d="M 280 320 L 210 360" stroke="url(#legGrad)" stroke-width="11"/>
+                <path d="M 210 360 L 165 440" stroke="url(#legGrad)" stroke-width="7"/>
+                <path d="M 165 440 L 145 475 L 135 500 L 128 515" stroke="#f59e0b" stroke-width="4" fill="none"/>
+            </g>
+
+            <!-- Foreleg Right -->
+            <g>
+                <path d="M 435 320 L 520 320" stroke="url(#legGrad)" stroke-width="10"/>
+                <path d="M 520 320 L 590 360" stroke="url(#legGrad)" stroke-width="11"/>
+                <path d="M 590 360 L 635 440" stroke="url(#legGrad)" stroke-width="7"/>
+                <path d="M 635 440 L 655 475 L 665 500 L 672 515" stroke="#f59e0b" stroke-width="4" fill="none"/>
+            </g>
+        </g>
+
+        <!-- 2. ABDOMEN & PETIOLE -->
+        <g id="abdomen" filter="url(#softShadow)">
+            <!-- Narrow Petiole Waist -->
+            <path d="M 382 430 Q 400 450 418 430 L 412 475 Q 400 482 388 475 Z" fill="#18130e" stroke="#000" stroke-width="2"/>
+            <path d="M 393 430 L 393 477" stroke="#d97706" stroke-width="3"/>
+
+            <!-- Segment 1 -->
+            <path d="M 380 470 C 340 495 330 540 340 575 C 350 610 380 635 400 640 C 420 635 450 610 460 575 C 470 540 460 495 420 470 Z" fill="url(#headGrad)"/>
+            
+            <!-- Stripe 1 -->
+            <path d="M 345 515 Q 400 540 455 515 C 462 535 463 555 458 570 Q 400 595 342 570 C 337 555 338 535 345 515 Z" fill="url(#yellowGrad)"/>
+            <path d="M 390 530 L 400 555 L 410 530 Z" fill="#18130e"/>
+            
+            <!-- Mid Segments -->
+            <path d="M 345 570 C 355 620 375 660 400 685 C 425 660 445 620 455 570 C 445 590 425 605 400 605 C 375 605 355 590 345 570 Z" fill="#18130e"/>
+
+            <!-- Stripe 2 -->
+            <path d="M 353 590 Q 400 615 447 590 C 441 620 428 645 400 668 C 372 645 359 620 353 590 Z" fill="url(#yellowGrad)"/>
+            <path d="M 393 602 L 400 618 L 407 602 Z" fill="#18130e"/>
+
+            <!-- Stripe 3 -->
+            <path d="M 368 630 Q 400 648 432 630 C 423 655 412 675 400 690 C 388 675 377 655 368 630 Z" fill="#18130e"/>
+            <path d="M 373 642 Q 400 658 427 642 C 420 660 411 676 400 690 C 389 676 380 660 373 642 Z" fill="url(#yellowGrad)"/>
+
+            <!-- Apical Tip & Sting -->
+            <path d="M 386 672 Q 400 682 414 672 L 400 720 Z" fill="#18130e"/>
+            <path d="M 392 680 Q 400 686 408 680 L 400 705 Z" fill="url(#yellowGrad)"/>
+            <path d="M 398 718 L 402 718 L 401 752 L 400 752 Z" fill="url(#stingGrad)"/>
+        </g>
+
+        <!-- 3. THORAX -->
+        <g id="thorax" filter="url(#softShadow)">
+            <path d="M 350 280 C 330 320 330 390 355 435 C 380 450 420 450 445 435 C 470 390 470 320 450 280 C 420 265 380 265 350 280 Z" fill="url(#thoraxGrad)"/>
+            <path d="M 348 290 Q 400 320 452 290 L 458 315 Q 400 340 342 315 Z" fill="url(#yellowGrad)"/>
+            
+            <ellipse cx="400" cy="350" rx="6" ry="12" fill="url(#yellowHighlight)"/>
+            <path d="M 360 360 Q 370 375 365 390 Q 355 380 360 360 Z" fill="url(#yellowGrad)"/>
+            <path d="M 440 360 Q 430 375 435 390 Q 445 380 440 360 Z" fill="url(#yellowGrad)"/>
+
+            <path d="M 365 400 Q 400 410 435 400 Q 430 420 400 425 Q 370 420 365 400 Z" fill="url(#yellowGrad)"/>
+            <path d="M 378 427 Q 400 433 422 427 Q 418 437 400 440 Q 382 437 378 427 Z" fill="url(#yellowHighlight)"/>
+
+            <ellipse cx="338" cy="315" rx="10" ry="16" transform="rotate(-20 338 315)" fill="#f59e0b" stroke="#451a03" stroke-width="2"/>
+            <ellipse cx="462" cy="315" rx="10" ry="16" transform="rotate(20 462 315)" fill="#f59e0b" stroke="#451a03" stroke-width="2"/>
+        </g>
+
+        <!-- 4. HEAD -->
+        <g id="head" filter="url(#softShadow)">
+            <ellipse cx="400" cy="225" rx="55" ry="42" fill="url(#headGrad)"/>
+
+            <path d="M 370 210 Q 400 195 430 210 Q 440 235 425 255 Q 400 268 375 255 Q 360 235 370 210 Z" fill="url(#yellowGrad)"/>
+            <circle cx="400" cy="238" r="5" fill="#18130e"/>
+            <path d="M 397 225 L 403 225 L 401 238 L 399 238 Z" fill="#18130e"/>
+
+            <!-- Mandibles -->
+            <path d="M 370 255 Q 385 278 400 268 Q 380 262 370 255 Z" fill="#f59e0b" stroke="#451a03" stroke-width="1.5"/>
+            <path d="M 430 255 Q 415 278 400 268 Q 420 262 430 255 Z" fill="#f59e0b" stroke="#451a03" stroke-width="1.5"/>
+
+            <!-- Eyes -->
+            <path d="M 355 195 C 335 210 335 240 352 255 C 362 250 365 235 360 220 C 356 208 360 200 355 195 Z" fill="url(#eyeGrad)" stroke="#0d0a06" stroke-width="2"/>
+            <path d="M 445 195 C 465 210 465 240 448 255 C 438 250 435 235 440 220 C 444 208 440 200 445 195 Z" fill="url(#eyeGrad)" stroke="#0d0a06" stroke-width="2"/>
+
+            <path d="M 345 210 Q 343 230 350 245" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M 455 210 Q 457 230 450 245" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+            <circle cx="400" cy="192" r="3" fill="#fbbf24"/>
+            <circle cx="391" cy="197" r="3" fill="#fbbf24"/>
+            <circle cx="409" cy="197" r="3" fill="#fbbf24"/>
+
+            <!-- Antennae -->
+            <g>
+                <path d="M 382 212 L 350 180" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="350" cy="180" r="3.5" fill="#451a03"/>
+                <path d="M 350 180 Q 310 160 260 185 Q 230 200 200 190" stroke="#18130e" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+                <path d="M 350 180 Q 310 160 260 185" stroke="#d97706" stroke-width="4.5" fill="none" stroke-dasharray="6,3"/>
+            </g>
+            <g>
+                <path d="M 418 212 L 450 180" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="450" cy="180" r="3.5" fill="#451a03"/>
+                <path d="M 450 180 Q 490 160 540 185 Q 570 200 600 190" stroke="#18130e" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+                <path d="M 450 180 Q 490 160 540 185" stroke="#d97706" stroke-width="4.5" fill="none" stroke-dasharray="6,3"/>
+            </g>
+        </g>
+
+        <!-- 5. WINGS -->
+        <g id="wings">
+            <!-- Right Forewing -->
+            <g>
+                <path d="M 458 310 C 520 260 670 140 740 120 C 760 115 775 130 760 155 C 720 220 590 340 465 350 Z" fill="url(#wingGradMain)" stroke="rgba(180, 83, 9, 0.7)" stroke-width="1.5"/>
+                <path d="M 690 131 Q 715 125 730 122 Q 720 132 698 139 Z" fill="#451a03" opacity="0.85"/>
+                <path d="M 458 310 Q 580 210 740 120" stroke="#78350f" stroke-width="3.5" fill="none" opacity="0.9"/>
+                <path d="M 460 314 Q 585 220 725 133" stroke="#92400e" stroke-width="2" fill="none" opacity="0.8"/>
+                <path d="M 462 320 Q 560 260 690 220 Q 735 180 760 155" stroke="#78350f" stroke-width="2" fill="none" opacity="0.8"/>
+                <path d="M 465 330 Q 540 300 640 270 Q 700 240 735 200" stroke="#b45309" stroke-width="1.5" fill="none" opacity="0.7"/>
+                <path d="M 540 250 L 560 212 M 600 210 L 620 170 M 650 160 L 680 133" stroke="#92400e" stroke-width="1.2" opacity="0.7"/>
+                <path d="M 550 280 L 600 240 L 650 245 M 620 210 L 680 205 L 720 165" stroke="#b45309" stroke-width="1" fill="none" opacity="0.6"/>
+                <path d="M 640 270 L 680 240 L 730 215" stroke="#d97706" stroke-width="1" fill="none" opacity="0.6"/>
+                <path d="M 500 280 Q 550 320 600 305" stroke="#b45309" stroke-width="1" fill="none" opacity="0.5"/>
+            </g>
+
+            <!-- Left Forewing -->
+            <g>
+                <path d="M 342 310 C 280 260 130 140 60 120 C 40 115 25 130 40 155 C 80 220 210 340 335 350 Z" fill="url(#wingGradMain)" stroke="rgba(180, 83, 9, 0.7)" stroke-width="1.5"/>
+                <path d="M 110 131 Q 85 125 70 122 Q 80 132 102 139 Z" fill="#451a03" opacity="0.85"/>
+                <path d="M 342 310 Q 220 210 60 120" stroke="#78350f" stroke-width="3.5" fill="none" opacity="0.9"/>
+                <path d="M 340 314 Q 215 220 75 133" stroke="#92400e" stroke-width="2" fill="none" opacity="0.8"/>
+                <path d="M 338 320 Q 240 260 110 220 Q 65 180 40 155" stroke="#78350f" stroke-width="2" fill="none" opacity="0.8"/>
+                <path d="M 335 330 Q 260 300 160 270 Q 100 240 65 200" stroke="#b45309" stroke-width="1.5" fill="none" opacity="0.7"/>
+                <path d="M 260 250 L 240 212 M 200 210 L 180 170 M 150 160 L 120 133" stroke="#92400e" stroke-width="1.2" opacity="0.7"/>
+                <path d="M 250 280 L 200 240 L 150 245 M 180 210 L 120 205 L 80 165" stroke="#b45309" stroke-width="1" fill="none" opacity="0.6"/>
+                <path d="M 160 270 L 120 240 L 70 215" stroke="#d97706" stroke-width="1" fill="none" opacity="0.6"/>
+                <path d="M 300 280 Q 250 320 200 305" stroke="#b45309" stroke-width="1" fill="none" opacity="0.5"/>
+            </g>
+
+            <!-- Right Hindwing -->
+            <g>
+                <path d="M 450 355 C 520 340 620 280 665 260 C 680 255 685 270 670 285 C 620 330 520 390 445 375 Z" fill="url(#wingGradSub)" stroke="rgba(180, 83, 9, 0.4)" stroke-width="1.2"/>
+                <path d="M 450 355 Q 560 310 665 260" stroke="#92400e" stroke-width="2" fill="none" opacity="0.7"/>
+                <path d="M 452 362 Q 540 345 640 300" stroke="#b45309" stroke-width="1.2" fill="none" opacity="0.6"/>
+                <path d="M 530 320 L 550 345 M 580 300 L 600 322" stroke="#b45309" stroke-width="1" opacity="0.5"/>
+            </g>
+
+            <!-- Left Hindwing -->
+            <g>
+                <path d="M 350 355 C 280 340 180 280 135 260 C 120 255 115 270 130 285 C 180 330 280 390 355 375 Z" fill="url(#wingGradSub)" stroke="rgba(180, 83, 9, 0.4)" stroke-width="1.2"/>
+                <path d="M 350 355 Q 240 310 135 260" stroke="#92400e" stroke-width="2" fill="none" opacity="0.7"/>
+                <path d="M 348 362 Q 260 345 160 300" stroke="#b45309" stroke-width="1.2" fill="none" opacity="0.6"/>
+                <path d="M 270 320 L 250 345 M 220 300 L 200 322" stroke="#b45309" stroke-width="1" opacity="0.5"/>
+            </g>
+        </g>
+    </svg>
+
+    <!-- Subtle feedback alert -->
+    <div id="toast" class="toast">SVG Copied!</div>
+
+    <script>
+        const waspSvg = document.getElementById('wasp');
+        const toast = document.getElementById('toast');
+        let timeoutId;
+
+        // Click anywhere to copy pure SVG code
+        document.body.addEventListener('click', () => {
+            const svgContent = waspSvg.outerHTML;
+            
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = svgContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                
+                // Show subtle feedback
+                toast.classList.add('show');
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 1800);
+            } catch (err) {
+                // Silent fail or fallback
+            }
+            
+            document.body.removeChild(tempTextArea);
+        });
+    </script>
+</body>
+</html>

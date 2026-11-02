@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Housefly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        svg {
+            width: 85vw;
+            height: 85vh;
+            max-width: 800px;
+            max-height: 800px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+        <defs>
+            <!-- Compound Eye Texture & Gradients -->
+            <radialGradient id="eyeGradientLeft" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ff4d4d"/>
+                <stop offset="40%" stop-color="#cc0000"/>
+                <stop offset="75%" stop-color="#7a0000"/>
+                <stop offset="100%" stop-color="#330000"/>
+            </radialGradient>
+            
+            <radialGradient id="eyeGradientRight" cx="60%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ff4d4d"/>
+                <stop offset="40%" stop-color="#cc0000"/>
+                <stop offset="75%" stop-color="#7a0000"/>
+                <stop offset="100%" stop-color="#330000"/>
+            </radialGradient>
+
+            <pattern id="eyeOmmatidia" width="4" height="4" patternUnits="userSpaceOnUse">
+                <path d="M 2 0 L 4 1 L 4 3 L 2 4 L 0 3 L 0 1 Z" fill="none" stroke="#220000" stroke-width="0.4" opacity="0.4"/>
+            </pattern>
+
+            <!-- Metallic Thorax Texture & Stripes -->
+            <linearGradient id="thoraxMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1c2127"/>
+                <stop offset="25%" stop-color="#3d4652"/>
+                <stop offset="50%" stop-color="#212730"/>
+                <stop offset="75%" stop-color="#3d4652"/>
+                <stop offset="100%" stop-color="#1c2127"/>
+            </linearGradient>
+
+            <linearGradient id="scutellumShine" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#525d6d"/>
+                <stop offset="60%" stop-color="#202630"/>
+                <stop offset="100%" stop-color="#0f1318"/>
+            </linearGradient>
+
+            <!-- Abdomen Segmented Gradients -->
+            <linearGradient id="abdomenBase" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d97706"/>
+                <stop offset="30%" stop-color="#92400e"/>
+                <stop offset="70%" stop-color="#291e10"/>
+                <stop offset="100%" stop-color="#0f0c08"/>
+            </linearGradient>
+
+            <linearGradient id="abdomenCenterDark" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#18130c" stop-opacity="0.9"/>
+                <stop offset="30%" stop-color="#3a2e1e" stop-opacity="0.7"/>
+                <stop offset="50%" stop-color="#0d0a07" stop-opacity="0.95"/>
+                <stop offset="70%" stop-color="#3a2e1e" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#18130c" stop-opacity="0.9"/>
+            </linearGradient>
+
+            <!-- Translucent Wing Gradients -->
+            <linearGradient id="wingBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+                <stop offset="30%" stop-color="#e0f2fe" stop-opacity="0.25"/>
+                <stop offset="70%" stop-color="#f0f9ff" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.2"/>
+            </linearGradient>
+
+            <linearGradient id="wingIridiscent" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ec4899" stop-opacity="0.08"/>
+                <stop offset="35%" stop-color="#8b5cf6" stop-opacity="0.05"/>
+                <stop offset="65%" stop-color="#06b6d4" stop-opacity="0.08"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.05"/>
+            </linearGradient>
+
+            <!-- Leg Gradient -->
+            <linearGradient id="legGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2d3748"/>
+                <stop offset="50%" stop-color="#1a202c"/>
+                <stop offset="100%" stop-color="#0d1117"/>
+            </linearGradient>
+
+            <!-- Soft Shadow Under Fly -->
+            <filter id="blurShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="18"/>
+            </filter>
+        </defs>
+
+        <ellipse cx="400" cy="430" rx="190" ry="240" fill="#000000" opacity="0.3" filter="url(#blurShadow)"/>
+
+        <g id="legs" stroke="url(#legGrad)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <!-- Rear Legs -->
+            <g id="hind-leg-left">
+                <path d="M 350 430 L 250 490 L 170 570 L 120 660 L 90 710" stroke-width="11"/>
+                <path d="M 170 570 L 120 660 L 90 710" stroke-width="7" stroke="#111827"/>
+                <path d="M 90 710 L 80 722 M 80 722 L 72 726 M 72 726 L 68 725" stroke-width="3" stroke="#000"/>
+                <path d="M 230 510 L 222 518 M 210 530 L 200 540 M 190 550 L 180 562 M 150 610 L 140 618 M 130 638 L 120 644" stroke="#000" stroke-width="2"/>
+            </g>
+            <g id="hind-leg-right">
+                <path d="M 450 430 L 550 490 L 630 570 L 680 660 L 710 710" stroke-width="11"/>
+                <path d="M 630 570 L 680 660 L 710 710" stroke-width="7" stroke="#111827"/>
+                <path d="M 710 710 L 720 722 M 720 722 L 728 726 M 728 726 L 732 725" stroke-width="3" stroke="#000"/>
+                <path d="M 570 510 L 578 518 M 590 530 L 600 540 M 610 550 L 620 562 M 650 610 L 660 618 M 670 638 L 680 644" stroke="#000" stroke-width="2"/>
+            </g>
+
+            <!-- Middle Legs -->
+            <g id="mid-leg-left">
+                <path d="M 340 330 L 210 350 L 130 410 L 80 490 L 60 540" stroke-width="10"/>
+                <path d="M 130 410 L 80 490 L 60 540" stroke-width="6" stroke="#111827"/>
+                <path d="M 60 540 L 52 552 L 46 555" stroke-width="2.5" stroke="#000"/>
+                <path d="M 180 365 L 176 375 M 160 385 L 154 397 M 110 440 L 102 450 M 95 465 L 87 475" stroke="#000" stroke-width="2"/>
+            </g>
+            <g id="mid-leg-right">
+                <path d="M 460 330 L 590 350 L 670 410 L 720 490 L 740 540" stroke-width="10"/>
+                <path d="M 670 410 L 720 490 L 740 540" stroke-width="6" stroke="#111827"/>
+                <path d="M 740 540 L 748 552 L 754 555" stroke-width="2.5" stroke="#000"/>
+                <path d="M 620 365 L 624 375 M 640 385 L 646 397 M 690 440 L 698 450 M 705 465 L 713 475" stroke="#000" stroke-width="2"/>
+            </g>
+
+            <!-- Front Legs -->
+            <g id="front-leg-left">
+                <path d="M 350 250 L 240 210 L 170 160 L 130 110 L 110 70" stroke-width="9"/>
+                <path d="M 170 160 L 130 110 L 110 70" stroke-width="5.5" stroke="#111827"/>
+                <path d="M 110 70 L 104 58 L 98 54" stroke-width="2.5" stroke="#000"/>
+                <path d="M 220 202 L 216 192 M 190 178 L 184 168 M 150 135 L 142 128" stroke="#000" stroke-width="1.8"/>
+            </g>
+            <g id="front-leg-right">
+                <path d="M 450 250 L 560 210 L 630 160 L 670 110 L 690 70" stroke-width="9"/>
+                <path d="M 630 160 L 670 110 L 690 70" stroke-width="5.5" stroke="#111827"/>
+                <path d="M 690 70 L 696 58 L 702 54" stroke-width="2.5" stroke="#000"/>
+                <path d="M 580 202 L 584 192 M 610 178 L 616 168 M 650 135 L 658 128" stroke="#000" stroke-width="1.8"/>
+            </g>
+        </g>
+
+        <g id="abdomen">
+            <path d="M 320 380 C 280 430 270 520 300 590 C 330 660 370 710 400 725 C 430 710 470 660 500 590 C 530 520 520 430 480 380 Z" fill="url(#abdomenBase)"/>
+            <path d="M 320 380 C 280 430 270 520 300 590 C 330 660 370 710 400 725 C 430 710 470 660 500 590 C 530 520 520 430 480 380 Z" fill="url(#abdomenCenterDark)"/>
+            <g stroke="#1a0f05" stroke-width="3.5" fill="none" opacity="0.8">
+                <path d="M 302 430 Q 400 460 498 430"/>
+                <path d="M 283 500 Q 400 535 517 500"/>
+                <path d="M 295 575 Q 400 615 505 575"/>
+                <path d="M 325 645 Q 400 680 475 645"/>
+            </g>
+            <g fill="#0a0704">
+                <circle cx="282" cy="500" r="2.5"/><circle cx="277" cy="520" r="2.5"/><circle cx="280" cy="540" r="2.5"/>
+                <circle cx="518" cy="500" r="2.5"/><circle cx="523" cy="520" r="2.5"/><circle cx="520" cy="540" r="2.5"/>
+                <circle cx="390" cy="718" r="2"/><circle cx="400" cy="722" r="2"/><circle cx="410" cy="718" r="2"/>
+            </g>
+        </g>
+
+        <g id="thorax">
+            <path d="M 310 230 C 300 300 310 380 340 400 C 370 420 430 420 460 400 C 490 380 500 300 490 230 C 460 210 340 210 310 230 Z" fill="url(#thoraxMetal)"/>
+            <g fill="#0f1419" opacity="0.85">
+                <path d="M 345 220 C 343 270 348 330 352 370 C 357 370 361 270 357 220 Z"/>
+                <path d="M 373 216 C 372 270 374 340 377 385 C 383 385 385 270 383 216 Z"/>
+                <path d="M 417 216 C 415 270 417 340 423 385 C 426 384 428 270 427 216 Z"/>
+                <path d="M 443 220 C 439 270 443 330 448 370 C 452 370 457 270 455 220 Z"/>
+            </g>
+            <path d="M 345 375 C 350 425 450 425 455 375 C 420 395 380 395 345 375 Z" fill="url(#scutellumShine)" stroke="#0d1117" stroke-width="2"/>
+            <g stroke="#05070a" stroke-width="2.5" stroke-linecap="round">
+                <path d="M 330 240 L 310 230"/><path d="M 325 270 L 300 265"/><path d="M 322 300 L 295 300"/>
+                <path d="M 325 330 L 298 335"/><path d="M 332 360 L 305 370"/>
+                <path d="M 470 240 L 490 230"/><path d="M 475 270 L 500 265"/><path d="M 478 300 L 505 300"/>
+                <path d="M 475 330 L 502 335"/><path d="M 468 360 L 495 370"/>
+            </g>
+        </g>
+
+        <g id="head">
+            <path d="M 330 225 C 320 170 480 170 470 225 C 450 245 350 245 330 225 Z" fill="#141921"/>
+            <g id="left-eye">
+                <ellipse cx="335" cy="185" rx="55" ry="42" transform="rotate(-20 335 185)" fill="url(#eyeGradientLeft)"/>
+                <ellipse cx="335" cy="185" rx="55" ry="42" transform="rotate(-20 335 185)" fill="url(#eyeOmmatidia)"/>
+                <path d="M 310 160 Q 330 152 355 162" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+            </g>
+            <g id="right-eye">
+                <ellipse cx="465" cy="185" rx="55" ry="42" transform="rotate(20 465 185)" fill="url(#eyeGradientRight)"/>
+                <ellipse cx="465" cy="185" rx="55" ry="42" transform="rotate(20 465 185)" fill="url(#eyeOmmatidia)"/>
+                <path d="M 445 162 Q 470 152 490 160" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+            </g>
+            <path d="M 380 160 L 420 160 L 400 195 Z" fill="#0d1117"/>
+            <circle cx="393" cy="168" r="2.5" fill="#f59e0b"/>
+            <circle cx="407" cy="168" r="2.5" fill="#f59e0b"/>
+            <circle cx="400" cy="177" r="2.5" fill="#f59e0b"/>
+
+            <g stroke="#0a0d12" stroke-linecap="round" fill="none">
+                <path d="M 388 190 L 382 205 L 380 218" stroke-width="4"/>
+                <path d="M 380 218 L 362 230" stroke-width="2"/>
+                <path d="M 378 220 L 372 216 M 374 223 L 368 220 M 370 227 L 364 225" stroke-width="1.2"/>
+                <path d="M 412 190 L 418 205 L 420 218" stroke-width="4"/>
+                <path d="M 420 218 L 438 230" stroke-width="2"/>
+                <path d="M 422 220 L 428 216 M 426 223 L 432 220 M 428 227 L 434 225" stroke-width="1.2"/>
+            </g>
+
+            <g id="proboscis">
+                <path d="M 388 235 L 382 260 L 375 275 C 370 285 430 285 425 275 L 418 260 L 412 235 Z" fill="#18181b" stroke="#09090b" stroke-width="1.5"/>
+                <ellipse cx="387" cy="280" rx="10" ry="6" fill="#27272a" stroke="#000" stroke-width="1"/>
+                <ellipse cx="413" cy="280" rx="10" ry="6" fill="#27272a" stroke="#000" stroke-width="1"/>
+            </g>
+
+            <g stroke="#000" stroke-width="2" stroke-linecap="round">
+                <path d="M 360 155 L 350 140 M 370 152 L 362 135 M 440 155 L 450 140 M 430 152 L 438 135"/>
+                <path d="M 385 150 L 382 132 M 415 150 L 418 132"/>
+            </g>
+        </g>
+
+        <g id="wings">
+            <!-- Left Wing -->
+            <g id="left-wing">
+                <path d="M 330 240 C 240 180 110 170 50 250 C 10 310 40 410 120 430 C 210 450 310 360 345 300 Z" fill="url(#wingBaseGrad)" stroke="#64748b" stroke-width="1.2"/>
+                <path d="M 330 240 C 240 180 110 170 50 250 C 10 310 40 410 120 430 C 210 450 310 360 345 300 Z" fill="url(#wingIridiscent)"/>
+                <g stroke="#334155" stroke-linecap="round" fill="none" opacity="0.85">
+                    <path d="M 330 240 C 240 180 110 170 50 250" stroke-width="3.5" stroke="#1e293b"/>
+                    <path d="M 325 242 C 235 195 150 195 105 220" stroke-width="2"/>
+                    <path d="M 320 245 C 220 205 130 215 70 260" stroke-width="2.2"/>
+                    <path d="M 320 245 C 200 230 110 260 52 300" stroke-width="2"/>
+                    <path d="M 315 250 C 210 260 140 310 95 365 L 68 335" stroke-width="1.8"/>
+                    <path d="M 175 248 L 165 282" stroke-width="1.5"/>
+                    <path d="M 125 300 L 115 348" stroke-width="1.5"/>
+                    <path d="M 310 258 C 220 290 160 360 120 430" stroke-width="1.8"/>
+                    <path d="M 290 275 C 230 320 190 390 165 425" stroke-width="1.4"/>
+                    <path d="M 270 290 C 230 335 210 380 195 410" stroke-width="1" stroke-dasharray="3,2"/>
+                </g>
+                <path d="M 325 295 C 310 325 330 345 342 320 Z" fill="#e2e8f0" opacity="0.6" stroke="#475569" stroke-width="1"/>
+            </g>
+
+            <!-- Right Wing -->
+            <g id="right-wing">
+                <path d="M 470 240 C 560 180 690 170 750 250 C 790 310 760 410 680 430 C 590 450 490 360 455 300 Z" fill="url(#wingBaseGrad)" stroke="#64748b" stroke-width="1.2"/>
+                <path d="M 470 240 C 560 180 690 170 750 250 C 790 310 760 410 680 430 C 590 450 490 360 455 300 Z" fill="url(#wingIridiscent)"/>
+                <g stroke="#334155" stroke-linecap="round" fill="none" opacity="0.85">
+                    <path d="M 470 240 C 560 180 690 170 750 250" stroke-width="3.5" stroke="#1e293b"/>
+                    <path d="M 475 242 C 565 195 650 195 695 220" stroke-width="2"/>
+                    <path d="M 480 245 C 580 205 670 215 730 260" stroke-width="2.2"/>
+                    <path d="M 480 245 C 600 230 690 260 748 300" stroke-width="2"/>
+                    <path d="M 485 250 C 590 260 660 310 705 365 L 732 335" stroke-width="1.8"/>
+                    <path d="M 625 248 L 635 282" stroke-width="1.5"/>
+                    <path d="M 675 300 L 685 348" stroke-width="1.5"/>
+                    <path d="M 490 258 C 580 290 640 360 680 430" stroke-width="1.8"/>
+                    <path d="M 510 275 C 570 320 610 390 635 425" stroke-width="1.4"/>
+                    <path d="M 530 290 C 570 335 590 380 605 410" stroke-width="1" stroke-dasharray="3,2"/>
+                </g>
+                <path d="M 475 295 C 490 325 470 345 458 320 Z" fill="#e2e8f0" opacity="0.6" stroke="#475569" stroke-width="1"/>
+            </g>
+        </g>
+    </svg>
+</body>
+</html>
