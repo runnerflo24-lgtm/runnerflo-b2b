@@ -108,7 +108,7 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .games-track{display:flex;gap:20px;width:max-content;will-change:scroll-position}
 
 /* Card Styling: Ramping, proporsional, nyaman dilihat */
-.game-box{width:min(500px,72vw);aspect-ratio:16/10.5;flex:none;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 8px 30px -10px rgba(0,0,0,.7);cursor:pointer;transition:transform .3s ease,box-shadow .3s,border-color .3s}
+.game-box{width:min(550px,79.2vw);aspect-ratio:16/10.5;flex:none;border-radius:6px;overflow:hidden;position:relative;border:1px solid var(--line);background:#07090f;box-shadow:0 8px 30px -10px rgba(0,0,0,.7);cursor:pointer;transition:transform .3s ease,box-shadow .3s,border-color .3s}
 .game-box:hover{transform:translateY(-4px);border-color:rgba(200,255,62,.45);box-shadow:0 14px 44px -10px rgba(0,0,0,.9)}
 .game-box.is-hidden{display:none !important}
 
@@ -714,8 +714,9 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
         </div>
         <div class="showcase-filter-tabs">
           <button class="filter-tab active" data-filter="all">Semua Aset <span class="tab-count">24</span></button>
+          <button class="filter-tab" data-filter="saas">⚡ SaaS Game 3D <span class="tab-count">1</span></button>
           <button class="filter-tab" data-filter="agent">🤖 AI Agent <span class="tab-count">5</span></button>
-          <button class="filter-tab" data-filter="game">🎮 3D & Game <span class="tab-count">7</span></button>
+          <button class="filter-tab" data-filter="game">🎮 3D & Game <span class="tab-count">6</span></button>
           <button class="filter-tab" data-filter="template">🌐 Web Template <span class="tab-count">4</span></button>
           <button class="filter-tab" data-filter="ilustrasi">🎨 Ilustrasi <span class="tab-count">8</span></button>
         </div>
@@ -765,10 +766,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           </div>
         </div>
 
-                <div class="game-box" data-cat="game" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev">
-          <div class="game-box-tag"><span class="tag-dot"></span> AI 3D Game Studio</div>
-          <div class="game-box-title-bar"><span class="title-icon">⚡</span> Kuis Game 3D Console</div>
-          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-console.png" alt="Kuis Game 3D Console" loading="lazy">
+                <div class="game-box" data-cat="saas" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev">
+          <div class="game-box-tag"><span class="tag-dot"></span> SaaS Game 3D</div>
+          <div class="game-box-title-bar"><span class="title-icon">⚡</span> Kuis Game 3D – Runnerflo</div>
+          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-home.png" alt="Kuis Game 3D Runnerflo" loading="lazy">
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
@@ -995,10 +996,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           </div>
         </div>
 
-                <div class="game-box" data-cat="game" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev" aria-hidden="true" tabindex="-1">
-          <div class="game-box-tag"><span class="tag-dot"></span> AI 3D Game Studio</div>
-          <div class="game-box-title-bar"><span class="title-icon">⚡</span> Kuis Game 3D Console</div>
-          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-console.png" alt="Kuis Game 3D Console" loading="lazy">
+                <div class="game-box" data-cat="saas" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> SaaS Game 3D</div>
+          <div class="game-box-title-bar"><span class="title-icon">⚡</span> Kuis Game 3D – Runnerflo</div>
+          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-home.png" alt="Kuis Game 3D Runnerflo" loading="lazy">
           <div class="game-box-overlay">
             <span class="game-box-playbtn">▶ Buka Interaktif</span>
           </div>
@@ -1672,7 +1673,7 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
   var isHovered = false;
   var isFsActive = false;
   var manualCooldown = 0;
-  var animSpeed = 2.6; // Kecepatan gerak lebih cepat & dinamis (sebelumnya 1.35)
+  var animSpeed = 2.86; // Kecepatan gerak dinaikkan 10% lebih cepat (2.86)
 
   // Auto-scroll loop
   function tick() {
