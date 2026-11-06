@@ -112,6 +112,33 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .game-box:hover{transform:translateY(-4px);border-color:rgba(200,255,62,.45);box-shadow:0 14px 44px -10px rgba(0,0,0,.9)}
 .game-box.is-hidden{display:none !important}
 
+
+/* Spotlight Mode: Featured Center Big Display for Single Asset */
+.games-marquee-wrap.spotlight-mode {
+  overflow-x: visible !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding: 24px 0 36px !important;
+}
+.games-marquee-wrap.spotlight-mode .games-track {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 0 !important;
+}
+.games-marquee-wrap.spotlight-mode .game-box {
+  width: min(880px, 94vw) !important;
+  border-radius: 10px !important;
+  border-color: rgba(200, 255, 62, 0.45) !important;
+  box-shadow: 0 24px 80px -20px rgba(0, 0, 0, 0.95), 0 0 50px -10px rgba(200, 255, 62, 0.28) !important;
+  animation: spotlightPop .38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: width .3s ease, transform .3s ease, box-shadow .3s ease !important;
+}
+@keyframes spotlightPop {
+  0% { opacity: 0; transform: scale(0.92) translateY(16px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 /* Badges on card */
 .game-box-tag{position:absolute;top:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:rgba(8,12,22,0.85);border:1px solid rgba(255,255,255,0.16);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:0.02em;backdrop-filter:blur(8px);pointer-events:none}
 .game-box-tag .tag-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);display:inline-block}
@@ -729,6 +756,17 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
       <div class="games-marquee-wrap" id="games-marquee-wrap">
         <div class="games-track" id="games-track">
         <!-- Set 1: AI Agent (Utama) -->
+        <div class="game-box" data-cat="saas" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev">
+          <div class="game-box-tag"><span class="tag-dot"></span> SaaS Game 3D</div>
+          <div class="game-box-title-bar"><span class="title-icon">⚡</span> 3D Quiz Game – Runnerflo</div>
+          <div class="game-box-iframe-wrap">
+            <iframe class="game-box-saas-iframe" src="https://kuis-game-3d-console.pages.dev/" loading="lazy" title="3D Quiz Game Live Preview" allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
+          </div>
+          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-home.png" alt="3D Quiz Game Runnerflo" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Launch Interactive</span>
+          </div>
+        </div>
         <div class="game-box" data-cat="agent" data-src="/ai%20agent/lumo.html" data-url="/ai%20agent/lumo.html">
           <div class="game-box-tag"><span class="tag-dot"></span> Official Documents AI</div>
           <div class="game-box-title-bar"><span class="title-icon">📜</span> Lumo AI – Official Document Specialist</div>
@@ -770,17 +808,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           </div>
         </div>
 
-                <div class="game-box" data-cat="saas" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev">
-          <div class="game-box-tag"><span class="tag-dot"></span> SaaS Game 3D</div>
-          <div class="game-box-title-bar"><span class="title-icon">⚡</span> 3D Quiz Game – Runnerflo</div>
-          <div class="game-box-iframe-wrap">
-            <iframe class="game-box-saas-iframe" src="https://kuis-game-3d-console.pages.dev/" loading="lazy" title="3D Quiz Game Live Preview" allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
-          </div>
-          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-home.png" alt="3D Quiz Game Runnerflo" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶ Launch Interactive</span>
-          </div>
-        </div>
+                
         <div class="game-box" data-cat="game" data-src="/game/card-arena.html" data-url="/game/card-arena.html">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
           <div class="game-box-title-bar"><span class="title-icon">🃏</span> Card Arena 3D</div>
@@ -962,6 +990,17 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           
         </div>
         <!-- Set 2: Seamless Scroll Loop Duplicates -->
+        <div class="game-box" data-cat="saas" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev" aria-hidden="true" tabindex="-1">
+          <div class="game-box-tag"><span class="tag-dot"></span> SaaS Game 3D</div>
+          <div class="game-box-title-bar"><span class="title-icon">⚡</span> 3D Quiz Game – Runnerflo</div>
+          <div class="game-box-iframe-wrap">
+            <iframe class="game-box-saas-iframe" src="https://kuis-game-3d-console.pages.dev/" loading="lazy" title="3D Quiz Game Live Preview" allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
+          </div>
+          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-home.png" alt="3D Quiz Game Runnerflo" loading="lazy">
+          <div class="game-box-overlay">
+            <span class="game-box-playbtn">▶ Launch Interactive</span>
+          </div>
+        </div>
         <div class="game-box" data-cat="agent" data-src="/ai%20agent/lumo.html" data-url="/ai%20agent/lumo.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> Official Documents AI</div>
           <div class="game-box-title-bar"><span class="title-icon">📜</span> Lumo AI – Official Document Specialist</div>
@@ -1003,17 +1042,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
           </div>
         </div>
 
-                <div class="game-box" data-cat="saas" data-src="https://kuis-game-3d-console.pages.dev" data-url="https://kuis-game-3d-console.pages.dev" aria-hidden="true" tabindex="-1">
-          <div class="game-box-tag"><span class="tag-dot"></span> SaaS Game 3D</div>
-          <div class="game-box-title-bar"><span class="title-icon">⚡</span> 3D Quiz Game – Runnerflo</div>
-          <div class="game-box-iframe-wrap">
-            <iframe class="game-box-saas-iframe" src="https://kuis-game-3d-console.pages.dev/" loading="lazy" title="3D Quiz Game Live Preview" allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
-          </div>
-          <img class="game-box-thumb" src="/thumbs/game-kuis-3d-home.png" alt="3D Quiz Game Runnerflo" loading="lazy">
-          <div class="game-box-overlay">
-            <span class="game-box-playbtn">▶ Launch Interactive</span>
-          </div>
-        </div>
+                
         <div class="game-box" data-cat="game" data-src="/game/card-arena.html" data-url="/game/card-arena.html" aria-hidden="true" tabindex="-1">
           <div class="game-box-tag"><span class="tag-dot"></span> 3D Web Game</div>
           <div class="game-box-title-bar"><span class="title-icon">🃏</span> Card Arena 3D</div>
@@ -1565,6 +1594,29 @@ document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b => {
 /* ===== Engine 9.500+ Ide Aplikasi AI ===== */
 var DB={"u1":["Pembuat Caption Instagram|Instagram Caption Writer","Pembuat Skrip Video TikTok|TikTok Video Script Writer","Pembuat Kalender Konten|Content Calendar Maker","Pembuat Poster Promo|Promo Poster Maker","Pembuat Logo|Logo Designer","Pembuat Slogan|Slogan Generator","Penulis Email Promosi|Promo Email Writer","Pembuat Skrip Penjualan WhatsApp|WhatsApp Sales Script Writer","Pembuat Website|Website Builder","Pembuat Landing Page|Landing Page Maker","Pembuat Presentasi Usaha|Business Presentation Maker","Penganalisis Pesaing|Competitor Analyzer"],"u2":["Chatbot Customer Service|Customer Service Chatbot","Pembalas Ulasan Pelanggan|Customer Review Responder","Pembuat Katalog Digital|Digital Catalog Maker","Pembuat Program Loyalitas|Loyalty Program Maker","Penentu Harga Jual|Selling Price Advisor","Penghitung Modal dan Untung|Cost and Profit Calculator","Pencatat Keuangan Harian|Daily Bookkeeper","Pembuat Invoice|Invoice Maker","Pembuat Laporan Penjualan|Sales Report Maker","Pembuat Penawaran Harga|Quotation Maker","Pembuat SOP Karyawan|Staff SOP Writer","Penjadwal Karyawan|Staff Scheduler","Pembuat Poster Lowongan Kerja|Job Poster Maker","Pengingat Pelanggan|Customer Reminder","Pembuat Formulir Pemesanan|Order Form Maker","Perencana Promo Musiman|Seasonal Promo Planner","Penyusun Rencana Bisnis|Business Plan Writer","Penganalisis Kepuasan Pelanggan|Customer Satisfaction Analyzer"],"c":[{"n":"Kuliner|Food and Beverage","u":2,"f":["Pembuat Menu|Menu Creator","Pembuat Resep Andalan|Signature Recipe Creator","Penghitung Kalori Menu|Menu Calorie Counter","Penghitung HPP Menu|Menu Costing Calculator","Chatbot Pemesanan Makanan|Food Ordering Chatbot","Pengelola Stok Bahan|Ingredient Stock Manager","Pembuat SOP Dapur|Kitchen SOP Writer","Pembuat Paket Hemat|Combo Deal Maker","Pembuat Foto Menu|Menu Photo Creator","Perancang Kemasan Makanan|Food Packaging Designer"],"g":["Restoran|Restaurants","Warung Makan|Food Stalls","Kedai Kopi|Coffee Shops","Kafe|Cafes","Toko Roti|Bakeries","Toko Kue|Cake Shops","Katering|Catering Businesses","Katering Sehat|Healthy Catering Businesses","Bakso dan Mie Ayam|Meatball and Noodle Shops","Warteg|Warteg Eateries","Restoran Padang|Padang Restaurants","Restoran Seafood|Seafood Restaurants","Kedai Teh|Tea Shops","Juice Bar|Juice Bars","Toko Es Krim|Ice Cream Shops","Toko Camilan|Snack Shops","Usaha Frozen Food|Frozen Food Businesses","Bar dan Lounge|Bars and Lounges","Kedai Boba|Bubble Tea Shops","Kedai Sate|Satay Stalls","Usaha Nasi Kotak|Boxed Meal Businesses","Restoran Jepang|Japanese Restaurants","Pizzeria|Pizzerias","Kedai Martabak|Martabak Stalls","Usaha Kue Kering|Cookie Businesses"]},{"n":"Fashion dan Aksesori|Fashion and Accessories","u":2,"f":["Penata Gaya|Style Advisor","Penasihat Tren|Trend Advisor","Penulis Deskripsi Produk|Product Description Writer","Pembuat Foto Produk|Product Photo Creator","Pengelola Stok Barang|Stock Manager","Pencatat Pesanan Pelanggan|Order Tracker","Pembuat Lookbook|Lookbook Maker","Penasihat Pilihan Produk|Product Recommendation Advisor","Perancang Kemasan Produk|Product Packaging Designer","Perencana Koleksi Musiman|Seasonal Collection Planner"],"g":["Butik Pakaian|Clothing Boutiques","Toko Hijab|Hijab Shops","Toko Sepatu|Shoe Stores","Toko Tas|Bag Stores","Toko Kosmetik|Cosmetics Shops","Toko Perhiasan|Jewelry Stores","Toko Parfum|Perfume Shops","Toko Batik|Batik Shops","Thrift Shop|Thrift Shops","Brand Skincare Lokal|Local Skincare Brands","Konveksi|Garment Makers","Toko Aksesoris|Accessory Shops","Toko Kacamata|Eyewear Shops","Brand Pakaian Anak|Kids' Clothing Brands","Toko Busana Muslim|Muslim Fashion Shops","Toko Jam Tangan|Watch Shops","Brand Streetwear|Streetwear Brands","Toko Kain|Fabric Stores","Toko Baju Bayi|Baby Clothing Shops","Toko Seragam|Uniform Shops"]},{"n":"Salon dan Kecantikan|Beauty and Salon","u":2,"f":["Pengelola Reservasi|Booking Manager","Pengingat Jadwal Perawatan|Treatment Reminder","Penasihat Pilihan Perawatan|Treatment Advisor","Pembuat Paket Perawatan|Treatment Package Maker","Pengelola Keanggotaan|Membership Manager","Pencatat Riwayat Pelanggan|Client History Keeper","Penjadwal Terapis dan Capster|Therapist and Stylist Scheduler","Pembuat Edukasi Perawatan di Rumah|Home Care Tips Writer","Pembuat Voucher Hadiah|Gift Voucher Maker","Penghitung Komisi Staf|Staff Commission Calculator"],"g":["Salon Kecantikan|Beauty Salons","Barbershop|Barbershops","Spa|Spas","Klinik Kecantikan|Aesthetic Clinics","Makeup Artist|Makeup Artist Studios","Nail Art Studio|Nail Studios","Salon Muslimah|Muslimah Salons","Pijat Refleksi|Reflexology Centers","Studio Lash dan Brow|Lash and Brow Studios","Salon Pengantin|Bridal Salons","Day Spa|Day Spas","Salon Rambut|Hair Salons","Studio Tato|Tattoo Studios","Pusat Perawatan Wajah|Facial Care Centers","Salon Hewan|Pet Grooming Salons"]},{"n":"Fitness dan Olahraga|Fitness and Sports","u":2,"f":["Pembuat Program Latihan|Workout Program Creator","Penghitung Target Kalori|Calorie Target Calculator","Pencatat Progres Member|Member Progress Tracker","Pengingat Jadwal Kelas|Class Schedule Reminder","Penasihat Nutrisi|Nutrition Advisor","Pembuat Tantangan Kebugaran|Fitness Challenge Creator","Pengelola Keanggotaan Gym|Gym Membership Manager","Pembuat Rencana Pemulihan|Recovery Plan Creator","Penjadwal Personal Trainer|Personal Trainer Scheduler","Pembuat Video Gerakan|Exercise Form Guide Maker"],"g":["Pusat Kebugaran|Gyms","Studio Yoga|Yoga Studios","Studio Pilates|Pilates Studios","Klub Lari|Running Clubs","Akademi Sepak Bola|Football Academies","Studio CrossFit|CrossFit Boxes","Klub Renang|Swimming Clubs","Studio Bela Diri|Martial Arts Studios","Klub Bulutangkis|Badminton Clubs","Studio Tari|Dance Studios","Pusat Panjat Tebing|Climbing Gyms","Klub Tenis|Tennis Clubs","Studio Spinning|Spinning Studios","Personal Trainer Independen|Independent Personal Trainers","Klub Bersepeda|Cycling Clubs"]},{"n":"Kesehatan dan Medis|Health and Medical","u":2,"f":["Pengingat Jadwal Pasien|Patient Appointment Reminder","Pengingat Minum Obat|Medication Reminder","Pembuat Ringkasan Riwayat Medis|Medical History Summarizer","Penjelas Hasil Tes Sederhana|Lab Test Result Explainer","Pembuat Edukasi Pasien|Patient Education Creator","Penyusun Draf Rujukan|Referral Draft Maker","Pencatat Keluhan Pasien|Patient Triage Assistant","Penghitung Estimasi Biaya Rawat|Treatment Cost Estimator","Pengingat Imunisasi Anak|Immunization Reminder","Pembuat Rencana Diet Medis|Dietary Plan Creator"],"g":["Klinik Pratama|General Clinics","Praktik Dokter Gigi|Dental Clinics","Apotek|Pharmacies","Klinik Tumbuh Kembang Anak|Pediatric Clinics","Klinik Fisioterapi|Physiotherapy Clinics","Klinik Mata|Eye Clinics","Laboratorium Medis|Medical Laboratories","Praktik Mandiri Bidan|Midwife Practices","Praktik Dokter Umum|General Practitioner Practices","Klinik Hewan|Veterinary Clinics","Pusat Akupunktur|Acupuncture Centers","Optik|Optical Clinics"]},{"n":"Pendidikan dan Kursus|Education and Courses","u":2,"f":["Pembuat Soal dan Pembahasan|Exam Question Generator","Pembuat RPP dan Silabus|Lesson Plan Maker","Pembuat Ringkasan Materi|Study Summary Maker","Pemeriksa Jawaban Esai|Essay Grader Assistant","Pembuat Kuis Interaktif|Interactive Quiz Maker","Pembuat Flashcard Belajar|Flashcard Creator","Tutor Tanya Jawab Pelajaran|Subject Q&A Tutor","Pembuat Laporan Progres Siswa|Student Progress Reporter","Penjadwal Bimbingan Belajar|Tutoring Scheduler","Penyusun Lembar Kerja Siswa|Student Worksheet Maker"],"g":["Bimbingan Belajar|Tutoring Centers","Kursus Bahasa Asing|Language Schools","Sekolah Musik|Music Schools","Kursus Coding Anak|Coding Schools for Kids","Lembaga Kursus Pelatihan|Vocational Training Centers","Taman Kanak-kanak|Kindergartens","Sekolah Mengemudi|Driving Schools","Kursus Memasak|Cooking Schools","Kursus Desain Grafis|Graphic Design Courses","Bimbel UTBK dan Kedinasan|College Prep Centers","Kursus Menjahit|Sewing Schools","Kursus Robotik|Robotics Classes"]},{"n":"Jasa Profesional|Professional Services","u":2,"f":["Pembuat Draf Perjanjian|Contract Draft Maker","Penyusun Proposal Proyek|Project Proposal Maker","Pencatat Menit Rapat|Meeting Minutes Generator","Penghitung Pajak Sederhana|Tax Calculator","Pembuat Laporan Kinerja|Performance Report Maker","Penyusun Profil Perusahaan|Company Profile Maker","Pembuat Checklist Kepatuhan|Compliance Checklist Maker","Penjadwal Konsultasi Klien|Client Consultation Scheduler","Penyusun FAQ Layanan|Service FAQ Maker","Pembuat Surat Penagihan|Payment Reminder Letter Maker"],"g":["Kantor Notaris|Notary Offices","Konsultan Pajak|Tax Consultants","Kantor Hukum|Law Firms","Konsultan Manajemen|Management Consultants","Agensi Pemasaran|Marketing Agencies","Akuntan Publik|Public Accountants","Konsultan SDM|HR Consultants","Penerjemah Tersumpah|Sworn Translators","Agensi Branding|Branding Agencies","Konsultan Lingkungan|Environmental Consultants","Perencana Keuangan|Financial Planners","Agensi PR|PR Agencies"]},{"n":"Kreatif dan Media|Creative and Media","u":1,"f":["Pembuat Skrip Podcast|Podcast Script Maker","Penulis Cerita Pendek|Story Writer","Pembuat Brief Desain|Design Brief Generator","Penulis Skrip Voiceover|Voiceover Script Writer","Pencari Ide Konten Harian|Daily Content Idea Generator","Pembuat Storyboard Kasar|Storyboard Prompt Maker","Penulis Lirik Lagu|Song Lyric Writer","Pembuat Rangkuman Berita|News Summarizer","Penyusun Moodboard Visual|Visual Moodboard Generator","Pembuat Deskripsi Portofolio|Portfolio Description Maker"],"g":["Studio Foto|Photo Studios","Rumah Produksi Video|Video Production Houses","Agensi Kreatif|Creative Agencies","Studio Animasi|Animation Studios","Penerbit Buku|Book Publishers","Studio Musik|Recording Studios","Kreator Konten YouTube|YouTube Creators","Podcaster|Podcasters","Ilustrator Lepas|Freelance Illustrators","Fotografer Pernikahan|Wedding Photographers","Studio Desain Interior|Interior Design Studios","Agensi Talenta|Talent Agencies"]},{"n":"Properti dan Konstruksi|Real Estate and Construction","u":2,"f":["Pembuat Listing Properti|Property Listing Creator","Penghitung Simulasi KPR|Mortgage Simulator","Penyusun Brosur Properti|Property Brochure Maker","Penjadwal Survei Lokasi|Site Visit Scheduler","Pencatat Inventaris Proyek|Project Inventory Tracker","Pembuat Estimasi Renovasi|Renovation Cost Estimator","Penyusun Laporan Harian Proyek|Daily Construction Report Maker","Penghitung Sewa dan ROI|Rental ROI Calculator","Pembuat Surat Perjanjian Sewa|Lease Agreement Drafter","Pembuat Checklist Serah Terima|Handover Checklist Maker"],"g":["Agen Properti|Real Estate Agents","Developer Perumahan|Home Developers","Kontraktor Bangunan|General Contractors","Studio Arsitek|Architectural Studios","Desainer Interior|Interior Designers","Jasa Renovasi|Renovation Services","Pengelola Kos-kosan|Boarding House Managers","Pengelola Apartemen|Apartment Managers","Penyedia Coworking Space|Coworking Spaces","Penyedia Kavling Tanah|Land Lot Sellers","Jasa Pertamanan|Landscaping Services"]},{"n":"Pariwisata dan Hospitality|Travel and Hospitality","u":2,"f":["Pembuat Itinerary Perjalanan|Travel Itinerary Maker","Pemandu Wisata Virtual|Virtual Tour Guide","Penghitung Biaya Liburan|Vacation Budget Calculator","Penerjemah Bahasa Lokal|Local Language Phrasebook","Rekomendasi Kuliner Lokal|Local Food Recommender","Pembuat Panduan Tamu|Guest Welcome Guide Maker","Pengingat Checklist Berkemas|Packing Checklist Maker","Pencatat Reservasi Kamar|Room Reservation Tracker","Pembuat Brosur Paket Wisata|Tour Package Brochure Maker","Penjawab Pertanyaan Tamu Hotel|Hotel Concierge Chatbot"],"g":["Hotel Butik|Boutique Hotels","Villa dan Resort|Villas and Resorts","Agen Perjalanan Wisata|Travel Agencies","Pengelola Homestay|Homestay Operators","Operator Tur Petualangan|Adventure Tour Operators","Glamping|Glamping Sites","Desa Wisata|Tourism Villages","Rental Mobil Wisata|Car Rental Agencies","Pemandu Wisata Lokal|Local Tour Guides","Pusat Informasi Wisata|Tourist Information Centers","Hostel Backpacker|Backpacker Hostels"]},{"n":"Event dan Pernikahan|Events and Weddings","u":2,"f":["Penyusun Rundown Acara|Event Rundown Maker","Penghitung Anggaran Acara|Event Budget Calculator","Pembuat Draf Undangan|Invitation Copywriter","Pencatat RSVP Tamu|RSVP Tracker","Pembuat Checklist Vendor|Vendor Checklist Maker","Pengingat Pembayaran Vendor|Vendor Payment Reminder","Penyusun Moodboard Acara|Event Moodboard Maker","Pembuat Skrip MC|MC Script Generator","Penata Susunan Duduk Tamu|Seating Chart Planner","Pembuat Kuesioner Evaluasi Acara|Event Feedback Survey Maker"],"g":["Wedding Organizer|Wedding Organizers","Event Organizer|Event Organizers","Penyedia Dekorasi|Decoration Vendors","Fotografer Event|Event Photographers","Penyedia Gedung Acara|Event Venues","Catering Acara|Event Caterers","Jasa Hiburan Musik|Live Bands","MC Profesional|Professional MCs","Penyedia Gaun Pengantin|Bridal Gown Renters","Penyedia Suvenir|Souvenir Makers"]},{"n":"Ritel dan Toko Fisik|Retail and Physical Stores","u":2,"f":["Pembuat Tagline Produk|Product Tagline Generator","Pembuat Poster Diskon|Discount Poster Maker","Pencatat Stok Menipis|Low Stock Alert Maker","Penyusun Katalog Musiman|Seasonal Catalog Maker","Pembuat Program Poin Pelanggan|Reward Program Maker","Penghitung Margin Keuntungan|Profit Margin Calculator","Penyusun Teks Siaran Toko|In-store Announcement Writer","Pencatat Kasir Harian|Daily Cash Register Balancer","Pembuat Formulir Retur Barang|Return Form Maker","Penasihat Penataan Etalase|Window Display Advisor"],"g":["Minimarket Mandiri|Convenience Stores","Toko Kelontong|Grocery Stores","Toko Alat Tulis|Stationery Stores","Toko Mainan Anak|Toy Stores","Toko Elektronik|Electronics Stores","Toko Bahan Bangunan|Hardware Stores","Toko Perlengkapan Rumah|Homeware Stores","Toko Pakan Hewan|Pet Supply Stores","Toko Kado dan Aksesoris|Gift Shops","Toko Tanaman Hias|Plant Nurseries","Toko Komputer|Computer Stores","Toko Buku Mandiri|Independent Bookstores"]},{"n":"Otomotif dan Bengkel|Automotive and Workshops","u":2,"f":["Pengingat Jadwal Servis Berkala|Service Reminder Maker","Penghitung Estimasi Biaya Servis|Repair Cost Estimator","Pencatat Riwayat Kendaraan|Vehicle Service History Keeper","Penyusun Draf Garansi Servis|Warranty Draft Maker","Pembuat Checklist Uji Emisi|Vehicle Inspection Checklist","Pencatat Suku Cadang Bengkel|Spare Part Stock Tracker","Pembuat Tips Perawatan Kendaraan|Car Care Tips Writer","Penyusun Promo Ganti Oli|Oil Change Promo Maker","Penjadwal Booking Servis|Service Booking Scheduler","Penjawab Pertanyaan Kerusakan|Symptom Diagnosis Helper"],"g":["Bengkel Mobil|Auto Repair Shops","Bengkel Motor|Motorcycle Repair Shops","Tempat Cuci Mobil|Car Washes","Toko Ban dan Pelek|Tire and Wheel Shops","Salon Mobil Detailing|Auto Detailing Studios","Toko Variasi Motor|Motorcycle Accessory Shops","Bengkel AC Mobil|Car AC Workshops","Bengkel Ketok Magic|Body Repair Shops","Dealer Motor Bekas|Used Motorcycle Dealers","Rental Mobil|Car Rental Services","Bengkel Sepeda|Bicycle Workshops"]},{"n":"Teknologi dan Startup|Technology and Startups","u":1,"f":["Pembuat Release Notes|Release Notes Generator","Penulis Dokumentasi API|API Documentation Writer","Pembuat Ringkasan User Feedback|User Feedback Summarizer","Penyusun Draf Pitch Deck|Pitch Deck Copy Generator","Penghitung Runway Keuangan|Runway Calculator","Pembuat Job Description Tech|Tech Job Description Maker","Penyusun Kuesioner Riset Pasar|User Research Survey Maker","Pembuat Onboarding Checklist|Onboarding Checklist Maker","Penulis Email Dingin B2B|Cold Outreach Email Writer","Pembuat SOP Deployment|Deployment SOP Maker"],"g":["Startup SaaS|SaaS Startups","Software House|Software Houses","Agensi Pengembang Web|Web Development Agencies","Studio Game Mandiri|Indie Game Studios","Startup Edutech|EdTech Startups","Startup Fintech|FinTech Startups","Startup Healthtech|HealthTech Startups","Penyedia Hosting Lokal|Hosting Providers","Penyedia Solusi IoT|IoT Solution Providers","Agensi Keamanan Siber|Cybersecurity Agencies"]},{"n":"Keluarga dan Rumah Tangga|Family and Home","u":0,"f":["Perencana Menu Mingguan|Weekly Meal Planner","Penghitung Kalori Keluarga|Family Calorie Counter","Pencatat Keuangan Keluarga|Family Budget Tracker","Pembuat Daftar Belanja|Shopping List Maker","Pembuat Resep dari Bahan di Kulkas|Fridge Leftover Recipe Maker","Penjadwal Tugas Rumah|Chore Scheduler","Pembuat Rencana Kegiatan Akhir Pekan|Weekend Activity Planner","Perencana Liburan|Vacation Planner","Perencana Acara Ulang Tahun|Birthday Party Planner","Pembuat Kartu Ucapan|Greeting Card Maker","Penghitung Hemat Listrik dan Air|Utility Saver Calculator","Pengingat Tanggal Penting|Important Date Reminder"],"g":["Ibu Rumah Tangga|Homemakers","Ibu Baru|New Mothers","Orang Tua Balita|Parents of Toddlers","Orang Tua Remaja|Parents of Teenagers","Keluarga Muda|Young Families","Pasangan Baru Menikah|Newlyweds","Lansia|Seniors","Keluarga Besar|Large Families","Anak Kos|Boarding House Residents","Penghuni Apartemen|Apartment Residents","Keluarga Perantau|Migrant Families","Pasangan LDR|Long-Distance Couples"]}]};
 
+
+var EXTRA_U1 = [
+  "Pengingat Retensi Pelanggan|Customer Retention Agent",
+  "Penyusun Riset Pasar|Market Research Summarizer",
+  "Penulis Konten Newsletter|Newsletter Content Writer",
+  "Pengoptimal Halaman Checkout|Checkout Conversion Optimizer",
+  "Pembuat Studi Kasus Portofolio|Case Study Generator",
+  "Penganalisis Tren Industri|Industry Trend Analyzer"
+];
+var EXTRA_U2 = [
+  "Penyaring Calon Klien Otomatis|Automated Lead Qualifier",
+  "Peringkas Rapat & Tindak Lanjut|Meeting Minutes & Action Item Summarizer",
+  "Penganalisis Biaya Langganan|Subscription Cost Analyzer",
+  "Perekap Pajak & Pengeluaran|Expense & Tax Estimator",
+  "Penyusun Perjanjian Kerahasiaan|NDA & Service Agreement Drafter",
+  "Pengukur Performa Penjualan|Sales Pipeline Performance Tracker"
+];
+DB.u1.push.apply(DB.u1, EXTRA_U1);
+DB.u2.push.apply(DB.u2, EXTRA_U2);
+if (DB.c[7]) DB.c[7].u = 2;
+if (DB.c[13]) DB.c[13].u = 2;
+if (DB.c[14]) DB.c[14].u = 2;
+
 var IX=1, PRE=' for ', nf=new Intl.NumberFormat('en-US');
 function P(x){var a=x.split('|');return a[IX]||a[0]}
 var RU=[["drop", 4, "Skrip Penjualan|Skrip Video|Program Loyalitas|Slogan|Poster Promo|Perencana Promo|Penentu Harga|Penawaran Harga", "^(Klinik|Praktik)"], ["only", 10, "Daftar Tamu|Posisi Duduk|Rundown|Anggaran Acara|Kontrak Vendor|Checklist Persiapan", "Organizer|Party Planner|Penyelenggara|Gedung"], ["only", 10, "Moodboard", "Dekorasi|Fotografer|Videografer|Gaun|Photobooth|Organizer|Party Planner|Penyelenggara"], ["only", 10, "Undangan Digital", "Organizer|Percetakan|Party Planner|Penyelenggara"], ["only", 8, "Brosur Properti", "Agen|Developer|Pengembang|Kavling|Konsultan|Villa|Homestay|Kos|Kontrakan|Apartemen|Coworking"], ["only", 8, "Estimasi Biaya|Kontrak Kerja Sama|Laporan Progres|Portofolio Proyek", "Kontraktor|Arsitek|Interior|Landscape|Kitchen|Furnitur|Baja|Developer|Pengembang"], ["only", 8, "Pembayaran Bertahap", "Kontraktor|Developer|Pengembang|Kavling|Kitchen|Interior|Baja"], ["only", 9, "Penghitung Biaya Perjalanan", "Agen Travel|Operator|Pemandu|Tur|Desa|Wisata Kuliner|Antar Jemput|Rental"], ["drop", 9, "Itinerary|Paket Wisata", "Rental|Antar Jemput|Agen Tiket|Kapal"], ["drop", 13, "Penilai Tugas|Game Edukasi|Lembar Kerja", "Mengemudi"], ["drop", -1, "Poster Lowongan|Penjadwal Karyawan|SOP Karyawan", "Praktik|Makeup Artist|Reseller|Dropshipper|Klub|Pemandu"], ["drop", -1, "Penawaran Harga|Katalog Digital|Penghitung Modal|Laporan Penjualan", "Klub"]];
@@ -1655,7 +1707,36 @@ if(il){
     if(!b)return;
     var x=IDEAS[+b.dataset.i],t=TX.k[x.k];
     if(!idt)return;
-    idt.innerHTML='<button class="bk" id="bk">\u2190 '+TX.bk+'</button><div><div class="dv">'+THUMB(x)+'</div></div><div class="dt"><i class="dc">'+esc(P(DB.c[x.c].n))+'</i><h4>AI '+esc(x.f)+'</h4><h5>'+TX.fo+'</h5><p>'+esc(x.n)+'</p><h5>'+TX.wh+'</h5><p>'+esc(t[0].replace("{n}",x.n))+'</p><h5>'+TX.ex+'</h5><p>'+esc(t[1])+'</p><button class="dbtn" id="ub">'+TX.use+'</button></div>';
+    var ki = KIND_INFO[x.k] || KIND_INFO.write;
+    var catName = esc(P(DB.c[x.c].n));
+    idt.innerHTML = '<button class="bk" id="bk">\u2190 '+TX.bk+'</button>' +
+      '<div class="spec-panel">' +
+        '<div class="spec-tag">'+catName+' • BLUEPRINT #'+(x.i+1001)+'</div>' +
+        '<div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-0.02em">AI '+esc(x.f)+'</div>' +
+        '<div style="font-size:13.5px;color:var(--muted)">Engineered for: <b style="color:var(--fg)">'+esc(x.n)+'</b></div>' +
+        '<div class="spec-pipeline">' +
+          '<div><b>[Trigger]</b> Business event / User request</div>' +
+          '<div><b>[Reasoning]</b> Anthropic Claude 3.7 / GPT-4o Agent</div>' +
+          '<div><b>[Output]</b> Structured real-time action & asset</div>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:6px">Supported Foundation Models:</div>' +
+        '<div class="spec-models">' +
+          '<span class="spec-model-pill">Claude 3.7 Sonnet</span>' +
+          '<span class="spec-model-pill">OpenAI GPT-4o</span>' +
+          '<span class="spec-model-pill">Gemini 2.0 Flash</span>' +
+        '</div>' +
+        '<button class="dbtn" id="ub" style="margin-top:auto">'+TX.use+'</button>' +
+      '</div>' +
+      '<div class="dt">' +
+        '<div class="idea-kind-badge '+ki.badge+'" style="margin-bottom:8px">'+ki.icon+' '+ki.label+' Architecture</div>' +
+        '<h5>'+TX.wh+'</h5>' +
+        '<p style="font-size:14px;color:var(--fg);line-height:1.55">'+esc(t[0].replace("{n}",x.n))+'</p>' +
+        '<h5>'+TX.ex+'</h5>' +
+        '<div class="spec-output-box">'+esc(t[1])+'</div>' +
+        '<div style="margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6">' +
+          '✓ Zero recurring monthly license • 100% owned &amp; unconstrained runtime • Unified Runnerflo billing' +
+        '</div>' +
+      '</div>';
     idt.className="on";
     idt.scrollTop=0;
     document.getElementById("bk").onclick=function(){idt.className=""};
@@ -1689,7 +1770,7 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
   function tick() {
     if (manualCooldown > 0) {
       manualCooldown--;
-    } else if (!isPaused && !isFsActive && wrap) {
+    } else if (!isPaused && !isFsActive && wrap && !wrap.classList.contains('spotlight-mode')) {
       wrap.scrollLeft += animSpeed;
       var halfScroll = wrap.scrollWidth / 2;
       if (wrap.scrollLeft >= halfScroll) {
@@ -1761,6 +1842,15 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
       tab.classList.add('active');
       var filter = tab.getAttribute('data-filter');
       var boxes = document.querySelectorAll('.game-box');
+      // Toggle spotlight mode if SaaS Game 3D is selected
+      if (wrap) {
+        if (filter === 'saas') {
+          wrap.classList.add('spotlight-mode');
+        } else {
+          wrap.classList.remove('spotlight-mode');
+        }
+      }
+
       boxes.forEach(function(b){
         var cat = b.getAttribute('data-cat');
         var isDuplicate = b.hasAttribute('aria-hidden');
@@ -1776,6 +1866,9 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
         }
       });
       if (wrap) wrap.scrollLeft = 0;
+      if (typeof updateSaasIframeScale === 'function') {
+        setTimeout(updateSaasIframeScale, 50);
+      }
     });
   });
 
