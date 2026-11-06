@@ -81,9 +81,12 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
 .th:hover svg{transform:scale(1.08)}
 .th[aria-pressed="true"]{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:2px}
 
-/* api notice - formal, clean, minimal */
-.api-notice{display:inline-block;max-width:760px;margin:20px auto 0;padding:11px 22px;border:1px solid var(--line);background:var(--bg);font-size:14px;color:var(--text);line-height:1.55;text-align:center}
+/* api notice - formal, clean, minimal 1-line */
+.api-notice{display:inline-block;max-width:1040px;margin:20px auto 0;padding:10px 24px;border:1px solid var(--line);background:var(--bg);font-size:13.5px;color:var(--text);line-height:1.5;text-align:center;white-space:nowrap}
 .api-notice b{color:var(--ink);font-weight:600}
+@media (max-width:980px){
+  .api-notice{white-space:normal;max-width:100%;font-size:13px;padding:10px 18px}
+}
 .bigart{position:relative;aspect-ratio:4/5;border:1px solid var(--line);overflow:hidden;background:var(--bg)}
 .bigart svg{position:absolute;inset:0;width:100%;height:100%;display:block;animation:artIn .7s cubic-bezier(.2,.7,.2,1) both}
 .bigart .pill{position:absolute;left:12px;bottom:12px;font-family:var(--mono);font-size:11.5px;background:rgba(10,10,14,.7);color:#fff;padding:5px 8px;z-index:1;display:inline-flex;gap:6px;align-items:center}
@@ -582,16 +585,40 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
       '<div class="btns"><button class="btn pri" type="button" data-req="'+key(m)+'">Request this API</button></div>';
     d.style.animation="none"; void d.offsetWidth; d.style.animation="";
   }
+  /* featured models auto-advance animation */
+  var cycleTimer=null;
+  function startCycle(){
+    stopCycle();
+    cycleTimer=setInterval(function(){
+      showSel((cur+1)%F.length);
+    },5500);
+  }
+  function stopCycle(){
+    if(cycleTimer){clearInterval(cycleTimer);cycleTimer=null;}
+  }
+  var showEl=$("show");
+  if(showEl){
+    showEl.addEventListener("mouseenter",stopCycle);
+    showEl.addEventListener("mouseleave",startCycle);
+  }
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden)stopCycle();else startCycle();
+  });
+
   $("thumbs").addEventListener("click",function(e){
     var b=e.target.closest(".th"); if(!b)return;
     var i=+b.getAttribute("data-i");
-    if(i!==cur) showSel(i);
+    if(i!==cur){
+      showSel(i);
+      startCycle();
+    }
   });
   $("det").addEventListener("click",function(e){
     var b=e.target.closest("#mark"); if(!b)return;
     b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
   });
   showSel(0);
+  startCycle();
 
   /* ranked lists */
   var top=M.slice().sort(function(a,b){return b[3]-a[3];}).slice(0,12);
