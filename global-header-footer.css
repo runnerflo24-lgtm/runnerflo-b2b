@@ -142,7 +142,7 @@ header.nav .nav-ideas-mob {
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  border-radius: 99px;
+  border-radius: 4px;
   background: var(--g-nav-soft);
   color: var(--g-nav-acc);
   border: 1px solid color-mix(in srgb, var(--g-nav-acc) 35%, var(--g-nav-line));
