@@ -1687,6 +1687,9 @@ function openIdeas(){
     if(dlg2.showModal){if(!dlg2.open)dlg2.showModal()}else{dlg2.setAttribute('open','')}
   }
 }
+window.openIdeas = openIdeas;
+if (window.location.hash === '#ide') setTimeout(openIdeas, 250);
+window.addEventListener('hashchange', function() { if (window.location.hash === '#ide') openIdeas(); });
 
 var btnIdeas=document.getElementById('btn-ideas');
 if(btnIdeas) btnIdeas.addEventListener('click',function(e){e.preventDefault();openIdeas()});

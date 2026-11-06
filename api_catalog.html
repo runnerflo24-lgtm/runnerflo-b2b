@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>API Catalog | Choose Any API, Pay Once - Veltra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/global-header-footer.css">
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+body{margin:0;padding:0;font:14.5px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}
+img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+
+/* API catalog: showcase, ranked lists, collections, explore with filters, request card. Light only, square corners. */
+:root{
+  color-scheme:light;
+  --bg:#ffffff;
+  --panel:#f6f6f8;
+  --ink:#111114;
+  --text:#3a3a42;
+  --muted:#7b7b85;
+  --line:#d6d6dc;
+  --line-strong:#b9b9c2;
+  --accent:#5b4cf0;
+  --accent-dark:#4538c9;
+  --accent-soft:#ecebff;
+  --runs:#e5432a;
+  --kw:#5b4cf0;--str:#d1431f;--fn:#0b7a5a;--com:#8a8a94;
+  --shadow:0 14px 34px -18px rgba(17,17,20,.35);
+  --sans:"Archivo","Helvetica Neue",Arial,ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gut:max(clamp(16px,4vw,56px),env(safe-area-inset-left,0px));
+  --gutr:max(clamp(16px,4vw,56px),env(safe-area-inset-right,0px));
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font:inherit;color:inherit}
+h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
+.band{padding-left:var(--gut);padding-right:var(--gutr)}
+.in{max-width:1360px;margin:0 auto}
+.band.alt{background:var(--panel);border-block:1px solid var(--line)}
+.sec{padding-block:72px 0}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.sec-h h2{font-size:26px;font-weight:600;letter-spacing:-.015em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* motion */
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes swapIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes artIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-16px) rotate(calc(var(--r,0deg) + 6deg))}}
+@keyframes caret{50%{opacity:0}}
+@keyframes revealIn{from{transform:translateY(28px)}to{transform:none}}
+.rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0ms)}
+@supports (animation-timeline:view()){
+  .reveal{animation:revealIn linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
+}
+
+/* intro */
+.intro{padding-block:80px 64px;text-align:center}
+.intro .eyebrow{max-width:none;font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+.intro h1{font-size:clamp(40px,6.4vw,72px);line-height:1.02;letter-spacing:-.03em;font-weight:600}
+.intro p{margin:20px auto 0;max-width:62ch;font-size:17px;line-height:1.65}
+.intro .facts{margin-top:28px;display:inline-flex;flex-wrap:wrap;justify-content:center;border:1px solid var(--line);background:var(--bg)}
+.facts span{padding:9px 18px;font-family:var(--mono);font-size:12.5px;color:var(--text)}
+.facts span + span{border-left:1px solid var(--line)}
+.facts b{color:var(--ink);font-weight:500}
+
+/* showcase */
+.showband{padding-block:48px}
+.show{display:grid;grid-template-columns:340px 322px minmax(0,1fr);gap:40px;align-items:start}
+.thumbs{padding-right:40px;border-right:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.th{position:relative;aspect-ratio:1;border:1px solid var(--line);background:var(--bg);padding:0;cursor:pointer;overflow:hidden;transition:border-color .2s,transform .2s}
+.th:hover{transform:translateY(-2px);border-color:var(--ink)}
+.th svg{position:absolute;inset:0;width:100%;height:100%;display:block;transition:transform .5s}
+.th:hover svg{transform:scale(1.08)}
+.th[aria-pressed="true"]{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:2px}
+
+/* api request callout - distinct accent for high readability */
+.api-request-callout{display:flex;align-items:center;gap:18px;max-width:820px;margin:28px auto 0;padding:18px 24px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));border-left:5px solid var(--accent);text-align:left;box-shadow:0 8px 24px -10px rgba(91,76,240,0.2)}
+.callout-icon{flex:none;width:40px;height:40px;border-radius:4px;background:var(--accent);color:#ffffff;display:grid;place-items:center}
+.callout-body{flex:1;min-width:0}
+.callout-tag{display:block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.callout-text{margin:0!important;max-width:none!important;font-size:15.5px!important;line-height:1.6!important;color:var(--ink)!important}
+.callout-text strong{color:var(--accent-dark);font-weight:700}
+@media (max-width:640px){
+  .api-request-callout{flex-direction:column;align-items:flex-start;gap:14px;padding:16px}
+}
+.bigart{position:relative;aspect-ratio:4/5;border:1px solid var(--line);overflow:hidden;background:var(--bg)}
+.bigart svg{position:absolute;inset:0;width:100%;height:100%;display:block;animation:artIn .7s cubic-bezier(.2,.7,.2,1) both}
+.bigart .pill{position:absolute;left:12px;bottom:12px;font-family:var(--mono);font-size:11.5px;background:rgba(10,10,14,.7);color:#fff;padding:5px 8px;z-index:1;display:inline-flex;gap:6px;align-items:center}
+.pill svg{position:static;width:11px;height:11px;animation:none}
+.det{min-width:0;animation:swapIn .5s cubic-bezier(.2,.7,.2,1) both}
+.det .top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.det h2{font-size:24px;line-height:1.15;font-weight:700;letter-spacing:.01em;text-transform:uppercase;overflow-wrap:anywhere}
+.det .sub{display:flex;gap:14px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted)}
+.det .sub .runs{color:var(--runs);font-weight:600}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line-strong);background:var(--bg);display:grid;place-items:center;cursor:pointer;transition:background .2s,border-color .2s,color .2s;flex:none}
+.iconbtn:hover{border-color:var(--ink)}
+.iconbtn svg{width:17px;height:17px}
+.iconbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.iconbtn[aria-pressed="true"] svg{fill:currentColor}
+.dl{margin:26px 0 0;display:grid;gap:7px;font-size:13.5px}
+.dl div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px}
+.dl dt{color:var(--muted)}
+.dl dd{margin:0;color:var(--ink);display:flex;align-items:center;gap:8px;min-width:0}
+.det .about{margin:20px 0 0;max-width:52ch;font-size:14.5px;line-height:1.65}
+.best{margin-top:22px;border:1px solid var(--line);background:var(--bg);padding:14px 16px;display:grid;gap:4px}
+.best small{font-size:12px;color:var(--muted)}
+.best b{font-size:15px;font-weight:600;color:var(--ink)}
+.btns{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px}
+.btn{position:relative;overflow:hidden;height:46px;border:1px solid var(--ink);background:var(--bg);color:var(--ink);font-weight:500;font-size:14px;cursor:pointer;text-decoration:none;display:grid;place-items:center;isolation:isolate;transition:color .25s}
+.btn::before{content:"";position:absolute;inset:0;background:var(--ink);transform:translateX(-101%);transition:transform .3s cubic-bezier(.2,.7,.2,1);z-index:-1}
+.btn:hover{color:#fff}.btn:hover::before{transform:none}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri::before{background:var(--accent-dark)}
+
+/* ranked */
+.rank{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:20px}
+.box{border:1px solid var(--line);background:var(--panel);padding:10px 16px}
+.box.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,auto);grid-auto-flow:column;column-gap:20px}
+.rk{display:grid;grid-template-columns:26px 44px minmax(0,1fr);gap:12px;align-items:center;padding:9px 6px;text-decoration:none;position:relative;transition:background .2s,transform .2s}
+.rk:hover{background:var(--bg);transform:translateX(4px)}
+.rk .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.rk .t{position:relative;width:44px;height:44px;overflow:hidden;border:1px solid var(--line)}
+.rk .t svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.rk .x{min-width:0;display:grid}
+.rk .x b{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .x span{font-size:12.5px;color:var(--runs)}
+
+/* collections */
+.car{position:relative}
+.track{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;scroll-behavior:smooth;padding-bottom:2px}
+.track::-webkit-scrollbar{display:none}
+.col{flex:0 0 calc((100% - 60px)/4);min-width:230px;scroll-snap-align:start;border:1px solid var(--line);background:var(--bg);text-align:left;padding:0;cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s}
+.col:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:var(--shadow)}
+.mos{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;aspect-ratio:16/10;gap:2px;background:var(--bg);border-bottom:1px solid var(--line)}
+.mos div{position:relative;overflow:hidden}
+.mos svg{position:absolute;inset:0;width:100%;height:100%;display:block;transition:transform .6s}
+.col:hover .mos svg{transform:scale(1.1)}
+.col .cn{padding:14px 16px 16px;display:grid;gap:2px}
+.col .cn b{font-size:16px;font-weight:600;color:var(--ink)}
+.col .cn span{font-size:12.5px;color:var(--muted)}
+.arrow{position:absolute;top:calc(50% - 24px);width:46px;height:46px;border:1px solid var(--ink);background:var(--ink);color:#fff;display:grid;place-items:center;cursor:pointer;transition:background .2s,opacity .2s;z-index:3}
+.arrow:hover{background:var(--accent);border-color:var(--accent)}
+.arrow svg{width:18px;height:18px}
+.arrow.r{right:-12px}.arrow.l{left:-12px}
+.arrow[hidden]{display:none!important}
+
+/* explore */
+.explore{display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;align-items:start}
+.side{position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto;scrollbar-width:none;padding-right:4px}
+.side::-webkit-scrollbar{display:none}
+.side h2{font-size:21px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
+.side h3{font-size:16px;font-weight:600;margin:24px 0 6px;line-height:1.4}
+.side p{margin:0 0 12px;font-size:14px;line-height:1.8}
+.side p a{text-decoration:underline;text-underline-offset:3px}
+.side p a:hover{color:var(--accent)}
+.exh{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.exh h2{font-size:26px;font-weight:600;letter-spacing:-.015em}
+.exh .cnt{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-left:12px;font-weight:400}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{position:relative}
+.search input{height:40px;width:220px;max-width:100%;border:1px solid var(--line-strong);background:var(--bg);padding:0 12px 0 36px;font:inherit;font-size:13.5px;color:var(--ink);border-radius:0;transition:border-color .2s,width .25s}
+.search input:focus{outline:none;border-color:var(--accent);width:260px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted)}
+.fs{position:relative}
+.fsb{height:40px;padding:0 16px;border:1px solid var(--ink);background:var(--bg);cursor:pointer;font-size:13.5px;display:inline-flex;align-items:center;gap:8px;transition:background .2s,color .2s}
+.fsb:hover,.fsb[aria-expanded="true"]{background:var(--ink);color:#fff}
+.fsb svg{width:14px;height:14px}
+.pop{position:absolute;right:0;top:calc(100% + 8px);width:250px;background:var(--bg);border:1px solid var(--ink);box-shadow:var(--shadow);padding:16px;z-index:20;transform-origin:top right;animation:pop .2s ease both}
+.pop h4{margin:0 0 8px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pop h4:not(:first-child){margin-top:16px}
+.pop label,.pop .opt{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13.5px;cursor:pointer;color:var(--ink);background:none;border:0;width:100%;text-align:left}
+.pop input{accent-color:var(--accent);width:15px;height:15px;margin:0}
+.pop .opt{justify-content:space-between}
+.pop .opt:hover{color:var(--accent)}
+.pop .opt svg{width:14px;height:14px;color:var(--accent);opacity:0}
+.pop .opt[aria-checked="true"] svg{opacity:1}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.pillb{height:36px;padding:0 16px;border:1px solid var(--line-strong);background:var(--bg);cursor:pointer;font-size:13.5px;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.pillb:hover{border-color:var(--ink);transform:translateY(-1px)}
+.pillb[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px}
+.card{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);background:var(--bg);animation:rise .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*45ms);transition:border-color .2s,box-shadow .25s,transform .25s}
+.card:hover{border-color:var(--ink);box-shadow:var(--shadow);transform:translateY(-4px)}
+.media{position:relative;aspect-ratio:4/5;background:var(--panel);display:grid;place-items:center;overflow:hidden;border-bottom:1px solid var(--line)}
+.media .vid{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.media.full .vid{position:absolute;inset:0;aspect-ratio:auto}
+.media svg.a{position:absolute;inset:0;width:100%;height:100%;display:block;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.card:hover .media svg.a{transform:scale(1.07)}
+.play{position:absolute;top:12px;right:12px;width:20px;height:20px;color:#2c2c33;z-index:2;transition:transform .3s}
+.media.full .play{color:#fff}
+.card:hover .play{transform:scale(1.2)}
+.info{display:flex;flex-direction:column;gap:8px;padding:16px 16px 12px;flex:1}
+.title{font-size:16px;line-height:1.45;font-weight:500;color:var(--ink);overflow-wrap:anywhere}
+.title .av{display:inline-flex;vertical-align:middle;width:20px;height:20px;margin-right:8px;position:relative;top:-1px;overflow:hidden;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:600}
+.title .owner{color:var(--muted)}
+.title .sl{color:var(--line-strong);margin:0 5px}
+.title a{text-decoration:none}
+.title a::after{content:"";position:absolute;inset:0}
+.desc{margin:0;color:var(--ink);font-size:13.5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mrow{margin-top:auto;padding-top:6px;display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.mrow .runs{color:var(--runs);font-weight:500}
+.official{display:inline-flex;gap:5px;align-items:center;color:var(--muted)}
+.official svg{width:13px;height:13px}
+.bot{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);margin-top:8px;padding-top:10px;font-size:12.5px;color:var(--muted)}
+.bot .time{display:inline-flex;gap:6px;align-items:center}
+.bot .time svg{width:13px;height:13px}
+.save{position:relative;z-index:2;width:30px;height:30px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:color .2s,transform .2s}
+.save:hover{color:var(--ink);transform:scale(1.15)}
+.save svg{width:17px;height:17px}
+.save[aria-pressed="true"]{color:var(--runs)}
+.save[aria-pressed="true"] svg{fill:currentColor}
+.more{display:flex;justify-content:center;margin-top:36px}
+.more .btn{width:180px}
+.none{grid-column:1/-1;border:1px dashed var(--line-strong);padding:56px 16px;text-align:center;color:var(--muted);background:var(--panel)}
+
+/* faq */
+.faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}
+.faq details{border:1px solid var(--line);background:var(--bg);padding:0;transition:border-color .2s}
+.faq details[open]{border-color:var(--ink)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;padding:18px 20px;font-weight:600;color:var(--ink);font-size:15px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--mono);font-weight:400;font-size:20px;line-height:1;color:var(--accent);transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{margin:0;padding:0 20px 20px;line-height:1.7}
+.faq code{font-family:var(--mono);font-size:12px;border:1px solid var(--line);padding:1px 5px;background:var(--panel)}
+
+/* cta */
+.cta{position:relative;overflow:hidden;margin-top:96px}
+.cta .in{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center;padding-block:96px}
+.cta h2{font-size:clamp(36px,5vw,64px);line-height:1.04;letter-spacing:-.03em;font-weight:600}
+.cta .lead{margin:20px 0 0;max-width:46ch;font-size:16.5px;line-height:1.7}
+.cta .btns{max-width:380px;margin-top:30px}
+.sq{position:absolute;border:1px solid var(--accent);background:var(--accent-soft);opacity:.7;animation:floaty 7s ease-in-out infinite;animation-delay:var(--dl,0s)}
+.codewrap{position:relative;z-index:1}
+.code{border:1px solid var(--ink);background:var(--bg);box-shadow:12px 12px 0 -1px var(--accent-soft),12px 12px 0 0 var(--accent)}
+.code .bar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 8px 8px 16px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.copy{height:30px;padding:0 12px;border:1px solid var(--line-strong);background:var(--bg);cursor:pointer;font-family:var(--mono);font-size:11.5px;transition:background .2s,color .2s}
+.copy:hover{background:var(--ink);color:#fff}
+.code pre{margin:0;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.8;color:var(--ink)}
+.code .k{color:var(--kw)}.code .s{color:var(--str)}.code .f{color:var(--fn)}.code .c{color:var(--com)}
+.caret{display:inline-block;width:8px;height:15px;background:var(--accent);vertical-align:-2px;animation:caret 1s steps(1) infinite}
+
+/* responsive */
+@media (max-width:1180px){
+  .show{grid-template-columns:340px minmax(0,1fr)}
+  .det{grid-column:1/-1}
+  .btns{max-width:460px}
+  .col{flex-basis:calc((100% - 40px)/3)}
+}
+@media (max-width:980px){
+  .explore{grid-template-columns:minmax(0,1fr);gap:32px}
+  .side{position:static;max-height:none}
+  .rank{grid-template-columns:minmax(0,1fr)}
+  .box.cols{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;grid-auto-flow:row}
+  .cta .in{grid-template-columns:minmax(0,1fr);gap:48px;padding-block:72px}
+  .col{flex-basis:calc((100% - 20px)/2)}
+}
+@media (max-width:760px){
+  .show{grid-template-columns:minmax(0,1fr);gap:24px}
+  .thumbs{padding-right:0;border-right:0;grid-template-columns:repeat(6,1fr);gap:8px}
+  .bigart{max-width:420px}
+  .faq{grid-template-columns:minmax(0,1fr)}
+  .sec{padding-block:56px 0}
+  .intro{padding-block:56px 44px}
+}
+@media (max-width:560px){
+  .thumbs{grid-template-columns:repeat(4,1fr)}
+  .box.cols{grid-template-columns:minmax(0,1fr)}
+  .col{flex-basis:80%}
+  .btns{grid-template-columns:1fr}
+  .arrow.r{right:0}.arrow.l{left:0}
+  .search,.search input,.search input:focus{width:100%}
+  .search{flex:1 1 100%}
+  .facts span{padding:8px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+.card{cursor:pointer}
+.mdl{position:fixed;inset:0;z-index:50;background:rgba(17,17,20,.55);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.mc{position:relative;background:var(--bg);border:1px solid var(--ink);width:min(520px,100%);max-height:100%;overflow:auto;padding:28px;box-shadow:var(--shadow);animation:pop .25s both}
+.mc h2{font-size:22px;margin-bottom:6px}.ms{margin:0 0 18px;color:var(--muted)}
+#mx{position:absolute;right:10px;top:6px;border:0;background:none;font-size:28px;cursor:pointer;line-height:1}
+.slot{display:flex;gap:12px;align-items:center;border:1px solid var(--line);padding:10px;margin-bottom:10px}
+.slot b{display:block;color:var(--ink);overflow-wrap:anywhere}.slot div span{font-size:12.5px;color:var(--muted)}
+.ar{position:relative;width:56px;height:56px;flex:none;overflow:hidden}.ar svg{position:absolute;inset:0;width:100%;height:100%}
+.rm{margin-left:auto;border:1px solid var(--line);background:var(--bg);padding:4px 10px;cursor:pointer}
+.fl{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-top:14px}
+.fl input,.fl select,.fl textarea{display:block;width:100%;margin-top:6px;padding:10px;border:1px solid var(--line-strong);background:var(--bg);font:inherit;font-weight:400;color:var(--ink);border-radius:0}
+#rf .btn,.mc>.btn{margin-top:18px;width:100%}
+.intro p{max-width:100ch!important}
+.reqbar{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--ink);background:var(--accent-soft);padding:16px 20px;margin:0 0 24px}
+.reqbar b{display:block;color:var(--ink);font-size:16px}.reqbar span{color:var(--text)}
+.none .btn{margin-top:14px}
+.cu{display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);font-size:26px;font-weight:600}
+.apirow{border:1px solid var(--line);padding:14px;margin-top:14px}
+.apirow h4{margin:0;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.06em}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.g2{grid-template-columns:1fr}}
+.st{margin-top:8px;font-size:12.5px;color:var(--muted)}.st b{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header class="nav global-nav">
+  <a class="logo" href="/"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg></i>Veltra</a>
+  <nav>
+    <a href="/#platform">Platform</a>
+    <a href="/#services">Services</a>
+    <a href="/#process">Process</a>
+    <a href="/#pricing">Pricing</a>
+    <a href="/api_catalog.html" class="active" aria-current="page">Request API</a>
+    <a href="/#ide" class="nav-ideas-link" id="nav-ideas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg> 10,284+ Ideas</a>
+  </nav>
+  <div class="nav-actions">
+    <a class="nav-ideas-mob" id="nav-ideas-mob" href="/#ide" aria-label="Open 10,284+ Ideas">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>10,284+ Ideas</span>
+    </a>
+    <a class="btn" href="/#contact">Get Started</a>
+  </div>
+</header>
+
+<section class="band alt">
+  <div class="in intro">
+    <p class="eyebrow rise">Fully managed SaaS, AI agents &amp; digital products</p>
+    <h1 class="rise" style="--d:80ms">Choose any API. Pay once.</h1>
+    <p class="rise" style="--d:160ms">Deploy enterprise-ready AI apps, autonomous agents, and 3D digital products on any foundation API (Anthropic Claude, OpenAI, Google Gemini, Tripo 3D, and thousands more) with zero setup and unified billing.</p>
+    
+    <div class="api-request-callout rise" style="--d:220ms">
+      <div class="callout-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="callout-body">
+        <span class="callout-tag">TURNKEY PROVISIONING INCLUDED</span>
+        <p class="callout-text">
+          <strong>Pick from the catalog</strong>, or <strong>request any API</strong> that is not listed. Each request covers <strong>up to two APIs</strong> and we provision them directly for your workspace.
+        </p>
+      </div>
+    </div>
+
+    <div class="facts rise" style="--d:280ms" aria-label="Collection summary">
+      <span><b id="f-total">0</b> APIs listed</span>
+      <span><b id="f-audio">0</b> providers</span>
+      <span><b id="f-fast">0</b> categories</span><span><b>Any</b> API on request</span>
+    </div>
+  </div>
+</section>
+
+<section class="band showband" aria-label="Featured models">
+  <div class="in">
+    <div class="show" id="show">
+      <div class="thumbs" id="thumbs" role="group" aria-label="Choose a featured model"></div>
+      <div class="bigart" id="bigart"></div>
+      <div class="det" id="det"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" aria-labelledby="top-h">
+  <div class="in">
+    <div class="sec-h reveal"><h2 id="top-h">Top picks</h2></div>
+    <div class="rank reveal">
+      <div class="box" id="rank1"></div>
+      <div class="box cols" id="rank2"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" aria-labelledby="col-h">
+  <div class="in">
+    <div class="sec-h reveal"><h2 id="col-h">Collections</h2></div>
+    <div class="car reveal">
+      <div class="track" id="track"></div>
+      <button class="arrow l" id="prev" type="button" aria-label="Previous collections" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4l-6 6 6 6" stroke-linecap="square"/></svg></button>
+      <button class="arrow r" id="next" type="button" aria-label="Next collections"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 4l6 6-6 6" stroke-linecap="square"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" id="explore" aria-labelledby="ex-h">
+  <div class="in explore">
+    <aside class="side">
+      <h2>APIs we recommend</h2>
+      <h3>For agents and complex software work</h3>
+      <p><a href="#anthropic-claude-opus-5-5">Claude Opus 5.5</a> and <a href="#google-gemini-4-argon">Gemini 4 Argon</a> are flagship reasoning models. Argon offers a 1M-token context window.</p>
+      <h3>For fast, affordable everyday work</h3>
+      <p><a href="#openai-gpt-6-1-terra">GPT-6.1 Terra</a> costs $1 per million input tokens and $5 per million output. <a href="#google-gemini-3-8-flash">Gemini 3.8 Flash</a> is Google's recommended Flash model for new projects.</p>
+      <h3>For images and video</h3>
+      <p><a href="#openai-gpt-image-2-6-sunburst">GPT Image 2.6 Sunburst</a> adds SVG export and GIFs. <a href="#bytedance-seedance-2-5">Seedance 2.5</a> and <a href="#alibaba-wan-3">Wan 3</a> lead on video.</p>
+      <h3>For voice and 3D</h3>
+      <p><a href="#wavespeed-ai-omnivoice-text-to-speech">OmniVoice</a> speaks 600+ languages. <a href="#tripo3d-tripo-v3-1">Tripo H3.1</a> makes detailed 3D, and <a href="#tripo3d-tripo-p1">P1</a> makes low-poly game assets.</p>
+    </aside>
+    <div style="min-width:0">
+      <div class="exh">
+        <h2 id="ex-h">Explore<span class="cnt" id="cnt" aria-live="polite"></span></h2>
+        <div class="tools">
+          <label class="search" for="q">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18"/></svg>
+            <input id="q" type="search" placeholder="Search APIs" autocomplete="off">
+          </label>
+          <div class="fs">
+            <button class="fsb" id="fsb" type="button" aria-expanded="false" aria-controls="pop">Filter &amp; sort by
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 5l5 5 5-5"/></svg>
+            </button>
+            <div class="pop" id="pop" hidden>
+              <h4>Filter by</h4>
+              <label><input type="checkbox" id="f-off"> Open source only</label>
+              <label><input type="checkbox" id="f-aud"> Supports audio</label>
+              <h4>Sort by</h4>
+              <div role="radiogroup" aria-label="Sort by" id="sorts">
+                <button class="opt" type="button" role="radio" data-s="runs" aria-checked="true">Featured <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></button>
+                <button class="opt" type="button" role="radio" data-s="name" aria-checked="false">Name A to Z <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 7.5l3 3 6-7"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pills" id="pills" role="group" aria-label="Category"><button class="pillb" type="button" data-tag="all" aria-pressed="true">All</button><button class="pillb" type="button" data-tag="llm" aria-pressed="false">Language</button><button class="pillb" type="button" data-tag="image" aria-pressed="false">Image</button><button class="pillb" type="button" data-tag="video" aria-pressed="false">Video</button><button class="pillb" type="button" data-tag="speech" aria-pressed="false">Voice and music</button><button class="pillb" type="button" data-tag="3d" aria-pressed="false">3D</button><button class="pillb" type="button" data-tag="tool" aria-pressed="false">Tools</button><button class="pillb" type="button" data-tag="open" aria-pressed="false">Open source</button></div>
+      <div class="reqbar"><div><b>Don't see your API?</b><span>Request any API or model, even if it is not in this catalog.</span></div><button class="btn pri" type="button" data-any="">Request any API</button></div>
+      <div class="grid" id="grid"></div>
+      <div class="more"><button class="btn" id="more" type="button">Load more</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" aria-labelledby="faq-h">
+  <div class="in">
+    <div class="sec-h reveal"><h2 id="faq-h">Frequently asked questions</h2></div>
+    <div class="faq reveal">
+      <details open><summary>How does a request work?</summary><p>Click any API, choose a second one if you need it, add your company details and submit. We review the request and provision the APIs on your workspace.</p></details>
+      <details><summary>Why only two APIs per request?</summary><p>Each request covers up to two APIs so provisioning stays quick. Submit another request for more.</p></details>
+      <details><summary>How does billing work?</summary><p>All providers sit behind one workspace with unified billing, so you pay once instead of managing a bill per provider.</p></details>
+      <details><summary>Which providers are included?</summary><p>Anthropic Claude, OpenAI, Google Gemini, Tripo 3D, WaveSpeed-hosted models such as OmniVoice, plus leading video, image and open-source models.</p></details>
+      <details><summary>Can we request an API that is not listed?</summary><p>Yes. Enterprise teams can ask for any API. Use the request card and describe it in the use case field.</p></details>
+      <details><summary>How current is the catalog?</summary><p>Names were checked against provider documentation in November 2026. Availability changes: OpenAI, for example, retired its Sora 2 API on September 24, 2026, so it is not listed.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="band alt cta" aria-labelledby="cta-h">
+  <span class="sq" style="width:84px;height:84px;left:4%;top:14%;--r:-8deg"></span>
+  <span class="sq" style="width:46px;height:46px;left:44%;top:70%;--r:12deg;--dl:-2s"></span>
+  <span class="sq" style="width:120px;height:120px;right:5%;top:-30px;--r:6deg;--dl:-4s"></span>
+  <span class="sq" style="width:30px;height:30px;right:30%;bottom:12%;--r:-14deg;--dl:-1s"></span>
+  <div class="in">
+    <div>
+      <h2 id="cta-h">Every foundation API, one workspace.</h2>
+      <p class="lead">Pick up to two APIs, send one request, and we provision them with unified billing. Pay once.</p>
+      <div class="btns">
+        <a class="btn pri" href="#explore">Browse APIs</a>
+        <button class="btn" type="button" data-any="">Request an API</button>
+      </div>
+    </div>
+    <div class="codewrap">
+      <div class="code">
+        <div class="bar"><span>request.json</span><button class="copy" id="copy" type="button">Copy</button></div>
+        <pre id="codetext">{
+  <span class="s">"apis"</span>: [
+    <span class="s">"anthropic/claude-sonnet-5-5"</span>,
+    <span class="s">"google/gemini-4-argon"</span>
+  ],
+  <span class="s">"company"</span>: <span class="s">"Acme Inc."</span>,
+  <span class="s">"volume"</span>: <span class="s">"100k to 1M requests / month"</span>,
+  <span class="s">"use_case"</span>: <span class="s">"Support agent with 3D previews"</span><span class="caret" aria-hidden="true"></span>
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="global-footer">
+  <div class="footer-wrap">
+    <span>&copy; 2026 Veltra &bull; runnerflo.com. All rights reserved.</span>
+    <span>hello@runnerflo.com &middot; Global Enterprise Solutions</span>
+  </div>
+</footer>
+
+<div class="mdl" id="mdl" hidden role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mc"><button id="mx" type="button" aria-label="Close">&times;</button><div id="mbody"></div></div></div>
+<script>
+(function(){
+  var M=[["prunaai", "p-video", "Built-in draft mode for rapid creative exploration, then full quality renders.", 5100000, "video fast", "Text or image", "Video, 720p-1080p, 5-15s", "Hosted API"], ["alibaba", "wan-3", "Cinematic motion from a text prompt or a starting image, up to 1080p.", 69500, "video", "Text or image", "Video, 480p-1080p, 5-30s", "Hosted API"], ["minimax", "h3-highspeed", "A faster version of the MiniMax H3 video model for quick turnaround.", 1100, "video fast", "Text or image", "Video, 720p, 6s", "Hosted API"], ["xai", "grok-imagine-video", "xAI's video model with native audio and lively, expressive motion.", 3600000, "video audio", "Text or image", "Video, 720p, 6-10s", "Hosted API"], ["google", "veo-3.1", "Google's flagship video model with synchronized dialogue and sound effects.", 1800000, "video audio", "Text or image", "Video, 720p-1080p, 8s", "Hosted API"], ["google", "veo-3.1-fast", "A faster, lower cost Veo 3.1 with native audio generation.", 2600000, "video audio fast", "Text or image", "Video, 720p-1080p, 8s", "Hosted API"], ["runwayml", "gen-4.5", "Top rated text-to-video with realistic physics and coherent fine detail.", 212400, "video", "Text or image", "Video, 720p-1080p, 5-10s", "Hosted API"], ["bytedance", "seedance-2.5", "Multi-shot scenes with consistent subjects and close prompt following.", 98100, "video", "Text or image", "Video, 720p-1080p, 5-10s", "Hosted API"], ["prunaai", "p-video-2-pro", "Pruna's highest quality model with first and last frame control.", 517200, "video", "Text or image", "Video, 720p-1080p, up to 15s", "Hosted API"], ["minimax", "hailuo-02", "Strong real-world physics from text or image at 768p or 1080p.", 1700000, "video", "Text or image", "Video, 768p-1080p, 6-10s", "Hosted API"], ["minimax", "hailuo-02-fast", "A low cost, fast Hailuo 02 for 6 and 10 second clips at 512p.", 614100, "video fast", "Text or image", "Video, 512p, 6-10s", "Hosted API"], ["bytedance", "seedance-1-pro", "Smooth 1080p motion from text or an image.", 2800000, "video", "Text or image", "Video, 480p-1080p, 5-10s", "Hosted API"], ["bytedance", "seedance-1-lite", "Affordable 480p and 720p video for text and image prompts.", 1900000, "video fast", "Text or image", "Video, 480p-720p, 5-10s", "Hosted API"], ["kwaivgi", "kling-v2.1", "Image-to-video in standard, pro and master modes up to 1080p.", 1100000, "video", "Image", "Video, 720p-1080p, 5-10s", "Hosted API"], ["kwaivgi", "kling-v2.0", "Text and image to video with improved motion and prompt adherence.", 389500, "video", "Text or image", "Video, 720p, 5-10s", "Hosted API"], ["wan-video", "wan-2.2-t2v-fast", "A very fast text-to-video model for 5 second clips.", 742800, "video fast open", "Text", "Video, 480p-720p, 5s", "Open source"], ["wan-video", "wan-2.2-i2v-fast", "Animate a still image into a 5 second clip in seconds.", 1300000, "video fast open", "Image", "Video, 480p-720p, 5s", "Open source"], ["luma", "ray-2-720p", "Realistic video with natural motion at 720p.", 233900, "video", "Text or image", "Video, 720p, 5-9s", "Hosted API"], ["luma", "ray-flash-2-540p", "A cheaper, faster Ray 2 variant for drafts at 540p.", 121400, "video fast", "Text or image", "Video, 540p, 5-9s", "Hosted API"], ["pixverse", "pixverse-v4.5", "Stylized video with effects and camera presets.", 176000, "video", "Text or image", "Video, 360p-1080p, 5-8s", "Hosted API"], ["lightricks", "ltx-video", "A real-time capable open model for text and image to video.", 1400000, "video fast open", "Text or image", "Video, 768p, 5s", "Open source"], ["lightricks", "ltx-2-fast", "Fast short clips with synchronized sound.", 84300, "video audio fast open", "Text or image", "Video, 720p, 6s", "Open source"], ["genmo", "mochi-1", "Open-source text-to-video with high-fidelity motion.", 415200, "video open", "Text", "Video, 480p, 5s", "Open source"], ["tencent", "hunyuan-video", "A large open model for cinematic text-to-video.", 302600, "video open", "Text", "Video, 720p, 5s", "Open source"], ["runwayml", "gen4-turbo", "Image-to-video with strong control over motion and framing.", 67200, "video fast", "Image", "Video, 720p, 5-10s", "Hosted API"], ["guoyww", "animate-diff", "Animate your own images with AnimateDiff motion modules.", 1600000, "video open", "Image", "Video, 512p, 2-4s", "Open source"], ["stability-ai", "stable-video-diffusion", "Short clips from a single image with Stable Video Diffusion.", 1400000, "video open", "Image", "Video, 576p, 2-4s", "Open source"], ["zai-org", "cogvideox-5b", "Text-to-video with CogVideoX-5B from Tsinghua and Zhipu.", 98900, "video open", "Text", "Video, 720p, 6s", "Open source"], ["community", "video-morpher", "Morph between images to make smooth looping clips.", 41500, "video open", "Image", "Video, 512p, 3-5s", "Open source"], ["nvidia", "cosmos-predict2", "A physics-aware world model for video prediction.", 11500, "video open", "Text or image", "Video, 720p, 5s", "Open source"], ["vidu", "vidu-q1", "Reference-to-video with consistent characters.", 14400, "video", "Image", "Video, 1080p, 5s", "Hosted API"], ["kwaivgi", "kling-lip-sync", "Make a face in a video speak any audio or text.", 88200, "video avatar audio", "Image or video + audio", "Video, 720p, up to 10s", "Hosted API"], ["bytedance", "latentsync", "Lip sync videos from audio with diffusion.", 790700, "video avatar open", "Image or video + audio", "Video, 512p, any length", "Open source"], ["bytedance", "omni-human", "Turn audio, video and images into professional animated videos.", 88000, "video avatar audio", "Image or video + audio", "Video, 720p, up to 30s", "Hosted API"], ["tencent", "hunyuan-avatar", "Talking avatar videos from an image and an audio clip.", 9600, "video avatar audio open", "Image or video + audio", "Video, 720p, up to 15s", "Open source"], ["sync", "lipsync-2", "Re-time a video's mouth movement to new audio.", 46100, "video avatar", "Image or video + audio", "Video, 1080p, any length", "Hosted API"], ["anthropic", "claude-fable-5-1", "Top public Claude tier, with extra safeguards for biology, cybersecurity and LLM R&D.", 9500000, "llm", "Text, image", "Text", "Hosted API"], ["anthropic", "claude-opus-5-5", "Flagship Claude for complex agents, coding and long multi-step work.", 9900000, "llm", "Text, image", "Text", "Hosted API"], ["anthropic", "claude-sonnet-5-5", "Balanced Claude for everyday agents, coding and high-volume apps.", 9800000, "llm", "Text, image", "Text", "Hosted API"], ["anthropic", "claude-haiku-5-5", "Fastest, lowest-cost Claude for real-time and high-volume tasks.", 9000000, "llm fast", "Text, image", "Text", "Hosted API"], ["google", "gemini-4-argon", "Flagship reasoning model for software engineering and agents, with a 1M-token context.", 9700000, "llm", "Text, image, video, audio, PDF", "Text", "Hosted API"], ["google", "gemini-3.8-flash", "Recommended Flash model for new projects: fast, multimodal and cost-efficient.", 8800000, "llm fast", "Text, image, audio, video", "Text", "Hosted API"], ["google", "gemini-3.6-flash", "Gemini 3.6 Flash for fast, multimodal workloads.", 7000000, "llm fast", "Text, image, audio, video", "Text", "Hosted API"], ["google", "gemini-3.5-flash", "Gemini 3.5 Flash for fast, multimodal workloads.", 6000000, "llm fast", "Text, image, audio, video", "Text", "Hosted API"], ["google", "gemini-3.5-flash-lite", "Fastest, most cost-effective model in the 3.5 family.", 6500000, "llm fast", "Text, image, audio, video", "Text", "Hosted API"], ["google", "gemini-3.1-flash-lite", "Low-cost Flash-Lite for high-volume text and multimodal tasks.", 5500000, "llm fast", "Text, image", "Text", "Hosted API"], ["google", "gemini-3.1-pro-preview", "Pro-tier Gemini 3.1 preview for harder reasoning and coding.", 5000000, "llm", "Text, image, video, audio", "Text", "Preview"], ["google", "gemini-3.8-live", "Low-latency Live API model for real-time voice agents.", 8000000, "speech audio live", "Audio, video, text", "Audio, text", "Hosted API"], ["google", "gemini-3.8-flash-tts", "Text-to-speech from the Gemini 3.8 Flash family.", 6000000, "speech audio", "Text", "Speech", "Hosted API"], ["google", "gemini-omni-1.2-flash", "Gemini Omni video model, generally available with clips up to 15 seconds.", 9200000, "video audio", "Text, image", "Video, up to 15s", "Hosted API"], ["google", "gemini-omni-1.1-flash", "Previous Gemini Omni Flash release for video generation.", 7000000, "video audio", "Text, image", "Video", "Hosted API"], ["google", "gemini-3.1-flash-image", "Gemini image generation and editing (Nano Banana family).", 7500000, "image fast", "Text, image", "Image", "Hosted API"], ["google", "gemini-3-pro-image", "Pro-tier Gemini image model (Nano Banana Pro) for high-fidelity generation and editing.", 7800000, "image", "Text, image", "Image", "Hosted API"], ["google", "imagen-4.0-generate-001", "Google Imagen 4 text-to-image.", 5000000, "image", "Text", "Image", "Hosted API"], ["google", "lyria-3.5", "Google music generation model.", 6500000, "speech audio", "Text", "Music", "Hosted API"], ["google", "gemini-embedding-2", "Embedding model for search and retrieval.", 4500000, "llm", "Text", "Embeddings", "Hosted API"], ["google", "gemini-robotics-er-1.6-preview", "Embodied-reasoning model for robotics.", 4000000, "llm", "Text, image, video", "Text", "Preview"], ["google", "veo-3.1-lite", "Lower-cost Veo 3.1 tier for fixed-budget video.", 6000000, "video audio fast", "Text, image", "Video", "Hosted API"], ["openai", "gpt-6-astra", "OpenAI's highest-capability tier for the most demanding coding and reasoning.", 9400000, "llm", "Text, image", "Text", "Hosted API"], ["openai", "gpt-6.1-sol", "Near-Astra capability at a lower price, for complex reasoning and software work.", 9300000, "llm", "Text, image", "Text", "Hosted API"], ["openai", "gpt-6.1-terra", "Mid-tier model for everyday work and computer use, at $1 input and $5 output per million tokens.", 9600000, "llm fast", "Text, image", "Text", "Hosted API"], ["openai", "gpt-6-luna", "Lowest-price, lowest-capability GPT-6 tier.", 6000000, "llm fast", "Text, image", "Text", "Hosted API"], ["openai", "gpt-5.5", "General-purpose GPT-5.5 model.", 5500000, "llm", "Text, image", "Text", "Hosted API"], ["openai", "gpt-image-2", "High-fidelity image generation and editing.", 7000000, "image", "Text, image", "Image", "Hosted API"], ["openai", "gpt-image-2.6-sunburst", "Higher-quality images with consistent edits, markup-guided edits, SVG export and animated GIFs.", 9100000, "image", "Text, image", "Image, SVG, GIF", "Hosted API"], ["openai", "gpt-image-2.6-flare", "Speed tier that renders images in as little as six seconds.", 8500000, "image fast", "Text, image", "Image, SVG, GIF", "Hosted API"], ["openai", "gpt-realtime-2", "Real-time speech-to-speech model for voice agents.", 7500000, "speech audio live", "Audio, text", "Audio, text", "Hosted API"], ["openai", "gpt-realtime-translate", "Live speech translation through the Realtime API.", 6000000, "speech audio live", "Audio", "Audio, text", "Hosted API"], ["openai", "gpt-realtime-whisper", "Streaming transcription through the Realtime API.", 5500000, "speech audio live", "Audio", "Text", "Hosted API"], ["tripo3d", "tripo-v3.1", "High-fidelity 3D from text, image or multiview, up to 2M faces, with PBR textures.", 8900000, "3d", "Text, image, multiview", "3D mesh + PBR", "Hosted API"], ["tripo3d", "tripo-v3.0", "Previous-generation H3.0 model, kept for consistency with earlier assets.", 5000000, "3d", "Text, image, multiview", "3D mesh", "Hosted API"], ["tripo3d", "tripo-p2", "Native quad topology for production-ready meshes.", 7000000, "3d", "Text, image, multiview", "Quad mesh", "Hosted API"], ["tripo3d", "tripo-p1", "Low-poly model for games and mobile, up to 20,000 faces with clean topology.", 7200000, "3d", "Text, image, multiview", "Low-poly mesh", "Hosted API"], ["wavespeed-ai", "omnivoice-text-to-speech", "Zero-shot multilingual TTS in 600+ languages, with voices designed from plain-language descriptions.", 8600000, "speech audio", "Text", "Speech", "Hosted API"], ["wavespeed-ai", "omnivoice-voice-clone", "Clone a voice from a reference audio sample.", 8000000, "speech audio", "Text + reference audio", "Speech", "Hosted API"], ["bytedance", "seedream-5", "Image generation from ByteDance's Seedream line.", 7000000, "image", "Text, image", "Image", "Hosted API"], ["bytedance", "seedream-4", "Balanced Seedream image model for generation and editing.", 6000000, "image", "Text, image", "Image", "Hosted API"], ["bytedance", "seedance-2.0", "Reference-driven video with native audio and lip-sync.", 7500000, "video audio", "Text, image, reference", "Video, up to 15s", "Hosted API"], ["kwaivgi", "kling-3.0", "Longer clips with native audio; the Omni variant adds per-character lip-sync.", 8200000, "video audio", "Text, image", "Video", "Hosted API"], ["kwaivgi", "kling-o3", "Reference-to-video and video editing.", 7000000, "video", "Text, image, video", "Video", "Hosted API"], ["alibaba", "wan-2.7", "Open-weight (Apache 2.0) video with synchronized audio, 15s 1080p clips and first/last-frame control.", 7800000, "video audio open", "Text, image", "Video, 1080p, up to 15s", "Open source"], ["minimax", "hailuo-2.3", "Realistic motion and sharp on-screen text, built for fast short-form video.", 6800000, "video fast", "Text, image", "Video, 1080p, 10s", "Hosted API"], ["tencent", "hunyuan-video-1.5", "Open HunyuanVideo generation.", 5000000, "video open", "Text, image", "Video", "Open source"], ["lightricks", "ltx-2", "Open LTX video model with synchronized sound.", 5000000, "video audio open", "Text, image", "Video", "Open source"], ["black-forest-labs", "flux-3-image", "FLUX 3 text-to-image and image editing from Black Forest Labs.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["black-forest-labs", "flux-2-max", "Top FLUX.2 tier for image generation and editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["black-forest-labs", "flux-2-pro", "High-quality generation and editing with up to eight reference images.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["black-forest-labs", "flux-2-flex", "Flexible FLUX.2 variant for generation and editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["black-forest-labs", "flux-2-dev", "Open-weight FLUX.2 [dev] image model.", 1500000, "image open", "Text", "Image", "Open source"], ["black-forest-labs", "flux-2-klein-9b", "4-step distilled FLUX.2 [klein] 9B for fast images.", 1500000, "image fast open", "Text", "Image", "Open source"], ["black-forest-labs", "flux-2-klein-4b", "Compact FLUX.2 [klein] 4B for fast images.", 1500000, "image fast open", "Text", "Image", "Open source"], ["black-forest-labs", "flux-1.1-pro", "Faster, better FLUX Pro with strong prompt adherence.", 1500000, "image", "Text", "Image", "Hosted API"], ["black-forest-labs", "flux-1.1-pro-ultra", "High-resolution FLUX 1.1 Pro.", 1500000, "image", "Text", "Image", "Hosted API"], ["black-forest-labs", "flux-dev", "12B-parameter rectified flow transformer for text-to-image.", 1500000, "image open", "Text", "Image", "Open source"], ["black-forest-labs", "flux-schnell", "Lightning-fast FLUX for rapid iteration.", 1500000, "image fast open", "Text", "Image", "Open source"], ["black-forest-labs", "flux-kontext-pro", "Instruction-based image editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["black-forest-labs", "flux-kontext-max", "Premium editing with improved typography.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["black-forest-labs", "flux-kontext-dev", "Open-weight FLUX Kontext editing.", 1500000, "image open", "Image + prompt", "Image", "Open source"], ["black-forest-labs", "flux-fill-pro", "Inpainting and outpainting with FLUX.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["bytedance", "seedream-5-pro", "Seedream V5.0 Pro with aspect ratio control and 1K/2K output.", 1500000, "image", "Text", "Image", "Hosted API"], ["bytedance", "seedream-5-flash", "Faster, cheaper Seedream V5.0 with multilingual text rendering.", 1500000, "image fast", "Text", "Image", "Hosted API"], ["bytedance", "seedream-5-lite", "Lightweight Seedream 5 for quick generation and editing.", 1500000, "image fast", "Image + prompt", "Image", "Hosted API"], ["bytedance", "seedream-4.5", "Strong photoreal and stylized image generation and editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["google", "nano-banana-2.1", "Newest Nano Banana model for image generation and editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["google", "nano-banana", "Original Nano Banana image editing model.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["alibaba", "qwen-image-2.0", "Qwen Image 2.0 text-to-image and editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["alibaba", "qwen-image-2.0-pro", "Pro variant of Qwen Image 2.0.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["alibaba", "qwen-image", "Open Qwen text-to-image model.", 1500000, "image open", "Text", "Image", "Open source"], ["alibaba", "qwen-image-edit", "Open Qwen image editing with multi-image input.", 1500000, "image open", "Image + prompt", "Image", "Open source"], ["alibaba", "qwen-image-edit-plus", "Upgraded Qwen image editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["ideogram-ai", "ideogram-v3", "Typography-focused generation for posters and products.", 1500000, "image", "Text", "Image", "Hosted API"], ["xai", "grok-imagine-image", "xAI image generation and editing.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["prunaai", "p-image-edit", "Fast image editing from Pruna.", 1500000, "image fast", "Image + prompt", "Image", "Hosted API"], ["prunaai", "p-image-try-on", "Virtual try-on for fashion images.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["prunaai", "flux-kontext-fast", "Ultra-fast FLUX Kontext endpoint.", 1500000, "image fast", "Image + prompt", "Image", "Hosted API"], ["prunaai", "wan-2.2-image", "Wan 2.2 text-to-image.", 1500000, "image", "Text", "Image", "Hosted API"], ["wavespeed-ai", "z-image-turbo", "Fast Z-Image Turbo text-to-image.", 1500000, "image fast", "Text", "Image", "Hosted API"], ["wavespeed-ai", "ghibli", "Turn photos into Ghibli-style art.", 1500000, "image", "Image + prompt", "Image", "Hosted API"], ["topazlabs", "image-upscale", "Professional-grade image upscaling from Topaz Labs.", 1500000, "tool", "Image", "Image", "Hosted API"], ["prunaai", "p-image-upscale", "Fast image upscaling from Pruna.", 1500000, "tool fast", "Image", "Image", "Hosted API"], ["philz1337x", "crystal-upscaler", "High-quality image upscaler.", 1500000, "tool", "Image", "Image", "Hosted API"], ["philz1337x", "clarity-pro-upscaler", "Detail-enhancing image upscaler.", 1500000, "tool", "Image", "Image", "Hosted API"], ["recraft-ai", "recraft-remove-background", "Automated background removal for images.", 1500000, "tool", "Image", "Image, transparent", "Hosted API"], ["bria", "remove-background", "Bria background removal.", 1500000, "tool", "Image", "Image, transparent", "Hosted API"], ["bria", "eraser", "Remove objects with clean continuity.", 1500000, "tool", "Image + prompt", "Image", "Hosted API"], ["bria", "genfill", "Generative fill for object swaps.", 1500000, "tool", "Image + prompt", "Image", "Hosted API"], ["851-labs", "background-remover", "Remove backgrounds from images.", 1500000, "tool", "Image", "Image, transparent", "Hosted API"], ["megvii-research", "nafnet", "Image restoration and denoising.", 1500000, "tool open", "Image", "Image", "Open source"], ["piddnad", "ddcolor", "Colorize black-and-white photos.", 1500000, "tool open", "Image", "Image", "Open source"], ["wavespeed-ai", "image-eraser", "Erase unwanted objects from photos.", 1500000, "tool", "Image + prompt", "Image", "Hosted API"], ["wavespeed-ai", "face-swap", "Swap faces in photos and video.", 1500000, "tool", "Image + prompt", "Image", "Hosted API"], ["wavespeed-ai", "video-upscaler", "Raise video resolution.", 1500000, "tool", "Video", "Video", "Hosted API"], ["black-forest-labs", "flux-video-upscale", "Upscale video with FLUX.", 1500000, "tool", "Video", "Video", "Hosted API"], ["bytedance", "seedance-2.0-fast", "Faster, lower-cost Seedance 2.0.", 1500000, "video fast", "Text, image", "Video", "Hosted API"], ["kwaivgi", "kling-3.0-motion-control", "Motion-controlled video with Kling 3.0.", 1500000, "video", "Text, image", "Video", "Hosted API"], ["vidu", "vidu-q4", "Vidu Q4 video generation.", 1500000, "video", "Text, image", "Video", "Hosted API"], ["pixverse", "pixverse-v5.5", "Text and image to video from PixVerse.", 1500000, "video", "Text, image", "Video", "Hosted API"], ["alibaba", "wan-2.6", "Wan 2.6 video with audio, up to 15s at 1080p.", 1500000, "video audio", "Text, image", "Video", "Hosted API"], ["minimax", "h3", "MiniMax H3 flagship video model.", 1500000, "video", "Text, image", "Video", "Hosted API"], ["wavespeed-ai", "infinitetalk", "Talking avatar from an image and audio.", 1500000, "video", "Image + audio", "Video", "Hosted API"], ["prunaai", "p-video-2-pro-avatar", "Talking avatar from a portrait and audio or script, 1s to 3 min.", 1500000, "video", "Image + audio", "Video", "Hosted API"], ["minimax", "speech-2.8-turbo", "Fast TTS with voice cloning, emotion control and 40+ languages.", 1500000, "speech", "Text", "Audio", "Hosted API"], ["minimax", "speech-02-hd", "High-fidelity TTS for voiceovers and audiobooks.", 1500000, "speech", "Text", "Audio", "Hosted API"], ["minimax", "speech-02-turbo", "Low-latency TTS for real-time apps.", 1500000, "speech fast", "Text", "Audio", "Hosted API"], ["minimax", "music-01", "Up to one minute of music with lyrics and vocals.", 1500000, "speech", "Text, lyrics", "Music", "Hosted API"], ["meta", "musicgen", "Music from a text prompt or melody.", 1500000, "speech open", "Text, lyrics", "Music", "Open source"], ["stability-ai", "stable-audio-2.5", "Music and sound from text prompts.", 1500000, "speech", "Text, lyrics", "Music", "Hosted API"], ["google", "lyria-2", "48kHz stereo music from text prompts.", 1500000, "speech", "Text, lyrics", "Music", "Hosted API"], ["ace-step", "ace-step", "Open foundation model for text-to-music, with lyrics.", 1500000, "speech open", "Text, lyrics", "Music", "Open source"], ["hexgrad", "kokoro-82m", "Open 82M-parameter TTS based on StyleTTS2.", 1500000, "speech open fast", "Text", "Audio", "Open source"], ["resemble-ai", "chatterbox", "Open expressive TTS with instant voice cloning.", 1500000, "speech open", "Text", "Audio", "Open source"], ["sesame", "csm-1b", "Conversational speech model from Sesame.", 1500000, "speech open", "Text", "Audio", "Open source"], ["coqui", "xtts-v2", "Open multilingual TTS with voice cloning.", 1500000, "speech open", "Text", "Audio", "Open source"], ["nari-labs", "dia", "Open dialogue text-to-speech.", 1500000, "speech open", "Text", "Audio", "Open source"], ["xai", "grok-speech-to-text", "Transcribe audio to text with Grok.", 1500000, "speech", "Audio", "Text", "Hosted API"], ["openai", "gpt-4o-transcribe", "OpenAI speech-to-text.", 1500000, "speech", "Audio", "Text", "Hosted API"], ["openai", "whisper", "Open speech recognition model.", 1500000, "speech open", "Audio", "Text", "Open source"], ["vaibhavs10", "incredibly-fast-whisper", "Very fast Whisper transcription.", 1500000, "speech open fast", "Audio", "Text", "Open source"], ["victor-upmeet", "whisperx", "Whisper with word-level timestamps and diarization.", 1500000, "speech open", "Audio", "Text", "Open source"], ["elevenlabs", "scribe", "Speech-to-text from ElevenLabs.", 1500000, "speech", "Audio", "Text", "Hosted API"], ["hkchengrex", "mmaudio", "Generate synchronized audio for video.", 1500000, "speech open", "Video + text", "Audio", "Open source"], ["tencent", "hunyuan3d-3.1", "Rapid text and image to 3D.", 1500000, "3d", "Text, image", "3D mesh", "Hosted API"], ["tencent", "hunyuan3d-3", "Text, image and sketch to 3D.", 1500000, "3d", "Text, image", "3D mesh", "Hosted API"], ["tripo3d", "tripo-v2.5", "Earlier Tripo model for image and multiview to 3D.", 1500000, "3d", "Text, image", "3D mesh", "Hosted API"], ["meshy", "meshy", "Meshy text and image to 3D.", 1500000, "3d", "Text, image", "3D mesh", "Hosted API"], ["meta", "sam-3d-objects", "Reconstruct 3D objects from a single image.", 1500000, "3d open", "Text, image", "3D mesh", "Open source"], ["deepseek", "deepseek-v4", "DeepSeek V4 language model.", 1500000, "llm", "Text", "Text", "Hosted API"], ["deepseek", "deepseek-r1", "Open reasoning model.", 1500000, "llm open", "Text", "Text", "Open source"], ["moonshot", "kimi-k2.5", "Kimi K2.5 language model.", 1500000, "llm", "Text", "Text", "Hosted API"], ["minimax", "minimax-m2.7", "MiniMax M2.7 language model.", 1500000, "llm", "Text", "Text", "Hosted API"], ["meta", "llama-3.1-405b", "Open 405B Llama model.", 1500000, "llm open", "Text", "Text", "Open source"], ["meta", "llama-4-maverick", "Open Llama 4 Maverick.", 1500000, "llm open", "Text", "Text", "Open source"], ["meta", "llama-4-scout", "Open Llama 4 Scout.", 1500000, "llm open", "Text", "Text", "Open source"], ["mistral", "mistral-large-3", "Mistral Large 3.", 1500000, "llm", "Text", "Text", "Hosted API"], ["alibaba", "qwen3-vl", "Qwen3 vision-language model.", 1500000, "llm", "Image + text", "Text", "Hosted API"], ["alibaba", "qwen3-coder", "Qwen3 coding models.", 1500000, "llm", "Text", "Text", "Hosted API"], ["zai-org", "glm-4", "Zhipu GLM-4 series.", 1500000, "llm", "Text", "Text", "Hosted API"], ["allenai", "molmo", "Open vision-language model from Ai2.", 1500000, "llm open", "Image + text", "Text", "Open source"]];
+  var FEATURED=["anthropic/claude-opus-5-5", "google/gemini-4-argon", "openai/gpt-6.1-terra", "anthropic/claude-sonnet-5-5", "google/gemini-omni-1.2-flash", "openai/gpt-image-2.6-sunburst", "tripo3d/tripo-v3.1", "wavespeed-ai/omnivoice-text-to-speech", "bytedance/seedance-2.5", "alibaba/wan-3", "xai/grok-imagine-video", "runwayml/gen-4.5"];
+  var COLS=[["Language and reasoning","llm"],["Image generation","image"],["Video generation","video"],["Voice and music","speech"],["3D generation","3d"],["Editing tools","tool"],["Open source","open"]];
+  var KAT={llm:"Language and reasoning",image:"Image generation",video:"Video generation",speech:"Voice and music","3d":"3D generation",tool:"Editing and utility tools"};
+
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
+  function fmt(n){return n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,"")+"M":n>=1e3?(n/1e3).toFixed(1).replace(/\.0$/,"")+"k":String(n);}
+  function slug(o,n){return (o+"-"+n).replace(/[^a-z0-9]+/gi,"-").toLowerCase();}
+  function key(m){return m[0]+"/"+m[1];}
+  function has(m,t){return m[4].split(" ").indexOf(t)>-1;}
+  function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  function rng(seed){var a=seed;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function hours(s){var m=/(\d+)\s*(hour|day|week|month|year)/.exec(s);if(!m)return 0;return +m[1]*({hour:1,day:24,week:168,month:720,year:8760}[m[2]]);}
+  function find(k){for(var i=0;i<M.length;i++){if(key(M[i])===k)return M[i];}}
+
+  /* original procedural artwork: landscape, flow lines or orbs, chosen per model */
+  var uid=0;
+  function art(k,W,H,cls){
+    var r=rng(hash(k)), st=hash(k)%3, id="a"+(uid++);
+    var h=Math.floor(r()*360), h2=(h+30+Math.floor(r()*70))%360, o="", i, x, d;
+    o='<svg'+(cls?' class="'+cls+'"':'')+' viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>';
+    if(st===0){
+      o+='<linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl('+h+' 46% 22%)"/><stop offset="1" stop-color="hsl('+h2+' 62% 66%)"/></linearGradient></defs>';
+      o+='<rect width="'+W+'" height="'+H+'" fill="url(#'+id+')"/>';
+      var sx=W*(.18+r()*.64), sy=H*(.16+r()*.26), sr=H*(.06+r()*.06);
+      o+='<circle cx="'+sx.toFixed(1)+'" cy="'+sy.toFixed(1)+'" r="'+(sr*2.6).toFixed(1)+'" fill="hsl('+h2+' 80% 82%)" opacity=".16"/>';
+      o+='<circle cx="'+sx.toFixed(1)+'" cy="'+sy.toFixed(1)+'" r="'+sr.toFixed(1)+'" fill="hsl('+((h2+20)%360)+' 90% 90%)" opacity=".94"/>';
+      for(i=0;i<3;i++){
+        var base=H*(.56+i*.13)+r()*H*.04, amp=H*(.05+r()*.07)-i*H*.008, f1=(.012+r()*.016)*(320/W), f2=(.03+r()*.03)*(320/W), p1=r()*6.28, p2=r()*6.28;
+        d="M0 "+H+"L0 "+base.toFixed(1);
+        for(x=0;x<=W;x+=W/40){d+="L"+x.toFixed(1)+" "+(base+Math.sin(x*f1+p1)*amp+Math.sin(x*f2+p2)*amp*.35).toFixed(1);}
+        d+="L"+W+" "+H+"Z";
+        o+='<path d="'+d+'" fill="hsl('+((h+190+i*8)%360)+' '+(30-i*4)+'% '+(30-i*8)+'%)" opacity="'+(.55+i*.2).toFixed(2)+'"/>';
+      }
+    }else if(st===1){
+      o+='<linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl('+h+' 55% 9%)"/><stop offset="1" stop-color="hsl('+h2+' 60% 24%)"/></linearGradient></defs>';
+      o+='<rect width="'+W+'" height="'+H+'" fill="url(#'+id+')"/>';
+      var N=16;
+      for(i=0;i<N;i++){
+        var y0=H*(.1+.8*i/(N-1)), amp2=H*(.05+r()*.06), f=(.012+r()*.01)*(320/W), p=r()*6.28;
+        d="M0 "+y0.toFixed(1);
+        for(x=0;x<=W;x+=W/48){d+="L"+x.toFixed(1)+" "+(y0+Math.sin(x*f+p+i*.4)*amp2+Math.sin(x*f*2.3+i*.9)*amp2*.35).toFixed(1);}
+        o+='<path d="'+d+'" fill="none" stroke="hsl('+((h+i*9)%360)+' 88% 62%)" stroke-width="'+(W/230+.5).toFixed(2)+'" opacity=".85"/>';
+      }
+      for(i=0;i<7;i++){o+='<circle cx="'+(r()*W).toFixed(1)+'" cy="'+(r()*H).toFixed(1)+'" r="'+(.8+r()*1.8).toFixed(1)+'" fill="#fff" opacity=".8"/>';}
+    }else{
+      o+='<linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl('+h+' 70% 93%)"/><stop offset="1" stop-color="hsl('+h2+' 70% 82%)"/></linearGradient>';
+      var c=[];
+      for(i=0;i<4;i++){
+        c.push([r()*W,r()*H,H*(.16+r()*.3),(h2+i*28)%360]);
+        o+='<radialGradient id="'+id+'c'+i+'" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="hsl('+c[i][3]+' 90% 70%)"/><stop offset="1" stop-color="hsl('+((c[i][3]+40)%360)+' 75% 40%)"/></radialGradient>';
+      }
+      o+='</defs><rect width="'+W+'" height="'+H+'" fill="url(#'+id+')"/>';
+      for(i=0;i<4;i++){o+='<circle cx="'+c[i][0].toFixed(1)+'" cy="'+c[i][1].toFixed(1)+'" r="'+c[i][2].toFixed(1)+'" fill="url(#'+id+'c'+i+')" opacity=".92"/>';}
+      o+='<circle cx="'+(W*.5).toFixed(1)+'" cy="'+(H*.5).toFixed(1)+'" r="'+(H*.34).toFixed(1)+'" fill="none" stroke="#fff" stroke-width="'+(W/200+.6).toFixed(2)+'" opacity=".7"/>';
+    }
+    return o+'</svg>';
+  }
+
+  var AV={
+    prunaai:'<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#efe6ff"/><ellipse cx="10" cy="11.5" rx="5.8" ry="5.4" fill="#7b4cc7"/><circle cx="8" cy="11" r="1.1" fill="#fff"/><circle cx="12" cy="11" r="1.1" fill="#fff"/><path d="M10 6c0-1.6 1-2.6 2.4-2.8" stroke="#3f9a4b" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg>',
+    alibaba:'<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#fff4ea"/><path d="M3.5 12.5c1.8-5.5 8.5-5.5 11.2-3.1-2.3-.2-3.2.9-4.4 2.3-1.6 1.9-4.6 2-6.8.8z" fill="none" stroke="#ff6a00" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    minimax:'<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#f23f5d"/><g stroke="#fff" stroke-width="1.2" stroke-linecap="round"><path d="M6 8v4M8 6.5v7M10 5.5v9M12 7v6M14 8.5v3"/></g></svg>'
+  };
+  function avatar(o){return AV[o]?'<span class="av">'+AV[o]+'</span>':'<span class="av" style="background:hsl('+(hash(o)%360)+' 42% 42%)">'+esc(o.charAt(0).toUpperCase())+'</span>';}
+  var I={
+    play:'<svg class="play" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="10" cy="10" r="8.6"/><path d="M8.2 6.6v6.8L13.6 10z" stroke-linejoin="round"/></svg>',
+    check:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><circle cx="7" cy="7" r="6"/><path d="M4.3 7.2l1.9 1.9 3.5-3.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    clock:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="7" cy="7" r="5.8"/><path d="M7 3.8V7l2.2 1.4" stroke-linecap="round"/></svg>',
+    heart:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 16.5S3 12.3 3 7.6C3 5.4 4.7 4 6.6 4c1.4 0 2.6.8 3.4 2 .8-1.2 2-2 3.4-2C15.3 4 17 5.4 17 7.6c0 4.7-7 8.9-7 8.9z" stroke-linejoin="round"/></svg>',
+    mark:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 3.5h10v13L10 13l-5 3.5z" stroke-linejoin="round"/></svg>',
+    vid:'<svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.8v8.4L10 6z"/></svg>'
+  };
+
+  var LG={"tencent-color": "<path d=\"M9.976 1L24 9.8l-10.587.015L10.723 23H5.489L8.18 9.8H3.244L1 5.4h8.077L9.976 1z\" fill=\"#0052D9\" fill-rule=\"evenodd\"></path>", "stability-color": "<path d=\"M7.223 21c4.252 0 7.018-2.22 7.018-5.56 0-2.59-1.682-4.236-4.69-4.918l-1.93-.571c-1.694-.375-2.683-.825-2.45-1.975.194-.957.773-1.497 2.122-1.497 4.285 0 5.873 1.497 5.873 1.497v-3.6S11.62 3 7.293 3C3.213 3 1 5.07 1 8.273c0 2.59 1.534 4.097 4.645 4.812l.334.083c.473.144 1.112.335 1.916.572 1.59.375 1.999.773 1.999 1.966 0 1.09-1.15 1.71-2.67 1.71C2.841 17.416 1 15.231 1 15.231v3.989S2.152 21 7.223 21z\" fill=\"url(#lobe-icons-stability-_R_0_)\"></path><path d=\"M20.374 20.73c1.505 0 2.626-1.073 2.626-2.526 0-1.484-1.089-2.526-2.626-2.526-1.505 0-2.594 1.042-2.594 2.526 0 1.484 1.089 2.526 2.594 2.526z\" fill=\"#E80000\"></path><defs><linearGradient id=\"lobe-icons-stability-_R_0_\" x1=\"50%\" x2=\"50%\" y1=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#9D39FF\"></stop><stop offset=\"100%\" stop-color=\"#A380FF\"></stop></linearGradient></defs>", "minimax-color": "<defs><linearGradient id=\"lobe-icons-minimax-_R_0_\" x1=\"0%\" x2=\"100.182%\" y1=\"50.057%\" y2=\"50.057%\"><stop offset=\"0%\" stop-color=\"#E2167E\"></stop><stop offset=\"100%\" stop-color=\"#FE603C\"></stop></linearGradient></defs><path d=\"M16.278 2c1.156 0 2.093.927 2.093 2.07v12.501a.74.74 0 00.744.709.74.74 0 00.743-.709V9.099a2.06 2.06 0 012.071-2.049A2.06 2.06 0 0124 9.1v6.561a.649.649 0 01-.652.645.649.649 0 01-.653-.645V9.1a.762.762 0 00-.766-.758.762.762 0 00-.766.758v7.472a2.037 2.037 0 01-2.048 2.026 2.037 2.037 0 01-2.048-2.026v-12.5a.785.785 0 00-.788-.753.785.785 0 00-.789.752l-.001 15.904A2.037 2.037 0 0113.441 22a2.037 2.037 0 01-2.048-2.026V18.04c0-.356.292-.645.652-.645.36 0 .652.289.652.645v1.934c0 .263.142.506.372.638.23.131.514.131.744 0a.734.734 0 00.372-.638V4.07c0-1.143.937-2.07 2.093-2.07zm-5.674 0c1.156 0 2.093.927 2.093 2.07v11.523a.648.648 0 01-.652.645.648.648 0 01-.652-.645V4.07a.785.785 0 00-.789-.78.785.785 0 00-.789.78v14.013a2.06 2.06 0 01-2.07 2.048 2.06 2.06 0 01-2.071-2.048V9.1a.762.762 0 00-.766-.758.762.762 0 00-.766.758v3.8a2.06 2.06 0 01-2.071 2.049A2.06 2.06 0 010 12.9v-1.378c0-.357.292-.646.652-.646.36 0 .653.29.653.646V12.9c0 .418.343.757.766.757s.766-.339.766-.757V9.099a2.06 2.06 0 012.07-2.048 2.06 2.06 0 012.071 2.048v8.984c0 .419.343.758.767.758.423 0 .766-.339.766-.758V4.07c0-1.143.937-2.07 2.093-2.07z\" fill=\"url(#lobe-icons-minimax-_R_0_)\" fill-rule=\"nonzero\"></path>", "alibaba-color": "<path d=\"M24 14.014c-2.8 1.512-5.62 2.896-8.759 3.524-.7.139-1.476.139-2.187.043-.678-.085-1.017-.682-.776-1.31.23-.585.536-1.181.93-1.671.852-1.065 1.814-2.034 2.678-3.088a15.75 15.75 0 001.422-2.054c.306-.511.164-1.129-.372-1.384-.897-.437-1.859-.745-2.81-1.075-.11-.043-.274.074-.492.149.273.244.47.425.743.67-2.821.48-5.49 1.16-8.08 2.098-.012.053-.033.095-.023.117.383.585.208 1.032-.35 1.394a2.365 2.365 0 00-.568.522c1.706.5 3.226.213 4.68-.735-.087-.127-.175-.244-.262-.372.546.096.874.394.918.862.011.107-.054.213-.087.32-.077-.086-.175-.17-.24-.267-.045-.064-.056-.138-.088-.245-1.728 1.15-3.587 1.438-5.632.842 0 .404-.022.745.011 1.075.022.287-.098.415-.36.564-.591.362-1.204.735-1.696 1.214-.59.585-.371 1.299.427 1.597.907.34 1.859.35 2.81.234 1.126-.139 2.23-.32 3.456-.49-1.433.67-2.844 1.14-4.33 1.33-1.04.14-2.078.214-3.106-.084-1.476-.415-2.133-1.501-1.75-2.96.361-1.363 1.236-2.449 2.176-3.45 3.139-3.332 7.108-5.024 11.7-5.365 1.072-.074 2.155.064 3.16.511 1.411.639 2.002 1.99 1.313 3.354-.448.905-1.072 1.735-1.695 2.555-.612.809-1.301 1.554-1.946 2.331-.186.234-.361.48-.503.745-.274.5-.088.83.492.778 1.213-.118 2.45-.213 3.62-.511 1.716-.437 3.389-1.054 5.084-1.597.175-.043.339-.107.492-.17z\" fill=\"#FF6003\" fill-rule=\"evenodd\"></path>", "luma-color": "<path d=\"M2 5.999L12.392 0v24L2 18V5.999z\" fill=\"#000\"></path><path d=\"M12.392 24L2 18l10.392-6 10.393 6-10.393 6z\" fill=\"url(#lobe-icons-luma-0-_R_0_)\"></path><path d=\"M12.392 24L2 18l10.392-6 10.393 6-10.393 6z\" fill=\"url(#lobe-icons-luma-1-_R_0_)\"></path><path d=\"M2 5.999L12.392 0v24L2 18V5.999z\" fill=\"url(#lobe-icons-luma-2-_R_0_)\" style=\"mix-blend-mode:screen\"></path><path d=\"M12.392 24L2 18l10.392-6 10.393 6-10.393 6z\" fill=\"url(#lobe-icons-luma-3-_R_0_)\" style=\"mix-blend-mode:overlay\"></path><path d=\"M2 5.999L12.392 0v24L2 18V5.999z\" fill=\"url(#lobe-icons-luma-4-_R_0_)\" style=\"mix-blend-mode:overlay\"></path><defs><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-luma-0-_R_0_\" x1=\"2\" x2=\"22.785\" y1=\"18\" y2=\"18\"><stop stop-color=\"#00A\"></stop><stop offset=\"1\" stop-color=\"#A78DFF\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-luma-1-_R_0_\" x1=\"2\" x2=\"22.785\" y1=\"18\" y2=\"18\"><stop stop-color=\"#00A\"></stop><stop offset=\"1\" stop-color=\"#A78DFF\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-luma-2-_R_0_\" x1=\"13.748\" x2=\"4.672\" y1=\"22.642\" y2=\"3.745\"><stop stop-color=\"#004EFF\"></stop><stop offset=\"1\" stop-color=\"#0FF\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-luma-3-_R_0_\" x1=\"2\" x2=\"22.785\" y1=\"18\" y2=\"18\"><stop stop-color=\"#00A\"></stop><stop offset=\"1\" stop-color=\"#A78DFF\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-luma-4-_R_0_\" x1=\"13.748\" x2=\"4.672\" y1=\"22.642\" y2=\"3.745\"><stop stop-color=\"#004EFF\"></stop><stop offset=\"1\" stop-color=\"#0FF\"></stop></linearGradient></defs>", "meshy-color": "<path clip-rule=\"evenodd\" d=\"M4.546 8.126c.266-.625.599-1.24.993-1.83l.007-.01c.043-.065.086-.13.13-.193C8.27 2.07 13.838-.341 18.546 1.795 22.267 3.388 24.05 6.64 24 9.535c-.026 1.444-.514 2.853-1.522 3.87a4.678 4.678 0 01-.553.48c.91.721 1.504 1.6 1.658 2.625.231 1.535-.597 2.907-1.763 3.92-2.333 2.025-6.704 3.294-11.684 2.765-.827-.075-3.815-.663-4.496-1.755a4.524 4.524 0 01-.972-.621c-.466-.397-.85-.926-.992-1.593-.206-.97.327-2.62 1.434-3.092.398 1.955 1.818 2.074 2.872 2.184.431-.363.64-.568 1.074-1.112-.844.069-1.914-.161-2.735-.6-1.507-.805-2.415-2.283-2.514-4.394-.098-1.383.2-2.818.74-4.086zm2.117-1.38l-.128.19-.008.013a9.973 9.973 0 00-.891 1.64l.003.025c-.49 1.173-.719 2.37-.656 3.446l.007.095v.003l.003.078c.174 2.975 2.205 3.928 4.7 3.898.405-.005.821-.035 1.244-.087a7.05 7.05 0 01-.386 1.227c-.221.507-.51.906-.923 1.23 1.488.112 3.098-.108 4.54-.549 1.992-.145 5.082-1.287 4.455-3.489a2.502 2.502 0 00-.034-.109 9.367 9.367 0 00-.23-.723l-.007-.017.008.007a4.866 4.866 0 001.33-.044 4.114 4.114 0 00.401-.094c.229-.066.443-.151.644-.254.003 0 .005-.002.007-.003l.006-.003.095-.05c3.19-1.768 2.678-7.974-2.776-10.3C14 1.023 9.01 3.093 6.663 6.746zm13.187 7.251c2.427 2.81.033 5.36-3.747 6.763 1.405-.908 2.56-2.33 3.254-4.392-4.206 3.98-13.856 4.391-14.306 1.721a3.247 3.247 0 01-.013-.291v-.002c-.967 1.902 1.176 3.08 4.111 3.25l.038.003a13.628 13.628 0 002.595-.107c1.732-.229 3.502-.776 4.944-1.687-.81.704-1.601 1.217-2.408 1.593-1.269.592-2.574.846-4.044.969h-.004c-.338.028-.685.05-1.042.067.34.059.682.104 1.024.135.54.058 1.07.093 1.59.107.977.027 1.915-.019 2.8-.126 6.268-.762 9.88-4.606 6.496-7.23a5.82 5.82 0 00-.37-.263 7.713 7.713 0 00-.916-.51l-.004-.002.002.002z\" fill=\"#C5F955\" fill-rule=\"evenodd\"></path><path d=\"M6.536 6.936c-2.797 4.238-2.052 9.843 3.974 8.85l5.975-1.967c5.596-1.862 5.863-7.568 2.333-10.083-2.676-1.906-8.875-1.961-12.282 3.2z\" fill=\"#FF3E8F\"></path><path clip-rule=\"evenodd\" d=\"M9.659 10.271c2.653-.718 5.463-3.77 5.895-7.682-.919-.085-1.941-.022-3.06.224-3.364.742-5.757 3.193-6.858 5.775.224 2.002 3.325 1.872 4.023 1.683z\" fill=\"#C5F955\" fill-rule=\"evenodd\"></path><path clip-rule=\"evenodd\" d=\"M9.659 10.27c2.654-.717 5.138-3.656 5.57-7.568l-.762.182c-1.23 4.42-4.695 7.522-7.806 6.658.46.852 2.639.826 2.998.729z\" fill=\"#67B800\" fill-rule=\"evenodd\"></path><path clip-rule=\"evenodd\" d=\"M14.495 3.52c-3.511-.704-7.65 1.513-8.633 5.338 1.427-2.74 5.365-5.208 8.633-5.339z\" fill=\"#E9FFCE\" fill-rule=\"evenodd\"></path><path d=\"M21.574 7.034l-5.382 7.395-5.482 1.158c-.06.042-.112.024-.113.024l.113-.024c.089-.065.191-.27.15-.894-.115-.323-.191-1.084-.965-1.602-.37-.248-.722-.579-.66-1.022.06-.436.454-.695.883-.798 3.705-.89 5.418-4.685 5.798-8.27l3.246 1.405 2.412 2.628z\" fill=\"#C91C65\"></path><path d=\"M18.194 11.743c-2.242-.965-1.142-5.172 1.45-6.164a.076.076 0 01.003.003c-1.58 1.284-1.856 4.064-.606 5.392-.177.19-.37.379-.583.564a9.934 9.934 0 01-.264.205z\" fill=\"#4C8700\"></path><path clip-rule=\"evenodd\" d=\"M5.324 13.352c1.883-.265 4.951.526 5.053 2.231-2.108.122-4.38-.974-5.053-2.23z\" fill=\"#67B800\" fill-rule=\"evenodd\"></path><path d=\"M5.624 13.787c.279.194.691.371 1.28.498.867.187 1.833.067 2.516-.11-1.08-.71-2.848-.998-4.096-.823.079.148.18.293.3.434z\" fill=\"#C5F955\"></path><path d=\"M11.652 14.397c.312-3.417 5.138-3.928 5.921-1.77.064.193.145.404.23.627.23.607.496 1.305.558 1.982-.936 1.715-4.22 3.122-7.358 3.282.953-2.004.649-4.12.649-4.12z\" fill=\"#fff\"></path><path d=\"M17.327 16.582l-3.17 1.374c2.132-1.117 2.242-5.828-.042-5.358l1.896-.807 1.777 1.542-.461 3.25z\" fill=\"#FF97C2\"></path><path clip-rule=\"evenodd\" d=\"M18.068 2.876a7.644 7.644 0 00-2.07-.609h-.008c-3.685-.532-7.445 1.42-9.426 4.64 1.964-2.638 5.542-4.165 8.504-3.753-.251 1.492-1.215 3.713-2.962 5.286-1.734 1.56-4.361 2.149-5.972 1.188 1.187 1.41 4.795 1.23 6.756-.464 1.838-1.587 2.976-4.07 3.186-5.796.086.02.17.043.254.066.894.284 1.142 1.053 1.203 1.59.04.356-.18.666-.443.91-.554.518-1.106 1.354-1.427 2.252-.362 1.014-.844 2.062-1.722 2.687-.393.28-.705.521-.945.73-.837.553-1.481 1.461-1.731 2.76l-.086.459c-2.914.579-5.6.128-6.19-2.666.165 3.526 2.893 4.267 5.949 3.891-.265 1.14-.609 1.908-1.31 2.457.531.04 1.078.038 1.627-.001.477-.591.64-1.636.781-2.528.032-.206.063-.403.096-.585a5.956 5.956 0 01.089-.414c.914-3.591 4.749-2.958 4.935-.471l.013.168c.084.998.127 1.504-3.011 3.284 2.023-.145 5.196-1.322 4.432-3.6a9.473 9.473 0 00-.237-.74l.007.008c5.67.557 6.306-7.935-.292-10.749zm1.577 2.703c-2.593.993-3.693 5.2-1.45 6.164l.846-.768c-1.25-1.328-.974-4.108.606-5.392l-.002-.004z\" fill=\"#181818\" fill-rule=\"evenodd\"></path><path d=\"M10.252 22.02c9.524 1.016 16.05-4.957 9.597-8.025 2.43 2.81.036 5.363-3.746 6.766 1.406-.909 2.56-2.33 3.255-4.392-4.354 4.119-14.543 4.415-14.319 1.427-1.767 3.471 6.828 4.53 11.687 1.46-2.378 2.067-4.6 2.49-7.498 2.628.34.06.682.105 1.024.136z\" fill=\"#181818\"></path><path clip-rule=\"evenodd\" d=\"M8.35 8.84c-.374-.01-.625-.2-.562-.423.19-.666.332-1.69.257-2.51-.02-.22.27-.43.649-.47.378-.04.702.106.722.326.081.888-.07 1.973-.274 2.689-.063.223-.418.397-.792.387z\" fill=\"#181818\" fill-rule=\"evenodd\"></path><path d=\"M7.861 8.67s.224.136.545-.036c.519-.278.64-1.953.64-2.931 0-.264-.325-.269-.325-.269.366-.03.675.114.694.33.082.887-.07 1.972-.273 2.688-.064.223-.418.397-.792.387-.216-.005-.392-.07-.489-.168z\" fill=\"#FF3E8F\"></path><path clip-rule=\"evenodd\" d=\"M11.278 7.493c-.374-.01-.625-.199-.562-.422.19-.666.331-1.69.256-2.51-.02-.22.27-.43.65-.47.378-.04.701.106.722.326.08.888-.071 1.973-.274 2.688-.064.224-.418.397-.792.388z\" fill=\"#181818\" fill-rule=\"evenodd\"></path><path d=\"M10.79 7.324s.223.135.544-.037c.519-.278.64-1.952.64-2.93 0-.264-.326-.269-.326-.269.367-.03.675.114.695.33.082.887-.07 1.972-.274 2.687-.063.224-.417.398-.791.388-.216-.006-.392-.071-.489-.169z\" fill=\"#FF3E8F\"></path><path d=\"M3.557 1l.561 1.527 1.518.565-1.518.565-.56 1.527-.562-1.527-1.517-.565 1.517-.565L3.557 1zM1.185 4.952l.32.876.865.325-.865.324-.32.877-.32-.877L0 6.153l.865-.325.32-.876z\" fill=\"#C5F955\"></path>", "claude-color": "<path d=\"M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z\" fill=\"#D97757\" fill-rule=\"nonzero\"></path>", "kling-color": "<path d=\"M5.412 13.775A23.193 23.193 0 017.41 9.32c3.17-5.492 7.795-8.757 10.33-7.294C12.038-1.266 4.598.944 1.122 6.964A13.378 13.378 0 00.085 9.22c-.259.739.092 1.534.77 1.926l4.557 2.63z\" fill=\"url(#lobe-icons-kling-0-_R_0_)\"></path><path d=\"M18.588 10.164a23.188 23.188 0 01-1.999 4.455c-3.17 5.492-7.795 8.758-10.33 7.294 5.703 3.293 13.143 1.082 16.619-4.938a13.392 13.392 0 001.037-2.255c.259-.738-.092-1.534-.77-1.925l-4.557-2.63z\" fill=\"url(#lobe-icons-kling-1-_R_0_)\"></path><path d=\"M16.59 14.62c3.17-5.492 3.686-11.13 1.15-12.594C15.207.563 10.582 3.83 7.41 9.32c2.074-3.59 5.809-5.315 8.344-3.852 2.534 1.464 2.908 5.56.835 9.151z\" fill=\"url(#lobe-icons-kling-2-_R_0_)\"></path><path d=\"M7.41 9.32c-3.17 5.492-3.686 11.13-1.15 12.593 2.534 1.464 7.159-1.802 10.33-7.294-2.074 3.591-5.809 5.316-8.344 3.852-2.534-1.463-2.908-5.56-.835-9.15z\" fill=\"url(#lobe-icons-kling-3-_R_0_)\"></path><defs><radialGradient cx=\"0\" cy=\"0\" gradientTransform=\"matrix(7.47772 -12.51022 17.14368 10.24728 5.173 13.637)\" gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-kling-0-_R_0_\" r=\"1\"><stop offset=\".095\" stop-color=\"#FFF959\"></stop><stop offset=\".326\" stop-color=\"#0DF35E\"></stop><stop offset=\".64\" stop-color=\"#0BF2F9\"></stop><stop offset=\"1\" stop-color=\"#04A6F0\"></stop></radialGradient><radialGradient cx=\"0\" cy=\"0\" gradientTransform=\"rotate(120.868 6.491 10.491) scale(14.5747 19.9728)\" gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-kling-1-_R_0_\" r=\"1\"><stop offset=\".095\" stop-color=\"#FFF959\"></stop><stop offset=\".326\" stop-color=\"#0DF35E\"></stop><stop offset=\".64\" stop-color=\"#0BF2F9\"></stop><stop offset=\"1\" stop-color=\"#04A6F0\"></stop></radialGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-kling-2-_R_0_\" x1=\"15.578\" x2=\"18.062\" y1=\"1.798\" y2=\"9.861\"><stop stop-color=\"#003EFF\"></stop><stop offset=\"1\" stop-color=\"#0BFFE7\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-kling-3-_R_0_\" x1=\"8.422\" x2=\"5.938\" y1=\"22.142\" y2=\"14.079\"><stop stop-color=\"#003EFF\"></stop><stop offset=\"1\" stop-color=\"#0BFFE7\"></stop></linearGradient></defs>", "openai": "<path d=\"M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z\"></path>", "bytedance-color": "<path d=\"M14.944 18.587l-1.704-.445V10.01l1.824-.462c1-.254 1.84-.461 1.88-.453.032 0 .056 2.235.056 4.972v4.973l-.176-.008c-.104 0-.952-.207-1.88-.446z\" fill=\"#00C8D2\" fill-rule=\"nonzero\"></path><path d=\"M7 16.542c0-2.736.024-4.98.064-4.98.032-.008.872.2 1.88.454l1.816.461-.016 4.05-.024 4.049-1.632.422c-.896.23-1.736.445-1.856.469L7 21.523v-4.98z\" fill=\"#3C8CFF\" fill-rule=\"nonzero\"></path><path d=\"M19.24 12.477c0-9.03.008-9.515.144-9.475.072.024.784.207 1.576.406.792.207 1.576.405 1.744.445l.296.08-.016 8.56-.024 8.568-1.624.414c-.888.23-1.728.437-1.856.47l-.24.055v-9.523z\" fill=\"#78E6DC\" fill-rule=\"nonzero\"></path><path d=\"M1 12.509c0-4.678.024-8.505.064-8.505.032 0 .872.207 1.872.454l1.824.461v7.582c0 4.16-.016 7.574-.032 7.574-.024 0-.872.215-1.88.47L1 21.013v-8.505z\" fill=\"#325AB4\"></path>", "meta-color": "<path d=\"M6.897 4h-.024l-.031 2.615h.022c1.715 0 3.046 1.357 5.94 6.246l.175.297.012.02 1.62-2.438-.012-.019a48.763 48.763 0 00-1.098-1.716 28.01 28.01 0 00-1.175-1.629C10.413 4.932 8.812 4 6.896 4z\" fill=\"url(#lobe-icons-meta-0-_R_0_)\"></path><path d=\"M6.873 4C4.95 4.01 3.247 5.258 2.02 7.17a4.352 4.352 0 00-.01.017l2.254 1.231.011-.017c.718-1.083 1.61-1.774 2.568-1.785h.021L6.896 4h-.023z\" fill=\"url(#lobe-icons-meta-1-_R_0_)\"></path><path d=\"M2.019 7.17l-.011.017C1.2 8.447.598 9.995.274 11.664l-.005.022 2.534.6.004-.022c.27-1.467.786-2.828 1.456-3.845l.011-.017L2.02 7.17z\" fill=\"url(#lobe-icons-meta-2-_R_0_)\"></path><path d=\"M2.807 12.264l-2.533-.6-.005.022c-.177.918-.267 1.851-.269 2.786v.023l2.598.233v-.023a12.591 12.591 0 01.21-2.44z\" fill=\"url(#lobe-icons-meta-3-_R_0_)\"></path><path d=\"M2.677 15.537a5.462 5.462 0 01-.079-.813v-.022L0 14.468v.024a8.89 8.89 0 00.146 1.652l2.535-.585a4.106 4.106 0 01-.004-.022z\" fill=\"url(#lobe-icons-meta-4-_R_0_)\"></path><path d=\"M3.27 16.89c-.284-.31-.484-.756-.589-1.328l-.004-.021-2.535.585.004.021c.192 1.01.568 1.85 1.106 2.487l.014.017 2.018-1.745a2.106 2.106 0 01-.015-.016z\" fill=\"url(#lobe-icons-meta-5-_R_0_)\"></path><path d=\"M10.78 9.654c-1.528 2.35-2.454 3.825-2.454 3.825-2.035 3.2-2.739 3.917-3.871 3.917a1.545 1.545 0 01-1.186-.508l-2.017 1.744.014.017C2.01 19.518 3.058 20 4.356 20c1.963 0 3.374-.928 5.884-5.33l1.766-3.13a41.283 41.283 0 00-1.227-1.886z\" fill=\"#0082FB\"></path><path d=\"M13.502 5.946l-.016.016c-.4.43-.786.908-1.16 1.416.378.483.768 1.024 1.175 1.63.48-.743.928-1.345 1.367-1.807l.016-.016-1.382-1.24z\" fill=\"url(#lobe-icons-meta-6-_R_0_)\"></path><path d=\"M20.918 5.713C19.853 4.633 18.583 4 17.225 4c-1.432 0-2.637.787-3.723 1.944l-.016.016 1.382 1.24.016-.017c.715-.747 1.408-1.12 2.176-1.12.826 0 1.6.39 2.27 1.075l.015.016 1.589-1.425-.016-.016z\" fill=\"#0082FB\"></path><path d=\"M23.998 14.125c-.06-3.467-1.27-6.566-3.064-8.396l-.016-.016-1.588 1.424.015.016c1.35 1.392 2.277 3.98 2.361 6.971v.023h2.292v-.022z\" fill=\"url(#lobe-icons-meta-7-_R_0_)\"></path><path d=\"M23.998 14.15v-.023h-2.292v.022c.004.14.006.282.006.424 0 .815-.121 1.474-.368 1.95l-.011.022 1.708 1.782.013-.02c.62-.96.946-2.293.946-3.91 0-.083 0-.165-.002-.247z\" fill=\"url(#lobe-icons-meta-8-_R_0_)\"></path><path d=\"M21.344 16.52l-.011.02c-.214.402-.519.67-.917.787l.778 2.462a3.493 3.493 0 00.438-.182 3.558 3.558 0 001.366-1.218l.044-.065.012-.02-1.71-1.784z\" fill=\"url(#lobe-icons-meta-9-_R_0_)\"></path><path d=\"M19.92 17.393c-.262 0-.492-.039-.718-.14l-.798 2.522c.449.153.927.222 1.46.222.492 0 .943-.073 1.352-.215l-.78-2.462c-.167.05-.341.075-.517.073z\" fill=\"url(#lobe-icons-meta-10-_R_0_)\"></path><path d=\"M18.323 16.534l-.014-.017-1.836 1.914.016.017c.637.682 1.246 1.105 1.937 1.337l.797-2.52c-.291-.125-.573-.353-.9-.731z\" fill=\"url(#lobe-icons-meta-11-_R_0_)\"></path><path d=\"M18.309 16.515c-.55-.642-1.232-1.712-2.303-3.44l-1.396-2.336-.011-.02-1.62 2.438.012.02.989 1.668c.959 1.61 1.74 2.774 2.493 3.585l.016.016 1.834-1.914a2.353 2.353 0 01-.014-.017z\" fill=\"url(#lobe-icons-meta-12-_R_0_)\"></path><defs><linearGradient id=\"lobe-icons-meta-0-_R_0_\" x1=\"75.897%\" x2=\"26.312%\" y1=\"89.199%\" y2=\"12.194%\"><stop offset=\".06%\" stop-color=\"#0867DF\"></stop><stop offset=\"45.39%\" stop-color=\"#0668E1\"></stop><stop offset=\"85.91%\" stop-color=\"#0064E0\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-1-_R_0_\" x1=\"21.67%\" x2=\"97.068%\" y1=\"75.874%\" y2=\"23.985%\"><stop offset=\"13.23%\" stop-color=\"#0064DF\"></stop><stop offset=\"99.88%\" stop-color=\"#0064E0\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-2-_R_0_\" x1=\"38.263%\" x2=\"60.895%\" y1=\"89.127%\" y2=\"16.131%\"><stop offset=\"1.47%\" stop-color=\"#0072EC\"></stop><stop offset=\"68.81%\" stop-color=\"#0064DF\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-3-_R_0_\" x1=\"47.032%\" x2=\"52.15%\" y1=\"90.19%\" y2=\"15.745%\"><stop offset=\"7.31%\" stop-color=\"#007CF6\"></stop><stop offset=\"99.43%\" stop-color=\"#0072EC\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-4-_R_0_\" x1=\"52.155%\" x2=\"47.591%\" y1=\"58.301%\" y2=\"37.004%\"><stop offset=\"7.31%\" stop-color=\"#007FF9\"></stop><stop offset=\"100%\" stop-color=\"#007CF6\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-5-_R_0_\" x1=\"37.689%\" x2=\"61.961%\" y1=\"12.502%\" y2=\"63.624%\"><stop offset=\"7.31%\" stop-color=\"#007FF9\"></stop><stop offset=\"100%\" stop-color=\"#0082FB\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-6-_R_0_\" x1=\"34.808%\" x2=\"62.313%\" y1=\"68.859%\" y2=\"23.174%\"><stop offset=\"27.99%\" stop-color=\"#007FF8\"></stop><stop offset=\"91.41%\" stop-color=\"#0082FB\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-7-_R_0_\" x1=\"43.762%\" x2=\"57.602%\" y1=\"6.235%\" y2=\"98.514%\"><stop offset=\"0%\" stop-color=\"#0082FB\"></stop><stop offset=\"99.95%\" stop-color=\"#0081FA\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-8-_R_0_\" x1=\"60.055%\" x2=\"39.88%\" y1=\"4.661%\" y2=\"69.077%\"><stop offset=\"6.19%\" stop-color=\"#0081FA\"></stop><stop offset=\"100%\" stop-color=\"#0080F9\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-9-_R_0_\" x1=\"30.282%\" x2=\"61.081%\" y1=\"59.32%\" y2=\"33.244%\"><stop offset=\"0%\" stop-color=\"#027AF3\"></stop><stop offset=\"100%\" stop-color=\"#0080F9\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-10-_R_0_\" x1=\"20.433%\" x2=\"82.112%\" y1=\"50.001%\" y2=\"50.001%\"><stop offset=\"0%\" stop-color=\"#0377EF\"></stop><stop offset=\"99.94%\" stop-color=\"#0279F1\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-11-_R_0_\" x1=\"40.303%\" x2=\"72.394%\" y1=\"35.298%\" y2=\"57.811%\"><stop offset=\".19%\" stop-color=\"#0471E9\"></stop><stop offset=\"100%\" stop-color=\"#0377EF\"></stop></linearGradient><linearGradient id=\"lobe-icons-meta-12-_R_0_\" x1=\"32.254%\" x2=\"68.003%\" y1=\"19.719%\" y2=\"84.908%\"><stop offset=\"27.65%\" stop-color=\"#0867DF\"></stop><stop offset=\"100%\" stop-color=\"#0471E9\"></stop></linearGradient></defs>", "pixverse-color": "<path d=\"M10.998 23.837L5 21.015V5.569c0-.733.32-1.547.84-2.065l1.386-1.387 6.064 19.729c.426 1.377-.987 2.605-2.292 1.991z\" fill=\"url(#lobe-icons-pix-verse-0-_R_0_)\"></path><path d=\"M19.36 8.43L12.517.905A2.765 2.765 0 008.517.81L5.84 3.504c-.511.584-.803 1.198-.803 1.93V20.88l13.699-8.219a2.765 2.765 0 00.623-4.23\" fill=\"url(#lobe-icons-pix-verse-1-_R_0_)\"></path><defs><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-pix-verse-0-_R_0_\" x1=\"-5.894\" x2=\"13.185\" y1=\"5.53\" y2=\"23.781\"><stop stop-color=\"#FE9E58\"></stop><stop offset=\".396\" stop-color=\"#E470EC\"></stop><stop offset=\"1\" stop-color=\"#442FBA\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-pix-verse-1-_R_0_\" x1=\"15.931\" x2=\"-3.149\" y1=\"5.396\" y2=\"23.647\"><stop stop-color=\"#FFA052\"></stop><stop offset=\".396\" stop-color=\"#E36CFA\" stop-opacity=\".8\"></stop><stop offset=\"1\" stop-color=\"#442FBA\" stop-opacity=\".7\"></stop></linearGradient></defs>", "nvidia-color": "<path d=\"M10.212 8.976V7.62c.127-.01.256-.017.388-.021 3.596-.117 5.957 3.184 5.957 3.184s-2.548 3.647-5.282 3.647a3.227 3.227 0 01-1.063-.175v-4.109c1.4.174 1.681.812 2.523 2.258l1.873-1.627a4.905 4.905 0 00-3.67-1.846 6.594 6.594 0 00-.729.044m0-4.476v2.025c.13-.01.259-.019.388-.024 5.002-.174 8.261 4.226 8.261 4.226s-3.743 4.69-7.643 4.69c-.338 0-.675-.031-1.007-.092v1.25c.278.038.558.057.838.057 3.629 0 6.253-1.91 8.794-4.169.421.347 2.146 1.193 2.501 1.564-2.416 2.083-8.048 3.763-11.24 3.763-.308 0-.603-.02-.894-.048V19.5H24v-15H10.21zm0 9.756v1.068c-3.356-.616-4.287-4.21-4.287-4.21a7.173 7.173 0 014.287-2.138v1.172h-.005a3.182 3.182 0 00-2.502 1.178s.615 2.276 2.507 2.931m-5.961-3.3c1.436-1.935 3.604-3.148 5.961-3.336V6.523C5.81 6.887 2 10.723 2 10.723s2.158 6.427 8.21 7.015v-1.166C5.77 16 4.25 10.958 4.25 10.958h-.002z\" fill=\"#74B71B\" fill-rule=\"nonzero\"></path>", "tripo-color": "<path d=\"M12.661 4.752a.04.04 0 00-.013-.055.038.038 0 00-.02-.005H6.496a.19.19 0 01-.165-.092L4.245 1.052a.034.034 0 01.014-.047A.038.038 0 014.275 1c5.492 0 10.733 0 15.721.002 2.089 0 3.699 1.54 4.003 3.598.008.062-.019.092-.08.092h-6.67a.204.204 0 00-.174.1c-1.414 2.41-2.82 4.803-4.218 7.178-.28.472-.92.62-1.373.342-.19-.116-.357-.304-.502-.561a37.917 37.917 0 00-.882-1.489c-.222-.356-.234-.707-.035-1.052a661.77 661.77 0 012.597-4.46v.002z\" fill=\"#F6D85A\"></path><path d=\"M10.772 16.986c.57.972 1.935.916 2.489-.028L19 7.164a.127.127 0 01.116-.067h4.23c.017 0 .03.014.028.03 0 .005-.001.01-.003.013-2.605 4.432-5.232 8.906-7.88 13.42-1.283 2.191-4.278 2.517-6.179.947-.308-.254-.665-.727-1.069-1.417-2.525-4.324-5.098-8.71-7.72-13.162-1.063-1.803-.424-3.947 1.19-5.2.053-.041.095-.033.129.023 2.905 4.95 5.882 10.029 8.93 15.236z\"></path>", "hunyuan-color": "<circle cx=\"12\" cy=\"12\" fill=\"#0055E9\" r=\"12\"></circle><path d=\"M12 0c.518 0 1.028.033 1.528.096A6.188 6.188 0 0112.12 12.28l-.12.001c-2.99 0-5.242 2.179-5.554 5.11-.223 2.086.353 4.412 2.242 6.146C3.672 22.1 0 17.479 0 12 0 5.373 5.373 0 12 0z\" fill=\"#A8DFF5\"></path><path d=\"M5.286 5a2.438 2.438 0 01.682 3.38c-3.962 5.966-3.215 10.743 2.648 15.136C3.636 22.056 0 17.452 0 12c0-1.787.39-3.482 1.09-5.006.253-.435.525-.872.817-1.311A2.438 2.438 0 015.286 5z\" fill=\"#0055E9\"></path><path d=\"M12.98.04c.272.021.543.053.81.093.583.106 1.117.254 1.538.44 6.638 2.927 8.07 10.052 1.748 15.642a4.125 4.125 0 01-5.822-.358c-1.51-1.706-1.3-4.184.357-5.822.858-.848 3.108-1.223 4.045-2.441 1.257-1.634 2.122-6.009-2.523-7.506L12.98.039z\" fill=\"#00BCFF\"></path><path d=\"M13.528.096A6.187 6.187 0 0112 12.281a5.75 5.75 0 00-1.71.255c.147-.905.595-1.784 1.321-2.501.858-.848 3.108-1.223 4.045-2.441 1.27-1.651 2.14-6.104-2.676-7.554.184.014.367.033.548.056z\" fill=\"#ECECEE\"></path>", "mistral-color": "<path d=\"M3.428 3.4h3.429v3.428H3.428V3.4zm13.714 0h3.43v3.428h-3.43V3.4z\" fill=\"gold\"></path><path d=\"M3.428 6.828h6.857v3.429H3.429V6.828zm10.286 0h6.857v3.429h-6.857V6.828z\" fill=\"#FFAF00\"></path><path d=\"M3.428 10.258h17.144v3.428H3.428v-3.428z\" fill=\"#FF8205\"></path><path d=\"M3.428 13.686h3.429v3.428H3.428v-3.428zm6.858 0h3.429v3.428h-3.429v-3.428zm6.856 0h3.43v3.428h-3.43v-3.428z\" fill=\"#FA500F\"></path><path d=\"M0 17.114h10.286v3.429H0v-3.429zm13.714 0H24v3.429H13.714v-3.429z\" fill=\"#E10500\"></path>", "coqui-color": "<path d=\"M6.014 0c1.75.242 3.099 1.083 4.047 2.522.159.24.306.574.416.778a.077.077 0 00.074.04c.975-.09 1.936-.09 2.882 0a.076.076 0 00.074-.04c.136-.25.294-.603.495-.893.95-1.37 2.273-2.171 3.966-2.407h1.15c.552.103.899.178 1.04.224 1.177.386 2.117 1.07 2.82 2.053a5.374 5.374 0 011.02 3.331c-.026 1.193-.437 2.295-1.234 3.306a.113.113 0 00-.01.126 9.426 9.426 0 011.165 3.35c.043.29.067.623.072.996.007.522.003.856-.011 1.002-.474 4.821-4.392 8.249-8.916 9.274-.657.149-1.376.259-2.157.33H11.09a49.973 49.973 0 01-1.117-.143 12.903 12.903 0 01-2.076-.465c-2.745-.858-5.214-2.641-6.659-5.149-.56-.972-.927-1.95-1.1-2.934a38.037 38.037 0 01-.138-.93v-1.456a9.735 9.735 0 011.239-3.89.103.103 0 00-.01-.117 5.254 5.254 0 01-1.12-2.35C.075 6.383.038 6.208 0 6.03V4.875c.091-.602.222-1.103.392-1.502C1.076 1.765 2.487.51 4.229.131c.212-.046.425-.09.639-.131h1.146zm3.78 5.445a4.344 4.344 0 10-8.687 0 4.344 4.344 0 008.688 0zm13.092 0a4.344 4.344 0 10-8.688 0 4.344 4.344 0 008.688 0zm-10.894 12.55c.165 0 .323-.002.473-.006a31.64 31.64 0 002.6-.183c1.218-.137 2.42-.39 3.604-.759 1.383-.431 3.435-1.327 4.064-2.735.128-.285.175-.651.142-1.097-.099-1.291-.423-2.42-.973-3.39a.036.036 0 00-.039-.017.037.037 0 00-.014.007c-1.017.717-2.076 1.084-3.177 1.1-1.16.018-2.2-.277-3.116-.887-1.41-.938-2.23-2.27-2.458-3.999-.07-.523-.025-.973.058-1.531a.058.058 0 00-.012-.046.06.06 0 00-.042-.023c-.239-.026-.608-.04-1.107-.04-.498 0-.867.014-1.105.04a.062.062 0 00-.042.022.06.06 0 00-.012.046c.082.558.127 1.008.057 1.531-.23 1.728-1.05 3.06-2.46 3.997-.918.609-1.957.904-3.118.886-1.1-.017-2.16-.385-3.176-1.103a.037.037 0 00-.03-.006.036.036 0 00-.023.017c-.55.968-.875 2.097-.974 3.388-.035.446.012.812.14 1.098.628 1.409 2.68 2.305 4.062 2.738 1.185.37 2.386.624 3.604.761.849.097 1.715.158 2.6.185.15.004.308.007.474.007zm.003 4.888c.847 0 1.576-.066 2.473-.239 3.482-.672 6.561-2.855 7.907-6.184a.019.019 0 00-.017-.025c-.004 0-.008.002-.01.004-.43.328-.898.619-1.405.87-1.801.897-3.863 1.387-5.877 1.615-.993.113-2.038.18-3.07.18s-2.076-.067-3.069-.18c-2.014-.23-4.076-.718-5.877-1.615a8.55 8.55 0 01-1.404-.872.02.02 0 00-.011-.003.019.019 0 00-.017.013.019.019 0 000 .012c1.345 3.329 4.424 5.512 7.906 6.184.897.174 1.626.24 2.472.24z\" fill=\"#5EAE91\"></path><path d=\"M5.998 9.24a3.243 3.243 0 100-6.486 3.243 3.243 0 000 6.486zM17.995 9.24a3.243 3.243 0 100-6.486 3.243 3.243 0 000 6.486zM9.228 15.699a.934.934 0 100-1.867.934.934 0 000 1.867zM14.765 15.7a.935.935 0 100-1.87.935.935 0 000 1.87z\" fill=\"#5EAE91\"></path>", "flux": "<path d=\"M0 20.683L12.01 2.5 24 20.683h-2.233L12.009 5.878 3.471 18.806h12.122l1.239 1.877H0z\"></path><path d=\"M8.069 16.724l2.073-3.115 2.074 3.115H8.069zM18.24 20.683l-5.668-8.707h2.177l5.686 8.707h-2.196zM19.74 11.676l2.13-3.19 2.13 3.19h-4.26z\"></path>", "qwen-color": "<path d=\"M19.713 2.825h-5.907c0-.251-.066-.503-.196-.728L12.819.728A1.46 1.46 0 0 0 11.559 0h-1.58c-.52 0-1 .275-1.26.728l-2.42 4.19a1.45 1.45 0 0 0 0 1.453l.791 1.37c.26.448.74.727 1.26.727h11.36c.52 0 1-.275 1.26-.728l.79-1.37a1.45 1.45 0 0 0 0-1.451l-.79-1.37a1.46 1.46 0 0 0-1.26-.728zM.195 9.905l2.951 5.115a1.46 1.46 0 0 0-.531.531l-.791 1.37a1.45 1.45 0 0 0 0 1.452l.79 1.37c.26.448.74.727 1.26.727h4.84c.52 0 1-.275 1.26-.728l.79-1.37a1.45 1.45 0 0 0 0-1.451L5.086 7.083a1.46 1.46 0 0 0-1.26-.728h-1.58c-.52 0-1 .276-1.26.728l-.79 1.37a1.45 1.45 0 0 0 0 1.452m15.888 13.367 2.951-5.115c.217.125.469.196.728.196h1.582c.52 0 1-.275 1.26-.728l.79-1.37a1.45 1.45 0 0 0 0-1.451l-2.42-4.191a1.46 1.46 0 0 0-1.259-.728h-1.582c-.52 0-1 .276-1.259.728l-5.678 9.838a1.45 1.45 0 0 0 0 1.452l.79 1.37c.26.448.74.727 1.26.727h1.582c.52 0 1-.275 1.26-.728z\" fill=\"#082dff\"></path>", "topazlabs": "<path d=\"M2 15.357V22h6.65v-6.643H2zM15.32 15.357V8.714H8.67v6.643h6.65zM22 8.643V2h-6.65v6.643H22z\"></path>", "zhipu-color": "<path d=\"M11.991 23.503a.24.24 0 00-.244.248.24.24 0 00.244.249.24.24 0 00.245-.249.24.24 0 00-.22-.247l-.025-.001zM9.671 5.365a1.697 1.697 0 011.099 2.132l-.071.172-.016.04-.018.054c-.07.16-.104.32-.104.498-.035.71.47 1.279 1.186 1.314h.366c1.309.053 2.338 1.173 2.286 2.523-.052 1.332-1.152 2.38-2.478 2.327h-.174c-.715.018-1.274.64-1.239 1.368 0 .124.018.23.053.337.209.373.54.658.96.8.75.23 1.517-.125 1.9-.782l.018-.035c.402-.64 1.17-.96 1.92-.711.854.284 1.378 1.226 1.099 2.167a1.661 1.661 0 01-2.077 1.102 1.711 1.711 0 01-.907-.711l-.017-.035c-.2-.323-.463-.58-.851-.711l-.056-.018a1.646 1.646 0 00-1.954.746 1.66 1.66 0 01-1.065.764 1.677 1.677 0 01-1.989-1.279c-.209-.906.332-1.83 1.257-2.043a1.51 1.51 0 01.296-.035h.018c.68-.071 1.151-.622 1.116-1.333a1.307 1.307 0 00-.227-.693 2.515 2.515 0 01-.366-1.403 2.39 2.39 0 01.366-1.208c.14-.195.21-.444.227-.693.018-.71-.506-1.261-1.186-1.332l-.07-.018a1.43 1.43 0 01-.299-.07l-.05-.019a1.7 1.7 0 01-1.047-2.114 1.68 1.68 0 012.094-1.101zm-5.575 10.11c.26-.264.639-.367.994-.27.355.096.633.379.728.74.095.362-.007.748-.267 1.013-.402.41-1.053.41-1.455 0a1.062 1.062 0 010-1.482zm14.845-.294c.359-.09.738.024.992.297.254.274.344.665.237 1.025-.107.36-.396.634-.756.718-.551.128-1.1-.22-1.23-.781a1.05 1.05 0 01.757-1.26zm-.064-4.39c.314.32.49.753.49 1.206 0 .452-.176.886-.49 1.206-.315.32-.74.5-1.185.5-.444 0-.87-.18-1.184-.5a1.727 1.727 0 010-2.412 1.654 1.654 0 012.369 0zm-11.243.163c.364.484.447 1.128.218 1.691a1.665 1.665 0 01-2.188.923c-.855-.36-1.26-1.358-.907-2.228a1.68 1.68 0 011.33-1.038c.593-.08 1.183.169 1.547.652zm11.545-4.221c.368 0 .708.2.892.524.184.324.184.724 0 1.048a1.026 1.026 0 01-.892.524c-.568 0-1.03-.47-1.03-1.048 0-.579.462-1.048 1.03-1.048zm-14.358 0c.368 0 .707.2.891.524.184.324.184.724 0 1.048a1.026 1.026 0 01-.891.524c-.569 0-1.03-.47-1.03-1.048 0-.579.461-1.048 1.03-1.048zm10.031-1.475c.925 0 1.675.764 1.675 1.706s-.75 1.705-1.675 1.705-1.674-.763-1.674-1.705c0-.942.75-1.706 1.674-1.706zm-2.626-.684c.362-.082.653-.356.761-.718a1.062 1.062 0 00-.238-1.028 1.017 1.017 0 00-.996-.294c-.547.14-.881.7-.752 1.257.13.558.675.907 1.225.783zm0 16.876c.359-.087.644-.36.75-.72a1.062 1.062 0 00-.237-1.019 1.018 1.018 0 00-.985-.301 1.037 1.037 0 00-.762.717c-.108.361-.017.754.239 1.028.245.263.606.377.953.305l.043-.01zM17.19 3.5a.631.631 0 00.628-.64c0-.355-.279-.64-.628-.64a.631.631 0 00-.628.64c0 .355.28.64.628.64zm-10.38 0a.631.631 0 00.628-.64c0-.355-.28-.64-.628-.64a.631.631 0 00-.628.64c0 .355.279.64.628.64zm-5.182 7.852a.631.631 0 00-.628.64c0 .354.28.639.628.639a.63.63 0 00.627-.606l.001-.034a.62.62 0 00-.628-.64zm5.182 9.13a.631.631 0 00-.628.64c0 .355.279.64.628.64a.631.631 0 00.628-.64c0-.355-.28-.64-.628-.64zm10.38.018a.631.631 0 00-.628.64c0 .355.28.64.628.64a.631.631 0 00.628-.64c0-.355-.279-.64-.628-.64zm5.182-9.148a.631.631 0 00-.628.64c0 .354.279.639.628.639a.631.631 0 00.628-.64c0-.355-.28-.64-.628-.64zm-.384-4.992a.24.24 0 00.244-.249.24.24 0 00-.244-.249.24.24 0 00-.244.249c0 .142.122.249.244.249zM11.991.497a.24.24 0 00.245-.248A.24.24 0 0011.99 0a.24.24 0 00-.244.249c0 .133.108.236.223.247l.021.001zM2.011 6.36a.24.24 0 00.245-.249.24.24 0 00-.244-.249.24.24 0 00-.244.249.24.24 0 00.244.249zm0 11.263a.24.24 0 00-.243.248.24.24 0 00.244.249.24.24 0 00.244-.249.252.252 0 00-.244-.248zm19.995-.018a.24.24 0 00-.245.248.24.24 0 00.245.25.24.24 0 00.244-.25.252.252 0 00-.244-.248z\" fill=\"#3859FF\" fill-rule=\"nonzero\"></path>", "nanobanana-color": "<path d=\"M1.5 19.824c0-.548.444-.992.991-.992h.744a.991.991 0 010 1.983H2.49a.991.991 0 01-.991-.991z\" fill=\"#F3AD61\"></path><path d=\"M14.837 13.5h7.076c.522 0 .784-.657.413-1.044l-1.634-1.704a3.183 3.183 0 00-4.636 0l-1.633 1.704c-.37.385-.107 1.044.414 1.044zM3.587 13.5h7.076c.521 0 .784-.659.414-1.044l-1.635-1.704a3.183 3.183 0 00-4.636 0l-1.633 1.704c-.37.385-.107 1.044.414 1.044z\" fill=\"#F9C23C\"></path><path d=\"M12.525 1.521c3.69-.53 5.97 8.923 4.309 12.744-1.662 3.82-5.248 4.657-9.053 6.152a3.49 3.49 0 01-1.279.244c-1.443 0-2.227 1.187-2.774-.282-.707-1.9.22-4.031 2.069-4.757 2.014-.79 3.084-2.308 3.89-4.364.82-2.096.877-2.956.873-5.241-.003-1.827-.123-4.195 1.965-4.496z\" fill=\"#FEEFC2\"></path><path d=\"M16.834 14.264l-7.095-3.257c-.815 1.873-2.29 3.308-4.156 4.043-2.16.848-3.605 3.171-2.422 5.54 2.364 4.727 13.673-.05 13.673-6.325z\" fill=\"#FCD53F\"></path><path clip-rule=\"evenodd\" d=\"M13.68 12.362c.296.094.46.41.365.707-1.486 4.65-5.818 6.798-9.689 6.997a.562.562 0 11-.057-1.124c3.553-.182 7.372-2.138 8.674-6.216a.562.562 0 01.707-.364z\" fill=\"#F9C23C\" fill-rule=\"evenodd\"></path><path d=\"M17.43 19.85l-7.648-8.835h6.753c1.595.08 2.846 1.433 2.846 3.073v5.664c0 .997-.898 1.302-1.95.098z\" fill=\"#FFF478\"></path>", "elevenlabs": "<path d=\"M5 0h5v24H5V0zM14 0h5v24h-5V0z\"></path>", "ideogram": "<path d=\"M17.768 1.482a6.4 6.4 0 012.988 3.78c.19.068.377.154.555.257.026.015.05.03.073.047.226.137.436.301.627.49a3.377 3.377 0 01-.105 4.875 3.376 3.376 0 01-.216 5.158l-.037.029.021.032c.39.602.585 1.324.534 2.065l-.009.11a3.377 3.377 0 01-4.658 2.777 3.377 3.377 0 01-5.846.971 4.052 4.052 0 01-1.635.397c-.04.005-.082.008-.125.008h-.897l-.068-.003c-1.116-.067-1.093-1.775.068-1.775h.804l.046-.004.047-.001a2.3 2.3 0 00.079-4.6.735.735 0 01-.08.005H2.808a.889.889 0 010-1.778h7.034l.046-.004.048-.001a2.3 2.3 0 00.509-4.544l-.141-.031a2.188 2.188 0 00-.299-.046.759.759 0 01-.07.003H2.808a.889.889 0 110-1.777h7.035l.046-.004.047-.001a2.3 2.3 0 00.087-4.6.972.972 0 01-.087.004h-.897L8.97 3.32c-1.116-.067-1.093-1.775.068-1.775h.8a.9.9 0 01.097-.005c.402 0 .79.058 1.157.166l.031-.02a6.399 6.399 0 016.645-.203zm-3.737 11.484l-.068.036-.083.051a4.08 4.08 0 01-1.404 2.153 4.07 4.07 0 011.537 3.189 4.06 4.06 0 01-.92 2.579 1.599 1.599 0 002.824-1.322l-.03-.124-.013-.079-.005-.056-.001-.042.001-.058.005-.053.013-.078.018-.072.022-.064.035-.079.005-.01a.869.869 0 01.158-.217l.055-.052.041-.032.05-.035.042-.026.055-.03.073-.03.056-.02.04-.011.078-.016.073-.009.045-.002h.048l.041.002.058.006.056.01.062.015.031.01.049.017.054.023.044.021.053.031.035.023c.06.042.114.09.163.147l.038.046.034.048a1.6 1.6 0 102.4-2.07 3.256 3.256 0 01-.473.007l-.057-.005-.026-.005h-.016a3.376 3.376 0 01-2.985-2.568l-.026-.116a1.6 1.6 0 00-2.285-1.133zm-4.416 4.595a.889.889 0 110 1.777H5.939a.889.889 0 010-1.777h3.676zm9.208-10.503a1.6 1.6 0 00-.797 1.3l-.002.085a.889.889 0 01-.83.887l-.059.002a.889.889 0 01-.887-.83l-.002-.059a1.6 1.6 0 00-2.528-1.301 4.089 4.089 0 01-1.255 1.674 4.083 4.083 0 011.451 2.308 3.374 3.374 0 014.125 2.532l.02.093a1.6 1.6 0 001.395 1.26l.124.01.042.002c.06 0 .12-.003.18-.01l.085-.011.062-.015a1.6 1.6 0 00-.245-3.163l-.079-.002a.887.887 0 01-.683-.32l-.034-.044a.884.884 0 01-.154-.702.889.889 0 01.807-.71l.064-.001a1.6 1.6 0 001.134-2.728 1.6 1.6 0 00-.786-.426l-.102-.019a.856.856 0 01-.076-.016 1.592 1.592 0 00-.97.204zm-9.199 4.08a.889.889 0 010 1.778H.89a.889.889 0 010-1.777h8.735zm-.01-6.432a.889.889 0 110 1.777H5.94a.889.889 0 110-1.777h3.676zm3.297-1.954l-.053.021a4.065 4.065 0 011.126 2.36 3.375 3.375 0 013.151 1.027 3.366 3.366 0 011.695-1 4.621 4.621 0 00-5.919-2.408z\"></path>", "prunaai-color": "<path d=\"M4.59.467C6.08.234 7.737.335 9.156.934c.784.33 1.496.817 2.06 1.475V2.3a.964.964 0 01.282-.705c.474-.484 1.076-.701 1.752-.602v.001c.26.038.617.15.806.519.08.156.101.31.107.419.006.108-.001.215-.008.295v.002c-.072.849-.209 1.692-.409 2.52 4.28.711 7.336 4.085 7.77 8.392.146.092.273.215.383.395.23.378.261.83.125 1.213a1.317 1.317 0 01-.56.689c-.342 2.261-1.323 4.169-2.944 5.694l-.35.314a9.272 9.272 0 01-5.363 2.19c-5.062.345-9.323-3.21-10.035-8.153-.015-.008-.03-.015-.044-.024-.534-.332-.756-.907-.65-1.445.076-.383.312-.723.66-.932.264-2.336 1.218-4.323 2.855-5.942a9.833 9.833 0 01-.655-.526l-.233-.211c-.11-.103-.317-.333-.323-.668a.775.775 0 01.079-.36c-.38-1.248-.582-2.498-.712-3.792a2.72 2.72 0 01-.016-.369c0-.165.059-.29.105-.365L3.843.84l.006-.008c.1-.149.231-.222.317-.257h.001a2 2 0 01.422-.107z\" fill=\"#fff\"></path><path d=\"M3.486 14.123c0-4.555 3.852-8.248 8.604-8.248 4.752 0 8.604 3.693 8.604 8.248s-3.852 8.248-8.604 8.248c-4.752 0-8.604-3.693-8.604-8.248z\" fill=\"url(#lobe-icons-pruna-ai-0-_R_0_)\"></path><path d=\"M9.841 21.61c3.93 0 7.115-3.89 7.115-8.69 0-2.736-1.036-5.177-2.655-6.77 3.682.934 6.397 4.15 6.397 7.973 0 4.556-3.852 8.247-8.604 8.247a8.845 8.845 0 01-4.428-1.174 5.945 5.945 0 002.175.414z\" fill=\"url(#lobe-icons-pruna-ai-1-_R_0_)\"></path><path d=\"M5.289 1.896c1.036.913 2.062 1.83 2.999 2.845a.017.017 0 010 .02l-.006.004a2.495 2.495 0 01-.565.121c-.162.014-.405.094-.125.279-.36.208.734.435.832.457.247.053.498.082.753.085.223.253.435.515.636.787a.03.03 0 01.003.024.026.026 0 01-.017.018A3.685 3.685 0 017.212 6.4c-.87-.37-1.313-1.131-1.534-2.01a14.735 14.735 0 01-.404-2.487c-.001-.015.003-.017.015-.007z\" fill=\"url(#lobe-icons-pruna-ai-2-_R_0_)\"></path><path d=\"M5.525 1.803c1.175-.052 2.466.104 3.48.713.24.345.429.753.565 1.225.155.534.128 1.04-.078 1.52l-.459-.42a.07.07 0 01-.02-.067 2.02 2.02 0 00-.01-.924c-.028-.114-.083-.255-.226-.138a.063.063 0 00-.013.017.062.062 0 00-.005.021 2.252 2.252 0 01-.159.627c0 .003-.005.006-.005.006-.003.003-.008.005-.013.004a.018.018 0 01-.008-.004l-3.056-2.56c-.015-.012-.013-.02.007-.02z\" fill=\"url(#lobe-icons-pruna-ai-3-_R_0_)\"></path><path d=\"M9.004 2.516c.899.515 1.576 1.322 1.794 2.324.11.502-.01.951-.358 1.35a.022.022 0 01-.015.008l-.009-.001-.008-.005-.918-.93c.207-.48.233-.987.078-1.521a4.102 4.102 0 00-.565-1.225zM7.59 5.165c.367.123.738.136 1.113.04a.038.038 0 01.02 0 .03.03 0 01.018.01l.434.493a3.788 3.788 0 01-.754-.086c-.098-.022-1.193-.249-.831-.457z\" fill=\"#69A45C\"></path><path d=\"M6.418 13.681a2.41 2.41 0 012.412-2.406 2.409 2.409 0 012.413 2.406 2.409 2.409 0 01-2.413 2.406 2.409 2.409 0 01-2.412-2.406zM12.674 13.681a2.41 2.41 0 012.412-2.406 2.41 2.41 0 012.414 2.406 2.41 2.41 0 01-2.414 2.406 2.409 2.409 0 01-2.412-2.406z\" fill=\"#fff\"></path><path d=\"M13.346 17.24c-.017.665-.621 1.331-1.342 1.331-.731 0-1.342-.665-1.342-1.383l.002-.036c.043-.012.135-.01.304.023.075.014.163.033.258.055.29.064.654.148 1 .148.359 0 .663-.058.877-.099a6.21 6.21 0 01.152-.027.94.94 0 01.09-.011z\" fill=\"#FF94FB\"></path><path clip-rule=\"evenodd\" d=\"M10.784 16.896c.063.004.14.014.23.031.08.015.172.035.269.057h-.002c.295.067.633.141.945.141.333 0 .617-.053.83-.093a6 6 0 01.158-.029h.002c.038-.006.08-.011.116-.014l.273-.015-.007.273c-.01.405-.198.796-.479 1.084-.282.29-.675.492-1.115.492-.881 0-1.593-.789-1.594-1.635 0-.03.003-.054.003-.059l.016-.177.173-.045a.597.597 0 01.182-.011zm.159.53c.113.49.56.893 1.061.894.281 0 .55-.13.755-.34.123-.127.216-.277.272-.433a4.425 4.425 0 01-.805.083c-.189 0-.382-.023-.563-.054l-.492-.1c-.085-.02-.162-.037-.228-.05z\" fill=\"#36124C\" fill-rule=\"evenodd\"></path><path d=\"M9.212 12.196c.755 0 1.366.67 1.366 1.497 0 .826-.611 1.498-1.366 1.498-.754 0-1.366-.672-1.366-1.498 0-.126.015-.247.042-.364a.505.505 0 00.967-.2.503.503 0 00-.613-.492c.248-.273.592-.441.97-.441z\" fill=\"#36124C\"></path><path clip-rule=\"evenodd\" d=\"M8.882 11c1.484 0 2.69 1.2 2.69 2.68a2.686 2.686 0 01-2.69 2.683 2.686 2.686 0 01-2.688-2.682 2.686 2.686 0 012.688-2.682zm0 .503a2.182 2.182 0 00-2.184 2.178c0 1.201.978 2.177 2.184 2.178a2.182 2.182 0 002.186-2.178 2.182 2.182 0 00-2.186-2.178z\" fill=\"#36124C\" fill-rule=\"evenodd\"></path><path d=\"M15.468 12.196c.755 0 1.366.67 1.366 1.497 0 .827-.611 1.498-1.366 1.498-.754 0-1.366-.672-1.366-1.498 0-.126.015-.247.042-.364a.505.505 0 00.967-.2.504.504 0 00-.613-.492c.248-.273.591-.441.97-.441z\" fill=\"#36124C\"></path><path clip-rule=\"evenodd\" d=\"M15.135 11c1.484 0 2.688 1.2 2.688 2.68a2.686 2.686 0 01-2.688 2.683c-1.484 0-2.69-1.2-2.69-2.682a2.686 2.686 0 012.69-2.682zm0 .503a2.182 2.182 0 00-2.185 2.178c0 1.201.978 2.178 2.185 2.178a2.182 2.182 0 002.185-2.178 2.182 2.182 0 00-2.185-2.178z\" fill=\"#36124C\" fill-rule=\"evenodd\"></path><path clip-rule=\"evenodd\" d=\"M4.686 1.114c2.797-.44 6.114.404 6.948 3.487.003.012.005.012.009 0a10.23 10.23 0 00.223-2.314.308.308 0 01.09-.23c.335-.344.732-.484 1.194-.416.36.052.372.222.347.532a16.06 16.06 0 01-.572 3.107.019.019 0 00.008.021c.002.002.005.002.009.002 4.45.406 7.649 3.817 7.948 8.224 0 .007.003.013.006.02.004.005.009.01.014.013.181.105.298.108.426.317.244.4.07.981-.413 1.08a.084.084 0 00-.066.069c-.294 2.412-1.334 4.388-3.117 5.924a8.615 8.615 0 01-4.982 2.032c-4.832.329-8.883-3.15-9.39-7.95a.038.038 0 00-.006-.018.04.04 0 00-.017-.012c-.088-.033-.2-.051-.274-.098-.605-.376-.426-1.208.252-1.362a.027.027 0 00.017-.01.027.027 0 00.008-.016c.208-2.624 1.309-4.779 3.302-6.463a.018.018 0 00.006-.014.018.018 0 00-.01-.012c-.197-.12-.414-.227-.593-.357a9.223 9.223 0 01-.905-.746c-.141-.132-.179-.283.027-.373a.024.024 0 00.014-.028c-.434-1.304-.654-2.616-.793-4.006a2.135 2.135 0 01-.014-.303c0-.007.003-.014.006-.02a.036.036 0 01.017-.012c.067-.027.16-.05.28-.068zm7.975 4.988a.026.026 0 00-.008.01c-.15.411-.332.81-.546 1.193-.2.355-.392.744-.758.791a1.719 1.719 0 01-1.129-.269c-.148-.234.1-.412.262-.537a.028.028 0 00.01-.033.406.406 0 00-.169-.185.04.04 0 00-.04 0c-.803.479-1.66.517-2.56.335a.167.167 0 00-.137.03c-1.972 1.484-3.09 3.468-3.355 5.949-.023.206-.052.347-.087.424-.143.302-.375.377-.685.455-.014.004-.014.007 0 .01.446.112.707.296.774.789.408 3 2.356 5.658 5.315 6.641.173.066.35.122.53.168 4.46 1.148 8.726-1.615 9.764-6.004.052-.216.106-.522.165-.915.054-.355.275-.582.634-.651.02-.005.092-.037.014-.048-.388-.055-.59-.307-.626-.679a10.9 10.9 0 00-.12-.914c-.568-3.067-2.716-5.5-5.745-6.311a9.136 9.136 0 00-1.492-.251c-.004 0-.008 0-.01.002zM11 6.488a.588.588 0 00-.19.138.061.061 0 00-.01.02.038.038 0 000 .02.14.14 0 00.06.085.024.024 0 00.017.003.026.026 0 00.018-.009.533.533 0 00.12-.244c.004-.015-.001-.02-.015-.013zM5.274 1.903c.063.84.198 1.67.403 2.487.221.879.663 1.64 1.534 2.01a3.685 3.685 0 002.587.136.029.029 0 00.02-.03.032.032 0 00-.005-.013c-.2-.27-.413-.533-.636-.786l-.436-.493a.031.031 0 00-.016-.01.04.04 0 00-.02 0 1.92 1.92 0 01-1.113-.04c-.28-.183-.037-.264.124-.278.19-.018.379-.058.565-.121.002 0 .005-.003.006-.004a.011.011 0 00.004-.006c.001-.004 0-.01-.004-.014C7.351 3.726 6.325 2.81 5.29 1.897c-.011-.01-.018-.009-.016.006zm.249-.1c-.02 0-.022.008-.006.02l3.056 2.56c.003.003.01.004.014.003a.011.011 0 00.007-.003 2.235 2.235 0 00.162-.634c0-.007.003-.014.006-.02a.049.049 0 01.014-.017c.141-.118.197.023.225.138.075.303.077.619.009.923a.074.074 0 00.021.068l.46.419v.002l.917.93c.005.003.01.005.016.005l.008-.001a.036.036 0 00.008-.006c.348-.399.467-.85.358-1.352-.22-1.001-.896-1.809-1.795-2.323-1.014-.609-2.305-.763-3.48-.712z\" fill=\"#36124C\" fill-rule=\"evenodd\"></path><defs><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-pruna-ai-1-_R_0_\" x1=\"17.021\" x2=\"8.931\" y1=\"22.37\" y2=\"7.457\"><stop stop-color=\"#6B21A8\"></stop><stop offset=\"1\" stop-color=\"#8636C9\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-pruna-ai-2-_R_0_\" x1=\"6.472\" x2=\"8.833\" y1=\"1.89\" y2=\"6.601\"><stop stop-color=\"#8FD376\"></stop><stop offset=\"1\" stop-color=\"#80C567\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-pruna-ai-3-_R_0_\" x1=\"6.472\" x2=\"8.833\" y1=\"1.89\" y2=\"6.601\"><stop stop-color=\"#8FD376\"></stop><stop offset=\"1\" stop-color=\"#80C567\"></stop></linearGradient><radialGradient cx=\"0\" cy=\"0\" gradientTransform=\"matrix(9.00763 0 0 8.63477 7.129 14.847)\" gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-pruna-ai-0-_R_0_\" r=\"1\"><stop stop-color=\"#AC51FF\"></stop><stop offset=\"1\" stop-color=\"#9B36F6\"></stop></radialGradient></defs>", "briaai-color": "<path d=\"M14.879 9.74a.074.074 0 00-.053.023.076.076 0 00-.021.053v4.895a.655.655 0 01-.053.257c-.13.3-.252.543-.368.727-1.267 1.998-3.04 3.203-5.32 3.616-3.473.628-6.933-1.225-8.389-4.445-1.486-3.284-.45-7.205 2.429-9.33C7.482 2.303 13.726 4.408 15.2 9.666a.061.061 0 01-.01.052.059.059 0 01-.046.023h-.265zm-6.88 2.508c.49-.188.734-.56.73-1.119-.004-.665-.35-1.085-.964-1.304-.156-.055-.4-.082-.734-.08-1.183.002-1.996.002-2.437 0a.065.065 0 00-.045.019.063.063 0 00-.02.044v5.049c0 .011.005.023.014.03.008.01.02.014.031.014 1.024.015 1.95.013 2.777-.007.908-.022 1.573-.56 1.522-1.528-.03-.573-.32-.933-.87-1.078a.022.022 0 01-.017-.02.02.02 0 01.014-.02zm6.239 2.659a.042.042 0 00.037-.025.041.041 0 00-.006-.044l-1.51-1.699a.047.047 0 01.022-.077c.927-.266 1.345-.887 1.256-1.865-.09-.984-.96-1.465-1.87-1.456-.604.005-1.438.005-2.504 0a.075.075 0 00-.076.075v5.042c0 .013.005.026.014.035a.05.05 0 00.036.014h1.174c.01 0 .021-.004.029-.011a.04.04 0 00.012-.029v-1.639a.078.078 0 01.066-.076c.181-.03.31 0 .386.089.24.277.72.81 1.44 1.602a.195.195 0 00.145.064h1.349z\" fill=\"#5300C9\"></path><path d=\"M16.86 13.848a4.026 4.026 0 01-.741-.899.323.323 0 01-.047-.168V9.775a.035.035 0 00-.035-.035h-.34a.079.079 0 01-.076-.1c1.002-3.64 5.843-4.366 7.793-1.09 1.161 1.952.55 4.596-1.42 5.783a.08.08 0 01-.097-.01.08.08 0 01-.02-.028L19.975 9.78a.069.069 0 00-.063-.042h-1.185a.111.111 0 00-.102.068l-1.663 4.019a.065.065 0 01-.076.037.063.063 0 01-.027-.014z\" fill=\"#8900FF\"></path><path d=\"M5.794 10.851a.073.073 0 01.073-.073l1.054.003c.152 0 .298.058.405.16a.522.522 0 01.167.38v.036a.51.51 0 01-.17.38.578.578 0 01-.406.157l-1.053-.004a.073.073 0 01-.074-.073l.004-.966zM10.859 10.907a.07.07 0 01.07-.07l1.168.003c.183 0 .36.06.49.169a.53.53 0 01.202.406v.1a.49.49 0 01-.053.22.582.582 0 01-.15.187.718.718 0 01-.226.124.817.817 0 01-.265.043l-1.168-.002a.07.07 0 01-.07-.07l.002-1.11z\" fill=\"#5300C9\"></path><path d=\"M18.69 12.834l.585-1.55a.035.035 0 01.013-.016.034.034 0 01.039 0c.005.004.01.01.012.016l.596 1.546a.036.036 0 01-.004.032.037.037 0 01-.012.01.034.034 0 01-.016.005l-1.18.004a.035.035 0 01-.029-.014.034.034 0 01-.004-.033z\" fill=\"#8900FF\"></path><path d=\"M5.79 12.82a.066.066 0 01.066-.067l1.152.004c.076 0 .15.014.22.04.07.026.133.065.186.113a.516.516 0 01.124.168.47.47 0 01.043.198v.1a.49.49 0 01-.17.364.61.61 0 01-.406.149l-1.153-.004a.066.066 0 01-.066-.067l.004-.998z\" fill=\"#5300C9\"></path><path d=\"M18.03 14.62a.05.05 0 01-.03-.046.05.05 0 01.004-.019l.196-.474a.175.175 0 01.16-.107h1.97a.075.075 0 01.068.046l.322.765a.06.06 0 01-.018.071.06.06 0 01-.024.011 4.312 4.312 0 01-2.647-.247z\" fill=\"#8900FF\"></path><path d=\"M17.885 19.057a1.726 1.726 0 100-3.45 1.726 1.726 0 000 3.45z\" fill=\"#D90067\"></path>", "sync": "<path d=\"M12.38 15.993v3.972c-5.181 0-9.38-2.687-9.38-5.99 0-.696.187-1.363.53-1.985 1.285 2.33 4.761 4.003 8.85 4.003zM12.38 0v4.035c-4.074 0-7.54 1.65-8.835 3.96A4.113 4.113 0 013 5.979C3 2.676 7.199 0 12.38 0zM5.396 9.99c-.814.576-1.453 1.254-1.866 2.001A4.084 4.084 0 013 10.004c0-.696.192-1.382.544-2.01.413.742 1.048 1.419 1.853 1.995zm0 0c1.717-1.217 4.21-1.982 6.982-1.982v3.993c-2.774 0-5.265-.78-6.982-2.012zM12.38 8.007V4.035c5.18 0 9.378 2.687 9.378 5.99 0 .696-.187 1.363-.53 1.985-1.285-2.33-4.761-4.003-8.849-4.003zm0 15.993v-4.035c4.072 0 7.538-1.65 8.834-3.96.352.632.544 1.311.544 2.016 0 3.303-4.199 5.979-9.379 5.979zm6.982-9.99c.814-.576 1.453-1.254 1.866-2.001.343.622.53 1.29.53 1.987 0 .696-.192 1.382-.543 2.01-.414-.742-1.048-1.419-1.853-1.995zm0 0c-1.718 1.217-4.21 1.982-6.983 1.982v-3.993c2.774 0 5.265.78 6.983 2.012z\"></path>", "wavespeed": "<path d=\"m8.038 11.729 2.58-4.469a2.4 2.4 0 0 1 2.074-1.197h2.586c.409 0 .741.332.741.741v4.925l2.58-4.469a2.4 2.4 0 0 1 2.074-1.197h2.586c.409 0 .741.332.741.741v4.219a.74.74 0 0 1-.741.741h-.677l-3.038 5.26a1.823 1.823 0 0 1-2.491.668l-2.217-1.279a1.83 1.83 0 0 1-.912-1.58v-1.897l-2.36 4.088a1.824 1.824 0 0 1-2.492.668l-2.217-1.279a1.83 1.83 0 0 1-.912-1.58v-1.897l-.907 1.571a.74.74 0 0 1-1.012.271L.371 12.669a.74.74 0 0 1-.272-1.013L2.637 7.26a2.4 2.4 0 0 1 2.074-1.197h2.586c.409 0 .741.332.741.741z\"></path>", "recraft": "<path d=\"M19.667 8.275c0-4.57-4.15-8.275-9.27-8.275-1.774 0-3.213 3.705-3.213 8.275 0 1.143.09 2.233.253 3.224H4.29L1 23h9.4v-6.447c5.117 0 9.266-3.707 9.266-8.275l.001-.002zm-9.27-6.76c.93 0 1.682 3.028 1.682 6.76 0 3.733-.752 6.76-1.681 6.76-.93 0-1.681-3.027-1.681-6.76 0-3.732.752-6.76 1.68-6.76z\"></path><path d=\"M19.848 16.552h-9.44L14.028 23h9.438l-3.618-6.448z\"></path>", "ace": "<path d=\"M5.376 11.188a.1.1 0 00.07-.006.016.016 0 00.005-.008.016.016 0 00.001-.01.017.017 0 00-.005-.008.017.017 0 00-.008-.004 4.956 4.956 0 01-1.652-.442A5.61 5.61 0 011.982 1.81c.54-.6 1.224-1.072 2.05-1.415a2.59 2.59 0 01.456-.146c.036-.007.161-.038.376-.091 1.054-.266 2.115-.194 3.182.214 1.938.74 3.226 2.33 3.582 4.381.043.249.063.7.061 1.353-.004 1.748-.004 2.783.001 3.105.007.429-.018.724-.073.886-.411 1.21-2.011 1.517-2.787.484a.085.085 0 00-.107-.024 5.365 5.365 0 01-2.671.636c-.225-.004-.45-.005-.676-.004zm3.116-5.58a2.398 2.398 0 10-4.795 0 2.398 2.398 0 004.795 0zM17.922.094a.126.126 0 00-.067 0h-.002v.002h.002c1.624-.264 3.092.086 4.405 1.05.35.256.771.622.923 1.02.331.87-.064 1.816-.954 2.12-.489.167-.945.116-1.37-.153-.226-.143-.456-.407-.702-.557-.744-.448-1.533-.487-2.369-.116a.166.166 0 00-.032.02l-.506.357a.433.433 0 00-.06.053c-.447.485-.68 1.026-.697 1.623-.018.577.128 1.075.438 1.494.327.443.753.744 1.279.902.649.195 1.276.12 1.88-.225.121-.068.266-.18.435-.334.219-.197.362-.31.43-.342.782-.352 1.676-.184 2.144.588.018.03.03.062.038.097l.057.25c.111.459.096.846-.047 1.162-.107.238-.336.506-.689.803a6.141 6.141 0 01-1.247.79c-.24.12-.417.196-.53.233a5.767 5.767 0 01-2.177.26c-4.12-.276-6.528-4.79-4.467-8.374.359-.625.766-1.121 1.22-1.49a6.12 6.12 0 011.347-.854c.381-.17.82-.286 1.315-.35a.016.016 0 00.013-.014c0-.004 0-.007-.002-.01a.013.013 0 00-.008-.005zM.98 16.179a5.18 5.18 0 011.32-1.89 7.262 7.262 0 011.08-.818.318.318 0 01.071-.031c.151-.046.306-.116.465-.21a.192.192 0 01.083-.027c.092-.007.153-.026.184-.058a.159.159 0 01.063-.04c.258-.09.447-.147.57-.17a8.22 8.22 0 011.067-.117c3.163-.176 5.852 2.483 5.801 5.632-.014.837-.705 1.54-1.546 1.538l-2.23.013c-.487.002-.804-.022-.95-.072-.542-.184-1.01-.693-1.078-1.274-.08-.69.16-1.163.684-1.615a.353.353 0 01.095-.059c.35-.152.729-.21 1.134-.173a.045.045 0 00.046-.027.047.047 0 00-.011-.053c-.719-.661-1.52-.87-2.403-.627-.662.183-1.272.717-1.52 1.32-.345.844-.266 1.632.236 2.365.36.523.992.918 1.588.981.356.038.72.033 1.014.17 1.327.621 1.25 2.551-.173 2.99-.275.085-.653.096-1.134.034a5.584 5.584 0 01-3.338-1.643 1.753 1.753 0 01-.204-.242c-.083-.12-.2-.195-.28-.314-.325-.472-.556-.882-.692-1.228-.567-1.445-.563-2.878.014-4.3.016-.038.03-.056.043-.055z\"></path>", "gemini-color": "<path d=\"M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z\" fill=\"#3186FF\"></path><path d=\"M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z\" fill=\"url(#lobe-icons-gemini-0-_R_0_)\"></path><path d=\"M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z\" fill=\"url(#lobe-icons-gemini-1-_R_0_)\"></path><path d=\"M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z\" fill=\"url(#lobe-icons-gemini-2-_R_0_)\"></path><defs><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-gemini-0-_R_0_\" x1=\"7\" x2=\"11\" y1=\"15.5\" y2=\"12\"><stop stop-color=\"#08B962\"></stop><stop offset=\"1\" stop-color=\"#08B962\" stop-opacity=\"0\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-gemini-1-_R_0_\" x1=\"8\" x2=\"11.5\" y1=\"5.5\" y2=\"11\"><stop stop-color=\"#F94543\"></stop><stop offset=\"1\" stop-color=\"#F94543\" stop-opacity=\"0\"></stop></linearGradient><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-gemini-2-_R_0_\" x1=\"3.5\" x2=\"17.5\" y1=\"13.5\" y2=\"12\"><stop stop-color=\"#FABC12\"></stop><stop offset=\".46\" stop-color=\"#FABC12\" stop-opacity=\"0\"></stop></linearGradient></defs>", "xai": "<path d=\"M6.469 8.776L16.512 23h-4.464L2.005 8.776H6.47zm-.004 7.9l2.233 3.164L6.467 23H2l4.465-6.324zM22 2.582V23h-3.659V7.764L22 2.582zM22 1l-9.952 14.095-2.233-3.163L17.533 1H22z\"></path>", "lightricks": "<path d=\"M19.667 13.243c.003 0 .003 0 0 0 .542-1.219.934-2.374 1.084-3.342.192-1.237.008-2.213-.552-2.903-.67-.827-1.714-1.057-2.756-1.065-.766 0-1.663.133-2.621.358C14.147 3.695 12.762 0 10.162 0 7.157 0 4.773 5.317 3.378 9.996 2.867 11.716 2 15.134 2 16.813 2 20.775 5.133 24 8.984 24c4.36 0 12.7-2.8 12.7-7.187 0-1.355-.793-2.553-2.017-3.57zm-2.23-5.72c.543.004 1.277.076 1.61.52.302.404.273 1.097.194 1.605-.138.894-.495 1.876-.845 2.7a16.88 16.88 0 00-2.71-1.325 39.005 39.005 0 00-.51-3.19c.838-.196 1.612-.31 2.262-.31zm-1.576 5.265c.65.284 1.267.596 1.872.974a32.689 32.689 0 01-1.753 3.028c.039-1.03.01-2.435-.119-4.002zm-1.783-2.317c-1.402-.42-2.801-.693-4.018-.797A30.579 30.579 0 0113.7 8.24c.149.733.274 1.485.378 2.23zM5.897 7.292c1.402-3.572 3-5.703 4.274-5.703 1.633 0 2.747 3.473 3.175 5.108A31.777 31.777 0 008.582 8.64c-1.48.744-2.966 1.738-3.97 2.573.314-1.272.98-3.137 1.285-3.922zm3.05 15.119c-2.99-.02-5.415-2.525-5.415-5.598 0-3.09 2.446-5.601 5.454-5.601 1.547 0 3.478.365 5.296.97.2 2.05.24 3.928.138 5.121-.256 3.002-2.813 5.1-5.473 5.108zm7.244-1.722c-.586.27-1.207.516-1.845.73 1.542-1.637 3.321-4.213 4.624-6.727.766.703 1.183 1.428 1.183 2.12.002 1.301-1.444 2.714-3.962 3.877z\"></path>", "deepseek-color": "<path d=\"M23.748 4.482c-.254-.124-.364.113-.512.234-.051.039-.094.09-.137.136-.372.397-.806.657-1.373.626-.829-.046-1.537.214-2.163.848-.133-.782-.575-1.248-1.247-1.548-.352-.156-.708-.311-.955-.65-.172-.241-.219-.51-.305-.774-.055-.16-.11-.323-.293-.35-.2-.031-.278.136-.356.276-.313.572-.434 1.202-.422 1.84.027 1.436.633 2.58 1.838 3.393.137.093.172.187.129.323-.082.28-.18.552-.266.833-.055.179-.137.217-.329.14a5.526 5.526 0 01-1.736-1.18c-.857-.828-1.631-1.742-2.597-2.458a11.365 11.365 0 00-.689-.471c-.985-.957.13-1.743.388-1.836.27-.098.093-.432-.779-.428-.872.004-1.67.295-2.687.684a3.055 3.055 0 01-.465.137 9.597 9.597 0 00-2.883-.102c-1.885.21-3.39 1.102-4.497 2.623C.082 8.606-.231 10.684.152 12.85c.403 2.284 1.569 4.175 3.36 5.653 1.858 1.533 3.997 2.284 6.438 2.14 1.482-.085 3.133-.284 4.994-1.86.47.234.962.327 1.78.397.63.059 1.236-.03 1.705-.128.735-.156.684-.837.419-.961-2.155-1.004-1.682-.595-2.113-.926 1.096-1.296 2.746-2.642 3.392-7.003.05-.347.007-.565 0-.845-.004-.17.035-.237.23-.256a4.173 4.173 0 001.545-.475c1.396-.763 1.96-2.015 2.093-3.517.02-.23-.004-.467-.247-.588zM11.581 18c-2.089-1.642-3.102-2.183-3.52-2.16-.392.024-.321.471-.235.763.09.288.207.486.371.739.114.167.192.416-.113.603-.673.416-1.842-.14-1.897-.167-1.361-.802-2.5-1.86-3.301-3.307-.774-1.393-1.224-2.887-1.298-4.482-.02-.386.093-.522.477-.592a4.696 4.696 0 011.529-.039c2.132.312 3.946 1.265 5.468 2.774.868.86 1.525 1.887 2.202 2.891.72 1.066 1.494 2.082 2.48 2.914.348.292.625.514.891.677-.802.09-2.14.11-3.054-.614zm1-6.44a.306.306 0 01.415-.287.302.302 0 01.2.288.306.306 0 01-.31.307.303.303 0 01-.304-.308zm3.11 1.596c-.2.081-.399.151-.59.16a1.245 1.245 0 01-.798-.254c-.274-.23-.47-.358-.552-.758a1.73 1.73 0 01.016-.588c.07-.327-.008-.537-.239-.727-.187-.156-.426-.199-.688-.199a.559.559 0 01-.254-.078c-.11-.054-.2-.19-.114-.358.028-.054.16-.186.192-.21.356-.202.767-.136 1.146.016.352.144.618.408 1.001.782.391.451.462.576.685.914.176.265.336.537.445.848.067.195-.019.354-.25.452z\" fill=\"#4D6BFE\"></path>", "moonshot": "<path d=\"M1.052 16.916l9.539 2.552a21.007 21.007 0 00.06 2.033l5.956 1.593a11.997 11.997 0 01-5.586.865l-.18-.016-.044-.004-.084-.009-.094-.01a11.605 11.605 0 01-.157-.02l-.107-.014-.11-.016a11.962 11.962 0 01-.32-.051l-.042-.008-.075-.013-.107-.02-.07-.015-.093-.019-.075-.016-.095-.02-.097-.023-.094-.022-.068-.017-.088-.022-.09-.024-.095-.025-.082-.023-.109-.03-.062-.02-.084-.025-.093-.028-.105-.034-.058-.019-.08-.026-.09-.031-.066-.024a6.293 6.293 0 01-.044-.015l-.068-.025-.101-.037-.057-.022-.08-.03-.087-.035-.088-.035-.079-.032-.095-.04-.063-.028-.063-.027a5.655 5.655 0 01-.041-.018l-.066-.03-.103-.047-.052-.024-.096-.046-.062-.03-.084-.04-.086-.044-.093-.047-.052-.027-.103-.055-.057-.03-.058-.032a6.49 6.49 0 01-.046-.026l-.094-.053-.06-.034-.051-.03-.072-.041-.082-.05-.093-.056-.052-.032-.084-.053-.061-.039-.079-.05-.07-.047-.053-.035a7.785 7.785 0 01-.054-.036l-.044-.03-.044-.03a6.066 6.066 0 01-.04-.028l-.057-.04-.076-.054-.069-.05-.074-.054-.056-.042-.076-.057-.076-.059-.086-.067-.045-.035-.064-.052-.074-.06-.089-.073-.046-.039-.046-.039a7.516 7.516 0 01-.043-.037l-.045-.04-.061-.053-.07-.062-.068-.06-.062-.058-.067-.062-.053-.05-.088-.084a13.28 13.28 0 01-.099-.097l-.029-.028-.041-.042-.069-.07-.05-.051-.05-.053a6.457 6.457 0 01-.168-.179l-.08-.088-.062-.07-.071-.08-.042-.049-.053-.062-.058-.068-.046-.056a7.175 7.175 0 01-.027-.033l-.045-.055-.066-.082-.041-.052-.05-.064-.02-.025a11.99 11.99 0 01-1.44-2.402zm-1.02-5.794l11.353 3.037a20.468 20.468 0 00-.469 2.011l10.817 2.894a12.076 12.076 0 01-1.845 2.005L.657 15.923l-.016-.046-.035-.104a11.965 11.965 0 01-.05-.153l-.007-.023a11.896 11.896 0 01-.207-.741l-.03-.126-.018-.08-.021-.097-.018-.081-.018-.09-.017-.084-.018-.094c-.026-.141-.05-.283-.071-.426l-.017-.118-.011-.083-.013-.102a12.01 12.01 0 01-.019-.161l-.005-.047a12.12 12.12 0 01-.034-2.145zm1.593-5.15l11.948 3.196c-.368.605-.705 1.231-1.01 1.875l11.295 3.022c-.142.82-.368 1.612-.668 2.365l-11.55-3.09L.124 10.26l.015-.1.008-.049.01-.067.015-.087.018-.098c.026-.148.056-.295.088-.442l.028-.124.02-.085.024-.097c.022-.09.045-.18.07-.268l.028-.102.023-.083.03-.1.025-.082.03-.096.026-.082.031-.095a11.896 11.896 0 011.01-2.232zm4.442-4.4L17.352 4.59a20.77 20.77 0 00-1.688 1.721l7.823 2.093c.267.852.442 1.744.513 2.665L2.106 5.213l.045-.065.027-.04.04-.055.046-.065.055-.076.054-.072.064-.086.05-.065.057-.073.055-.07.06-.074.055-.069.065-.077.054-.066.066-.077.053-.06.072-.082.053-.06.067-.074.054-.058.073-.078.058-.06.063-.067.168-.17.1-.098.059-.056.076-.071a12.084 12.084 0 012.272-1.677zM12.017 0h.097l.082.001.069.001.054.002.068.002.046.001.076.003.047.002.06.003.054.002.087.005.105.007.144.011.088.007.044.004.077.008.082.008.047.005.102.012.05.006.108.014.081.01.042.006.065.01.207.032.07.012.065.011.14.026.092.018.11.022.046.01.075.016.041.01L14.7.3l.042.01.065.015.049.012.071.017.096.024.112.03.113.03.113.032.05.015.07.02.078.024.073.023.05.016.05.016.076.025.099.033.102.036.048.017.064.023.093.034.11.041.116.045.1.04.047.02.06.024.041.018.063.026.04.018.057.025.11.048.1.046.074.035.075.036.06.028.092.046.091.045.102.052.053.028.049.026.046.024.06.033.041.022.052.029.088.05.106.06.087.051.057.034.053.032.096.059.088.055.098.062.036.024.064.041.084.056.04.027.062.042.062.043.023.017c.054.037.108.075.161.114l.083.06.065.048.056.043.086.065.082.064.04.03.05.041.086.069.079.065.085.071c.712.6 1.353 1.283 1.909 2.031L7.222.994l.062-.027.065-.028.081-.034.086-.035c.113-.045.227-.09.341-.131l.096-.035.093-.033.084-.03.096-.031c.087-.03.176-.058.264-.085l.091-.027.086-.025.102-.03.085-.023.1-.026L9.04.37l.09-.023.091-.022.095-.022.09-.02.098-.021.091-.02.095-.018.092-.018.1-.018.091-.016.098-.017.092-.014.097-.015.092-.013.102-.013.091-.012.105-.012.09-.01.105-.01c.093-.01.186-.018.28-.024l.106-.008.09-.005.11-.006.093-.004.1-.004.097-.002.099-.002.197-.002z\"></path>", "vidu-color": "<path d=\"M20.607 2.247c-2.917-.966-5.426 1.084-6.011 2.96 0 0-2.105 6.76-3.002 9.58-.428 1.346-1.489 3.548-3.487 3.548-1.627 0-2.463-1.527-2.816-2.437L2.865 9.431c-.281-.681.013-2.04 1.14-2.447 1.204-.432 1.978.575 2.178 1.11l3.022 7.74c.72-.928 1.178-2.438 1.476-3.507l-1.984-5.21C7.756 4.686 5.267 3.58 2.962 4.43 1.095 5.118-.702 7.474.275 10.435l2.504 6.44c.38.976 1.881 4.163 5.275 4.163 4.073 0 5.601-3.473 6.449-6.218.424-1.373 2.749-8.797 2.749-8.797.338-1.109 1.71-1.428 2.568-1.148.605.196 1.698 1.031 1.345 2.325-.066.236-1.92 6.209-2.604 8.026-.357.948-1.262 3.006-3.324 2.72-.628 1.39-1.15 2.199-1.94 2.925 2.572 1.218 6.32-.009 7.898-4.776.586-1.773 2.644-8.166 2.644-8.166.598-1.963-.469-4.768-3.232-5.682z\" fill=\"url(#lobe-icons-vidu-_R_0_)\"></path><defs><linearGradient gradientUnits=\"userSpaceOnUse\" id=\"lobe-icons-vidu-_R_0_\" x1=\".759\" x2=\"26.155\" y1=\"5.637\" y2=\"17.311\"><stop stop-color=\"#40EDD8\"></stop><stop offset=\".024\" stop-color=\"#38E7E2\"></stop><stop offset=\".084\" stop-color=\"#28DAF7\"></stop><stop offset=\".124\" stop-color=\"#22D5FF\"></stop><stop offset=\".36\" stop-color=\"#1ABFFF\"></stop><stop offset=\".85\" stop-color=\"#0786FE\"></stop><stop offset=\".909\" stop-color=\"#047FFE\"></stop></linearGradient></defs>", "runway": "<path d=\"M17.86 22.992c-2.669.245-4.887-2.876-6.597-4.454C10.398 24.759 1 24.177 1 17.86V6.15c0-.921.244-1.861.733-2.65C2.635 1.977 4.383.98 6.15 1h11.71c6.316 0 6.918 9.398.677 10.243l2.97 2.951c3.252 3.064.808 8.929-3.646 8.797zm-1.428-3.721c1.842 1.898 4.774-1.034 2.876-2.876l-5.132-5.132H11.3v2.876l4.436 4.436.696.696zM4.12 17.842c-.037 2.632 4.117 2.632 4.06 0V6.132c.038-1.316-1.353-2.35-2.612-1.955-.057.019-.113.037-.15.056-.79.301-1.335 1.09-1.317 1.936v11.673h.02zm13.74-9.68c2.632.037 2.632-4.098 0-4.06h-6.973c.526 1.109.395 2.857.413 4.06h6.56z\"></path>"}, LO={"anthropic": "claude-color", "openai": "openai", "google": "gemini-color", "tripo3d": "tripo-color", "wavespeed-ai": "wavespeed", "alibaba": "alibaba-color", "wan-video": "alibaba-color", "minimax": "minimax-color", "xai": "xai", "runwayml": "runway", "bytedance": "bytedance-color", "kwaivgi": "kling-color", "luma": "luma-color", "lightricks": "lightricks", "tencent": "tencent-color", "pixverse": "pixverse-color", "vidu": "vidu-color", "sync": "sync", "nvidia": "nvidia-color", "stability-ai": "stability-color", "zai-org": "zhipu-color", "black-forest-labs": "flux", "deepseek": "deepseek-color", "meta": "meta-color", "moonshot": "moonshot", "mistral": "mistral-color", "elevenlabs": "elevenlabs", "ideogram-ai": "ideogram", "recraft-ai": "recraft", "prunaai": "prunaai-color", "bria": "briaai-color", "topazlabs": "topazlabs", "meshy": "meshy-color", "coqui": "coqui-color", "ace-step": "ace"}, IMG={};
+  art=function(k,W,H){
+    if(IMG[k])return '<img src="'+esc(IMG[k])+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">';
+    var o=k.split("/")[0], f=/nano-banana/.test(k)?"nanobanana-color":/\/qwen/.test(k)?"qwen-color":/hunyuan/.test(k)?"hunyuan-color":LO[o], L=LG[f], s=Math.min(W,H), cx=W/2, cy=H/2, big=s>=150, z=s*(big?.36:.52), y0=big?cy-z/2-s*.05:cy-z/2, g;
+    if(L)g='<svg x="'+(cx-z/2)+'" y="'+y0+'" width="'+z+'" height="'+z+'" viewBox="0 0 24 24" fill="#111">'+L+'</svg>';
+    else g='<rect x="'+(cx-z/2)+'" y="'+y0+'" width="'+z+'" height="'+z+'" rx="'+z*.22+'" fill="#111"/><text x="'+cx+'" y="'+(y0+z*.7)+'" text-anchor="middle" font-size="'+z*.55+'" font-weight="700" fill="#fff" font-family="Archivo,sans-serif">'+esc(o.charAt(0).toUpperCase())+'</text>';
+    var t=big?'<text x="'+cx+'" y="'+(y0+z+s*.11)+'" text-anchor="middle" font-size="'+s*.06+'" font-weight="600" fill="#555" font-family="Archivo,sans-serif">'+esc(o)+'</text>':'';
+    return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="'+W+'" height="'+H+'" fill="#f4f4f7"/>'+g+t+'</svg>';
+  };
+  I.play="";
+  /* stats */
+  $("f-total").textContent=M.length;
+  $("f-audio").textContent=new Set(M.map(function(m){return m[0];})).size;
+  $("f-fast").textContent=new Set(M.map(function(m){return m[4].split(" ")[0];})).size;
+
+  /* showcase */
+  var F=FEATURED.map(find), cur=0;
+  function bestFor(m){return KAT[m[4].split(" ")[0]];}
+  $("thumbs").innerHTML=F.map(function(m,i){
+    return '<button class="th" type="button" data-i="'+i+'" aria-label="'+esc(key(m))+'" aria-pressed="'+(i===0)+'">'+art(key(m),200,200)+'</button>';
+  }).join("");
+  function showSel(i){
+    cur=i; var m=F[i];
+    [].forEach.call(document.querySelectorAll(".th"),function(b){b.setAttribute("aria-pressed",String(+b.getAttribute("data-i")===i));});
+    $("bigart").innerHTML=art(key(m),320,400)+'<span class="pill">'+esc(m[6])+'</span>';
+    var d=$("det");
+    d.innerHTML=
+      '<div class="top"><div><h2>'+esc(m[1])+'</h2><div class="sub"><span class="runs">'+esc(KAT[m[4].split(" ")[0]])+'</span><span class="official" style="gap:5px">'+I.check+esc(m[7])+'</span></div></div>'+
+      '<button class="iconbtn" id="mark" type="button" aria-pressed="false" aria-label="Save this model">'+I.mark+'</button></div>'+
+      '<dl class="dl"><div><dt>Provider</dt><dd>'+avatar(m[0])+esc(m[0])+'</dd></div><div><dt>Input</dt><dd>'+esc(m[5])+'</dd></div><div><dt>Output</dt><dd>'+esc(m[6])+'</dd></div><div><dt>Status</dt><dd>'+esc(m[7])+'</dd></div></dl>'+
+      '<p class="about">'+esc(m[2])+'</p>'+
+      '<div class="best"><small>Category</small><b>'+esc(bestFor(m))+'</b></div>'+
+      '<div class="btns"><button class="btn pri" type="button" data-req="'+key(m)+'">Request this API</button></div>';
+    d.style.animation="none"; void d.offsetWidth; d.style.animation="";
+  }
+  $("thumbs").addEventListener("click",function(e){
+    var b=e.target.closest(".th"); if(!b)return;
+    var i=+b.getAttribute("data-i");
+    if(i!==cur) showSel(i);
+  });
+  $("det").addEventListener("click",function(e){
+    var b=e.target.closest("#mark"); if(!b)return;
+    b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
+  });
+  showSel(0);
+
+  /* ranked lists */
+  var top=M.slice().sort(function(a,b){return b[3]-a[3];}).slice(0,12);
+  function rk(m,i){
+    return '<a class="rk" data-k="'+key(m)+'" href="#'+slug(m[0],m[1])+'"><span class="n">'+String(i+1).padStart(2,"0")+'</span><span class="t">'+art(key(m),64,64)+'</span><span class="x"><b>'+esc(m[0])+' / '+esc(m[1])+'</b><span>'+esc(KAT[m[4].split(" ")[0]])+'</span></span></a>';
+  }
+  $("rank1").innerHTML=top.slice(0,3).map(function(m,i){return rk(m,i);}).join("");
+  $("rank2").innerHTML=top.slice(3).map(function(m,i){return rk(m,i+3);}).join("");
+
+  /* collections */
+  $("track").innerHTML=COLS.map(function(c){
+    var items=M.filter(function(m){return has(m,c[1]);});
+    var tiles=items.slice(0,4).map(function(m){return '<div>'+art(key(m),160,100)+'</div>';}).join("");
+    return '<button class="col" type="button" data-tag="'+c[1]+'"><div class="mos">'+tiles+'</div><div class="cn"><b>'+esc(c[0])+'</b><span>'+items.length+' models</span></div></button>';
+  }).join("");
+  var track=$("track"), prev=$("prev"), next=$("next");
+  function arrows(){
+    var max=track.scrollWidth-track.clientWidth-2;
+    prev.hidden=track.scrollLeft<=2; next.hidden=track.scrollLeft>=max;
+  }
+  function step(){var c=track.querySelector(".col");return c?c.getBoundingClientRect().width+20:300;}
+  next.addEventListener("click",function(){track.scrollBy({left:step()});});
+  prev.addEventListener("click",function(){track.scrollBy({left:-step()});});
+  track.addEventListener("scroll",arrows,{passive:true});
+  window.addEventListener("resize",arrows);
+  arrows();
+  track.addEventListener("click",function(e){
+    var c=e.target.closest(".col"); if(!c)return;
+    setTag(c.getAttribute("data-tag"));
+    $("explore").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+  /* explore */
+  var S={tag:"all",q:"",sort:"runs",official:false,audio:false,shown:12};
+  var grid=$("grid");
+  function list(){
+    var q=S.q.trim().toLowerCase();
+    var r=M.filter(function(m){
+      if(S.tag!=="all"&&!has(m,S.tag))return false;
+      if(S.official&&!has(m,"open"))return false;
+      if(S.audio&&!has(m,"audio"))return false;
+      if(q&&(m[0]+" "+m[1]+" "+m[2]).toLowerCase().indexOf(q)<0)return false;
+      return true;
+    });
+    r.sort(function(a,b){
+      if(S.sort==="name")return (a[0]+a[1]).localeCompare(b[0]+b[1]);
+      return b[3]-a[3];
+    });
+    return r;
+  }
+  function card(m,i){
+    var k=key(m), id=slug(m[0],m[1]), full=hash(k)%3===0;
+    var media=full
+      ?'<div class="media full"><div class="vid">'+art(k,320,400,"a")+'</div>'+I.play+'</div>'
+      :'<div class="media"><div class="vid">'+art(k,320,180,"a")+'</div>'+I.play+'</div>';
+    return '<article class="card" data-k="'+esc(k)+'" id="'+id+'" style="--i:'+i+'">'+media+
+      '<div class="info"><h3 class="title">'+avatar(m[0])+'<span class="owner">'+esc(m[0])+'</span><span class="sl">/</span><a href="#'+id+'">'+esc(m[1])+'</a></h3>'+
+      '<p class="desc">'+esc(m[2])+'</p>'+
+      '<div class="mrow"><span class="runs">'+esc(KAT[m[4].split(" ")[0]])+'</span><span class="official">'+I.check+esc(m[7])+'</span></div>'+
+      '<div class="bot"><span class="time">'+I.clock+esc(m[5]+' → '+m[6])+'</span><button class="save" type="button" aria-pressed="false" aria-label="Save '+esc(k)+'">'+I.heart+'</button></div></div></article>';
+  }
+  function render(append){
+    var all=list(), vis=all.slice(0,S.shown);
+    $("cnt").textContent=vis.length+" of "+all.length;
+    if(!all.length){grid.innerHTML='<div class="none">No APIs match your search.<br><button class="btn pri" type="button" data-any="q">Request this API anyway</button></div>';}
+    else if(append){
+      var have=grid.querySelectorAll(".card").length;
+      grid.insertAdjacentHTML("beforeend",vis.slice(have).map(function(m,i){return card(m,i);}).join(""));
+    }else{
+      grid.innerHTML=vis.map(function(m,i){return card(m,i%12);}).join("");
+    }
+    $("more").parentNode.hidden=vis.length>=all.length;
+  }
+  function setTag(t){
+    S.tag=t; S.shown=12;
+    [].forEach.call(document.querySelectorAll(".pillb"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-tag")===t));});
+    render(false);
+  }
+  $("pills").addEventListener("click",function(e){var b=e.target.closest(".pillb"); if(b)setTag(b.getAttribute("data-tag"));});
+  $("q").addEventListener("input",function(e){S.q=e.target.value;S.shown=12;render(false);});
+  $("more").addEventListener("click",function(){S.shown+=8;render(true);});
+  grid.addEventListener("click",function(e){
+    var b=e.target.closest(".save"); if(!b)return;
+    b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
+  });
+  /* filter and sort menu */
+  var pop=$("pop"), fsb=$("fsb");
+  function togglePop(open){pop.hidden=!open;fsb.setAttribute("aria-expanded",String(open));}
+  fsb.addEventListener("click",function(e){e.stopPropagation();togglePop(pop.hidden);});
+  pop.addEventListener("click",function(e){e.stopPropagation();});
+  document.addEventListener("click",function(){togglePop(false);});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")togglePop(false);});
+  $("f-off").addEventListener("change",function(e){S.official=e.target.checked;S.shown=12;render(false);});
+  $("f-aud").addEventListener("change",function(e){S.audio=e.target.checked;S.shown=12;render(false);});
+  $("sorts").addEventListener("click",function(e){
+    var b=e.target.closest(".opt"); if(!b)return;
+    S.sort=b.getAttribute("data-s"); S.shown=12;
+    [].forEach.call(document.querySelectorAll(".opt"),function(o){o.setAttribute("aria-checked",String(o===b));});
+    render(false);
+  });
+  render(false);
+
+  /* request card: one card, up to 2 APIs, provider required */
+  var mdl=$("mdl"), mb=$("mbody");
+  var PN={anthropic:"Anthropic",openai:"OpenAI",google:"Google","wavespeed-ai":"WaveSpeed",xai:"xAI",runwayml:"Runway",kwaivgi:"Kling (Kuaishou)",bytedance:"ByteDance",tripo3d:"Tripo 3D","black-forest-labs":"Black Forest Labs",minimax:"MiniMax",alibaba:"Alibaba",tencent:"Tencent","stability-ai":"Stability AI",deepseek:"DeepSeek",meta:"Meta",mistral:"Mistral AI",moonshot:"Moonshot AI","zai-org":"Zhipu AI",lightricks:"Lightricks",prunaai:"Pruna AI","ideogram-ai":"Ideogram","recraft-ai":"Recraft",elevenlabs:"ElevenLabs",topazlabs:"Topaz Labs",luma:"Luma AI",vidu:"Vidu",pixverse:"PixVerse",nvidia:"NVIDIA",bria:"Bria",meshy:"Meshy"};
+  var CATL={llm:"Language (LLM)",image:"Image",video:"Video",speech:"Voice and music","3d":"3D",tool:"Editing tool"};
+  function pn(o){return PN[o]||o.replace(/[-_]/g," ").replace(/\b\w/g,function(c){return c.toUpperCase();});}
+  var owners=[]; M.forEach(function(m){if(owners.indexOf(m[0])<0)owners.push(m[0]);});
+  var PD='<datalist id="provs">'+owners.map(pn).sort().map(function(p){return '<option value="'+esc(p)+'">';}).join("")+'</datalist>';
+  function ownerOf(v){v=v.trim().toLowerCase();for(var i=0;i<owners.length;i++){if(pn(owners[i]).toLowerCase()===v||owners[i]===v)return owners[i];}}
+  function modelOf(p,v){v=v.trim().toLowerCase();var o=ownerOf(p);if(p.trim()&&!o)return;for(var i=0;i<M.length;i++){if(M[i][1].toLowerCase()===v&&(!o||M[i][0]===o))return M[i];}}
+  function q(n){return $("rf").querySelector('[name="'+n+'"]');}
+  function row(i){
+    return '<div class="apirow"><h4>'+(i===1?'API 1':'API 2 (optional)')+'</h4><div class="g2"><label class="fl">Provider'+(i===1?' *':'')+'<input name="p'+i+'" list="provs" autocomplete="off" placeholder="e.g. Anthropic, OpenAI, Google"'+(i===1?' required':'')+'></label><label class="fl">API or model name'+(i===1?' *':'')+'<input name="m'+i+'" list="mods'+i+'" autocomplete="off" placeholder="e.g. claude-opus-5-5"'+(i===1?' required':'')+'></label></div><label class="fl">Type<select name="t'+i+'"><option value="">Select type</option>'+Object.keys(CATL).map(function(k){return '<option value="'+k+'">'+CATL[k]+'</option>';}).join("")+'<option value="other">Other</option></select></label><div class="st" id="st'+i+'"></div><datalist id="mods'+i+'"></datalist></div>';
+  }
+  function sync(i){
+    var p=q("p"+i).value, mv=q("m"+i).value, o=ownerOf(p), m=modelOf(p,mv), st=$("st"+i);
+    $("mods"+i).innerHTML=M.filter(function(x){return !p.trim()||!o||x[0]===o;}).map(function(x){return '<option value="'+esc(x[1])+'">';}).join("");
+    if(m){if(!p.trim())q("p"+i).value=pn(m[0]);q("t"+i).value=m[4].split(" ")[0];st.innerHTML='<b>In catalog</b> · '+esc(pn(m[0])+" / "+m[1]+" · "+m[7]+" · "+m[5]+" → "+m[6]);}
+    else if(p.trim()||mv.trim())st.innerHTML='<b>Custom request</b> · not in the catalog, our team will review it';
+    else st.textContent="";
+  }
+  function openReq(first){
+    mb.innerHTML='<h2 id="mt">Request API access</h2><p class="ms">One request, up to 2 APIs. For each one, tell us the provider and the exact API or model. Anything is welcome, even if it is not in the catalog.</p>'+PD+'<form id="rf" novalidate>'+row(1)+row(2)+'<label class="fl">Docs or website link (optional)<input name="link" type="url" placeholder="https://"></label><label class="fl">Company *<input name="company" required autocomplete="organization"></label><label class="fl">Work email *<input name="email" type="email" required autocomplete="email"></label><label class="fl">Estimated volume<select name="volume"><option>Under 1k requests / month</option><option>1k to 100k requests / month</option><option>100k to 1M requests / month</option><option>Over 1M requests / month</option></select></label><label class="fl">Use case<textarea name="usecase" rows="3" placeholder="What will you build with these APIs?"></textarea></label><button class="btn pri" type="submit">Submit request</button></form>';
+    var m=first?find(first):null;
+    if(m){q("p1").value=pn(m[0]);q("m1").value=m[1];}else if(first){q("m1").value=first;}
+    sync(1);sync(2);mdl.hidden=false;document.body.style.overflow="hidden";(m?q("company"):q("p1")).focus();
+  }
+  function closeReq(){mdl.hidden=true;document.body.style.overflow="";}
+  mdl.addEventListener("click",function(e){if(e.target===mdl||e.target.closest("#mx")||e.target.closest("[data-done]"))closeReq();});
+  mdl.addEventListener("input",function(e){var n=e.target.name||"";if(/^[pm][12]$/.test(n))sync(+n.charAt(1));});
+  mdl.addEventListener("submit",function(e){
+    e.preventDefault(); var f=$("rf"), two=q("p2").value.trim()||q("m2").value.trim();
+    q("p2").required=q("m2").required=!!two;
+    if(!f.reportValidity())return;
+    var seen={}, apis=[1,2].map(function(i){var p=q("p"+i).value.trim(),mv=q("m"+i).value.trim(); if(!p||!mv)return null; var m=modelOf(p,mv),o=ownerOf(p); return {provider:o?pn(o):p,model:m?m[1]:mv,type:q("t"+i).value||"other",custom:!m};}).filter(function(a){if(!a)return false;var k=(a.provider+"/"+a.model).toLowerCase();if(seen[k])return false;seen[k]=1;return true;});
+    var d={apis:apis,link:q("link").value,company:q("company").value,email:q("email").value,volume:q("volume").value,usecase:q("usecase").value,ref:"REQ-"+Date.now().toString(36).toUpperCase()};
+    document.dispatchEvent(new CustomEvent("api-request",{detail:d}));
+    mb.innerHTML='<h2 id="mt">Request submitted</h2><p class="ms">Reference <b>'+d.ref+'</b>. We will review the following and contact '+esc(d.email)+':</p>'+apis.map(function(a){return '<div class="slot"><div><b>'+esc(a.provider)+' / '+esc(a.model)+'</b><span>'+esc(CATL[a.type]||"Other")+(a.custom?" · custom API":" · in catalog")+'</span></div></div>';}).join("")+'<button class="btn pri" type="button" data-done>Done</button>';
+  });
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!mdl.hidden)closeReq();});
+  document.addEventListener("click",function(e){var b=e.target.closest("[data-any]");if(b)openReq(b.getAttribute("data-any")==="q"?S.q.trim():"");});
+  grid.addEventListener("click",function(e){if(e.target.closest(".save"))return;var c=e.target.closest(".card");if(c){e.preventDefault();openReq(c.getAttribute("data-k"));}});
+  ["rank1","rank2"].forEach(function(id){$(id).addEventListener("click",function(e){var a=e.target.closest(".rk");if(a){e.preventDefault();openReq(a.getAttribute("data-k"));}});});
+  $("det").addEventListener("click",function(e){var b=e.target.closest("[data-req]");if(b)openReq(b.getAttribute("data-req"));});
+
+  /* copy code */
+  $("copy").addEventListener("click",function(){
+    var b=this, t=$("codetext").innerText.replace(/\s+$/,"");
+    function done(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy";},1600);}
+    function fallback(){
+      var r=document.createRange();r.selectNodeContents($("codetext"));
+      var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+    }
+    try{navigator.clipboard.writeText(t).then(done,fallback);}catch(err){fallback();}
+  });
+})();
+</script>
+<script src="/global-header-footer.js"></script>
+</body></html>
