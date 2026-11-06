@@ -1842,17 +1842,7 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el))}catch(e){document.d
       tab.classList.add('active');
       var filter = tab.getAttribute('data-filter');
       var boxes = document.querySelectorAll('.game-box');
-
-      // SaaS Game 3D: open fullscreen immediately on tab click
-      if (filter === 'saas') {
-        var saasBox = document.querySelector('.game-box[data-cat="saas"]:not([aria-hidden])');
-        if (saasBox && typeof openFullscreen === 'function') {
-          setTimeout(function(){ openFullscreen(saasBox); }, 60);
-          return; // skip normal filter logic
-        }
-      }
-
-      // Toggle spotlight mode
+      // Toggle spotlight mode if SaaS Game 3D is selected
       if (wrap) {
         if (filter === 'saas') {
           wrap.classList.add('spotlight-mode');
