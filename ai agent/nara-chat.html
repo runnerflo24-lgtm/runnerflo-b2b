@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nara AI – Spesialis Modul Ajar & Kurikulum</title>
+<title>Nara AI – Curriculum & Lesson Plan Specialist</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4f5f7;--panel:#fff;--ink:#111318;--mute:#7b8190;--line:#e8eaee;--soft:#f3f4f6;--btn:#111318;--btnink:#fff;--user:#111318;--userink:#fff}
@@ -86,84 +86,84 @@ dialog p{color:var(--mute);margin-top:4px;line-height:1.45;font-size:12px}
 <div class="app">
   <aside>
     <div class="logo"><i></i>Nara</div>
-    <button class="search" id="qsearch">⌕ Cari percakapan</button>
+    <button class="search" id="qsearch">⌕ Search conversations</button>
     <button class="nav on" data-nav="chat">✦ AI Chat</button>
-    <button class="nav" data-nav="projects">▢ Proyek</button>
-    <button class="nav" data-nav="templates">❏ Template</button>
-    <button class="nav" data-nav="docs">▤ Dokumen</button>
-    <button class="nav" data-nav="history">◷ Riwayat</button>
-    <div class="grp">Pengaturan &amp; bantuan</div>
-    <button class="nav" id="openSettings">⚙ Pengaturan</button>
-    <button class="nav" data-nav="help">? Bantuan</button>
+    <button class="nav" data-nav="projects">▢ Projects</button>
+    <button class="nav" data-nav="templates">❏ Templates</button>
+    <button class="nav" data-nav="docs">▤ Documents</button>
+    <button class="nav" data-nav="history">◷ History</button>
+    <div class="grp">Settings &amp; Help</div>
+    <button class="nav" id="openSettings">⚙ Settings</button>
+    <button class="nav" data-nav="help">? Help</button>
     <div class="sp"></div>
-    <div class="theme"><button data-t="light" class="on">Terang</button><button data-t="dark">Gelap</button></div>
-    <div class="me"><div class="av"></div><div>Pengguna<small>Akun lokal</small></div></div>
+    <div class="theme"><button data-t="light" class="on">Light</button><button data-t="dark">Dark</button></div>
+    <div class="me"><div class="av"></div><div>User<small>Local account</small></div></div>
   </aside>
 
   <main>
-    <div class="top"><span id="title">AI Chat</span><button class="pri" id="newChat">+ Chat baru</button></div>
+    <div class="top"><span id="title">AI Chat</span><button class="pri" id="newChat">+ New Chat</button></div>
     <div class="stage" id="stage"></div>
     <div class="composer">
       <div class="pop" id="pop"></div>
       <div class="box">
         <div id="chips"></div>
-        <textarea id="inp" rows="1" maxlength="3000" placeholder="Tulis pesan untuk Nara…"></textarea>
+        <textarea id="inp" rows="1" maxlength="3000" placeholder="Write a message to Nara…"></textarea>
         <div class="tools">
-          <button id="attach">＋ Lampir</button>
-          <button id="voice">● Pesan suara</button>
-          <button id="prompts">▤ Jelajahi prompt</button>
+          <button id="attach">＋ Attach</button>
+          <button id="voice">● Voice message</button>
+          <button id="prompts">▤ Explore prompts</button>
           <span class="cnt" id="cnt">0/3.000</span>
-          <button class="send" id="send" aria-label="Kirim" disabled>➤</button>
+          <button class="send" id="send" aria-label="Send" disabled>➤</button>
         </div>
       </div>
-      <div class="foot">Nara bisa keliru. Periksa kembali informasi penting.</div>
+      <div class="foot">Nara can make mistakes. Please verify important information.</div>
       <input type="file" id="file" hidden multiple accept=".txt,.md,.json,.csv,.js,.py,.html,.css">
     </div>
   </main>
 
   <div class="right">
-    <h4><span>Proyek</span><span id="pcount"></span></h4>
+    <h4><span>Projects</span><span id="pcount"></span></h4>
     <div id="plist"></div>
   </div>
 </div>
 
 <dialog id="settings">
-  <h3>Pengaturan</h3>
-  <label for="s-key">Claude API key (khusus pengujian lokal)</label>
+  <h3>Settings</h3>
+  <label for="s-key">Claude API key (for local testing only)</label>
   <input id="s-key" type="password" placeholder="sk-ant-…" autocomplete="off">
-  <p>Untuk produksi, jangan simpan key di browser. Arahkan ke backend proxy di <code>CONFIG.proxyUrl</code>.</p>
+  <p>For production, never store keys in the browser. Route requests through a backend proxy at <code>CONFIG.proxyUrl</code>.</p>
   <label for="s-model">Model</label>
   <select id="s-model"><option>claude-sonnet-5-5</option><option>claude-opus-5-5</option><option>claude-haiku-5-5</option></select>
-  <label for="s-sys">Instruksi sistem</label>
+  <label for="s-sys">System instructions</label>
   <textarea id="s-sys" rows="3"></textarea>
-  <div class="row"><button class="nav" style="width:auto" id="s-cancel">Batal</button><button class="pri" id="s-save">Simpan</button></div>
+  <div class="row"><button class="nav" style="width:auto" id="s-cancel">Cancel</button><button class="pri" id="s-save">Save</button></div>
 </dialog>
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
-   KONFIGURASI — ubah bagian ini untuk integrasi Claude API
+   CONFIGURATION — customize this section for Claude API integration
    ============================================================ */
 const CONFIG = {
   appName: 'Nara AI',
   proxyUrl: '/api/ai/chat',        // endpoint Cloudflare Pages Function
   model: 'claude-3-5-sonnet-20241022',
   maxTokens: 2048,
-  system: `Kamu adalah NARA, AI Asisten Pendidikan & Spesialis Modul Ajar, RPP, dan Perangkat Kurikulum Merdeka.
-KEBERADAAN DAN TUGAS UTAMA:
-- Membantu guru, dosen, pendidik, dan pengajar menyusun Modul Ajar lengkap Kurikulum Merdeka, Rencana Pelaksanaan Pembelajaran (RPP), Lembar Kerja Peserta Didik (LKPD), Alur Tujuan Pembelajaran (ATP), Capaian Pembelajaran (CP), Profil Pelajar Pancasila, rubrik asesmen (diagnostik, formatif, sumatif), serta skenario pembelajaran interaktif.
-- Struktur Modul Ajar yang disusun harus lengkap: Identitas Modul, Fase/Kelas, Capaian & Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik, Kegiatan Pembelajaran (Pendahuluan, Inti, Penutup), Asesmen, dan Lembar Kerja.
-- Bahasa: Edukatif, sistematis, ramah, profesional guru, jelas, dan mudah diaplikasikan di kelas.
+  system: `You are NARA, an AI Education Assistant specializing in Lesson Plans, Curriculum Design, and Teaching Materials.
+ROLE & PRIMARY OBJECTIVES:
+- Help teachers, lecturers, and educators design complete lesson modules, lesson plans (LP/RPP), student worksheets (SW/LKPD), learning objective sequences (LOS/ATP), learning outcomes (LO/CP), student profiles, assessment rubrics (diagnostic, formative, summative), and interactive learning scenarios.
+- Lesson module structure must be complete: Module Identity, Phase/Grade, Learning Outcomes & Objectives, Essential Understandings, Inquiry Questions, Learning Activities (Opening, Core, Closing), Assessment, and Worksheets.
+- Language: Educational, systematic, teacher-friendly, clear, and directly applicable in the classroom.
 
-GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
-- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan MODUL AJAR, RPP, LKPD, KURIKULUM, PENDIDIKAN, DAN PERANGKAT PEMBELAJARAN.
-- Jika pengguna meminta hal di luar pendidikan & modul ajar (misalnya: surat kuasa dinas, coding website/game, strategi akuisisi klien sales, resep masakan, script komedi, crypto/keuangan non-edukasi, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN SOPAN.
-- Contoh balasan penolakan:
-  "Mohon maaf, saya adalah Nara — AI khusus penyusunan Modul Ajar, RPP, LKPD, dan Perangkat Pembelajaran Kurikulum Merdeka. Saya tidak dapat melayani topik di luar bidang pendidikan. Silakan informasikan mata pelajaran, kelas/fase, serta materi ajar yang ingin Anda rancang bersama saya!"`
+GUARDRAILS & STRICT BOUNDARIES (MANDATORY):
+- You may ONLY respond to requests related to LESSON PLANS, CURRICULA, STUDENT WORKSHEETS, EDUCATIONAL MATERIALS, AND TEACHING TOOLS.
+- If the user asks for something outside education (e.g., legal letters, website/game coding, sales strategies, recipes, comedy scripts, crypto/finance, etc.), you MUST decline politely and redirect them.
+- Example refusal response:
+  "I apologize — I am Nara, an AI specialized in Lesson Plans, Curriculum Design, and Teaching Materials. I cannot assist with topics outside the field of education. Please let me know the subject, grade/phase, and learning material you would like to design!"`
 };
 
 /* ============================================================
-   askClaude — SATU-SATUNYA fungsi yang perlu Anda sambungkan.
+   askClaude — The ONLY function you need to connect.
    Input : messages = [{role:'user'|'assistant', content:'...'}]
    Output: string teks balasan
    ============================================================ */
@@ -172,7 +172,7 @@ async function askClaude(messages){
   const model = s.model || CONFIG.model;
   const system = s.system || CONFIG.system;
 
-  // Mode 1 (uji lokal): API key dari Pengaturan, langsung ke Anthropic
+  // Mode 1 (uji lokal): API key dari Settings, langsung ke Anthropic
   if (s.key) {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
@@ -181,16 +181,16 @@ async function askClaude(messages){
       body: JSON.stringify({model, max_tokens:CONFIG.maxTokens, system, messages})
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error?.message || 'Permintaan gagal ('+r.status+')');
+    if (!r.ok) throw new Error(d.error?.message || 'Request failed ('+r.status+')');
     return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
   }
 
-  // Mode 2 (produksi): backend Anda meneruskan ke Claude, balas {text:"..."}
+  // Mode 2 (production): your backend proxies to Claude, returns {text:"..."}
   const r = await fetch(CONFIG.proxyUrl, {
     method:'POST', headers:{'content-type':'application/json'},
     body: JSON.stringify({model, system, max_tokens:CONFIG.maxTokens, messages})
   });
-  if (!r.ok) throw new Error('Isi API key di Pengaturan, atau sediakan endpoint '+CONFIG.proxyUrl+' (status '+r.status+').');
+  if (!r.ok) throw new Error('Isi API key di Settings, atau sediakan endpoint '+CONFIG.proxyUrl+' (status '+r.status+').');
   return (await r.json()).text;
 }
 
@@ -212,30 +212,30 @@ function md(t){
 
 /* ===================== RENDER ===================== */
 const QUICK = [
-  ['Modul Ajar','✎','#fde7c8','Buatkan Modul Ajar Kurikulum Merdeka lengkap untuk materi '],
-  ['Lembar LKPD','◐','#d6ecff','Susun Lembar Kerja Peserta Didik (LKPD) interaktif untuk materi '],
-  ['Rubrik Asesmen','☺','#d9f5d0','Rancang rubrik asesmen formatif dan sumatif untuk materi '],
-  ['Alur ATP & CP','⌘','#fbd5e8','Susun Alur Tujuan Pembelajaran (ATP) dan Capaian Pembelajaran untuk ']
+  ['Lesson Module','✎','#fde7c8','Create a complete Lesson Module for the topic: '],
+  ['Student Worksheet','◐','#d6ecff','Design an interactive Student Worksheet (LKPD) for the topic: '],
+  ['Assessment Rubric','☺','#d9f5d0','Design a formative and summative assessment rubric for the topic: '],
+  ['Learning Objectives','⌘','#fbd5e8','Design a Learning Objective Sequence (ATP) and Learning Outcomes for ']
 ];
 const PROMPTS = [
-  'Buatkan modul ajar Kurikulum Merdeka lengkap untuk Fase D Kelas 7',
-  'Susun LKPD interaktif dan rubrik penilaian untuk materi ekosistem',
-  'Rancang asesmen diagnostik kognitif dan non-kognitif awal semester',
-  'Buat pertanyaan pemantik dan aktivitas diferensiasi pembelajaran',
-  'Susun rencana pelaksanaan proyek P5 tema gaya hidup berkelanjutan'
+  'Create a complete lesson plan for Grade 7 on ecosystems',
+  'Design an interactive student worksheet and assessment rubric for ecosystems',
+  'Create a cognitive and non-cognitive diagnostic assessment for the start of semester',
+  'Write inquiry questions and differentiated learning activities for a lesson',
+  'Draft a project-based learning plan on the theme of sustainable lifestyle'
 ];
 
 function renderStage(){
   const st = $('#stage'), c = chats.find(x=>x.id===cur);
   if (view !== 'chat') {
-    const names = {projects:'Proyek Modul',templates:'Template RPP',docs:'Dokumen LKPD',history:'Riwayat',help:'Bantuan'};
+    const names = {projects:'Lesson Projects',templates:'Lesson Plan Templates',docs:'Worksheet Documents',history:'History',help:'Help'};
     $('#title').textContent = names[view];
-    st.innerHTML = `<div class="welcome"><h1>${names[view]}</h1><p>${view==='history'||view==='projects'?'Pilih percakapan di panel kanan atau cari lewat kolom pencarian.':'Bagian ini siap Anda kembangkan. Tambahkan fitur sesuai kebutuhan.'}</p></div>`;
+    st.innerHTML = `<div class="welcome"><h1>${names[view]}</h1><p>${view==='history'||view==='projects'?'Select a conversation from the right panel or search above.':'This section is ready for your customization.'}</p></div>`;
     return;
   }
-  $('#title').textContent = c ? c.title : 'Nara AI — Modul Ajar';
+  $('#title').textContent = c ? c.title : 'Nara AI — Curriculum';
   if (!c || !c.msgs.length) {
-    st.innerHTML = `<div class="welcome"><h1>Nara AI — Modul Ajar & Kurikulum</h1><p>Penyusun Modul Ajar Kurikulum Merdeka, RPP, LKPD, dan rubrik asesmen pendidikan profesional.</p><div class="cards">${QUICK.map((q,i)=>`<button class="card" data-q="${i}"><b style="background:${q[2]}">${q[1]}</b>${q[0]}<em>＋</em></button>`).join('')}</div></div>`;
+    st.innerHTML = `<div class="welcome"><h1>Nara AI — Lesson Plans & Curriculum</h1><p>Specialized assistant for curriculum frameworks, lesson plans, student worksheets, and professional assessment rubrics.</p><div class="cards">${QUICK.map((q,i)=>`<button class="card" data-q="${i}"><b style="background:${q[2]}">${q[1]}</b>${q[0]}<em>＋</em></button>`).join('')}</div></div>`;
     $$('.card').forEach(b=>b.onclick=()=>{ $('#inp').value=QUICK[b.dataset.q][3]; onInput(); $('#inp').focus() });
     return;
   }
@@ -247,7 +247,7 @@ function renderList(){
   const q = ($('#plist').dataset.q||'').toLowerCase();
   const list = chats.filter(c=>c.title.toLowerCase().includes(q));
   $('#pcount').textContent = '('+chats.length+')';
-  $('#plist').innerHTML = list.length ? list.map(c=>`<button class="proj ${c.id===cur?'on':''}" data-id="${c.id}"><b><span>${esc(c.title)}</span><span class="x" data-del="${c.id}" title="Hapus">✕</span></b><small>${esc(c.msgs[c.msgs.length-1]?.content||'Kosong')}</small></button>`).join('') : '<p style="color:var(--mute);padding:6px">Belum ada proyek.</p>';
+  $('#plist').innerHTML = list.length ? list.map(c=>`<button class="proj ${c.id===cur?'on':''}" data-id="${c.id}"><b><span>${esc(c.title)}</span><span class="x" data-del="${c.id}" title="Delete">✕</span></b><small>${esc(c.msgs[c.msgs.length-1]?.content||'Empty')}</small></button>`).join('') : '<p style="color:var(--mute);padding:6px">No projects yet.</p>';
   $$('.proj').forEach(b=>b.onclick=e=>{
     if (e.target.dataset.del){ chats=chats.filter(c=>c.id!==e.target.dataset.del); if(cur===e.target.dataset.del)cur=null; save('chats',chats); }
     else { cur=b.dataset.id; view='chat'; setNav('chat'); }
@@ -257,11 +257,11 @@ function renderList(){
 function renderAll(){ renderStage(); renderList() }
 function setNav(n){ $$('.nav[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===n)) }
 
-/* ===================== KIRIM PESAN ===================== */
+/* ===================== SEND MESSAGE ===================== */
 async function send(){
   const inp = $('#inp'); let text = inp.value.trim();
   if ((!text && !files.length) || busy) return;
-  const extra = files.map(f=>`\n\n[Lampiran: ${f.name}]\n${f.text}`).join('');
+  const extra = files.map(f=>`\n\n[Attachment: ${f.name}]\n${f.text}`).join('');
   let c = chats.find(x=>x.id===cur);
   if (!c){ c = {id:uid(), title:(text||files[0].name).slice(0,40), msgs:[]}; chats.unshift(c); cur = c.id }
   view = 'chat'; setNav('chat');
@@ -271,17 +271,17 @@ async function send(){
   try {
     const history = c.msgs.filter(m=>!m.err).map(({role,content})=>({role,content}));
     c.msgs.push({role:'assistant', content: await askClaude(history)});
-  } catch(e){ c.msgs.push({role:'assistant', content:'Gagal: '+e.message, err:true}) }
+  } catch(e){ c.msgs.push({role:'assistant', content:'Error: '+e.message, err:true}) }
   busy = false; save('chats',chats); renderAll();
 }
 
 function onInput(){
   const i=$('#inp'); i.style.height='auto'; i.style.height=Math.min(i.scrollHeight,140)+'px';
-  $('#cnt').textContent = i.value.length.toLocaleString('id-ID')+'/3.000';
+  $('#cnt').textContent = i.value.length.toLocaleString('en-US')+'/3,000';
   $('#send').disabled = !(i.value.trim()||files.length);
 }
 function renderChips(){
-  $('#chips').innerHTML = files.map((f,i)=>`<span class="chip">${esc(f.name)}<button data-r="${i}" aria-label="Hapus">✕</button></span>`).join('');
+  $('#chips').innerHTML = files.map((f,i)=>`<span class="chip">${esc(f.name)}<button data-r="${i}" aria-label="Remove">✕</button></span>`).join('');
   $$('#chips button').forEach(b=>b.onclick=()=>{ files.splice(b.dataset.r,1); renderChips(); onInput() });
 }
 
@@ -294,7 +294,7 @@ $('#newChat').onclick = ()=>{ cur=null; view='chat'; setNav('chat'); renderAll()
 $('#attach').onclick = ()=>$('#file').click();
 $('#file').onchange = async e=>{
   for (const f of e.target.files){
-    if (f.size>200000){ toast(f.name+' terlalu besar (maks 200 KB)'); continue }
+    if (f.size>200000){ toast(f.name+' is too large (max 200 KB)'); continue }
     files.push({name:f.name, text:await f.text()});
   }
   e.target.value=''; renderChips(); onInput();
@@ -307,18 +307,18 @@ $('#prompts').onclick = ()=>{
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec=null;
 $('#voice').onclick = ()=>{
-  if (!SR) return toast('Browser ini tidak mendukung input suara');
+  if (!SR) return toast('Your browser does not support voice input');
   const b=$('#voice');
   if (rec){ rec.stop(); return }
-  rec = new SR(); rec.lang='id-ID'; rec.interimResults=false;
+  rec = new SR(); rec.lang='en-US'; rec.interimResults=false;
   rec.onresult = e=>{ $('#inp').value += (e.results[0][0].transcript+' '); onInput() };
   rec.onend = ()=>{ rec=null; b.classList.remove('rec') };
-  rec.onerror = ()=>toast('Mikrofon tidak dapat diakses');
+  rec.onerror = ()=>toast('Microphone could not be accessed');
   b.classList.add('rec'); rec.start();
 };
 
 $$('.nav[data-nav]').forEach(b=>b.onclick=()=>{ view=b.dataset.nav; setNav(view); renderAll() });
-$('#qsearch').onclick = ()=>{ const q=prompt('Cari percakapan:',$('#plist').dataset.q||''); if(q===null)return; $('#plist').dataset.q=q; renderList() };
+$('#qsearch').onclick = ()=>{ const q=prompt('Search conversations:',$('#plist').dataset.q||''); if(q===null)return; $('#plist').dataset.q=q; renderList() };
 
 function theme(t){ document.documentElement.dataset.theme=t; $$('.theme button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); save('theme',t) }
 $$('.theme button').forEach(b=>b.onclick=()=>theme(b.dataset.t));
@@ -327,7 +327,7 @@ theme(load('theme', matchMedia('(prefers-color-scheme:dark)').matches?'dark':'li
 const dlg=$('#settings');
 $('#openSettings').onclick = ()=>{ const s=load('settings',{}); $('#s-key').value=s.key||''; $('#s-model').value=s.model||CONFIG.model; $('#s-sys').value=s.system||CONFIG.system; dlg.showModal() };
 $('#s-cancel').onclick = ()=>dlg.close();
-$('#s-save').onclick = ()=>{ save('settings',{key:$('#s-key').value.trim(),model:$('#s-model').value,system:$('#s-sys').value}); dlg.close(); toast('Pengaturan disimpan') };
+$('#s-save').onclick = ()=>{ save('settings',{key:$('#s-key').value.trim(),model:$('#s-model').value,system:$('#s-sys').value}); dlg.close(); toast('Settings saved') };
 
 document.addEventListener('click', e=>{ if(!e.target.closest('#pop,#prompts')) $('#pop').classList.remove('show') });
 renderAll(); onInput();

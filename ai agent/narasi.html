@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Narasi AI – Spesialis Storytelling & Naskah Kreatif</title>
+<title>Narasi AI – Storytelling & Creative Script Specialist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -89,22 +89,22 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width
 </head>
 <body>
 <div class="window" id="win">
-<aside id="side" aria-label="Riwayat chat">
+<aside id="side" aria-label="Chat history">
   <button class="new" id="newChat" type="button">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-    Chat baru
+    New Chat
   </button>
-  <h3>Riwayat</h3>
+  <h3>History</h3>
   <div class="list" id="list"></div>
 </aside>
 <div class="scrim" id="scrim"></div>
 <div class="col">
   <header>
-    <button class="logo" id="menuBtn" type="button" aria-label="Buka atau tutup riwayat chat" aria-expanded="true">
+    <button class="logo" id="menuBtn" type="button" aria-label="Open or close chat history" aria-expanded="true">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h10M4 12h16M4 17h8"/></svg>
       Narasi
     </button>
-    <nav><a href="#">Dasbor</a><a href="#">Unggahan</a><a href="#">Tagihan</a></nav>
+    <nav><a href="#">Dashboard</a><a href="#">Uploads</a><a href="#">Billing</a></nav>
   </header>
 
   <main>
@@ -112,24 +112,24 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width
       <div class="orb"><span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13v1M15 13v1"/></svg>
       </span></div>
-      <h1>Ngobrol dengan Narasi AI</h1>
-      <p>Spesialis Storytelling, Penulisan Naskah Video (Reels, TikTok, Shorts), Voiceover, dan Narasi Emosional Brand yang memikat.</p>
+      <h1>Chat with Narasi AI</h1>
+      <p>Specialist in Storytelling, Video Script Writing (Reels, TikTok, Shorts), Voiceover, and Compelling Brand Narratives.</p>
     </section>
 
     <section class="thread" id="thread" hidden aria-live="polite"></section>
 
     <div class="panel" id="suggest">
-      <h2>Saran topik narasi &amp; naskah</h2>
+      <h2>Suggested narrative &amp; script topics</h2>
       <div class="chips" id="chips"></div>
     </div>
 
     <div class="composer">
-      <textarea id="input" rows="1" placeholder="Tulis ide cerita atau topik naskah video yang ingin dibuat…" aria-label="Pesan"></textarea>
+      <textarea id="input" rows="1" placeholder="Describe your story idea or video script topic…" aria-label="Message"></textarea>
       <button class="back" id="back" type="button">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
-        <span>Kembali ke Hasil</span>
+        <span>Back to Results</span>
       </button>
-      <button class="send" id="send" type="button" aria-label="Kirim">
+      <button class="send" id="send" type="button" aria-label="Send">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21 23 12 2 3v7l15 2-15 2z"/></svg>
       </button>
     </div>
@@ -139,44 +139,44 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width
 
 <script>
 /* =====================================================
-   KONFIGURASI – ubah bagian ini saja untuk integrasi
+   CONFIGURATION – customize this section for integration
    ===================================================== */
 const CONFIG = {
-  // Endpoint backend Cloudflare Pages
+  // Cloudflare Pages backend endpoint
   apiUrl: "/api/ai/chat",
-  // System prompt yang dikirim ke Claude lewat backend.
-  system: `Kamu adalah NARASI, AI Spesialis Storytelling, Penulisan Naskah (Scriptwriting), dan Narasi Konten Kreatif.
-KEBERADAAN DAN TUGAS UTAMA:
-- Membantu kreator konten, agensi, dan brand menyusun skrip video berbobot (Reels, TikTok, YouTube Shorts, YouTube Video), naskah voiceover/dubbing, storytelling brand (origin story, testimonial storytelling), alur cerita fiksi/non-fiksi, naskah podcast, dan narasi presentasi emosional.
-- Gunakan struktur narasi memikat: Hook 3 detik pertama yang mencengkeram, Pacing / Retensi, Konflik / Emosi cerita, Klimaks / Insight berharga, dan Call to Action (CTA) naratif yang natural.
-- Format penulisan skrip: Cantumkan panduan [Visual/Scene], [Audio/BGM], dan [Teks Narasi/Voiceover].
-- Bahasa: Mengalir, imajinatif, emosional, kaya metafora, puitis namun komunikatif.
+  // System prompt sent to Claude via backend.
+  system: `You are NARASI, an AI Specialist in Storytelling, Scriptwriting, and Creative Content Narration.
+ROLE & PRIMARY OBJECTIVES:
+- Help content creators, agencies, and brands craft compelling video scripts (Reels, TikTok, YouTube Shorts, YouTube Videos), voiceover/dubbing scripts, brand storytelling (origin stories, testimonial storytelling), fiction/non-fiction storylines, podcast scripts, and emotional presentation narratives.
+- Use captivating narrative structure: 3-second scroll-stopping hook, retention-focused pacing, emotional conflict/arc, climax/key takeaway, and a natural narrative call to action (CTA).
+- Scriptwriting format: Provide clear [Visual/Scene], [Audio/BGM], and [Narration/Voiceover] cues.
+- Tone & Style: Fluid, imaginative, emotionally resonant, rich in metaphor, poetic yet engaging and communicative.
 
-GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
-- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan STORYTELLING, NASKAH VIDEO/AUDIO, NARASI BRAND, ATAU PENULISAN CERITA KREATIF.
-- Jika pengguna meminta hal di luar storytelling dan narasi naskah (misalnya: pembuatan modul ajar RPP, surat perjanjian MoU, coding program/game, konsultasi pajak, formula excel, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN RAMAH.
-- Contoh balasan penolakan:
-  "Halo! Mohon maaf, saya adalah Narasi — AI yang berfokus penuh pada seni Storytelling dan Penulisan Naskah Kreatif (video scripts, voiceover, dan narasi brand). Saya tidak melayani tugas di luar penulisan cerita dan naskah. Yuk, ceritakan ide naskah, konsep video, atau cerita apa yang ingin kita hidupkan hari ini?"`,
-  // Dipanggil saat tombol "Kembali ke Hasil" ditekan (default: reset chat).
+GUARDRAILS & STRICT BOUNDARIES (MANDATORY):
+- You may ONLY answer and fulfill requests related to STORYTELLING, VIDEO/AUDIO SCRIPTS, BRAND NARRATIVES, OR CREATIVE WRITING.
+- If the user requests anything outside storytelling and scriptwriting (e.g. lesson plans, legal MoUs, coding software/games, tax advice, spreadsheet formulas, etc.), you MUST decline politely and warmly.
+- Example refusal response:
+  "Hello! I am Narasi — an AI specialized exclusively in the art of Storytelling, Video Scripts, and Brand Narratives. I cannot assist with topics outside creative writing and scriptwriting. Tell me about the story concept, video script, or narrative world you would like to bring to life today!"`,
+  // Called when the "Back to Results" button is clicked (default: reset chat).
   onBack: null,
   suggestions: [
-    "Skrip video Reels 45 detik tentang perjalanan merintis usaha",
-    "Storytelling brand origin story untuk produk artisan kopi lokal",
-    "Naskah voiceover sinematik bertema pantang menyerah",
-    "Hook 3 detik pertama yang membuat penonton berhenti scrolling",
-    "Narasi emosional penutup kampanye sosial kemanusiaan",
+    "45-second Reels script about the journey of launching a startup",
+    "Brand origin storytelling for a specialty handcrafted coffee brand",
+    "Cinematic voiceover script about resilience and determination",
+    "First 3-second viral hooks that stop viewers from scrolling",
+    "Emotional narrative for a social impact and humanitarian campaign",
   ],
 };
 
 /* =====================================================
-   FUNGSI UTAMA – panggilan ke Claude (via backend)
+   MAIN FUNCTION – call to Claude (via backend)
    messages: [{role:"user"|"assistant", content:"..."}]
-   return  : string jawaban
+   return  : response string
    ===================================================== */
 async function callClaude(messages) {
   if (!CONFIG.apiUrl) { // mode demo tanpa backend
     await new Promise(r => setTimeout(r, 900));
-    return "(Mode demo) Kamu menulis: \"" + messages[messages.length - 1].content + "\". Isi CONFIG.apiUrl untuk terhubung ke Claude.";
+    return "(Demo mode) You wrote: \"" + messages[messages.length - 1].content + "\". Set CONFIG.apiUrl to connect to Claude.";
   }
   const res = await fetch(CONFIG.apiUrl, {
     method: "POST",
@@ -185,7 +185,7 @@ async function callClaude(messages) {
   });
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
-    throw new Error(e.error || "Permintaan gagal (" + res.status + ")");
+    throw new Error(e.error || "Request failed (" + res.status + ")");
   }
   const data = await res.json();
   return data.text;
@@ -196,7 +196,7 @@ const $ = id => document.getElementById(id);
 const hero = $("hero"), thread = $("thread"), input = $("input"), sendBtn = $("send"), suggest = $("suggest");
 let history = [], busy = false;
 
-/* ===== Riwayat chat (disimpan di localStorage) ===== */
+/* ===== Chat history (stored in localStorage) ===== */
 const KEY = "narasi_chats_v1";
 let chats = [], currentId = null;
 try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { chats = []; }
@@ -209,15 +209,15 @@ function ensureChat(firstText) {
 }
 function renderList() {
   const list = $("list"); list.innerHTML = "";
-  if (!chats.length) { list.innerHTML = '<p class="empty">Belum ada riwayat. Mulai chat pertamamu.</p>'; return; }
+  if (!chats.length) { list.innerHTML = '<p class="empty">No history yet. Start your first conversation.</p>'; return; }
   chats.forEach(c => {
     const row = document.createElement("div");
     row.className = "item" + (c.id === currentId ? " on" : "");
     const t = document.createElement("button");
-    t.className = "t"; t.type = "button"; t.textContent = c.title || "Chat tanpa judul"; t.title = c.title;
+    t.className = "t"; t.type = "button"; t.textContent = c.title || "Untitled chat"; t.title = c.title;
     t.onclick = () => openChat(c.id);
     const x = document.createElement("button");
-    x.className = "x"; x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Hapus chat");
+    x.className = "x"; x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Delete chat");
     x.onclick = () => deleteChat(c.id);
     row.append(t, x); list.appendChild(row);
   });
@@ -233,7 +233,7 @@ function deleteChat(id) {
   if (id === currentId) reset(); else renderList();
 }
 
-/* ===== Sidebar: klik logo untuk buka/tutup ===== */
+/* ===== Sidebar: click logo to toggle open/close ===== */
 const win = $("win"), mq = matchMedia("(max-width:760px)");
 function setExpanded() { $("menuBtn").setAttribute("aria-expanded", String(mq.matches ? win.classList.contains("drawer") : !win.classList.contains("collapsed"))); }
 function toggleSide() { win.classList.toggle(mq.matches ? "drawer" : "collapsed"); setExpanded(); }
@@ -277,8 +277,8 @@ async function send(text) {
     history.push({ role: "assistant", content: reply });
   } catch (err) {
     bubble.className = "msg err";
-    bubble.textContent = "Gagal mendapat jawaban: " + err.message + ". Periksa koneksi atau konfigurasi API, lalu coba lagi.";
-    history.pop(); // buang pesan user yang gagal agar riwayat tetap konsisten
+    bubble.textContent = "Failed to receive response: " + err.message + ". Check your connection or API configuration, then try again.";
+    history.pop(); // remove failed user message to keep conversation consistent
   } finally {
     save(); renderList();
     busy = false; sendBtn.disabled = false; thread.scrollTop = thread.scrollHeight; input.focus();

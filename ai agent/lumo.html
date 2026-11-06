@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lumo AI – Spesialis Surat & Dokumen Resmi</title>
+<title>Lumo AI – Official Document & Formal Correspondence Specialist</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
 :root{--ac:#3f5fd6;--bd:#dfe1e8;--mu:#5a5e6c;--tx:#12141a;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--tx)}
@@ -74,29 +74,29 @@ main{flex:1;padding:20px;background:#fff;display:flex;flex-direction:column;alig
 <body>
 <div class="app" id="app">
   <aside>
-    <div class="top"><div class="logo"><span data-i="logo"></span>Lumo</div><button class="ib" id="tg" data-i="panel" title="Tutup sidebar"></button></div>
-    <button class="it" id="nc"><i data-i="edit"></i>Obrolan Baru</button>
-    <button class="it" id="sb"><i data-i="search"></i>Cari</button>
-    <input id="q" placeholder="Cari obrolan…" hidden>
-    <div class="sec"><span>Proyek</span><button class="ib" id="np" data-i="fplus" title="Proyek baru"></button></div>
+    <div class="top"><div class="logo"><span data-i="logo"></span>Lumo</div><button class="ib" id="tg" data-i="panel" title="Close sidebar"></button></div>
+    <button class="it" id="nc"><i data-i="edit"></i>New Conversation</button>
+    <button class="it" id="sb"><i data-i="search"></i>Search</button>
+    <input id="q" placeholder="Search conversations…" hidden>
+    <div class="sec"><span>Projects</span><button class="ib" id="np" data-i="fplus" title="New project"></button></div>
     <div id="pj"></div>
     <div class="scroll" id="hist"></div>
     <div class="user"><div class="av" id="av"></div><div><b id="un"></b><small id="up"></small></div><button id="upg">Upgrade</button></div>
   </aside>
   <main id="main">
-    <button class="ib" id="op" data-i="panel" title="Buka sidebar"></button>
-    <div id="hero"><h1>Lumo AI — Spesialis Surat & Dokumen Resmi</h1><p>Asisten AI khusus pembuatan surat kedinasan, surat undangan resmi, nota dinas, MoU kerja sama, dan korespondensi formal bisnis sesuai kaidah baku.</p></div>
+    <button class="ib" id="op" data-i="panel" title="Open sidebar"></button>
+    <div id="hero"><h1>Lumo AI — Official Document & Formal Correspondence Specialist</h1><p>AI assistant specialized in drafting official government letters, formal invitations, internal memos, cooperation MoUs, and professional business correspondence.</p></div>
     <div id="msgs"></div>
     <div id="dock">
       <div class="cmp">
         <div id="fl"></div>
-        <textarea id="in" rows="1" placeholder="Tulis instruksi surat atau dokumen resmi yang ingin dibuat…"></textarea>
+        <textarea id="in" rows="1" placeholder="Describe the official document or letter you need…"></textarea>
         <div class="row">
-          <button class="ib" id="at" data-i="clip" title="Lampirkan file"></button>
+          <button class="ib" id="at" data-i="clip" title="Attach file"></button>
           <input type="file" id="fi" multiple hidden accept="image/*,.pdf,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css">
           <div class="rel"><button class="it sm" id="tl"><i data-i="sl"></i>Tools</button>
             <div class="pop" id="tp">
-              <label>Pencarian web <input type="checkbox" id="web"></label>
+              <label>Web search <input type="checkbox" id="web"></label>
               <small>System prompt</small><textarea id="sys"></textarea>
             </div></div>
           <span class="sp"></span>
@@ -105,32 +105,32 @@ main{flex:1;padding:20px;background:#fff;display:flex;flex-direction:column;alig
         </div>
       </div>
       <div class="chips">
-        <button class="chip" data-m="undangan"><i data-i="edit"></i>Surat Undangan Dinas</button>
-        <button class="chip" data-m="mou"><i data-i="edit"></i>Nota Kesepahaman (MoU)</button>
-        <button class="chip" data-m="edaran"><i data-i="edit"></i>Surat Edaran Resmi</button>
-        <button class="chip" data-m="kuasa"><i data-i="edit"></i>Surat Kuasa Legal</button>
+        <button class="chip" data-m="invitation"><i data-i="edit"></i>Official Invitation Letter</button>
+        <button class="chip" data-m="mou"><i data-i="edit"></i>Memorandum of Understanding (MoU)</button>
+        <button class="chip" data-m="circular"><i data-i="edit"></i>Official Circular Letter</button>
+        <button class="chip" data-m="poa"><i data-i="edit"></i>Legal Power of Attorney</button>
       </div>
     </div>
   </main>
 </div>
 <div id="toast"></div>
 <script>
-/* ============ KONFIGURASI (ubah di sini) ============ */
+/* ============ CONFIGURATION (edit here) ============ */
 const CONFIG={
   API_URL:'/api/ai/chat',
   MAX_TOKENS:4096,
-  SYSTEM:`Kamu adalah LUMO, AI Spesialis Pembuatan Surat dan Dokumen Resmi Kedinasan serta Korespondensi Formal Bisnis.
-KEBERADAAN DAN TUGAS UTAMA:
-- Membantu menyusun, merapikan, dan memformat berbagai surat resmi: surat undangan kedinasan, surat dinas instansi/kantor, nota dinas, surat edaran, MoU (Nota Kesepahaman) kerja sama, surat keputusan (SK), surat kuasa, surat perjanjian kerja/kontrak, surat rekomendasi, dan surat lamaran kerja profesional.
-- Gunakan struktur surat formal standar Indonesia yang rapi: Kop Surat / Kepala Surat, Nomor Surat, Lampiran, Hal/Perihal, Tanggal, Tujuan Penerima, Salam Pembuka, Paragraf Pembuka, Isi/Inti Surat (Hari, Tanggal, Waktu, Tempat, Agenda), Paragraf Penutup, Tanda Tangan, dan Tembusan.
-- Bahasa: Sangat formal, sopan, baku (PUEBI/EYD), lugas, dan berbobot kedinasan/legal.
+  SYSTEM:`You are LUMO, an AI Specialist in Drafting Official Documents, Government Correspondence, and Formal Business Communication.
+ROLE & PRIMARY OBJECTIVES:
+- Assist in composing, formatting, and structuring all types of official documents: official invitation letters, government/office memos, internal directives, circulars, cooperation MoUs, decision letters (SK), power of attorney, employment contracts, recommendation letters, and professional job application letters.
+- Use a clean, professional formal letter structure: Letterhead, Letter Number, Attachments, Subject/Re:, Date, Recipient, Salutation, Opening Paragraph, Main Body (Day, Date, Time, Venue, Agenda), Closing Paragraph, Signature Block, and CC list.
+- Language: Highly formal, polite, precise, and legally/professionally authoritative.
 
-GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
-- Kamu HANYA boleh menjawab dan mengerjakan permintaan yang berkaitan dengan SURAT, DOKUMEN RESMI, NOTA DINAS, MOU, PERJANJIAN, ATAU KORESPONDENSI FORMAL.
-- Jika pengguna meminta hal di luar topik tersebut (misalnya: membuat kode game/web, resep masakan, matematika/sains, modul ajar sekolah, cerita fiksi, curhat, crypto, dll), kamu WAJIB MENOLAK DENGAN SANGAT HALUS DAN SOPAN, dan mengarahkan pengguna kembali ke tugas utamamu.
-- Contoh balasan penolakan:
-  "Mohon maaf yang sebesar-besarnya, saya adalah Lumo — AI yang dirancang khusus untuk pembuatan Surat & Dokumen Resmi Kedinasan serta Dokumen Formal Bisnis. Saya tidak memiliki wewenang untuk membahas topik di luar surat dan dokumen resmi. Silakan sampaikan kebutuhan Anda terkait surat resmi, undangan kedinasan, MoU, atau dokumen formal yang ingin disusun."`,
-  USER:{name:'Eksekutif',plan:'Pro'},
+GUARDRAILS & STRICT BOUNDARIES (MANDATORY):
+- You may ONLY respond to requests related to OFFICIAL LETTERS, FORMAL DOCUMENTS, MEMOS, MoUs, AGREEMENTS, OR FORMAL CORRESPONDENCE.
+- If the user requests something outside this scope (e.g., game/web code, recipes, math/science, fiction stories, crypto, etc.), you MUST decline politely and redirect the user to your core purpose.
+- Example refusal response:
+  "I sincerely apologize — I am Lumo, an AI designed specifically for drafting Official Documents, Government Correspondence, and Formal Business Documents. I am not authorized to assist with topics outside official letters and formal documents. Please let me know what official letter, formal invitation, MoU, or document you need help drafting."`,
+  USER:{name:'Executive',plan:'Pro'},
   MODELS:[
     {id:'claude-3-5-sonnet-20241022',name:'Claude 3.5 Sonnet'},
     {id:'claude-3-5-haiku-20241022',name:'Claude 3.5 Haiku'},
@@ -138,10 +138,10 @@ GUARDRAIL & BATASAN KETAT (WAJIB DIPATUHI):
   ]
 };
 const MODES={
-  undangan:{ph:'Sebutkan instansi pengundang, tujuan acara, waktu, dan tempat surat undangan dinas…',sys:'Susun draf Surat Undangan Kedinasan/Formal lengkap dengan nomor surat, perihal, rincian hari/tanggal/waktu/tempat, dan kolom tanda tangan pimpinan.'},
-  mou:{ph:'Sebutkan pihak pertama, pihak kedua, serta ruang lingkup nota kesepahaman (MoU)…',sys:'Susun draf Nota Kesepahaman (MoU) lengkap dengan pasal-pasal kesepakatan, hak & kewajiban, jangka waktu, dan ketentuan penutup.'},
-  edaran:{ph:'Sebutkan perihal dan poin-poin instruksi surat edaran resmi yang ingin dibuat…',sys:'Susun draf Surat Edaran Resmi dengan landasan hukum, poin-poin instruksi bernomor urut jelas, dan penutup formal.'},
-  kuasa:{ph:'Sebutkan pihak pemberi kuasa, penerima kuasa, serta wewenang yang diberikan…',sys:'Susun draf Surat Kuasa Legal lengkap dengan identitas kedua pihak, rincian kuasa khusus, klausul tanggung jawab, dan tempat materai.'}
+  invitation:{ph:'Specify inviting organization, event purpose, date/time, and venue for the official invitation letter…',sys:'Draft a formal Official Invitation Letter complete with reference number, subject, date/time/venue details, and executive signature block.'},
+  mou:{ph:'Specify the first party, second party, and scope of cooperation for the Memorandum of Understanding (MoU)…',sys:'Draft a comprehensive Memorandum of Understanding (MoU) complete with agreed clauses, mutual rights & obligations, term duration, and closing provisions.'},
+  circular:{ph:'Specify the subject and key directive points for the official circular letter…',sys:'Draft an Official Circular Letter with legal basis, numbered action items, and formal administrative closing.'},
+  poa:{ph:'Specify the grantor, attorney-in-fact, and granted powers for the power of attorney…',sys:'Draft a Legal Power of Attorney complete with party identification, specific authorizations, liability clauses, and stamp duty notation.'}
 };
 /* ===================================================== */
 const $=s=>document.querySelector(s);
@@ -169,7 +169,7 @@ const paintIcons=(r=document)=>[...(r.querySelectorAll?r.querySelectorAll('[data
 
 /* ---------- state ---------- */
 const K='lumo-v2';
-let S={chats:[],projects:['Dinas','Bisnis','Legalitas'],active:null,proj:null,model:CONFIG.MODELS[0].id,web:false,system:CONFIG.SYSTEM};
+let S={chats:[],projects:['Government','Business','Legal'],active:null,proj:null,model:CONFIG.MODELS[0].id,web:false,system:CONFIG.SYSTEM};
 try{Object.assign(S,JSON.parse(localStorage.getItem(K)||'{}'))}catch{}
 S.system=CONFIG.SYSTEM;
 let busy=false,ctrl=null,att=[],mode=null;
@@ -197,17 +197,17 @@ function renderSide(){
   $('#pj').innerHTML=S.projects.map(p=>`<button class="it ${S.proj===p?'on':''}" data-p="${esc(p)}"><i data-i="folder"></i><span class="g">${esc(p)}</span><span class="bd">${String(S.chats.filter(c=>c.proj===p).length).padStart(2,'0')}</span></button>`).join('');
   const q=$('#q').value.toLowerCase();
   const list=S.chats.filter(c=>(!S.proj||c.proj===S.proj)&&(!q||(c.title+c.messages.map(m=>m.text||m.content).join(' ')).toLowerCase().includes(q))).sort((a,b)=>b.t-a.t);
-  const day=t=>{const d=Math.round((new Date().setHours(0,0,0,0)-new Date(t).setHours(0,0,0,0))/864e5);return d<=0?'Hari ini':d==1?'Kemarin':'Sebelumnya'};
+  const day=t=>{const d=Math.round((new Date().setHours(0,0,0,0)-new Date(t).setHours(0,0,0,0))/864e5);return d<=0?'Today':d==1?'Yesterday':'Earlier'};
   let h='',g='';
   for(const c of list){const k=day(c.t);if(k!==g){h+=`<div class="lb">${k}</div>`;g=k}
-    h+=`<div class="it hi ${c.id===S.active?'on':''}" data-c="${c.id}"><span class="g">${esc(c.title||'Obrolan baru')}</span><button class="ib x" data-d="${c.id}" data-i="trash" title="Hapus"></button></div>`}
-  $('#hist').innerHTML=h||'<div class="lb">Belum ada obrolan</div>';
+    h+=`<div class="it hi ${c.id===S.active?'on':''}" data-c="${c.id}"><span class="g">${esc(c.title||'New conversation')}</span><button class="ib x" data-d="${c.id}" data-i="trash" title="Delete"></button></div>`}
+  $('#hist').innerHTML=h||'<div class="lb">No conversations yet</div>';
   paintIcons($('aside'));
 }
 function addMsg(m){
   const d=document.createElement('div');d.className='m '+m.role;d._m=m;
   if(m.role==='user')d.innerHTML=`<div class="ub">${esc(m.text||'').replace(/\n/g,'<br>')}${(m.files||[]).map(f=>`<div class="fc">📎 ${esc(f)}</div>`).join('')}</div>`;
-  else{d.innerHTML='<div class="ab"></div><button class="ib cp" data-i="copy" title="Salin"></button>';paint(d.querySelector('.ab'),m.content)}
+  else{d.innerHTML='<div class="ab"></div><button class="ib cp" data-i="copy" title="Copy"></button>';paint(d.querySelector('.ab'),m.content)}
   $('#msgs').append(d);paintIcons(d);return d;
 }
 function renderChat(){
@@ -230,7 +230,7 @@ function renderModel(){
   $('#mp').innerHTML=CONFIG.MODELS.map(m=>`<button class="it ${m.id===S.model?'on':''}" data-md="${m.id}">${m.name}</button>`).join('');
 }
 
-/* ---------- kirim pesan & streaming ---------- */
+/* ---------- send message & streaming ---------- */
 async function send(){
   if(busy){ctrl&&ctrl.abort();return}
   const text=$('#in').value.trim();
@@ -238,7 +238,7 @@ async function send(){
   let c=cur();
   if(!c){c={id:Date.now().toString(36),title:'',t:Date.now(),proj:S.proj,messages:[]};S.chats.push(c);S.active=c.id}
   if(!c.title)c.title=(text||att[0].name).slice(0,40);
-  const content=[...att.map(a=>a.block),{type:'text',text:text||'(lihat lampiran)'}];
+  const content=[...att.map(a=>a.block),{type:'text',text:text||'(see attachment)'}];
   c.messages.push({role:'user',content,text,files:att.map(a=>a.name)});
   const m={role:'assistant',content:''};c.messages.push(m);
   c.t=Date.now();
@@ -267,17 +267,17 @@ async function send(){
       }
     }
   }catch(e){
-    if(e.name!=='AbortError'){m.content+=(m.content?'\n\n':'')+'⚠️ Gagal: '+e.message;paint(el,m.content)}
+    if(e.name!=='AbortError'){m.content+=(m.content?'\n\n':'')+'⚠️ Error: '+e.message;paint(el,m.content)}
   }
-  if(!m.content){m.content='(tidak ada respons)';paint(el,m.content)}
+  if(!m.content){m.content='(no response)';paint(el,m.content)}
   busy=false;ctrl=null;upd();save();renderSide();
 }
 
-/* ---------- interaksi ---------- */
+/* ---------- interactions ---------- */
 function setMode(k){
   mode=mode===k?null:k;
   document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
-  $('#in').placeholder=mode?MODES[mode].ph:'Tanya apa saja…';
+  $('#in').placeholder=mode?MODES[mode].ph:'Ask anything…';
   if(mode)$('#in').focus();
 }
 document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
@@ -287,8 +287,8 @@ $('#in').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preven
 $('#nc').onclick=()=>{S.active=null;save();renderAll();$('#in').focus()};
 $('#sb').onclick=()=>{const q=$('#q');q.hidden=!q.hidden;if(q.hidden){q.value='';renderSide()}else q.focus()};
 $('#q').oninput=renderSide;
-$('#np').onclick=()=>{const n=(prompt('Nama proyek baru:')||'').trim();if(n&&!S.projects.includes(n)){S.projects.push(n);save();renderSide()}};
-$('#upg').onclick=()=>toast('Hubungkan tombol Upgrade ke halaman billing Anda');
+$('#np').onclick=()=>{const n=(prompt('New project name:')||'').trim();if(n&&!S.projects.includes(n)){S.projects.push(n);save();renderSide()}};
+$('#upg').onclick=()=>toast('Connect the Upgrade button to your billing page');
 $('#tg').onclick=$('#op').onclick=()=>$('#app').classList.toggle('collapsed');
 $('aside').onclick=e=>{
   const d=e.target.closest('[data-d]');
@@ -300,16 +300,16 @@ $('aside').onclick=e=>{
 };
 $('#pj').oncontextmenu=e=>{
   const b=e.target.closest('[data-p]');if(!b)return;e.preventDefault();const p=b.dataset.p;
-  if(confirm('Hapus proyek "'+p+'"? Obrolan tidak ikut terhapus.')){S.projects=S.projects.filter(x=>x!==p);S.chats.forEach(c=>{if(c.proj===p)c.proj=null});if(S.proj===p)S.proj=null;save();renderSide()}
+  if(confirm('Delete project "'+p+'"? Conversations will not be deleted.')){S.projects=S.projects.filter(x=>x!==p);S.chats.forEach(c=>{if(c.proj===p)c.proj=null});if(S.proj===p)S.proj=null;save();renderSide()}
 };
 $('#msgs').onclick=e=>{
   const b=e.target.closest('.cp');if(!b)return;
-  navigator.clipboard.writeText(b.closest('.m')._m.content).then(()=>toast('Tersalin'));
+  navigator.clipboard.writeText(b.closest('.m')._m.content).then(()=>toast('Copied'));
 };
 $('#at').onclick=()=>$('#fi').click();
 $('#fi').onchange=async e=>{
   for(const f of e.target.files){
-    if(f.size>10e6){toast(f.name+' terlalu besar (maks 10 MB)');continue}
+    if(f.size>10e6){toast(f.name+' is too large (max 10 MB)');continue}
     const img=f.type.startsWith('image/'),pdf=f.type==='application/pdf';
     if(img||pdf){
       const data=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result.split(',')[1]);fr.readAsDataURL(f)});
