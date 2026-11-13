@@ -221,6 +221,82 @@ export async function onRequest(context) {
     }
 
     // -------------------------------------------------------------
+    // ACTION: secret (Create / Update / Delete environment variable secret)
+    // POST /api/totalum?action=secret&projectId=:id
+    // DELETE /api/totalum?action=secret&projectId=:id&secretName=:name
+    // -------------------------------------------------------------
+    if (action === 'secret') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+
+      if (request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const secretName = (body.secretName || body.name || '').trim().toUpperCase();
+        const secretValue = (body.secretValue || body.value || '').trim();
+        const environment = body.environment || 'both';
+
+        if (!secretName || !secretValue) {
+          return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_SECRET_FIELDS', errorMessage: 'secretName dan secretValue wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+        }
+
+        const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/secrets`, {
+          method: 'POST',
+          headers: commonHeaders,
+          body: JSON.stringify({ secretName, secretValue, environment })
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      }
+
+      if (request.method === 'DELETE') {
+        const secretName = url.searchParams.get('secretName') || '';
+        if (!secretName) {
+          return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_SECRET_NAME', errorMessage: 'Parameter secretName wajib diisi untuk menghapus secret.' }, data: null }), { status: 400, headers: corsHeaders });
+        }
+        const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/secrets/${encodeURIComponent(secretName)}`, {
+          method: 'DELETE',
+          headers: commonHeaders
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: secrets (List secrets for project)
+    // GET /api/totalum?action=secrets&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'secrets') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}`, {
+        method: 'GET',
+        headers: commonHeaders
+      });
+      const data = await res.json();
+      const secrets = (data && data.data && data.data.secrets) ? data.data.secrets : [];
+      return new Response(JSON.stringify({ errors: data.errors, data: secrets }), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: schema (Get Cloudflare D1 database schema)
+    // GET /api/totalum?action=schema&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'schema') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/database/schema`, {
+        method: 'GET',
+        headers: commonHeaders
+      });
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
     // ACTION: projects (List projects)
     // GET /api/totalum?action=projects
     // -------------------------------------------------------------

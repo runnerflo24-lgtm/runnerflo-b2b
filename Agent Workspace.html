@@ -805,6 +805,67 @@ body.ws-stage-2-active .topbar {
   color: var(--fg);
   border-color: var(--fg);
 }
+.sbar-action-btn.btn-secrets {
+  background: color-mix(in srgb, #a855f7 15%, var(--panel));
+  color: #c084fc;
+  border-color: color-mix(in srgb, #a855f7 40%, transparent);
+}
+.sbar-action-btn.btn-secrets:hover {
+  background: #a855f7;
+  color: #fff;
+}
+.sbar-action-btn.btn-schema {
+  background: color-mix(in srgb, #06b6d4 15%, var(--panel));
+  color: #22d3ee;
+  border-color: color-mix(in srgb, #06b6d4 40%, transparent);
+}
+.sbar-action-btn.btn-schema:hover {
+  background: #06b6d4;
+  color: #042f2e;
+}
+
+/* -- Integration Feature Chips (Totalum Directives) -- */
+.integration-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 6px 8px;
+  scrollbar-width: none;
+  font-size: 11px;
+}
+.integration-chips::-webkit-scrollbar {
+  display: none;
+}
+.ichip-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ichip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+.ichip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  transform: translateY(-1px);
+}
 
 /* -- Mode Badges in Chrome URL -- */
 .badge-mode {
@@ -1081,6 +1142,17 @@ body.ws-stage-2-active .topbar {
       <button class="jump" type="button" id="jump" aria-label="Scroll to bottom" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 13l7 7 7-7"/></svg></button>
       <div class="dock">
         <div class="status" id="status" hidden></div>
+        <!-- Integration Quick Directives (Totalum Built-in SDK Chips) -->
+        <div class="integration-chips" id="integrationChips" title="Klik untuk menyelipkan direktif arsitektur Totalum v2">
+          <span class="ichip-title">⚡ Integrasi Totalum:</span>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: AI Chat streaming & Vision via totalum-sdk/ai]">🤖 AI Chat & Vision</button>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: Database Cloudflare D1 SQLite & Drizzle ORM]">🗄️ SQLite D1 DB</button>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: Pembayaran Stripe Checkout & Langganan via Stripe Connect]">💳 Stripe Payments</button>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: Background Scheduled Cron Jobs]">⏰ Cron Jobs</button>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: Web Scraping otomatis ke Markdown/HTML]">🌐 Web Scraper</button>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: Realtime WebSocket Channels & Presence]">⚡ Realtime WS</button>
+          <button type="button" class="ichip" data-insert="[Fitur Totalum: File Storage upload & OCR Document Scanner]">📁 Storage & OCR</button>
+        </div>
         <form class="box" id="form">
           <label for="msg" style="position:absolute;left:-9999px">Message for agent</label>
           <textarea id="msg" rows="2" placeholder="Describe your business or domain, or request an autonomous workflow..."></textarea>
@@ -1119,6 +1191,14 @@ body.ws-stage-2-active .topbar {
           <button class="sbar-action-btn btn-domain" id="btnCustomDomain" type="button" title="Connect Custom Domain (Totalum)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             <span>Domain</span>
+          </button>
+          <button class="sbar-action-btn btn-secrets" id="btnSecretsModal" type="button" title="Kelola External API Secrets & Keys (Totalum)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Secrets</span>
+          </button>
+          <button class="sbar-action-btn btn-schema" id="btnSchemaModal" type="button" title="Inspeksi Skema Database Cloudflare D1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            <span>Schema</span>
           </button>
           <button class="sbar-action-btn btn-key" id="btnTotalumConfig" type="button" title="Totalum API Key & Cloudflare Config">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1262,6 +1342,74 @@ body.ws-stage-2-active .topbar {
     <div class="rf-modal-foot">
       <button type="button" class="rf-btn" id="btnTestTotalumConn">⚡ Test Connection</button>
       <button type="button" class="rf-btn rf-btn-primary" id="btnSaveTotalumKeyLocal">Save Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 4: Secrets & Environment Variables Manager (Totalum) -->
+<div id="modalSecrets" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card">
+    <div class="rf-modal-head">
+      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secrets &amp; API Keys Manager</h3>
+      <button type="button" class="rf-modal-close" id="btnCloseSecretsModal" aria-label="Close">&times;</button>
+    </div>
+    <div class="rf-modal-body">
+      <div class="rf-callout info">
+        <b>Server-Side Environment Variables (Totalum Secrets)</b>
+        <p style="margin:4px 0 0">Simpan API key eksternal (misal: <code>STRIPE_KEY</code>, <code>WHATSAPP_TOKEN</code>, <code>OPENAI_API_KEY</code>). Totalum akan menginjeksinya langsung ke server <code>process.env</code> tanpa terekspos ke browser pengguna.</p>
+      </div>
+
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:14px">
+        <b style="display:block;font-size:12px;margin-bottom:8px;color:var(--fg)">+ Tambah Secret Baru:</b>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr auto;gap:8px;align-items:end">
+          <div class="rf-form-row" style="margin:0">
+            <label for="inputSecretName" style="font-size:11px">Nama Secret (HURUF_BESAR):</label>
+            <input type="text" id="inputSecretName" placeholder="CONTOH: STRIPE_KEY" style="text-transform:uppercase">
+          </div>
+          <div class="rf-form-row" style="margin:0">
+            <label for="inputSecretVal" style="font-size:11px">Nilai Secret (Token / Key):</label>
+            <input type="password" id="inputSecretVal" placeholder="sk_live_... / Bearer token">
+          </div>
+          <button type="button" class="rf-btn rf-btn-primary" id="btnSaveSecret" style="padding:7px 14px;font-size:12px;height:36px">+ Simpan</button>
+        </div>
+      </div>
+
+      <div id="secretsListContainer">
+        <b style="display:block;font-size:12px;margin-bottom:6px">Daftar Secrets Proyek Aktif:</b>
+        <div id="secretsLoading" style="font-size:12px;color:var(--muted)">Memuat secrets dari Totalum...</div>
+        <div id="secretsEmpty" style="font-size:12px;color:var(--muted);padding:8px 0" hidden>Belum ada secret yang tersimpan. Tambahkan secret di atas jika app Anda membutuhkan koneksi ke API pihak ketiga.</div>
+        <table class="rf-table" id="secretsTable" hidden>
+          <thead><tr><th>Nama Secret</th><th>Environment</th><th>Aksi</th></tr></thead>
+          <tbody id="secretsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="rf-modal-foot">
+      <button type="button" class="rf-btn" id="btnCloseSecretsFoot">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: Database Schema Inspector (Cloudflare D1 via Totalum) -->
+<div id="modalSchema" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card">
+    <div class="rf-modal-head">
+      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Cloudflare D1 Database Schema Inspector</h3>
+      <button type="button" class="rf-modal-close" id="btnCloseSchemaModal" aria-label="Close">&times;</button>
+    </div>
+    <div class="rf-modal-body">
+      <div class="rf-callout info">
+        <b>Arsitektur Database Terdistribusi D1 (SQLite + Drizzle ORM)</b>
+        <p style="margin:4px 0 0">Totalum secara otomatis membuat tabel SQL, tipe data, dan relasi berdasarkan prompt Anda. Saat Anda klik <b>Deploy</b>, skema ini dimigrasikan secara aman ke production.</p>
+      </div>
+
+      <div id="schemaLoading" style="font-size:12px;color:var(--muted);padding:12px 0">Mengambil struktur tabel dari Totalum Cloud...</div>
+      <div id="schemaEmpty" style="font-size:12px;color:var(--muted);padding:12px 0" hidden>Belum ada skema database terdaftar untuk proyek ini. Jalankan prompt pembuatan database terlebih dahulu.</div>
+      <div id="schemaContent" style="max-height:360px;overflow-y:auto"></div>
+    </div>
+    <div class="rf-modal-foot">
+      <button type="button" class="rf-btn" id="btnRefreshSchema">🔄 Refresh Schema</button>
+      <button type="button" class="rf-btn rf-btn-primary" id="btnCloseSchemaFoot">Selesai</button>
     </div>
   </div>
 </div>
@@ -2185,6 +2333,170 @@ body.ws-stage-2-active .topbar {
     });
   }
 
+  /* ---------- Secrets & Environment Variables Manager ---------- */
+  function openSecretsModal() {
+    var p = cur(); if (!p) return;
+    $('#modalSecrets').hidden = false;
+    loadProjectSecrets();
+  }
+  window.openSecretsModal = openSecretsModal;
+
+  function loadProjectSecrets() {
+    var p = cur(); if (!p) return;
+    var projSlug = p.totalumProjectId || p.name;
+    var loadingEl = $('#secretsLoading');
+    var emptyEl = $('#secretsEmpty');
+    var tableEl = $('#secretsTable');
+    var tbodyEl = $('#secretsTbody');
+
+    loadingEl.hidden = false;
+    emptyEl.hidden = true;
+    tableEl.hidden = true;
+    tbodyEl.innerHTML = '';
+
+    totalumFetch('/api/totalum?action=secrets&projectId=' + encodeURIComponent(projSlug))
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      loadingEl.hidden = true;
+      var list = (json && json.data) ? json.data : [];
+      if (!list || !list.length) {
+        emptyEl.hidden = false;
+        return;
+      }
+      tableEl.hidden = false;
+      tbodyEl.innerHTML = list.map(function(s) {
+        var name = esc(s.secretName || s.name || '');
+        var env = esc(s.environment || 'both');
+        return '<tr><td><code>' + name + '</code></td><td><span style="font-size:11px;padding:2px 6px;border-radius:4px;background:var(--code-bg);color:var(--muted)">' + env + '</span></td><td><button type="button" class="rf-btn" data-del-secret="' + name + '" style="padding:3px 8px;font-size:11px;color:var(--danger)">Hapus</button></td></tr>';
+      }).join('');
+    })
+    .catch(function(err) {
+      loadingEl.hidden = true;
+      emptyEl.hidden = false;
+      emptyEl.textContent = 'Gagal memuat secrets: ' + err.message;
+    });
+  }
+
+  function saveProjectSecret() {
+    var p = cur(); if (!p) return;
+    var projSlug = p.totalumProjectId || p.name;
+    var nameInp = $('#inputSecretName');
+    var valInp = $('#inputSecretVal');
+    var btn = $('#btnSaveSecret');
+
+    var sName = (nameInp ? nameInp.value : '').trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_');
+    var sVal = (valInp ? valInp.value : '').trim();
+
+    if (!sName || !sVal) {
+      toast('Nama secret dan nilainya wajib diisi.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan...';
+
+    totalumFetch('/api/totalum?action=secret&projectId=' + encodeURIComponent(projSlug), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secretName: sName, secretValue: sVal, environment: 'both' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      btn.disabled = false;
+      btn.textContent = '+ Simpan';
+      if (json.errors) {
+        throw new Error(json.errors.errorMessage || 'Gagal menyimpan secret');
+      }
+      toast('Secret ' + sName + ' berhasil disimpan!');
+      if (nameInp) nameInp.value = '';
+      if (valInp) valInp.value = '';
+      loadProjectSecrets();
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = '+ Simpan';
+      toast('Error: ' + err.message);
+    });
+  }
+
+  function deleteProjectSecret(name) {
+    var p = cur(); if (!p) return;
+    var projSlug = p.totalumProjectId || p.name;
+    if (!window.confirm('Hapus secret ' + name + '?')) return;
+
+    toast('Menghapus secret ' + name + '...');
+    totalumFetch('/api/totalum?action=secret&projectId=' + encodeURIComponent(projSlug) + '&secretName=' + encodeURIComponent(name), {
+      method: 'DELETE'
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (json.errors) throw new Error(json.errors.errorMessage || 'Gagal menghapus');
+      toast('Secret ' + name + ' dihapus.');
+      loadProjectSecrets();
+    })
+    .catch(function(err) {
+      toast('Error hapus: ' + err.message);
+    });
+  }
+
+  /* ---------- Database Schema Inspector ---------- */
+  function openSchemaModal() {
+    var p = cur(); if (!p) return;
+    $('#modalSchema').hidden = false;
+    loadProjectSchema();
+  }
+  window.openSchemaModal = openSchemaModal;
+
+  function loadProjectSchema() {
+    var p = cur(); if (!p) return;
+    var projSlug = p.totalumProjectId || p.name;
+    var loadingEl = $('#schemaLoading');
+    var emptyEl = $('#schemaEmpty');
+    var contentEl = $('#schemaContent');
+
+    loadingEl.hidden = false;
+    emptyEl.hidden = true;
+    contentEl.innerHTML = '';
+
+    totalumFetch('/api/totalum?action=schema&projectId=' + encodeURIComponent(projSlug))
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      loadingEl.hidden = true;
+      if (json.errors || !json.data) {
+        emptyEl.hidden = false;
+        emptyEl.textContent = 'Belum ada skema terdeteksi atau proyek masih dalam inisialisasi.';
+        return;
+      }
+      var schemaData = json.data;
+      var tables = schemaData.tables || schemaData || [];
+      if (typeof tables === 'object' && !Array.isArray(tables)) {
+        tables = Object.keys(tables).map(function(k) { return { name: k, columns: tables[k] }; });
+      }
+      if (!tables || !tables.length) {
+        emptyEl.hidden = false;
+        return;
+      }
+      var html = tables.map(function(tbl) {
+        var tName = esc(tbl.name || tbl.tableName || 'table');
+        var cols = tbl.columns || tbl.fields || [];
+        var colsList = Array.isArray(cols) ? cols : Object.keys(cols).map(function(ck){ return { name: ck, type: cols[ck].type || cols[ck] }; });
+        return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px">' +
+          '<div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px">🗄️ Tabel: <code>' + tName + '</code></div>' +
+          '<table class="rf-table"><thead><tr><th>Kolom</th><th>Tipe Data</th></tr></thead><tbody>' +
+          colsList.map(function(c) {
+            return '<tr><td><code>' + esc(c.name || c) + '</code></td><td><span style="font-size:11px;color:var(--muted)">' + esc(c.type || 'text') + '</span></td></tr>';
+          }).join('') +
+          '</tbody></table></div>';
+      }).join('');
+      contentEl.innerHTML = html;
+    })
+    .catch(function(err) {
+      loadingEl.hidden = true;
+      emptyEl.hidden = false;
+      emptyEl.textContent = 'Gagal memuat skema: ' + err.message;
+    });
+  }
+
   function runAgent(p, text) {
     if (state.engineMode === 'totalum') {
       runTotalumAgent(p, text);
@@ -2648,10 +2960,29 @@ body.ws-stage-2-active .topbar {
     if (c('#btnCloseLightbox')) { closeLightbox(); return; }
     if (t && t.id === 'previewLightbox') { closeLightbox(); return; }
     if ((el = c('[data-f]'))) { codeFile = el.dataset.f; renderSide(); return; }
+    if ((el = c('.ichip[data-insert]'))) {
+      var ins = el.dataset.insert;
+      var ta = $('#msg');
+      if (ta) {
+        ta.value = ta.value ? (ta.value + '\n' + ins) : ins;
+        ta.focus();
+        fit();
+        updSend();
+        toast('Directif arsitektur ditambahkan');
+      }
+      return;
+    }
     if (c('#btnModeSim')) { setEngineMode('sim'); return; }
     if (c('#btnModeTotalum')) { setEngineMode('totalum'); return; }
     if (c('#btnDeployLive') || c('#wsBtnChromeDeploy')) { openDeployModal(); return; }
     if (c('#btnCustomDomain') || c('#wsBtnChromeDomain')) { openDomainModal(); return; }
+    if (c('#btnSecretsModal')) { openSecretsModal(); return; }
+    if (c('#btnCloseSecretsModal') || c('#btnCloseSecretsFoot') || t.id === 'modalSecrets') { $('#modalSecrets').hidden = true; return; }
+    if (c('#btnSaveSecret')) { saveProjectSecret(); return; }
+    if ((el = c('[data-del-secret]'))) { deleteProjectSecret(el.dataset.delSecret); return; }
+    if (c('#btnSchemaModal')) { openSchemaModal(); return; }
+    if (c('#btnCloseSchemaModal') || c('#btnCloseSchemaFoot') || t.id === 'modalSchema') { $('#modalSchema').hidden = true; return; }
+    if (c('#btnRefreshSchema')) { loadProjectSchema(); return; }
     if (c('#btnTotalumConfig')) { openTotalumConfig(); return; }
     if (c('#btnCloseDeployModal') || c('#btnCancelDeploy') || t.id === 'modalDeploy') { $('#modalDeploy').hidden = true; return; }
     if (c('#btnCloseDomainModal') || c('#btnCancelDomain') || t.id === 'modalDomain') { $('#modalDomain').hidden = true; return; }
