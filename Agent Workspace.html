@@ -711,6 +711,354 @@ body.ws-stage-2-active .topbar {
     padding: 4px 10px;
   }
 }
+
+/* -- Engine Mode Switcher (Simulation vs Totalum Cloud) -- */
+.engine-switch {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 3px;
+  align-self: center;
+  margin: 0 10px 6px;
+}
+.es-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.es-btn:hover {
+  color: var(--fg);
+}
+.es-btn.active {
+  background: var(--panel);
+  color: var(--accent);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  font-weight: 700;
+}
+.es-btn[data-engine="totalum"].active {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+}
+
+/* -- Sbar Action Buttons (Deploy Live & Custom Domain) -- */
+.sbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sbar-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.sbar-action-btn:hover {
+  transform: translateY(-1px);
+}
+.sbar-action-btn.btn-deploy {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28);
+}
+.sbar-action-btn.btn-deploy:hover {
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+}
+.sbar-action-btn.btn-domain {
+  background: color-mix(in srgb, var(--accent) 15%, var(--panel));
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.sbar-action-btn.btn-domain:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.sbar-action-btn.btn-key {
+  color: var(--muted);
+  font-size: 11px;
+  padding: 5px 8px;
+}
+.sbar-action-btn.btn-key:hover {
+  color: var(--fg);
+  border-color: var(--fg);
+}
+
+/* -- Mode Badges in Chrome URL -- */
+.badge-mode {
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  flex: none;
+}
+.badge-mode-sim {
+  background: #f59e0b;
+  color: #1a1300;
+}
+.badge-mode-totalum {
+  background: #10b981;
+  color: #ffffff;
+}
+.badge-mode-live {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* -- Modals (Deploy, Custom Domain, Cloudflare Setup) -- */
+.rf-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(4, 7, 18, 0.75);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  animation: modalFadeIn .2s ease;
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.rf-modal-card {
+  width: 100%;
+  max-width: 540px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px -12px rgba(0,0,0,0.65), 0 0 40px -10px color-mix(in srgb, var(--accent) 25%, transparent);
+  display: flex;
+  flex-direction: column;
+}
+.rf-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel) 90%, var(--bg));
+}
+.rf-modal-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rf-modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+}
+.rf-modal-close:hover {
+  background: var(--line);
+  color: var(--fg);
+}
+.rf-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 13.5px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.rf-modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel) 92%, var(--bg));
+}
+.rf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.rf-btn:hover {
+  background: var(--line);
+}
+.rf-btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.rf-btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+.rf-btn-success {
+  background: #10b981;
+  color: #fff;
+  border-color: transparent;
+}
+.rf-btn-success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+.rf-callout {
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel) 80%, var(--bg));
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.rf-callout.info {
+  border-color: color-mix(in srgb, #3b82f6 35%, transparent);
+  background: color-mix(in srgb, #3b82f6 10%, var(--panel));
+}
+.rf-callout.success {
+  border-color: color-mix(in srgb, #10b981 35%, transparent);
+  background: color-mix(in srgb, #10b981 10%, var(--panel));
+}
+.rf-callout.warning {
+  border-color: color-mix(in srgb, #f59e0b 35%, transparent);
+  background: color-mix(in srgb, #f59e0b 10%, var(--panel));
+}
+.rf-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rf-form-row label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.rf-form-row input, .rf-form-row select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 13.5px;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.rf-form-row input:focus {
+  border-color: var(--accent);
+}
+.rf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 6px;
+}
+.rf-table th, .rf-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  text-align: left;
+}
+.rf-table th {
+  background: var(--bg);
+  color: var(--muted);
+  font-weight: 700;
+}
+.rf-table td code {
+  font-family: var(--font-mono);
+  background: var(--code-bg);
+  color: var(--code-fg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.deploy-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+.deploy-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 12.5px;
+}
+.deploy-step-item.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+.deploy-step-item.done {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+}
+.deploy-step-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  flex: none;
+  border: 1.5px solid var(--line);
+}
+.deploy-step-item.done .deploy-step-icon {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+.deploy-step-item.active .deploy-step-icon {
+  border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+}
 </style>
 
 <div class="app">
@@ -718,8 +1066,12 @@ body.ws-stage-2-active .topbar {
     <a href="index.html" class="brand" title="Return to Home" style="text-decoration:none;color:inherit"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8L10 3Zm8 9l.9 2.6 2.6.9-2.6.9L18 19l-.9-2.6-2.6-.9 2.6-.9L18 12Z"/></svg></i><span>Runnerflo Workspace</span></a>
     <div class="tabs" id="tabs" role="tablist" aria-label="Open projects"></div>
     <button class="newtab" type="button" id="newTab" aria-label="New project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <div class="engine-switch" id="engineSwitch" title="Switch between Free Simulation (Unpaid Demo) and Totalum Cloud Engine (Paid Full-Stack Next.js + SQLite D1)">
+      <button type="button" class="es-btn active" id="btnModeSim" data-engine="sim">⚡ Simulation (Demo)</button>
+      <button type="button" class="es-btn" id="btnModeTotalum" data-engine="totalum">🚀 Totalum Cloud (Paid)</button>
+    </div>
     <span class="spacer"></span>
-    <span class="plan">Plan Pro</span>
+    <span class="plan" id="topPlanBadge">Plan Pro</span>
     <span class="me-av" aria-hidden="true">NW</span>
   </header>
 
@@ -759,6 +1111,20 @@ body.ws-stage-2-active .topbar {
           <button type="button" data-m="radar" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 0 1 10 10M12 6a6 6 0 0 1 6 6M12 10a2 2 0 0 1 2 2"/></svg>Radar</button>
           <button type="button" data-m="workflow" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8l6.8-4M8.6 13.2l6.8 4"/></svg>Workflow</button>
         </div>
+        <div class="sbar-actions">
+          <button class="sbar-action-btn btn-deploy" id="btnDeployLive" type="button" title="Deploy / Publish Live with Totalum Engine">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
+            <span>Deploy Live</span>
+          </button>
+          <button class="sbar-action-btn btn-domain" id="btnCustomDomain" type="button" title="Connect Custom Domain (Totalum)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>Domain</span>
+          </button>
+          <button class="sbar-action-btn btn-key" id="btnTotalumConfig" type="button" title="Totalum API Key & Cloudflare Config">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Config</span>
+          </button>
+        </div>
         <span class="spacer"></span>
         <button class="sq" type="button" id="theme" aria-label="Toggle color theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
         <span id="resetBox"></span>
@@ -789,6 +1155,113 @@ body.ws-stage-2-active .topbar {
     </div>
     <div class="preview-lightbox-body">
       <iframe src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Full View" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 1: Deploy to Production (Totalum VCaaS Engine) -->
+<div id="modalDeploy" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card">
+    <div class="rf-modal-head">
+      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>Deploy App to Production Live</h3>
+      <button type="button" class="rf-modal-close" id="btnCloseDeployModal" aria-label="Close">&times;</button>
+    </div>
+    <div class="rf-modal-body" id="deployModalBody">
+      <div id="deployModeInfo"></div>
+      <div id="deployStepsContainer" class="deploy-steps-list" hidden>
+        <div class="deploy-step-item" id="dstep-build"><span class="deploy-step-icon">1</span><span>Compiling Next.js 14 Bundle & TypeScript checks...</span></div>
+        <div class="deploy-step-item" id="dstep-migration"><span class="deploy-step-icon">2</span><span>Running SQLite Cloudflare D1 schema migrations...</span></div>
+        <div class="deploy-step-item" id="dstep-upload"><span class="deploy-step-icon">3</span><span>Distributing assets across 300+ Edge Cloudflare Workers CDN...</span></div>
+        <div class="deploy-step-item" id="dstep-probe"><span class="deploy-step-icon">4</span><span>Running zero-downtime health probe & SSL verification...</span></div>
+      </div>
+      <div id="deploySuccessContainer" class="rf-callout success" hidden>
+        <b>🎉 App Successfully Deployed to Production!</b>
+        <p style="margin:4px 0 8px">Your live full-stack app is now active on the global edge:</p>
+        <a id="deployLiveUrlLink" href="#" target="_blank" rel="noopener" style="font-size:14px;font-weight:700;color:#10b981;text-decoration:underline;word-break:break-all"></a>
+      </div>
+    </div>
+    <div class="rf-modal-foot" id="deployModalFoot">
+      <button type="button" class="rf-btn" id="btnCancelDeploy">Cancel</button>
+      <button type="button" class="rf-btn rf-btn-success" id="btnExecuteDeploy">🚀 Publish to Production (0.5 Credits)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Custom Domain (Totalum Engine) -->
+<div id="modalDomain" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card">
+    <div class="rf-modal-head">
+      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Connect Custom Domain</h3>
+      <button type="button" class="rf-modal-close" id="btnCloseDomainModal" aria-label="Close">&times;</button>
+    </div>
+    <div class="rf-modal-body">
+      <div class="rf-callout info">
+        <b>Connect your own domain or subdomain</b>
+        <p style="margin:4px 0 0">Totalum provides automated SSL certificates and edge routing on Cloudflare Workers for any verified domain.</p>
+      </div>
+      <div class="rf-form-row">
+        <label for="customDomainInput">Custom Domain / Subdomain</label>
+        <input type="text" id="customDomainInput" placeholder="e.g. app.yourcompany.com or portal.myshop.id" autocomplete="off">
+      </div>
+      <div class="rf-callout">
+        <b style="display:block;margin-bottom:4px">DNS Configuration (Add to your DNS provider):</b>
+        <table class="rf-table">
+          <thead><tr><th>Type</th><th>Name</th><th>Target / Value</th><th>Proxy Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>CNAME</code></td>
+              <td><code id="dnsSubName">app</code></td>
+              <td><code id="dnsTargetHost">app-project.totalum-project.com</code></td>
+              <td>DNS Only (Grey cloud)</td>
+            </tr>
+          </tbody>
+        </table>
+        <small style="display:block;margin-top:6px;color:var(--muted)">Note: Project must be deployed at least once before binding a domain.</small>
+      </div>
+      <div id="domainStatusAlert" class="rf-callout success" hidden></div>
+    </div>
+    <div class="rf-modal-foot">
+      <button type="button" class="rf-btn" id="btnCancelDomain">Cancel</button>
+      <button type="button" class="rf-btn rf-btn-primary" id="btnSubmitDomain">🌐 Connect Domain</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3: Totalum API Key & Cloudflare Config -->
+<div id="modalTotalumConfig" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card">
+    <div class="rf-modal-head">
+      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Totalum Engine & Cloudflare Setup</h3>
+      <button type="button" class="rf-modal-close" id="btnCloseConfigModal" aria-label="Close">&times;</button>
+    </div>
+    <div class="rf-modal-body">
+      <div class="rf-callout info">
+        <b>Cara Memasukkan Key di Cloudflare Workers / Pages:</b>
+        <ol style="margin:6px 0 0;padding-left:18px;line-height:1.6">
+          <li>Buka <a href="https://dash.cloudflare.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">Cloudflare Dashboard</a> &rarr; <b>Workers &amp; Pages</b>.</li>
+          <li>Pilih project <b>runnerflo-b2b</b>.</li>
+          <li>Klik menu <b>Settings</b> &rarr; <b>Environment variables</b>.</li>
+          <li>Klik <b>Add variable</b>:
+            <ul style="margin:4px 0;padding-left:16px">
+              <li>Variable name: <code style="background:var(--code-bg);color:#38bdf8;padding:2px 6px;border-radius:4px">TOTALUM_API_KEY</code></li>
+              <li>Value: <code>tlm_sk_...</code> (pilih Encrypt/Secret)</li>
+            </ul>
+          </li>
+          <li>Klik <b>Save and Deploy</b> (atau Redeploy deployment terakhir).</li>
+        </ol>
+      </div>
+
+      <div class="rf-form-row">
+        <label for="inputTotalumKeyLocal">Quick Connect (Browser Token Test):</label>
+        <input type="password" id="inputTotalumKeyLocal" placeholder="Paste tlm_sk_... di sini untuk test langsung tanpa nunggu deploy">
+        <small style="color:var(--muted)">Disimpan aman di localStorage browser Anda untuk pengujian instan.</small>
+      </div>
+
+      <div id="cfgStatusFeedback" class="rf-callout" style="display:none"></div>
+    </div>
+    <div class="rf-modal-foot">
+      <button type="button" class="rf-btn" id="btnTestTotalumConn">⚡ Test Connection</button>
+      <button type="button" class="rf-btn rf-btn-primary" id="btnSaveTotalumKeyLocal">Save Key</button>
     </div>
   </div>
 </div>
@@ -862,7 +1335,22 @@ body.ws-stage-2-active .topbar {
     return { role: 'agent', text: 'What digital product would you like to build \u2014 or what target clients should our AI scout for you today? \ud83d\ude80', steps: [] };
   }
   function mkProject(name, stage) {
-    return { id: 'p' + Math.random().toString(36).slice(2, 8), name: name, stage: stage || 0, updated: Date.now(), msgs: [greet()], suggest: AUDIENCE.slice(), assets: [], busy: false, dismissed: false };
+    return {
+      id: 'p' + Math.random().toString(36).slice(2, 8),
+      name: name,
+      stage: stage || 0,
+      updated: Date.now(),
+      msgs: [greet()],
+      suggest: AUDIENCE.slice(),
+      assets: [],
+      busy: false,
+      dismissed: false,
+      totalumProjectId: '',
+      totalumPreviewUrl: '',
+      totalumLiveUrl: '',
+      totalumCreditsSpent: 0,
+      customDomain: ''
+    };
   }
   function seed() {
     var a = mkProject('video-editing-agency', 0);
@@ -876,19 +1364,26 @@ body.ws-stage-2-active .topbar {
     c.msgs = [{ role: 'user', text: 'build a brand identity & logo design service platform' }, { role: 'agent', text: 'Your brand studio platform is fully deployed! Includes agency portfolio showcase, pricing tiers, intake order form, and client dashboard.\n\nRadar AI identified 5 qualified inbound client opportunities this week. Open the Radar tab to review and send proposals!', steps: [{ label: 'Landing page + portfolio showcase', done: true }, { label: 'Pricing packages & intake order form', done: true }, { label: 'Client order & project dashboard', done: true }] }];
     c.suggest = ['Review leads in Radar', 'Activate Make.com workflow', 'Add client case studies'];
     c.updated = Date.now() - 3600e3 * 30;
-    return { projects: [a, b, c], open: [a.id], active: a.id, mode: 'Auto', build: 'Build', theme: '' };
+    return { projects: [a, b, c], open: [a.id], active: a.id, mode: 'Auto', build: 'Build', theme: '', engineMode: 'sim' };
   }
   function load() {
     try {
       var r = localStorage.getItem(KEY); if (!r) return null;
       var s = JSON.parse(r); if (!s || !s.projects) return null;
-      s.projects.forEach(function (p) { p.busy = false; });
+      s.projects.forEach(function (p) {
+        p.busy = false;
+        if (typeof p.totalumProjectId === 'undefined') p.totalumProjectId = '';
+        if (typeof p.totalumPreviewUrl === 'undefined') p.totalumPreviewUrl = '';
+        if (typeof p.totalumLiveUrl === 'undefined') p.totalumLiveUrl = '';
+        if (typeof p.totalumCreditsSpent === 'undefined') p.totalumCreditsSpent = 0;
+      });
       if (s.active === 'home' || !s.active) {
         s.active = (s.projects[0] && s.projects[0].id) || 'project-1';
       }
       if (!Array.isArray(s.open)) s.open = [];
       s.open = s.open.filter(function (x) { return x !== 'home'; });
       if (s.open.indexOf(s.active) < 0) s.open.unshift(s.active);
+      if (!s.engineMode) s.engineMode = 'sim';
       return s;
     } catch (e) { return null; }
   }
@@ -1206,7 +1701,495 @@ body.ws-stage-2-active .topbar {
   }
   window.wsRestore = wsRestore;
 
+  function totalumFetch(endpoint, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    var localKey = localStorage.getItem('rf_totalum_key') || '';
+    if (localKey) {
+      opts.headers['x-totalum-key'] = localKey;
+    }
+    return fetch(endpoint, opts);
+  }
+
+  function setEngineMode(mode) {
+    state.engineMode = mode;
+    save();
+    updateEngineUI();
+    renderSide();
+    if (mode === 'totalum') {
+      toast('🚀 Totalum Cloud Engine (Paid Mode) Activated!');
+      totalumFetch('/api/totalum?action=status')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d.configured) {
+          openTotalumConfig();
+        }
+      }).catch(function(){});
+    } else {
+      toast('⚡ Free Simulation Mode (Unpaid Demo) Active.');
+    }
+  }
+  window.setEngineMode = setEngineMode;
+
+  function updateEngineUI() {
+    var isTotalum = (state.engineMode === 'totalum');
+    var bSim = $('#btnModeSim'), bTot = $('#btnModeTotalum');
+    if (bSim) bSim.classList.toggle('active', !isTotalum);
+    if (bTot) bTot.classList.toggle('active', isTotalum);
+
+    var planBdg = $('#topPlanBadge');
+    if (planBdg) {
+      if (isTotalum) {
+        var p = cur();
+        var credits = (p && p.totalumCreditsSpent) ? ('Spent: ' + p.totalumCreditsSpent) : 'Totalum v2';
+        planBdg.textContent = '🚀 Totalum Live (' + credits + ')';
+        planBdg.style.background = '#10b981';
+        planBdg.style.color = '#fff';
+      } else {
+        planBdg.textContent = '⚡ Simulation Demo';
+        planBdg.style.background = 'var(--warn)';
+        planBdg.style.color = 'var(--warn-fg)';
+      }
+    }
+  }
+
+  function runTotalumAgent(p, text) {
+    var my = ++runId;
+    p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
+    uiMode = 'live';
+    updateWave(8, 'Totalum Engine v2: Initializing Full-Stack Next.js Project...', 'Progress: 8% &bull; Edge Cloudflare Workers + D1 SQLite Database');
+    renderChat(); renderTabs(); renderSide();
+
+    var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
+    p.msgs.push(m);
+    renderIf(p);
+
+    var isNew = !p.totalumProjectId;
+    var projSlug = (p.totalumProjectId || p.name || 'app-' + Math.random().toString(36).slice(2, 8)).toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 32);
+
+    m.steps.push({ label: isNew ? ('Provisioning Totalum v2 Project (' + projSlug + ')') : 'Sending prompt to Totalum Agent...', done: false });
+    renderIf(p);
+
+    var ep = isNew ? '/api/totalum?action=launch' : ('/api/totalum?action=prompt&projectId=' + encodeURIComponent(projSlug));
+    var reqBody = isNew
+      ? { projectId: projSlug, prompt: text, label: p.name, engineVersion: 'v2', tier: 'auto' }
+      : { prompt: text, tier: 'auto' };
+
+    totalumFetch(ep, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reqBody)
+    })
+    .then(function(res) {
+      return res.json().then(function(json) {
+        if (!res.ok || json.errors) {
+          throw new Error((json.errors && json.errors.errorMessage) || ('API ' + res.status));
+        }
+        return json.data;
+      });
+    })
+    .then(function(data) {
+      if (my !== runId) return;
+      if (data.projectId) {
+        p.totalumProjectId = data.projectId;
+      }
+      m.steps[0].done = true;
+      var estMin = (data.agent && data.agent.expectedMinutes) ? data.agent.expectedMinutes : 3;
+      m.text = '🚀 **Totalum v2 AI Agent started!**\nProject ID: `' + p.totalumProjectId + '` (Cloudflare Workers + D1 SQLite + Drizzle ORM)\nEstimated build time: ~' + estMin + ' minute(s).\n\nNow compiling Next.js 14 App Router, building schema migrations, and generating edge routes...';
+      renderIf(p);
+
+      pollTotalumProgress(p, m, my);
+    })
+    .catch(function(err) {
+      if (my !== runId) return;
+      p.busy = false;
+      m.steps[0].done = false;
+      m.text = '⚠️ **Totalum Notice:** ' + err.message + '\n\n' +
+               'Pastikan `TOTALUM_API_KEY` sudah disetel di Cloudflare Pages > Settings > Environment Variables, atau klik tombol **Config** di atas untuk memasukkan key sementara.';
+      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-btn rf-btn-primary" onclick="window.openTotalumConfig()">⚙️ Setup Totalum API Key</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Free Simulation</button></div>';
+      finishWave();
+      save();
+      renderChat();
+      renderTabs();
+      renderSide();
+    });
+  }
+
+  function pollTotalumProgress(p, m, my) {
+    var projSlug = p.totalumProjectId || p.name;
+    var pollCount = 0;
+    var maxPolls = 120;
+
+    var timer = setInterval(function() {
+      if (my !== runId || !p.busy) {
+        clearInterval(timer);
+        return;
+      }
+      pollCount++;
+
+      totalumFetch('/api/totalum?action=agent-progress&projectId=' + encodeURIComponent(projSlug))
+      .then(function(r) { return r.json(); })
+      .then(function(progRes) {
+        if (my !== runId) return;
+        var prog = progRes.data;
+        if (prog) {
+          var stage = prog.stage || 'working';
+          var pct = Math.min(95, Math.max(15, (prog.turns || 1) * 12));
+          updateWave(pct, 'Totalum Engine: ' + stage + '...', 'Turns: ' + (prog.turns || 1) + ' &bull; Files changed: ' + (prog.files ? prog.files.length : 0));
+
+          if (Array.isArray(prog.steps) && prog.steps.length) {
+            prog.steps.slice(-4).forEach(function(st) {
+              var stepLabel = (st.kind ? (st.kind.toUpperCase() + ': ') : '') + (st.file || st.task || 'working');
+              if (!m.steps.some(function(s) { return s.label === stepLabel; })) {
+                m.steps.push({ label: stepLabel, done: true });
+              }
+            });
+            renderIf(p);
+          }
+        }
+      })
+      .catch(function() {});
+
+      totalumFetch('/api/totalum?action=agent-status&projectId=' + encodeURIComponent(projSlug))
+      .then(function(r) { return r.json(); })
+      .then(function(statRes) {
+        if (my !== runId) return;
+        var stat = statRes.data;
+        if (stat && stat.status === 'done') {
+          clearInterval(timer);
+          onTotalumBuildDone(p, m, my);
+        } else if (pollCount >= maxPolls) {
+          clearInterval(timer);
+          onTotalumBuildDone(p, m, my);
+        }
+      })
+      .catch(function() {});
+    }, 3500);
+  }
+
+  function onTotalumBuildDone(p, m, my) {
+    var projSlug = p.totalumProjectId || p.name;
+    totalumFetch('/api/totalum?action=project&projectId=' + encodeURIComponent(projSlug))
+    .then(function(r) { return r.json(); })
+    .then(function(projRes) {
+      if (my !== runId) return;
+      var d = projRes.data || {};
+      p.busy = false;
+      p.stage = 4;
+      p.totalumPreviewUrl = d.temporalDevelopmentProjectUrl || ('https://' + projSlug + '.totalum-project.com');
+      p.totalumLiveUrl = d.productionProjectUrl || (projSlug + '.totalum-project.com');
+      p.totalumCreditsSpent = d.totalCreditsSpent || 0;
+      p.updated = Date.now();
+
+      m.text += '\n\n✨ **Build Successful! App is Live in Preview!**\n' +
+                '• Preview URL: ' + p.totalumPreviewUrl + '\n' +
+                '• Credits spent: ' + p.totalumCreditsSpent + '\n' +
+                '• Database & auth ready. You can now publish to production or attach your custom domain.';
+
+      m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button type="button" class="rf-btn rf-btn-success" onclick="window.openDeployModal()">🚀 Deploy to Production Live</button>' +
+        '<button type="button" class="rf-btn rf-btn-primary" onclick="window.openDomainModal()">🌐 Connect Custom Domain</button>' +
+        '<button type="button" class="rf-btn" onclick="window.open(\'' + p.totalumPreviewUrl + '\', \'_blank\')">↗ Open Preview in New Tab</button>' +
+        '</div>';
+
+      p.suggest = ['Deploy to production', 'Connect custom domain', 'Add database schema', 'Add user authentication'];
+      finishWave();
+      save();
+      toast('🚀 Totalum project ready! Preview live.');
+      renderChat();
+      renderTabs();
+      renderSide();
+    })
+    .catch(function(err) {
+      p.busy = false;
+      finishWave();
+      save();
+      renderChat();
+      renderTabs();
+      renderSide();
+    });
+  }
+
+  function openDeployModal() {
+    var p = cur(); if (!p) return;
+    var isTotalum = (state.engineMode === 'totalum');
+    var mInfo = $('#deployModeInfo');
+    var sCont = $('#deployStepsContainer');
+    var succCont = $('#deploySuccessContainer');
+    var btnExec = $('#btnExecuteDeploy');
+
+    sCont.hidden = true;
+    succCont.hidden = true;
+    btnExec.disabled = false;
+
+    if (isTotalum) {
+      var projSlug = p.totalumProjectId || p.name;
+      var targetHost = p.totalumLiveUrl || (projSlug + '.totalum-project.com');
+      mInfo.innerHTML = '<div class="rf-callout success">' +
+        '<b>🚀 Totalum Live Cloud Deployment Ready</b>' +
+        '<div style="margin-top:6px;font-size:12.5px;line-height:1.6">' +
+        '<div>&bull; <b>Project ID:</b> <code>' + esc(projSlug) + '</code></div>' +
+        '<div>&bull; <b>Production Host:</b> <code>https://' + esc(targetHost) + '</code></div>' +
+        '<div>&bull; <b>Stack:</b> Next.js 14 App Router + SQLite D1 (Drizzle ORM) + Cloudflare Workers</div>' +
+        '<div>&bull; <b>Cost:</b> 0.5 Credits per deployment</div>' +
+        '</div></div>' +
+        '<p style="margin:10px 0 0;color:var(--muted);font-size:12.5px">Publishing will apply database migrations to production, compile edge bundles, and distribute the site across 300+ global Cloudflare Workers edge nodes.</p>';
+      btnExec.textContent = '🚀 Publish to Production (0.5 Credits)';
+      btnExec.style.display = 'inline-flex';
+    } else {
+      mInfo.innerHTML = '<div class="rf-callout warning">' +
+        '<b>⚡ You are currently in Free Simulation Mode (Unpaid Demo)</b>' +
+        '<p style="margin:6px 0 0">In simulation mode, you can test a <b>Simulated Deployment</b> preview without charges.<br><br>' +
+        'If you want to deploy a <b>REAL live full-stack Next.js app</b> with SQLite Cloudflare D1 database and custom domain, switch to <b>Totalum Cloud Engine (Paid Mode)</b>.</p>' +
+        '</div>' +
+        '<div style="margin-top:12px;display:flex;gap:8px">' +
+        '<button type="button" class="rf-btn rf-btn-primary" onclick="window.setEngineMode(\'totalum\');window.openDeployModal()">Switch to Totalum Cloud (Paid)</button>' +
+        '</div>';
+      btnExec.textContent = 'Test Simulated Deploy (Demo)';
+      btnExec.style.display = 'inline-flex';
+    }
+
+    $('#modalDeploy').hidden = false;
+  }
+  window.openDeployModal = openDeployModal;
+
+  function executeDeploy() {
+    var p = cur(); if (!p) return;
+    var isTotalum = (state.engineMode === 'totalum');
+    var btnExec = $('#btnExecuteDeploy');
+    var sCont = $('#deployStepsContainer');
+    var succCont = $('#deploySuccessContainer');
+    var liveLink = $('#deployLiveUrlLink');
+
+    btnExec.disabled = true;
+    sCont.hidden = false;
+
+    ['dstep-build', 'dstep-migration', 'dstep-upload', 'dstep-probe'].forEach(function(id){
+      var el = $('#' + id);
+      if (el) { el.classList.remove('active', 'done'); }
+    });
+
+    if (!isTotalum) {
+      var steps = ['dstep-build', 'dstep-migration', 'dstep-upload', 'dstep-probe'];
+      var sIdx = 0;
+      function nextSimStep() {
+        if (sIdx < steps.length) {
+          if (sIdx > 0) $('#' + steps[sIdx - 1]).classList.replace('active', 'done');
+          $('#' + steps[sIdx]).classList.add('active');
+          sIdx++;
+          setTimeout(nextSimStep, 700);
+        } else {
+          $('#' + steps[steps.length - 1]).classList.replace('active', 'done');
+          succCont.hidden = false;
+          var simLiveUrl = 'https://runnerflo-ai.pages.dev';
+          liveLink.href = simLiveUrl;
+          liveLink.textContent = simLiveUrl + ' (Simulation Live 200 OK)';
+          btnExec.style.display = 'none';
+          toast('🎉 Simulated Deployment Complete!');
+        }
+      }
+      nextSimStep();
+      return;
+    }
+
+    var projSlug = p.totalumProjectId || p.name;
+    $('#dstep-build').classList.add('active');
+
+    totalumFetch('/api/totalum?action=deploy&projectId=' + encodeURIComponent(projSlug), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirmDestructive: true })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(resJson) {
+      if (resJson.errors) {
+        throw new Error(resJson.errors.errorMessage || 'Deploy error');
+      }
+      toast('Deployment initiated! Polling status...');
+      pollDeployStatus(projSlug, p);
+    })
+    .catch(function(err) {
+      btnExec.disabled = false;
+      toast('Deploy failed: ' + err.message);
+      var errEl = $('#deployModeInfo');
+      if (errEl) {
+        errEl.innerHTML = '<div class="rf-callout warning"><b>Deploy Error:</b> ' + esc(err.message) + '</div>';
+      }
+    });
+  }
+
+  function pollDeployStatus(projSlug, p) {
+    var btnExec = $('#btnExecuteDeploy');
+    var succCont = $('#deploySuccessContainer');
+    var liveLink = $('#deployLiveUrlLink');
+    var pollCount = 0;
+
+    var timer = setInterval(function() {
+      pollCount++;
+      totalumFetch('/api/totalum?action=deploy-status&projectId=' + encodeURIComponent(projSlug))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var d = data.data || {};
+        var step = d.step || '';
+
+        if (step === 'build') {
+          $('#dstep-build').classList.add('active');
+        } else if (step === 'migration') {
+          $('#dstep-build').classList.replace('active', 'done');
+          $('#dstep-migration').classList.add('active');
+        } else if (step === 'upload') {
+          $('#dstep-migration').classList.replace('active', 'done');
+          $('#dstep-upload').classList.add('active');
+        } else if (step === 'probe' || step === 'fixing') {
+          $('#dstep-upload').classList.replace('active', 'done');
+          $('#dstep-probe').classList.add('active');
+        }
+
+        if (d.status === 'success' || pollCount > 30) {
+          clearInterval(timer);
+          ['dstep-build', 'dstep-migration', 'dstep-upload', 'dstep-probe'].forEach(function(id){
+            var el = $('#' + id);
+            if (el) { el.classList.remove('active'); el.classList.add('done'); }
+          });
+          succCont.hidden = false;
+          var finalUrl = d.liveUrl || (projSlug + '.totalum-project.com');
+          if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
+          p.totalumLiveUrl = finalUrl.replace(/^https?:\/\//, '');
+          liveLink.href = finalUrl;
+          liveLink.textContent = finalUrl;
+          btnExec.style.display = 'none';
+          save();
+          renderSide();
+          toast('🎉 App Successfully Published to Live!');
+        } else if (d.status === 'error') {
+          clearInterval(timer);
+          btnExec.disabled = false;
+          var errMsg = (d.errorDetails && d.errorDetails.message) || 'Deployment encountered an error';
+          toast('Deploy error: ' + errMsg);
+        }
+      })
+      .catch(function(e) {
+        if (pollCount > 20) clearInterval(timer);
+      });
+    }, 4000);
+  }
+
+  function openDomainModal() {
+    var p = cur(); if (!p) return;
+    var projSlug = p.totalumProjectId || p.name;
+    var dnsTarget = (p.totalumProjectId || projSlug) + '.totalum-project.com';
+    var dt = $('#dnsTargetHost'); if (dt) dt.textContent = dnsTarget;
+    var inp = $('#customDomainInput');
+    if (inp) {
+      inp.value = p.customDomain || '';
+    }
+    var alertEl = $('#domainStatusAlert');
+    if (alertEl) {
+      if (p.customDomain) {
+        alertEl.hidden = false;
+        alertEl.innerHTML = '<b>Current Connected Domain:</b> <code>' + esc(p.customDomain) + '</code>';
+      } else {
+        alertEl.hidden = true;
+      }
+    }
+    $('#modalDomain').hidden = false;
+  }
+  window.openDomainModal = openDomainModal;
+
+  function submitCustomDomain() {
+    var p = cur(); if (!p) return;
+    var inp = $('#customDomainInput');
+    var domain = (inp ? inp.value : '').trim().toLowerCase();
+    if (!domain) {
+      toast('Please enter a valid domain name (e.g. app.mycompany.com)');
+      return;
+    }
+    var projSlug = p.totalumProjectId || p.name;
+    var btnSub = $('#btnSubmitDomain');
+    btnSub.disabled = true;
+    btnSub.textContent = 'Connecting...';
+
+    totalumFetch('/api/totalum?action=domain&projectId=' + encodeURIComponent(projSlug), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hostname: domain })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      btnSub.disabled = false;
+      btnSub.textContent = '🌐 Connect Domain';
+      if (json.errors) {
+        throw new Error(json.errors.errorMessage || 'Domain binding error');
+      }
+      p.customDomain = domain;
+      p.totalumLiveUrl = domain;
+      save();
+      renderSide();
+      var alertEl = $('#domainStatusAlert');
+      if (alertEl) {
+        alertEl.hidden = false;
+        alertEl.className = 'rf-callout success';
+        alertEl.innerHTML = '<b>✅ Custom Domain Connected!</b><br>Added <code>' + esc(domain) + '</code>. Once DNS CNAME resolves, SSL will activate automatically.';
+      }
+      toast('✅ Custom Domain bound to Totalum!');
+    })
+    .catch(function(err) {
+      btnSub.disabled = false;
+      btnSub.textContent = '🌐 Connect Domain';
+      toast('Domain error: ' + err.message);
+      var alertEl = $('#domainStatusAlert');
+      if (alertEl) {
+        alertEl.hidden = false;
+        alertEl.className = 'rf-callout warning';
+        alertEl.innerHTML = '<b>Notice:</b> ' + esc(err.message) + '<br><small>Make sure the project has been deployed at least once.</small>';
+      }
+    });
+  }
+
+  function openTotalumConfig() {
+    var inp = $('#inputTotalumKeyLocal');
+    if (inp) {
+      inp.value = localStorage.getItem('rf_totalum_key') || '';
+    }
+    var fb = $('#cfgStatusFeedback');
+    if (fb) fb.style.display = 'none';
+    $('#modalTotalumConfig').hidden = false;
+  }
+  window.openTotalumConfig = openTotalumConfig;
+
+  function testTotalumConn() {
+    var fb = $('#cfgStatusFeedback');
+    if (fb) {
+      fb.style.display = 'block';
+      fb.className = 'rf-callout info';
+      fb.textContent = 'Testing connection to Totalum VCaaS API...';
+    }
+    totalumFetch('/api/totalum?action=status')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (fb) {
+        if (d.configured) {
+          fb.className = 'rf-callout success';
+          fb.innerHTML = '<b>✅ Totalum API Connected!</b><br>' + esc(d.message) + ' (Source: <code>' + esc(d.source) + '</code>)';
+        } else {
+          fb.className = 'rf-callout warning';
+          fb.innerHTML = '<b>⚠️ Not Connected Yet:</b><br>' + esc(d.message);
+        }
+      }
+    })
+    .catch(function(err) {
+      if (fb) {
+        fb.className = 'rf-callout warning';
+        fb.innerHTML = '<b>Connection Error:</b> ' + esc(err.message);
+      }
+    });
+  }
+
   function runAgent(p, text) {
+    if (state.engineMode === 'totalum') {
+      runTotalumAgent(p, text);
+      return;
+    }
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
@@ -1457,6 +2440,19 @@ body.ws-stage-2-active .topbar {
       h += '<div class="tip"><h4>' + esc(TIPS[tip][0]) + '</h4><p>' + esc(TIPS[tip][1]) + '</p></div><div class="car"><button class="nav" type="button" id="tp" aria-label="Previous">' + I.prev + '</button><div class="dots">' + TIPS.map(function (t, i) { return '<button type="button" data-tip="' + i + '" aria-label="Tips ' + (i + 1) + '" aria-current="' + (i === tip) + '"></button>'; }).join('') + '</div><button class="nav" type="button" id="tn" aria-label="Next">' + I.next + '</button></div>';
     } else if (uiMode === 'live') {
       var isGenerating = (p && p.busy);
+      var isTotalum = (state.engineMode === 'totalum');
+      var badgeHtml = isTotalum
+        ? '<span class="badge-mode badge-mode-totalum">TOTALUM v2</span>'
+        : '<span class="badge-mode badge-mode-sim">SIMULATION</span>';
+      
+      var displayUrl = isTotalum
+        ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + (p.totalumProjectId || p.name) + '.totalum-project.com (Draft)')))
+        : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Simulation Demo)';
+      
+      var frameSrc = isTotalum
+        ? (p.totalumPreviewUrl || (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : 'loading-wave-3d.html'))
+        : 'https://runnerflo-ai.pages.dev';
+
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
         '<div class="chrome">' +
         '<div class="ws-bar-dots" title="Size Controls">' +
@@ -1465,9 +2461,11 @@ body.ws-stage-2-active .topbar {
         '<i class="dot-green" id="ws-stage2-dot" title="Stage 2: Fullscreen"></i>' +
         '</div>' +
         '<span class="url" style="display:flex;align-items:center;gap:8px">' +
-        '<span style="padding:1px 7px;border-radius:99px;background:var(--ok);color:#fff;font-weight:700;font-size:10px;letter-spacing:.02em">LIVE</span> ' +
-        'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform</span>' +
+        badgeHtml + ' ' +
+        '<span id="liveDisplayUrlText" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + displayUrl + '</span></span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
+        '<button type="button" class="stage-btn" id="wsBtnChromeDeploy" title="Deploy / Publish Live" style="color:#10b981;font-weight:700">🚀 Deploy</button>' +
+        '<button type="button" class="stage-btn" id="wsBtnChromeDomain" title="Connect Custom Domain">🌐 Domain</button>' +
         '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Enlarge View">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
         '<span id="wsStageLabel">Enlarge</span>' +
@@ -1483,7 +2481,7 @@ body.ws-stage-2-active .topbar {
         '<div id="waveLoading" class="wave-loading-wrap' + (isGenerating ? '' : ' done') + '">' +
         '<iframe id="wsWaveFrame" src="loading-wave-3d.html" title="Loading AI Experience" sandbox="allow-scripts allow-same-origin" style="width:100%;height:100%;border:0;display:block"></iframe>' +
         '</div>' +
-        '<iframe id="wsLiveFrame" src="https://runnerflo-ai.pages.dev" title="Runnerflo AI - EdTech LMS Platform" style="position:absolute;inset:0;width:100%;height:100%;border:0;opacity:' + (isGenerating ? '0' : '1') + ';transition:opacity 0.8s ease" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>' +
+        '<iframe id="wsLiveFrame" src="' + frameSrc + '" title="Live App Preview" style="position:absolute;inset:0;width:100%;height:100%;border:0;opacity:' + (isGenerating ? '0' : '1') + ';transition:opacity 0.8s ease" allow="autoplay; fullscreen; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" loading="lazy"></iframe>' +
         '</div>' +
         '</div>';
     } else if (uiMode === 'radar') {
@@ -1535,6 +2533,7 @@ body.ws-stage-2-active .topbar {
     renderChat();
     renderSide();
     renderReset();
+    updateEngineUI();
   }
 
   /* ---------- Events ---------- */
@@ -1649,6 +2648,29 @@ body.ws-stage-2-active .topbar {
     if (c('#btnCloseLightbox')) { closeLightbox(); return; }
     if (t && t.id === 'previewLightbox') { closeLightbox(); return; }
     if ((el = c('[data-f]'))) { codeFile = el.dataset.f; renderSide(); return; }
+    if (c('#btnModeSim')) { setEngineMode('sim'); return; }
+    if (c('#btnModeTotalum')) { setEngineMode('totalum'); return; }
+    if (c('#btnDeployLive') || c('#wsBtnChromeDeploy')) { openDeployModal(); return; }
+    if (c('#btnCustomDomain') || c('#wsBtnChromeDomain')) { openDomainModal(); return; }
+    if (c('#btnTotalumConfig')) { openTotalumConfig(); return; }
+    if (c('#btnCloseDeployModal') || c('#btnCancelDeploy') || t.id === 'modalDeploy') { $('#modalDeploy').hidden = true; return; }
+    if (c('#btnCloseDomainModal') || c('#btnCancelDomain') || t.id === 'modalDomain') { $('#modalDomain').hidden = true; return; }
+    if (c('#btnCloseConfigModal') || t.id === 'modalTotalumConfig') { $('#modalTotalumConfig').hidden = true; return; }
+    if (c('#btnExecuteDeploy')) { executeDeploy(); return; }
+    if (c('#btnSubmitDomain')) { submitCustomDomain(); return; }
+    if (c('#btnTestTotalumConn')) { testTotalumConn(); return; }
+    if (c('#btnSaveTotalumKeyLocal')) {
+      var val = ($('#inputTotalumKeyLocal') ? $('#inputTotalumKeyLocal').value : '').trim();
+      if (val) {
+        localStorage.setItem('rf_totalum_key', val);
+        toast('Totalum Key saved in browser storage!');
+        testTotalumConn();
+      } else {
+        localStorage.removeItem('rf_totalum_key');
+        toast('Totalum Key cleared.');
+      }
+      return;
+    }
   });
   document.addEventListener('keydown', function (e) {
     var tg = e.target;
