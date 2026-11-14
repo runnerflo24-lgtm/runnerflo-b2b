@@ -272,12 +272,26 @@ body.is-resizing iframe {
 .opt.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
 .opt.wrong { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, transparent); }
 
-/* code */
-.codewrap { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; min-height: 0; }
-.ftree { display: flex; flex-direction: column; gap: 2px; }
-.ftree button { text-align: left; padding: 6px 8px; border-radius: 8px; font-family: var(--font-mono); font-size: 12.5px; overflow-wrap: anywhere; }
-.ftree button[aria-current="true"] { background: var(--accent-soft); color: var(--accent); }
-pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 12px; padding: 14px; overflow: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; min-height: 180px; }
+/* code explorer */
+.codewrap { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 12px; min-height: 540px; height: 100%; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; background: var(--bg); }
+.ftree-panel { display: flex; flex-direction: column; background: var(--panel); border-right: 1px solid var(--line); min-width: 0; }
+.ftree-head { padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.ftree-search { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.ftree { display: flex; flex-direction: column; gap: 2px; padding: 6px; overflow-y: auto; flex: 1; }
+.ftree button { text-align: left; padding: 7px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; border: none; background: transparent; color: var(--fg); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; transition: background .12s; }
+.ftree button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.ftree button[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.ftree button .f-icon { font-size: 11px; flex: none; }
+.ftree button .f-path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ftree button .f-size { font-size: 10px; color: var(--muted); flex: none; font-weight: normal; }
+.codeview { display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
+.codeview-bar { padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.codeview-body { flex: 1; overflow: auto; padding: 14px; background: var(--code-bg, #0d1117); }
+pre.code { margin: 0; background: transparent; color: var(--code-fg, #c9d1d9); padding: 0; font-family: var(--font-mono, Consolas, monospace); font-size: 12.5px; line-height: 1.6; white-space: pre; word-break: normal; min-height: 100%; }
+
+/* topbar history button */
+.btn-topbar-history { align-self: center; margin: 0 0 6px 6px; height: 32px; padding: 0 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); color: var(--fg); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; transition: all .15s ease; }
+.btn-topbar-history:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 .toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--dark); color: var(--dark-fg); padding: 8px 16px; border-radius: 12px; z-index: 20; box-shadow: 0 6px 20px rgb(0 0 0 / .25); }
 
@@ -1132,6 +1146,10 @@ body.ws-stage-2-active .topbar {
     <a href="index.html" class="brand" title="Return to Home" style="text-decoration:none;color:inherit"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8L10 3Zm8 9l.9 2.6 2.6.9-2.6.9L18 19l-.9-2.6-2.6-.9 2.6-.9L18 12Z"/></svg></i><span>Runnerflo Workspace</span></a>
     <div class="tabs" id="tabs" role="tablist" aria-label="Open projects"></div>
     <button class="newtab" type="button" id="newTab" aria-label="New project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button type="button" id="btnHistory" class="btn-topbar-history" onclick="window.openHistoryModal()" title="Project History &amp; Switcher">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>History</span>
+    </button>
     <span class="spacer"></span>
     <span class="plan" id="topPlanBadge">Pro Workspace</span>
     <span class="me-av" aria-hidden="true">NW</span>
@@ -1406,6 +1424,38 @@ body.ws-stage-2-active .topbar {
 
     <div class="rf-modal-foot">
       <button type="button" class="rf-btn" onclick="document.getElementById('modalDatabase').hidden=true">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Project History & Switcher -->
+<div id="modalHistory" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card" style="max-width:720px">
+    <div class="rf-modal-head" style="align-items:center">
+      <div style="display:flex;align-items:center;gap:10px">
+        <h3 style="margin:0;display:flex;align-items:center;gap:7px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Project History &amp; Switcher
+        </h3>
+        <span id="historyCountBadge" class="rf-badge-muted" style="font-size:11px">0 Projects</span>
+      </div>
+      <button type="button" class="rf-modal-close" onclick="document.getElementById('modalHistory').hidden=true" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="rf-modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input type="text" id="inputHistorySearch" placeholder="Search project name, slug, or prompt..." class="rf-input" style="flex:1;font-size:12px" oninput="window.filterHistoryProjects(this.value)">
+        <button type="button" class="rf-btn rf-btn-primary" onclick="window.startFreshProject()" style="flex:none">+ New Project</button>
+      </div>
+      <div id="historyLoading" style="text-align:center;padding:24px;color:var(--muted)">
+        <div class="rf-spinner" style="margin:0 auto 8px"></div>
+        Loading project history from Cloudflare Edge...
+      </div>
+      <div id="historyListContent" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto"></div>
+    </div>
+
+    <div class="rf-modal-foot">
+      <button type="button" class="rf-btn" onclick="document.getElementById('modalHistory').hidden=true">Close</button>
     </div>
   </div>
 </div>
@@ -2495,6 +2545,22 @@ body.ws-stage-2-active .topbar {
       p.totalumCreditsSpent = d.totalCreditsSpent || 0;
       p.updated = Date.now();
 
+      // Automatically fetch upstream generated source files into project state
+      totalumFetch('/api/totalum?action=files&projectId=' + encodeURIComponent(projSlug))
+        .then(function(rf){ return rf.json(); })
+        .then(function(rfJson){
+          var rawEntries = (rfJson && rfJson.data && rfJson.data.entries) || (rfJson && rfJson.entries) || (rfJson && rfJson.data && rfJson.data.files) || [];
+          if (Array.isArray(rawEntries) && rawEntries.length > 0) {
+            p.projectCodeFiles = rawEntries
+              .filter(function(e) { return e.type !== 'folder' && !e.isDir; })
+              .map(function(e) {
+                return { path: e.path || e.name || e, name: e.name || (e.path ? e.path.split('/').pop() : e), size: e.size || 0 };
+              });
+            save();
+          }
+        })
+        .catch(function(){});
+
       m.text += '\n\n✨ **Build Successful! Application is live in preview.**\n' +
                 '• Preview Address: ' + p.totalumPreviewUrl + '\n' +
                 '• Credits used: ' + p.totalumCreditsSpent + '\n' +
@@ -3165,16 +3231,388 @@ body.ws-stage-2-active .topbar {
     q.querySelector('b').textContent = it.q;
     var os = q.querySelectorAll('.opt'); it.o.forEach(function (o, i) { os[i].textContent = o; });
   }
-  function codeFor(f) {
-    if (f === 'HeroSection.tsx') return '// components/HeroSection.tsx\nimport React from "react";\n\nexport default function HeroSection() {\n  return (\n    <section className="relative overflow-hidden bg-slate-950 py-24 text-white">\n      <div className="mx-auto max-w-6xl px-6 text-center">\n        <span className="rounded-full bg-violet-600/20 px-4 py-1.5 text-xs font-semibold text-violet-400 border border-violet-500/30">\n          #1 Global AI EdTech Platform\n        </span>\n        <h1 className="mt-6 text-5xl font-black tracking-tight sm:text-6xl">\n          Master Future-Ready Skills with AI Mentors\n        </h1>\n        <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">\n          Access 120+ certified courses, adaptive HLS video, and real-time assessments.\n        </p>\n        <div className="mt-8 flex justify-center gap-4">\n          <a href="#courses" className="rounded-xl bg-violet-600 px-6 py-3 font-bold hover:bg-violet-500 transition">\n            Start Free Trial\n          </a>\n          <a href="#demo" className="rounded-xl border border-slate-700 px-6 py-3 font-semibold hover:bg-slate-900 transition">\n            Watch Preview Video\n          </a>\n        </div>\n      </div>\n    </section>\n  );\n}';
-    if (f === 'CourseCard.tsx') return '// components/CourseCard.tsx\nimport React from "react";\n\nexport const CourseCard = ({ title, lessons, rating, instructor }: any) => (\n  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-violet-500">\n    <div className="aspect-video w-full rounded-xl bg-slate-800 flex items-center justify-center font-bold text-violet-400">\n      HLS Video Lesson Player\n    </div>\n    <h3 className="mt-4 font-bold text-white text-base">{title}</h3>\n    <div className="mt-2 flex items-center justify-between text-xs text-slate-400">\n      <span>{instructor}</span>\n      <span>\u2b50 {rating} &middot; {lessons} Chapters</span>\n    </div>\n  </div>\n);';
-    if (f === 'VideoPlayer.tsx') return '// components/VideoPlayer.tsx\nimport React, { useRef, useEffect } from "react";\nimport Hls from "hls.js";\n\nexport default function VideoPlayer({ src }: { src: string }) {\n  const videoRef = useRef<HTMLVideoElement>(null);\n  useEffect(() => {\n    if (videoRef.current && Hls.isSupported()) {\n      const hls = new Hls({ enableWorker: true, lowLatencyMode: true });\n      hls.loadSource(src);\n      hls.attachMedia(videoRef.current);\n      return () => hls.destroy();\n    }\n  }, [src]);\n  return (\n    <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl">\n      <video ref={videoRef} controls className="h-full w-full" poster="/cover.webp" />\n    </div>\n  );\n}';
-    if (f === 'QuizEngine.tsx') return '// components/QuizEngine.tsx\nexport class QuizEngine {\n  private questions: any[];\n  private answers: Map<number, number> = new Map();\n  constructor(questions: any[]) { this.questions = questions; }\n  submit(id: number, opt: number) { this.answers.set(id, opt); }\n  score() {\n    let ok = 0;\n    this.questions.forEach(q => { if (this.answers.get(q.id) === q.answer) ok++; });\n    return { correct: ok, total: this.questions.length, pct: Math.round((ok/this.questions.length)*100) };\n  }\n}';
-    if (f === 'LMSDashboard.tsx') return '// components/LMSDashboard.tsx\nimport React from "react";\n\nexport default function LMSDashboard({ user, progress }: any) {\n  return (\n    <div className="p-8 space-y-6 bg-slate-950 text-white min-h-screen">\n      <header className="flex justify-between items-center border-b border-slate-800 pb-4">\n        <div>\n          <h1 className="text-2xl font-bold">Hello, {user?.name || "Student"} \ud83d\udc4b</h1>\n          <p className="text-sm text-slate-400">Your learning progress & certificates are verified in real time.</p>\n        </div>\n      </header>\n      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Total Study Time</span>\n          <div className="text-2xl font-bold mt-1">18.5 Hours</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Courses Completed</span>\n          <div className="text-2xl font-bold mt-1">4 of 6</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Average Quiz Score</span>\n          <div className="text-2xl font-bold mt-1 text-emerald-400">94%</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Official Certificates</span>\n          <div className="text-2xl font-bold mt-1 text-violet-400">QR Verified</div>\n        </div>\n      </div>\n    </div>\n  );\n}';
-    if (f === 'CertificateGenerator.tsx') return '// components/CertificateGenerator.tsx\nexport async function generateCertificate(studentName: string, courseTitle: string) {\n  return { certId: "CERT-" + Date.now().toString(36).toUpperCase(), student: studentName, course: courseTitle, issuedAt: new Date().toISOString() };\n}';
-    if (f === 'auth.ts') return '// lib/auth.ts - Multi-Role Auth (Student, Instructor, Admin)\nexport const authConfig = {\n  providers: ["credentials", "google", "github"],\n  session: { strategy: "jwt" },\n  callbacks: { jwt({ token, user }: any) { if (user) token.role = user.role; return token; } }\n};';
-    return '// api/webhooks.ts - 1.000+ Marketplace Auto-Enrollment Webhook\nexport async function POST(req: Request) {\n  const payload = await req.json();\n  // Synchronize transactions & students from global marketplaces\n  return Response.json({ status: "enrolled", timestamp: Date.now() });\n}';
+  /* ============================================================
+     CODE TREE & LIVE SOURCE CODE VIEWER
+     ============================================================ */
+  function getProjectCodeFiles(p) {
+    if (p && p.projectCodeFiles && p.projectCodeFiles.length) {
+      return p.projectCodeFiles;
+    }
+
+    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+
+    if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('art') || promptText.includes('vesper') || promptText.includes('studio')) {
+      return [
+        { path: 'src/app/page.tsx', size: 3420 },
+        { path: 'src/components/ImageStudio.tsx', size: 6840 },
+        { path: 'src/components/PromptHistory.tsx', size: 2850 },
+        { path: 'src/components/AspectRatioSelector.tsx', size: 1920 },
+        { path: 'src/lib/d1-schema.ts', size: 2410 },
+        { path: 'src/lib/replicate-client.ts', size: 3150 },
+        { path: 'package.json', size: 1040 }
+      ];
+    } else if (promptText.includes('chat') || promptText.includes('bot') || promptText.includes('support') || promptText.includes('whatsapp')) {
+      return [
+        { path: 'src/app/page.tsx', size: 3120 },
+        { path: 'src/components/ChatInterface.tsx', size: 5420 },
+        { path: 'src/components/KnowledgeBase.tsx', size: 3910 },
+        { path: 'src/lib/whatsapp-webhook.ts', size: 3340 },
+        { path: 'src/lib/d1-schema.ts', size: 2280 },
+        { path: 'package.json', size: 1040 }
+      ];
+    } else if (promptText.includes('invoice') || promptText.includes('ocr') || promptText.includes('doc')) {
+      return [
+        { path: 'src/app/page.tsx', size: 2980 },
+        { path: 'src/components/DocumentScanner.tsx', size: 4890 },
+        { path: 'src/components/InvoiceTable.tsx', size: 3620 },
+        { path: 'src/lib/ocr-extractor.ts', size: 3410 },
+        { path: 'src/lib/d1-schema.ts', size: 2150 },
+        { path: 'package.json', size: 1040 }
+      ];
+    } else if (promptText.includes('subscri') || promptText.includes('saas') || promptText.includes('billing')) {
+      return [
+        { path: 'src/app/page.tsx', size: 3250 },
+        { path: 'src/components/SubscriptionCard.tsx', size: 4320 },
+        { path: 'src/components/UsageDashboard.tsx', size: 5120 },
+        { path: 'src/lib/stripe-billing.ts', size: 3670 },
+        { path: 'src/lib/d1-schema.ts', size: 2450 },
+        { path: 'package.json', size: 1040 }
+      ];
+    }
+
+    return [
+      { path: 'src/app/page.tsx', size: 3400 },
+      { path: 'src/components/HeroSection.tsx', size: 2850 },
+      { path: 'src/components/CourseCatalog.tsx', size: 4120 },
+      { path: 'src/components/VideoPlayer.tsx', size: 3180 },
+      { path: 'src/lib/auth.ts', size: 2240 },
+      { path: 'src/lib/d1-schema.ts', size: 2450 },
+      { path: 'package.json', size: 1040 }
+    ];
   }
+
+  function codeFor(f, p) {
+    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+
+    // AI Image Generation Studio source code
+    if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('art') || promptText.includes('vesper') || promptText.includes('studio')) {
+      if (f.endsWith('page.tsx')) {
+        return '// src/app/page.tsx\n// Autonomous AI Image Generation Studio\nimport React from "react";\nimport { ImageStudio } from "@/components/ImageStudio";\nimport { PromptHistory } from "@/components/PromptHistory";\n\nexport default function StudioPage() {\n  return (\n    <main className="min-h-screen bg-neutral-950 text-neutral-100">\n      <header className="border-b border-neutral-800 px-8 py-5 flex items-center justify-between">\n        <div className="flex items-center gap-3">\n          <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">V</span>\n          <h1 className="text-xl font-bold tracking-tight">Vesper Atelier &mdash; AI Image Studio</h1>\n        </div>\n        <div className="flex items-center gap-3">\n          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">D1 Edge Synced</span>\n        </div>\n      </header>\n      <div className="max-w-7xl mx-auto p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">\n        <div className="lg:col-span-2">\n          <ImageStudio />\n        </div>\n        <div>\n          <PromptHistory />\n        </div>\n      </div>\n    </main>\n  );\n}';
+      }
+      if (f.endsWith('ImageStudio.tsx')) {
+        return '// src/components/ImageStudio.tsx\n"use client";\nimport React, { useState } from "react";\nimport { AspectRatioSelector } from "./AspectRatioSelector";\n\nexport function ImageStudio() {\n  const [prompt, setPrompt] = useState("");\n  const [ratio, setRatio] = useState("16:9");\n  const [loading, setLoading] = useState(false);\n  const [currentImage, setCurrentImage] = useState<string | null>("https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200");\n\n  async function handleGenerate(e: React.FormEvent) {\n    e.preventDefault();\n    if (!prompt.trim()) return;\n    setLoading(true);\n    try {\n      const res = await fetch("/api/generate", {\n        method: "POST",\n        headers: { "Content-Type": "application/json" },\n        body: JSON.stringify({ prompt, aspectRatio: ratio })\n      });\n      const data = await res.json();\n      if (data.imageUrl) setCurrentImage(data.imageUrl);\n    } finally {\n      setLoading(false);\n    }\n  }\n\n  return (\n    <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 backdrop-blur-xl">\n      <form onSubmit={handleGenerate} className="space-y-4">\n        <label className="block text-sm font-medium text-neutral-300">Prompt Description</label>\n        <textarea\n          value={prompt}\n          onChange={(e) => setPrompt(e.target.value)}\n          placeholder="Describe your vision (e.g. Cinematic cyberpunk portrait with neon rim lighting)..."\n          rows={3}\n          className="w-full rounded-xl border border-neutral-700 bg-neutral-950 p-4 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"\n        />\n        <AspectRatioSelector value={ratio} onChange={setRatio} />\n        <button\n          type="submit"\n          disabled={loading}\n          className="w-full rounded-xl bg-emerald-500 py-3 font-semibold text-neutral-950 hover:bg-emerald-400 transition disabled:opacity-50"\n        >\n          {loading ? "Synthesizing Image with FLUX.1..." : "⚡ Generate High-Res Artwork"}\n        </button>\n      </form>\n      {currentImage && (\n        <div className="mt-6 aspect-video overflow-hidden rounded-xl border border-neutral-800 bg-black">\n          <img src={currentImage} alt="Generated Artwork" className="h-full w-full object-cover" />\n        </div>\n      )}\n    </div>\n  );\n}';
+      }
+      if (f.endsWith('d1-schema.ts')) {
+        return '// src/lib/d1-schema.ts\nimport { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";\n\nexport const images = sqliteTable("images", {\n  id: text("id").primaryKey(),\n  userId: text("user_id").notNull(),\n  prompt: text("prompt").notNull(),\n  aspectRatio: text("aspect_ratio").notNull().default("1:1"),\n  imageUrl: text("image_url").notNull(),\n  model: text("model").notNull().default("SDXL-Turbo"),\n  createdAt: integer("created_at").notNull()\n});\n\nexport const promptsHistory = sqliteTable("prompts_history", {\n  id: text("id").primaryKey(),\n  promptText: text("prompt_text").notNull(),\n  negativePrompt: text("negative_prompt"),\n  seed: integer("seed"),\n  createdAt: integer("created_at").notNull()\n});';
+      }
+      if (f.endsWith('package.json')) {
+        return '{\n  "name": "ai-image-studio",\n  "version": "1.0.0",\n  "private": true,\n  "scripts": {\n    "dev": "next dev",\n    "build": "next build",\n    "start": "next start",\n    "db:migrate": "drizzle-kit push:sqlite"\n  },\n  "dependencies": {\n    "next": "^14.2.0",\n    "react": "^18.3.0",\n    "react-dom": "^18.3.0",\n    "drizzle-orm": "^0.30.0",\n    "@cloudflare/workers-types": "^4.20240405.0",\n    "lucide-react": "^0.360.0"\n  }\n}';
+      }
+    }
+
+    // Default code for generic files
+    if (f.endsWith('page.tsx')) {
+      return '// src/app/page.tsx\nimport React from "react";\n\nexport default function Page() {\n  return (\n    <main className="min-h-screen bg-slate-950 text-white p-8">\n      <h1 className="text-3xl font-bold">Welcome to ' + (p ? p.name : 'Your Platform') + '</h1>\n      <p className="mt-2 text-slate-400">Autonomous full-stack application compiled on Next.js 14 and Cloudflare D1 Edge.</p>\n    </main>\n  );\n}';
+    }
+    if (f.endsWith('d1-schema.ts') || f.endsWith('schema.ts')) {
+      return '// src/lib/d1-schema.ts\nimport { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";\n\nexport const users = sqliteTable("users", {\n  id: text("id").primaryKey(),\n  email: text("email").notNull(),\n  name: text("name"),\n  createdAt: integer("created_at").notNull()\n});';
+    }
+
+    return '// File: ' + f + '\n// Compiled for ' + (p ? p.name : 'Runnerflo Workspace') + '\nexport default function Component() {\n  return <div>Component Loaded</div>;\n}';
+  }
+
+  /* Global Actions for Code Viewer */
+  window.selectCodeFile = function(filePath) {
+    codeFile = filePath;
+    var p = cur();
+    var codeEl = $('pre.code');
+    var pathLabel = $('#currentCodeFilePath');
+    var syncPill = $('#codeSyncPill');
+    if (pathLabel) pathLabel.textContent = filePath;
+
+    if (codeEl) {
+      codeEl.textContent = '// Loading ' + filePath + ' from edge...';
+    }
+
+    var buttons = document.querySelectorAll('#codeFileList button, .ftree button');
+    buttons.forEach(function(b) {
+      var isCurrent = (b.dataset.f === filePath);
+      b.setAttribute('aria-current', String(isCurrent));
+    });
+
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=file-content&projectId=' + encodeURIComponent(projSlug) + '&path=' + encodeURIComponent(filePath))
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          var fileData = (res && res.data) || res;
+          if (fileData && fileData.content !== undefined) {
+            var content = fileData.content;
+            if (fileData.encoding === 'base64') {
+              try { content = decodeURIComponent(escape(atob(content))); } catch(e){ try { content = atob(content); } catch(e2){} }
+            }
+            if (codeEl) codeEl.textContent = content;
+            if (syncPill) { syncPill.textContent = 'Edge Synced'; syncPill.style.background = 'var(--ok)'; }
+          } else if (codeEl) {
+            codeEl.textContent = codeFor(filePath, p);
+            if (syncPill) { syncPill.textContent = 'Local Blueprint'; syncPill.style.background = 'var(--muted)'; }
+          }
+        })
+        .catch(function() {
+          if (codeEl) codeEl.textContent = codeFor(filePath, p);
+          if (syncPill) { syncPill.textContent = 'Local Blueprint'; syncPill.style.background = 'var(--muted)'; }
+        });
+    } else {
+      setTimeout(function() {
+        if (codeEl) codeEl.textContent = codeFor(filePath, p);
+        if (syncPill) { syncPill.textContent = 'Demo Sandbox'; syncPill.style.background = 'var(--muted)'; }
+      }, 50);
+    }
+  };
+
+  window.filterCodeFiles = function(val) {
+    val = (val || '').toLowerCase().trim();
+    var buttons = document.querySelectorAll('#codeFileList button');
+    buttons.forEach(function(b) {
+      var f = (b.dataset.f || '').toLowerCase();
+      b.style.display = (!val || f.includes(val)) ? 'flex' : 'none';
+    });
+  };
+
+  window.askAiEditCurrentFile = function() {
+    var filePath = codeFile || 'this file';
+    var msgInput = $('#msg');
+    if (msgInput) {
+      var editPrefix = 'Please update `' + filePath + '` to: ';
+      msgInput.value = editPrefix;
+      msgInput.focus();
+      msgInput.setSelectionRange(editPrefix.length, editPrefix.length);
+      fit();
+      updSend();
+      toast('Prompt AI to edit ' + filePath);
+    }
+  };
+
+  window.copyCurrentCode = function() {
+    var codeEl = $('pre.code');
+    if (codeEl && codeEl.textContent) {
+      navigator.clipboard.writeText(codeEl.textContent).then(function() {
+        toast('✓ Code copied to clipboard!');
+      });
+    }
+  };
+
+  window.downloadCurrentCode = function() {
+    var codeEl = $('pre.code');
+    if (!codeEl || !codeEl.textContent) return;
+    var blob = new Blob([codeEl.textContent], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (codeFile || 'code.tsx').split('/').pop();
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('⬇ Downloaded ' + a.download);
+  };
+
+  window.refreshCodeFiles = function() {
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+    toast('🔄 Refreshing source code files...');
+
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=files&projectId=' + encodeURIComponent(projSlug))
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          var rawEntries = (res && res.data && res.data.entries) || (res && res.entries) || (res && res.data && res.data.files) || (res && res.files) || [];
+          if (Array.isArray(rawEntries) && rawEntries.length > 0) {
+            var files = rawEntries
+              .filter(function(e) { return (e.type !== 'folder') && !e.isDir; })
+              .map(function(e) {
+                return {
+                  path: e.path || e.name || e,
+                  name: e.name || (e.path ? e.path.split('/').pop() : e),
+                  size: e.size || 0
+                };
+              });
+            if (files.length > 0) {
+              p.projectCodeFiles = files;
+              save();
+              renderSide();
+              toast('✓ Loaded ' + files.length + ' source files from Cloudflare Edge!');
+              return;
+            }
+          }
+          renderSide();
+          toast('✓ Source code tree updated');
+        })
+        .catch(function(err) {
+          console.error('refreshCodeFiles error:', err);
+          renderSide();
+          toast('✓ Source code tree updated (cached)');
+        });
+    } else {
+      renderSide();
+      toast('✓ Source code tree updated');
+    }
+  };
+
+  /* ============================================================
+     PROJECT HISTORY & SWITCHER MODAL
+     ============================================================ */
+  var allHistoryProjects = [];
+
+  window.openHistoryModal = function() {
+    var modal = $('#modalHistory');
+    if (!modal) return;
+    modal.hidden = false;
+
+    var sLoading = $('#historyLoading'), sContent = $('#historyListContent');
+    if (sLoading) sLoading.hidden = false;
+    if (sContent) sContent.innerHTML = '';
+
+    allHistoryProjects = [];
+
+    // 1. Gather local projects
+    (state.projects || []).forEach(function(lp) {
+      allHistoryProjects.push({
+        id: lp.id,
+        name: lp.name,
+        slug: lp.totalumProjectId || lp.name,
+        updated: lp.updated || Date.now(),
+        previewUrl: lp.totalumPreviewUrl || lp.totalumLiveUrl || '',
+        credits: lp.totalumCreditsSpent || 0,
+        source: 'local'
+      });
+    });
+
+    // 2. Fetch cloud projects from Totalum API
+    totalumFetch('/api/totalum?action=projects&limit=50')
+      .then(function(r){ return r.json(); })
+      .then(function(res) {
+        if (sLoading) sLoading.hidden = true;
+        var cloudProjs = (res && res.data) || (res && res.projects) || [];
+        if (Array.isArray(cloudProjs)) {
+          cloudProjs.forEach(function(cp) {
+            var exists = allHistoryProjects.some(function(item) {
+              return item.slug === cp.projectId || item.id === cp.projectId;
+            });
+            if (!exists) {
+              allHistoryProjects.push({
+                id: cp.projectId,
+                name: cp.label || cp.description || cp.projectId,
+                slug: cp.projectId,
+                updated: cp.updatedAt ? new Date(cp.updatedAt).getTime() : Date.now(),
+                previewUrl: cp.temporalDevelopmentProjectUrl || cp.productionProjectUrl || '',
+                credits: cp.totalCreditsSpent || 0,
+                source: 'cloud'
+              });
+            }
+          });
+        }
+        renderHistoryList(allHistoryProjects);
+      })
+      .catch(function() {
+        if (sLoading) sLoading.hidden = true;
+        renderHistoryList(allHistoryProjects);
+      });
+  };
+
+  function renderHistoryList(list) {
+    var sContent = $('#historyListContent'), badge = $('#historyCountBadge');
+    if (badge) badge.textContent = list.length + ' Projects';
+    if (!sContent) return;
+
+    if (!list.length) {
+      sContent.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">No projects found. Click "+ New Project" to start one!</div>';
+      return;
+    }
+
+    var activeId = state.active;
+    var h = '';
+    list.forEach(function(proj) {
+      var isActive = (proj.id === activeId || proj.slug === activeId);
+      var timeStr = new Date(proj.updated).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      h += '<div style="padding:12px 14px;border-radius:8px;background:var(--bg);border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--line)') + ';display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">';
+      h += '<div style="flex:1;min-width:220px">';
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+      h += '<b style="font-size:13.5px">' + esc(proj.name) + '</b>';
+      if (isActive) {
+        h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:var(--accent);color:#fff;font-weight:600">Active</span>';
+      }
+      h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:var(--panel);border:1px solid var(--line);font-family:var(--mono,monospace);color:var(--muted)">' + esc(proj.slug) + '</span>';
+      h += '</div>';
+      h += '<div style="font-size:11.5px;color:var(--muted);display:flex;gap:12px">';
+      h += '<span>Updated: ' + timeStr + '</span>';
+      if (proj.credits) h += '<span>Credits: ' + proj.credits + '</span>';
+      h += '</div>';
+      h += '</div>';
+
+      h += '<div style="display:flex;gap:6px;align-items:center;flex:none">';
+      if (!isActive) {
+        h += '<button type="button" class="rf-btn rf-btn-primary" onclick="window.switchToProject(\'' + esc(proj.id) + '\', \'' + esc(proj.slug) + '\')" style="padding:4px 10px;font-size:11.5px">🚀 Open</button>';
+      }
+      if (proj.previewUrl) {
+        h += '<a href="' + esc(proj.previewUrl) + '" target="_blank" rel="noopener" class="rf-pill-btn" style="padding:4px 9px;font-size:11.5px" title="Open preview in new tab">↗ Preview</a>';
+      }
+      h += '</div>';
+      h += '</div>';
+    });
+
+    sContent.innerHTML = h;
+  }
+
+  window.filterHistoryProjects = function(val) {
+    val = (val || '').toLowerCase().trim();
+    if (!val) {
+      renderHistoryList(allHistoryProjects);
+      return;
+    }
+    var filtered = allHistoryProjects.filter(function(p) {
+      return (p.name || '').toLowerCase().includes(val) || (p.slug || '').toLowerCase().includes(val);
+    });
+    renderHistoryList(filtered);
+  };
+
+  window.switchToProject = function(id, slug) {
+    var modal = $('#modalHistory');
+    if (modal) modal.hidden = true;
+
+    // Check if project exists in state.projects
+    var target = null;
+    (state.projects || []).forEach(function(p) {
+      if (p.id === id || (slug && p.totalumProjectId === slug)) target = p;
+    });
+
+    if (!target) {
+      // Create project entry for this cloud project
+      target = mkProject(slug || id, 4);
+      target.id = id;
+      target.totalumProjectId = slug || id;
+      state.projects.unshift(target);
+    }
+
+    if (state.open.indexOf(target.id) < 0) state.open.push(target.id);
+    state.active = target.id;
+    save();
+    render();
+    toast('✓ Switched to project: ' + target.name);
+  };
+
+  window.startFreshProject = function() {
+    var modal = $('#modalHistory');
+    if (modal) modal.hidden = true;
+    var np = mkProject('new-project', 0);
+    state.projects.unshift(np);
+    if (state.open.indexOf(np.id) < 0) state.open.push(np.id);
+    state.active = np.id;
+    save();
+    render();
+    var msg = $('#msg');
+    if (msg) msg.focus();
+    toast('✨ New project created! Describe what you want to build in chat.');
+  };
   function renderSide() {
     var p = cur(); if (!p) return;
     Array.prototype.forEach.call(document.querySelectorAll('#modes button'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.m === uiMode)); });
@@ -3209,6 +3647,7 @@ body.ws-stage-2-active .topbar {
         badgeHtml + ' ' +
         '<span id="liveDisplayUrlText" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + displayUrl + '</span></span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
+        '<button type="button" class="stage-btn" onclick="window.openHistoryModal()" title="Project History &amp; Switcher" style="padding:4px 9px;font-size:11.5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> <span>History</span></button>' +
         '<button type="button" class="stage-btn" onclick="window.openDatabaseModal()" title="Database Explorer" style="padding:4px 9px;font-size:11.5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> <span>Database</span></button>' +
         '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Enlarge View">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
@@ -3233,17 +3672,93 @@ body.ws-stage-2-active .topbar {
     } else if (uiMode === 'workflow') {
       h = workflowPane();
     } else {
-      var files = FILES.filter(function (f) { return f[1] <= p.stage; });
-      if (!files.length) h = '<div class="empty"><b>No code files yet</b><span>Code files will appear here once the agent starts building.</span></div>';
-      else {
-        if (!files.some(function (f) { return f[0] === codeFile; })) codeFile = files[0][0];
-        h = '<div class="codewrap"><div class="ftree">' + files.map(function (f) { return '<button type="button" data-f="' + f[0] + '" aria-current="' + (f[0] === codeFile) + '">' + f[0] + '</button>'; }).join('') + '</div><pre class="code" tabindex="0"></pre></div>';
+      var rawFiles = getProjectCodeFiles(p);
+      var files = (rawFiles || []).map(function(f) {
+        if (typeof f === 'string') return { path: f, name: f.split('/').pop(), size: 2048 };
+        if (Array.isArray(f)) return { path: f[0], name: f[0].split('/').pop(), size: 2048 };
+        return {
+          path: f.path || f.name,
+          name: f.name || (f.path ? f.path.split('/').pop() : 'file'),
+          size: f.size || 0
+        };
+      });
+      if (!files.length) {
+        h = '<div class="empty"><b>No code files yet</b><span>Code files will appear here once the agent starts building.</span></div>';
+      } else {
+        if (!codeFile || !files.some(function (f) { return f.path === codeFile; })) codeFile = files[0].path;
+
+        h = '<div class="codewrap">' +
+          '<div class="ftree-panel">' +
+            '<div class="ftree-head">' +
+              '<div style="display:flex;align-items:center;gap:6px">' +
+                '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' +
+                '<span style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Explorer</span>' +
+              '</div>' +
+              '<button type="button" class="rf-pill-btn" onclick="window.refreshCodeFiles()" title="Refresh files from edge" style="padding:3px 7px;font-size:11px">' +
+                '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>' +
+              '</button>' +
+            '</div>' +
+            '<div class="ftree-search">' +
+              '<input type="text" id="codeSearchInput" placeholder="Filter files..." oninput="window.filterCodeFiles(this.value)" style="width:100%;padding:5px 8px;font-size:11.5px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);outline:none">' +
+            '</div>' +
+            '<div class="ftree" id="codeFileList">' +
+              files.map(function(f) {
+                var isCur = (f.path === codeFile);
+                var ext = f.path.split('.').pop().toLowerCase();
+                var icon = '📄';
+                if (ext === 'tsx' || ext === 'jsx') icon = '⚛️';
+                else if (ext === 'ts' || ext === 'js') icon = '📘';
+                else if (ext === 'json') icon = '📦';
+                else if (ext === 'css') icon = '🎨';
+                else if (ext === 'sql') icon = '🗄️';
+                var sz = f.size ? (f.size > 1024 ? (Math.round(f.size / 102.4) / 10 + ' KB') : (f.size + ' B')) : '';
+                return '<button type="button" data-f="' + esc(f.path) + '" aria-current="' + isCur + '">' +
+                  '<span class="f-icon">' + icon + '</span>' +
+                  '<span class="f-path" title="' + esc(f.path) + '">' + esc(f.path) + '</span>' +
+                  (sz ? '<span class="f-size">' + sz + '</span>' : '') +
+                '</button>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+          '<div class="codeview">' +
+            '<div class="codeview-bar">' +
+              '<div style="display:flex;align-items:center;gap:8px;min-width:0">' +
+                '<span style="padding:2px 6px;border-radius:4px;background:var(--line);font-size:10px;font-weight:700;color:var(--muted)">SRC</span>' +
+                '<b id="currentCodeFilePath" style="font-family:var(--font-mono,monospace);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(codeFile) + '</b>' +
+                '<span id="codeSyncPill" style="font-size:10px;padding:2px 7px;border-radius:99px;background:var(--ok);color:#fff;font-weight:600">Edge Synced</span>' +
+              '</div>' +
+              '<div style="display:flex;gap:6px;align-items:center;flex:none">' +
+                '<button type="button" class="rf-pill-btn" onclick="window.askAiEditCurrentFile()" title="Ask AI to edit this file in chat" style="padding:4px 9px;font-size:11.5px;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600">' +
+                  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>' +
+                  '<span>Ask AI to Edit</span>' +
+                '</button>' +
+                '<button type="button" class="rf-pill-btn" onclick="window.copyCurrentCode()" title="Copy file content" style="padding:4px 9px;font-size:11.5px">' +
+                  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+                  '<span>Copy</span>' +
+                '</button>' +
+                '<button type="button" class="rf-pill-btn" onclick="window.downloadCurrentCode()" title="Download file" style="padding:4px 9px;font-size:11.5px">' +
+                  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>' +
+                  '<span>Download</span>' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="codeview-body">' +
+              '<pre class="code" tabindex="0"></pre>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
       }
     }
     pane.innerHTML = h;
     if (uiMode === 'preview') { var nm = pane.querySelectorAll('.files .nm'); p.assets.forEach(function (a, i) { nm[i].textContent = a.name; nm[i].title = a.name; }); }
     if (uiMode === 'live') { drawCourses(); drawQuiz(); var sq = $('#sq'); if (sq) sq.value = live.q; setTimeout(updateWsStageUI, 10); setTimeout(function(){ if (liveGenStatus.pct >= 100) { _sendWaveMsg({ type: 'done', text: 'Ready \u2014 EdTech LMS is Live!' }); } else { _sendWaveMsg({ type: 'progress', value: liveGenStatus.pct || 4, text: (liveGenStatus.title || '').replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022') }); } }, 200); }
-    if (uiMode === 'code') { var pr = pane.querySelector('pre.code'); if (pr) pr.textContent = codeFor(codeFile); }
+    if (uiMode === 'code') {
+      window.selectCodeFile(codeFile);
+      var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+      if (state.engineMode === 'totalum' && projSlug && (!p.projectCodeFiles || !p.projectCodeFiles.length)) {
+        window.refreshCodeFiles();
+      }
+    }
     if (uiMode === 'radar') {
       var si = $('#skillsInput'); if (si) si.addEventListener('input', function(){ radarState.skills = this.value; });
       var sb = $('#scanBtn'); if (sb) sb.addEventListener('click', runSearch);
@@ -3596,7 +4111,7 @@ body.ws-stage-2-active .topbar {
     if (c('#btnExpand3x')) { openLightbox(); return; }
     if (c('#btnCloseLightbox')) { closeLightbox(); return; }
     if (t && t.id === 'previewLightbox') { closeLightbox(); return; }
-    if ((el = c('[data-f]'))) { codeFile = el.dataset.f; renderSide(); return; }
+    if ((el = c('[data-f]'))) { window.selectCodeFile(el.dataset.f); return; }
     if ((el = c('.ichip[data-insert]'))) {
       var ins = el.dataset.insert;
       var ta = $('#msg');

@@ -411,17 +411,60 @@ export async function onRequest(context) {
     }
 
     // -------------------------------------------------------------
-    // ACTION: projects (List projects)
+    // ACTION: projects (List projects / Project History)
     // GET /api/totalum?action=projects
     // -------------------------------------------------------------
     if (action === 'projects') {
-      const limit = url.searchParams.get('limit') || '20';
+      const limit = url.searchParams.get('limit') || '50';
       const res = await fetch(`${TOTALUM_BASE_URL}/projects?limit=${limit}&sortField=lastModified&sortDirection=desc`, {
         method: 'GET',
         headers: commonHeaders
       });
       const data = await res.json();
       return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: files / file-tree (Get source code file tree)
+    // GET /api/totalum?action=files&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'files' || action === 'file-tree') {
+      const targetProject = projectId || url.searchParams.get('projectId') || '';
+      if (!targetProject) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      try {
+        const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(targetProject)}/files/tree`, {
+          method: 'GET',
+          headers: commonHeaders
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      } catch (err) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: file-content (Get single source code file content)
+    // GET /api/totalum?action=file-content&projectId=:id&path=:path
+    // -------------------------------------------------------------
+    if (action === 'file-content') {
+      const targetProject = projectId || url.searchParams.get('projectId') || '';
+      const filePath = url.searchParams.get('path') || '';
+      if (!targetProject || !filePath) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PARAMS', errorMessage: 'Parameter projectId dan path wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      try {
+        const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(targetProject)}/files/content?path=${encodeURIComponent(filePath)}`, {
+          method: 'GET',
+          headers: commonHeaders
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      } catch (err) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+      }
     }
 
     // Unknown action
