@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/agent
-// Claude Sonnet 5.5 Engine with Autonomous Code Editing Tools & Trigger.dev v3 Background Pipeline
+// Claude Sonnet 5.5 Engine with Autonomous Code Editing Tools, Trigger.dev v3 & Composio Multi-Tenancy
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -27,6 +27,8 @@ export async function onRequest(context) {
 
   const triggerKey = (env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY)) || '';
   const triggerApiUrl = (env && env.TRIGGER_API_URL) || 'https://api.trigger.dev/api/v3';
+  const composioKey = (env && (env.COMPOSIO_API_KEY || env.COMPOSIO_KEY)) || '';
+  const composioApiUrl = 'https://backend.composio.dev/api/v1';
 
   try {
     const body = await request.json().catch(() => ({}));
@@ -57,6 +59,13 @@ YOUR CAPABILITIES & TOOLS:
 4. debug_code: Diagnose syntax errors, runtime issues, or TypeScript type mismatches.
 5. fetch_api: Query external REST endpoints or web APIs.
 6. trigger_job: Dispatch long-running tasks, heavy AI generation, or deployment jobs to Trigger.dev v3.
+7. composio_action: Execute real SaaS integrations (Gmail, Slack, Notion, Google Sheets, HubSpot, Stripe, etc.) for the end-user via Composio multi-tenancy. Use this when the user's request involves sending emails, creating records, syncing data, posting messages, or any cross-SaaS operation. Always pass the userId (tenant ID) so actions run under the correct connected account.
+
+COMPOSIO MULTI-TENANCY RULES:
+- Each generated SaaS app can have its own end-users (tenants). Each tenant connects their own SaaS accounts via OAuth through /api/composio?action=connect-url.
+- When a user asks to "send email", "notify on Slack", "add row to Sheets", "create Notion page", etc. → USE composio_action tool.
+- Always pass userId to scope the action to the right tenant's connected account.
+- Available apps include: gmail, slack, notion, googlesheets, hubspot, stripe, airtable, discord, github, linear, jira, asana, trello, shopify, and 200+ more.
 
 RULES:
 - Respond in clear, professional English (or Indonesian if user prompted in Indonesian).
@@ -135,6 +144,20 @@ RULES:
             payload: { type: 'object', description: 'JSON payload passed to the Trigger.dev task' }
           },
           required: ['taskId']
+        }
+      },
+      {
+        name: 'composio_action',
+        description: 'Execute a real SaaS integration action via Composio (multi-tenancy). Use when the user wants to send emails (Gmail), post Slack messages, create Notion pages, add Google Sheets rows, update HubSpot contacts, trigger Stripe charges, etc. Each action runs under the authenticated account of the specified userId (tenant).',
+        input_schema: {
+          type: 'object',
+          properties: {
+            app: { type: 'string', description: 'The SaaS app name, e.g. "gmail", "slack", "notion", "googlesheets", "hubspot", "stripe", "github", "linear"' },
+            action: { type: 'string', description: 'The specific action to execute, e.g. "GMAIL_SEND_EMAIL", "SLACK_SENDS_A_MESSAGE", "NOTION_CREATE_PAGE", "GOOGLESHEETS_SHEET_FROM_JSON"' },
+            params: { type: 'object', description: 'Parameters for the action, e.g. { to: "user@email.com", subject: "Hello", body: "World" }' },
+            userId: { type: 'string', description: 'The tenant/end-user ID whose connected account to use. Defaults to "default" if single-tenant.' }
+          },
+          required: ['app', 'action']
         }
       }
     ];
@@ -238,6 +261,7 @@ RULES:
     const contentBlocks = responseData.content || [];
     const modifiedFiles = [];
     const triggeredJobs = [];
+    const composioActions = [];
 
     for (const block of contentBlocks) {
       if (block.type === 'thinking') {
@@ -283,6 +307,53 @@ RULES:
             jobResult.note = 'Simulated Trigger.dev dispatch (configure TRIGGER_SECRET_KEY in Cloudflare for live trigger)';
           }
           triggeredJobs.push(jobResult);
+        } else if (block.name === 'composio_action') {
+          const args = block.input || {};
+          const appName = (args.app || 'saas').toLowerCase();
+          const actionName = (args.action || '').toUpperCase();
+          const userId = args.userId || 'default';
+          let actionResult = {
+            app: appName,
+            action: actionName,
+            userId,
+            status: 'EXECUTED'
+          };
+
+          if (composioKey) {
+            try {
+              const cRes = await fetch(`${composioApiUrl}/actions/${encodeURIComponent(actionName)}/execute`, {
+                method: 'POST',
+                headers: {
+                  'X-API-Key': composioKey,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  entityId: userId,
+                  input: args.params || {}
+                })
+              });
+              if (cRes.ok) {
+                const cData = await cRes.json();
+                actionResult.data = cData;
+                actionResult.success = true;
+              } else {
+                const cErr = await cRes.text();
+                actionResult.status = 'FAILED';
+                actionResult.warning = `Composio HTTP ${cRes.status}: ${cErr}`;
+              }
+            } catch (cErr) {
+              actionResult.status = 'ERROR';
+              actionResult.warning = cErr.message;
+            }
+          } else {
+            actionResult.simulated = true;
+            actionResult.note = `Simulated Composio execution for ${appName} (${actionName}). Connect COMPOSIO_API_KEY in Cloudflare to trigger live.`;
+            actionResult.preview = {
+              tenantId: userId,
+              payload: args.params || {}
+            };
+          }
+          composioActions.push(actionResult);
         }
       }
     }
@@ -299,6 +370,13 @@ RULES:
     if (triggeredJobs.length > 0) {
       steps.push({ label: `Dispatched background job to Trigger.dev v3`, done: true });
     }
+    if (composioActions.length > 0) {
+      const liveCount = composioActions.filter(a => a.success).length;
+      steps.push({
+        label: `Executed ${composioActions.length} Composio SaaS action(s)${liveCount ? ` (${liveCount} live connected)` : ''}`,
+        done: true
+      });
+    }
 
     const output = {
       text: assistantText || 'Task completed successfully by Claude Sonnet 5.5.',
@@ -314,6 +392,7 @@ RULES:
       thinkingTokens: responseData.usage ? responseData.usage.thinking_tokens : 0,
       modifiedFiles,
       triggeredJobs,
+      composioActions,
       toolCallsCount: toolCalls.length
     };
 
