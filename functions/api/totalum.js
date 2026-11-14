@@ -282,18 +282,32 @@ export async function onRequest(context) {
 
     // -------------------------------------------------------------
     // ACTION: schema (Get Cloudflare D1 database schema)
-    // GET /api/totalum?action=schema&projectId=:id
+    // GET /api/totalum?action=schema&projectId=:id&env=:env
     // -------------------------------------------------------------
     if (action === 'schema') {
-      if (!projectId) {
+      const targetProject = projectId || url.searchParams.get('projectId') || '';
+      if (!targetProject) {
         return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
       }
-      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/database/schema`, {
-        method: 'GET',
-        headers: commonHeaders
-      });
-      const data = await res.json();
-      return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      const targetEnv = url.searchParams.get('env') || 'dev';
+      try {
+        let res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(targetProject)}/database/schema?env=${encodeURIComponent(targetEnv)}`, {
+          method: 'GET',
+          headers: commonHeaders
+        });
+        let data = await res.json();
+        // If dev database is not found, fallback to live
+        if (!res.ok && (data.errors?.errorCode === 'DEV_DATABASE_NOT_FOUND' || data.code === 'DEV_DATABASE_NOT_FOUND')) {
+          res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(targetProject)}/database/schema?env=live`, {
+            method: 'GET',
+            headers: commonHeaders
+          });
+          data = await res.json();
+        }
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      } catch (err) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+      }
     }
 
     // -------------------------------------------------------------

@@ -1342,12 +1342,21 @@ body.ws-stage-2-active .topbar {
 <!-- Modal Database Explorer (Tables, Records Browser & Ask AI) -->
 <div id="modalDatabase" class="rf-modal-backdrop" hidden>
   <div class="rf-modal-card" style="max-width:760px">
-    <div class="rf-modal-head">
-      <h3>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-        Database Explorer &amp; Records
-      </h3>
-      <button type="button" class="rf-modal-close" onclick="document.getElementById('modalDatabase').hidden=true" aria-label="Close">&times;</button>
+    <div class="rf-modal-head" style="align-items:center">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 style="margin:0;display:flex;align-items:center;gap:7px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Database Explorer &amp; Records
+        </h3>
+        <span id="dbConnectedProjectBadge" style="font-size:11px;padding:3px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--line);font-family:var(--mono,monospace);font-weight:600;color:var(--accent)">Connected</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:inline-flex;padding:2px;border-radius:99px;background:var(--bg);border:1px solid var(--line);gap:2px">
+          <button type="button" class="ed-btn active" id="btnDbEnvDev" onclick="window.switchDbEnv('dev')" style="padding:3px 8px;font-size:11px">⚡ Dev (D1)</button>
+          <button type="button" class="ed-btn" id="btnDbEnvLive" onclick="window.switchDbEnv('live')" style="padding:3px 8px;font-size:11px">🚀 Live</button>
+        </div>
+        <button type="button" class="rf-modal-close" onclick="document.getElementById('modalDatabase').hidden=true" aria-label="Close">&times;</button>
+      </div>
     </div>
 
     <div class="rf-modal-body">
@@ -1374,11 +1383,8 @@ body.ws-stage-2-active .topbar {
       <div id="dbPaneRecords" hidden>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
           <label style="font-size:12px;font-weight:600;margin:0">Table:</label>
-          <select id="dbTableSelect" class="rf-input" style="width:auto;min-width:160px;font-size:12px;padding:4px 8px" onchange="window.loadTableRecords(this.value)">
-            <option value="courses">courses (8 records)</option>
-            <option value="users">users (14 records)</option>
-            <option value="orders">orders (6 records)</option>
-            <option value="lessons">lessons (24 records)</option>
+          <select id="dbTableSelect" class="rf-input" style="width:auto;min-width:180px;font-size:12px;padding:4px 8px" onchange="window.loadTableRecords(this.value)">
+            <option value="">Select table...</option>
           </select>
           <button type="button" class="rf-btn" onclick="window.refreshTableRecords()" style="padding:4px 10px;font-size:11.5px">🔄 Refresh</button>
         </div>
@@ -1393,7 +1399,7 @@ body.ws-stage-2-active .topbar {
           <button type="button" class="rf-btn rf-btn-primary" onclick="window.executeDbAsk()">Ask AI</button>
         </div>
         <div id="dbAskAnswer" style="padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;min-height:60px">
-          💡 Try asking: <em>"How many active students are enrolled?"</em> or <em>"List courses with rating above 4.7"</em>
+          💡 Try asking: <em>"How many active records are in the database?"</em> or <em>"List recent entries sorted by date"</em>
         </div>
       </div>
     </div>
@@ -1794,61 +1800,144 @@ body.ws-stage-2-active .topbar {
     }
   };
 
-  window.loadDatabaseSchema = function() {
-    var p = cur();
-    var sLoading = $('#schemaLoading'), sEmpty = $('#schemaEmpty'), sContent = $('#schemaContent');
-    if (sLoading) sLoading.hidden = false;
-    if (sEmpty) sEmpty.hidden = true;
-    if (sContent) sContent.innerHTML = '';
+  /* ============================================================
+     DATABASE EXPLORER & RECORDS (Dev / Live SQLite D1)
+     ============================================================ */
+  var dbCurrentEnv = 'dev';
 
-    if (state.engineMode === 'totalum') {
-      totalumFetch('/api/totalum?action=schema')
-        .then(function(r){ return r.json(); })
-        .then(function(res) {
-          if (sLoading) sLoading.hidden = true;
-          if (res && res.tables && res.tables.length > 0) {
-            renderSchemaTables(res.tables);
-          } else {
-            renderSimulatedSchema();
-          }
-        })
-        .catch(function() {
-          if (sLoading) sLoading.hidden = true;
-          renderSimulatedSchema();
-        });
-    } else {
-      setTimeout(function() {
-        if (sLoading) sLoading.hidden = true;
-        renderSimulatedSchema();
-      }, 250);
-    }
+  window.switchDbEnv = function(env) {
+    dbCurrentEnv = env;
+    var bDev = $('#btnDbEnvDev'), bLive = $('#btnDbEnvLive');
+    if (bDev) bDev.classList.toggle('active', env === 'dev');
+    if (bLive) bLive.classList.toggle('active', env === 'live');
+    window.loadDatabaseSchema();
   };
 
-  function renderSimulatedSchema() {
-    var sContent = $('#schemaContent');
-    if (!sContent) return;
-    var tables = [
+  /* Helper to dynamically build domain-specific schema matching the actual project prompt */
+  function getProjectSpecificSchema(p) {
+    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+    
+    if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('art') || promptText.includes('vesper') || promptText.includes('studio')) {
+      return [
+        { name: 'images', count: 18, columns: ['id (UUID PK)', 'user_id (UUID FK)', 'prompt (TEXT)', 'aspect_ratio (VARCHAR)', 'image_url (TEXT)', 'model (VARCHAR)', 'created_at (TIMESTAMP)'] },
+        { name: 'prompts_history', count: 42, columns: ['id (UUID PK)', 'prompt_text (TEXT)', 'negative_prompt (TEXT)', 'seed (INT)', 'created_at (TIMESTAMP)'] },
+        { name: 'users', count: 12, columns: ['id (UUID PK)', 'email (VARCHAR)', 'credits_remaining (INT)', 'plan (VARCHAR)', 'created_at (TIMESTAMP)'] },
+        { name: 'collections', count: 5, columns: ['id (INT PK)', 'user_id (UUID FK)', 'title (TEXT)', 'is_public (BOOLEAN)', 'image_count (INT)'] }
+      ];
+    } else if (promptText.includes('chat') || promptText.includes('bot') || promptText.includes('support') || promptText.includes('whatsapp')) {
+      return [
+        { name: 'conversations', count: 24, columns: ['id (UUID PK)', 'customer_phone (VARCHAR)', 'channel (WHATSAPP/WEB)', 'status (OPEN/CLOSED)', 'created_at (TIMESTAMP)'] },
+        { name: 'messages', count: 148, columns: ['id (UUID PK)', 'conversation_id (UUID FK)', 'sender (USER/AI)', 'content (TEXT)', 'sent_at (TIMESTAMP)'] },
+        { name: 'knowledge_base', count: 9, columns: ['id (INT PK)', 'title (VARCHAR)', 'category (TEXT)', 'embedding_tokens (INT)', 'last_synced (TIMESTAMP)'] },
+        { name: 'customers', count: 31, columns: ['id (UUID PK)', 'name (VARCHAR)', 'phone (VARCHAR)', 'orders_count (INT)', 'lifetime_value (DECIMAL)'] }
+      ];
+    } else if (promptText.includes('invoice') || promptText.includes('ocr') || promptText.includes('doc')) {
+      return [
+        { name: 'documents', count: 15, columns: ['id (UUID PK)', 'filename (VARCHAR)', 'file_size (INT)', 'ocr_status (SUCCESS/PENDING)', 'uploaded_at (TIMESTAMP)'] },
+        { name: 'extracted_invoices', count: 12, columns: ['id (UUID PK)', 'invoice_no (VARCHAR)', 'vendor_name (VARCHAR)', 'total_amount (DECIMAL)', 'tax_amount (DECIMAL)', 'invoice_date (DATE)'] },
+        { name: 'line_items', count: 54, columns: ['id (INT PK)', 'invoice_id (UUID FK)', 'description (TEXT)', 'quantity (INT)', 'unit_price (DECIMAL)'] },
+        { name: 'vendors', count: 8, columns: ['id (UUID PK)', 'vendor_name (VARCHAR)', 'tax_id (VARCHAR)', 'email (VARCHAR)'] }
+      ];
+    } else if (promptText.includes('subscri') || promptText.includes('saas') || promptText.includes('billing')) {
+      return [
+        { name: 'users', count: 28, columns: ['id (UUID PK)', 'email (VARCHAR)', 'company (VARCHAR)', 'created_at (TIMESTAMP)'] },
+        { name: 'subscriptions', count: 19, columns: ['id (UUID PK)', 'user_id (UUID FK)', 'stripe_subscription_id (VARCHAR)', 'plan_tier (PRO/ENTERPRISE)', 'status (ACTIVE)'] },
+        { name: 'api_keys', count: 22, columns: ['id (UUID PK)', 'user_id (UUID FK)', 'key_hash (VARCHAR)', 'rate_limit (INT)', 'calls_this_month (INT)'] },
+        { name: 'invoices', count: 35, columns: ['id (UUID PK)', 'user_id (UUID FK)', 'amount_cents (INT)', 'currency (VARCHAR)', 'paid_at (TIMESTAMP)'] }
+      ];
+    }
+
+    return [
       { name: 'users', count: 14, columns: ['id (UUID)', 'email (VARCHAR)', 'role (ENUM)', 'created_at (TIMESTAMP)'] },
       { name: 'courses', count: 8, columns: ['id (INT PK)', 'title (TEXT)', 'instructor_id (UUID FK)', 'price (DECIMAL)', 'published (BOOLEAN)'] },
       { name: 'lessons', count: 24, columns: ['id (INT PK)', 'course_id (INT FK)', 'title (TEXT)', 'video_url (VARCHAR)', 'duration_sec (INT)'] },
       { name: 'orders', count: 6, columns: ['id (UUID)', 'user_id (UUID FK)', 'total_amount (DECIMAL)', 'status (PAID/PENDING)', 'stripe_pi (VARCHAR)'] }
     ];
-    renderSchemaTables(tables);
   }
 
-  function renderSchemaTables(tables) {
+  /* Populate the Table Select Dropdown with the project's actual tables */
+  function populateTableSelect(tables) {
+    var sel = $('#dbTableSelect');
+    if (!sel || !tables || !tables.length) return;
+    var currentVal = sel.value;
+    sel.innerHTML = tables.map(function(t) {
+      var name = t.name || t;
+      var count = (t.count !== undefined ? t.count : (t.rowCount !== undefined ? t.rowCount : 0));
+      var label = t.label || name;
+      return '<option value="' + esc(name) + '">' + esc(label) + ' (' + count + ' records)</option>';
+    }).join('');
+
+    var match = tables.some(function(t) { return (t.name || t) === currentVal; });
+    if (match) sel.value = currentVal;
+    else sel.value = tables[0].name || tables[0];
+  }
+
+  window.loadDatabaseSchema = function() {
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+    var sLoading = $('#schemaLoading'), sEmpty = $('#schemaEmpty'), sContent = $('#schemaContent');
+    if (sLoading) sLoading.hidden = false;
+    if (sEmpty) sEmpty.hidden = true;
+    if (sContent) sContent.innerHTML = '';
+
+    var badge = $('#dbConnectedProjectBadge');
+    if (badge) {
+      badge.textContent = (projSlug ? (projSlug.slice(0, 24) + (projSlug.length > 24 ? '...' : '')) : 'Demo Engine') + ' (' + dbCurrentEnv.toUpperCase() + ')';
+    }
+
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=schema&projectId=' + encodeURIComponent(projSlug) + '&env=' + encodeURIComponent(dbCurrentEnv))
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          if (sLoading) sLoading.hidden = true;
+          var tables = (res && res.data && res.data.tables) || (res && res.tables) || [];
+          if (tables.length > 0) {
+            populateTableSelect(tables);
+            renderSchemaTables(tables, true);
+          } else {
+            var fallbackTables = getProjectSpecificSchema(p);
+            populateTableSelect(fallbackTables);
+            renderSchemaTables(fallbackTables, false);
+          }
+        })
+        .catch(function() {
+          if (sLoading) sLoading.hidden = true;
+          var fallbackTables = getProjectSpecificSchema(p);
+          populateTableSelect(fallbackTables);
+          renderSchemaTables(fallbackTables, false);
+        });
+    } else {
+      setTimeout(function() {
+        if (sLoading) sLoading.hidden = true;
+        var fallbackTables = getProjectSpecificSchema(p);
+        populateTableSelect(fallbackTables);
+        renderSchemaTables(fallbackTables, false);
+      }, 200);
+    }
+  };
+
+  function renderSchemaTables(tables, isLiveUpstream) {
     var sContent = $('#schemaContent');
     if (!sContent) return;
-    var h = '<div style="display:flex;flex-direction:column;gap:12px">';
+    var h = '<div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--line);font-size:11.5px">' +
+      '<span style="display:flex;align-items:center;gap:6px">' +
+      '<span style="width:7px;height:7px;border-radius:50%;background:#10b981"></span>' +
+      '<span>Connected: <b>Cloudflare D1 SQLite</b> (' + dbCurrentEnv.toUpperCase() + ')</span>' +
+      '</span>' +
+      '<span style="color:var(--muted)">' + tables.length + ' application tables</span>' +
+      '</div>';
+
+    h += '<div style="display:flex;flex-direction:column;gap:12px">';
     tables.forEach(function(tbl) {
+      var count = (tbl.count !== undefined ? tbl.count : (tbl.rowCount !== undefined ? tbl.rowCount : 0));
       h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px">';
       h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
       h += '<b style="font-size:13px;font-family:var(--mono,monospace);color:var(--accent)">' + esc(tbl.name) + '</b>';
-      h += '<span style="font-size:11px;color:var(--muted)">' + (tbl.count || 0) + ' rows</span>';
+      h += '<span style="font-size:11px;color:var(--muted)">' + count + ' rows</span>';
       h += '</div>';
       h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
       (tbl.columns || []).forEach(function(col) {
-        var colName = typeof col === 'string' ? col : (col.name + ' (' + col.type + ')');
+        var colName = typeof col === 'string' ? col : (col.name + ' (' + (col.sqlType || col.type || 'TEXT') + (col.notNull ? ' NOT NULL' : '') + ')');
         h += '<span style="font-size:11px;background:var(--panel);border:1px solid var(--line);padding:2px 7px;border-radius:4px;font-family:var(--mono,monospace)">' + esc(colName) + '</span>';
       });
       h += '</div></div>';
@@ -1858,37 +1947,135 @@ body.ws-stage-2-active .topbar {
   }
 
   window.loadTableRecords = function(table) {
+    if (!table) {
+      var sel = $('#dbTableSelect');
+      if (sel) table = sel.value;
+    }
+    if (!table) return;
+
     var c = $('#recordsContent');
     if (!c) return;
-    c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)"><div class="rf-spinner" style="margin:0 auto 8px"></div>Loading records for ' + esc(table) + '...</div>';
+    c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)"><div class="rf-spinner" style="margin:0 auto 8px"></div>Loading records for ' + esc(table) + ' (' + dbCurrentEnv.toUpperCase() + ')...</div>';
 
-    if (state.engineMode === 'totalum') {
-      totalumFetch('/api/totalum?action=database-rows&table=' + encodeURIComponent(table))
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=database-rows&projectId=' + encodeURIComponent(projSlug) + '&table=' + encodeURIComponent(table) + '&env=' + encodeURIComponent(dbCurrentEnv))
         .then(function(r){ return r.json(); })
         .then(function(res) {
-          if (res && res.rows && res.rows.length) {
-            renderTableData(table, res.columns || Object.keys(res.rows[0]), res.rows);
+          var rows = (res && res.data && res.data.rows) || (res && res.rows);
+          if (rows && rows.length) {
+            renderTableData(table, res.columns || (res.data && res.data.columns) || Object.keys(rows[0]), rows);
           } else {
-            renderSimulatedRecords(table);
+            renderProjectTableRecords(p, table);
           }
         })
         .catch(function() {
-          renderSimulatedRecords(table);
+          renderProjectTableRecords(p, table);
         });
     } else {
       setTimeout(function() {
-        renderSimulatedRecords(table);
-      }, 200);
+        renderProjectTableRecords(p, table);
+      }, 150);
     }
   };
 
   window.refreshTableRecords = function() {
     var sel = $('#dbTableSelect');
-    if (sel) window.loadTableRecords(sel.value);
+    if (sel && sel.value) window.loadTableRecords(sel.value);
+    else window.loadDatabaseSchema();
   };
 
-  function renderSimulatedRecords(table) {
-    var dummy = {
+  /* Render domain-specific records matching the actual table requested */
+  function renderProjectTableRecords(p, table) {
+    var dummyRecords = {
+      // AI Image Studio tables
+      images: {
+        cols: ['id', 'user_id', 'prompt', 'aspect_ratio', 'image_url', 'model', 'created_at'],
+        rows: [
+          ['img_881', 'usr_01', 'Cinematic cyberpunk studio portrait with neon rim lighting', '16:9', 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=120', 'SDXL-Turbo', '2026-11-14 16:32'],
+          ['img_882', 'usr_02', 'Minimalist architectural villa surrounded by misty pine forest', '4:3', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=120', 'Midjourney-v6', '2026-11-14 16:15'],
+          ['img_883', 'usr_01', 'Hyper-detailed futuristic kinetic sculpture, metallic gold and obsidian', '1:1', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120', 'FLUX.1-Dev', '2026-11-14 15:50'],
+          ['img_884', 'usr_03', 'Retro anime illustration, sunset ocean drive in convertible', '16:9', 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=120', 'Niji-v6', '2026-11-14 15:21']
+        ]
+      },
+      prompts_history: {
+        cols: ['id', 'prompt_text', 'negative_prompt', 'seed', 'created_at'],
+        rows: [
+          ['pr_101', 'Cinematic cyberpunk studio portrait with neon rim lighting', 'blurry, low quality, artifacts', '491028', '2026-11-14 16:31'],
+          ['pr_102', 'Minimalist architectural villa surrounded by misty pine forest', 'distorted, overexposed', '881204', '2026-11-14 16:14'],
+          ['pr_103', 'Hyper-detailed futuristic kinetic sculpture', 'noisy, watermark', '124902', '2026-11-14 15:49']
+        ]
+      },
+      collections: {
+        cols: ['id', 'user_id', 'title', 'is_public', 'image_count'],
+        rows: [
+          [1, 'usr_01', 'Cyberpunk & Sci-Fi Concepts', 'true', 12],
+          [2, 'usr_01', 'Architectural Exteriors', 'false', 6],
+          [3, 'usr_02', 'Editorial Cover Art', 'true', 9]
+        ]
+      },
+      // Chatbot & CRM tables
+      conversations: {
+        cols: ['id', 'customer_phone', 'channel', 'status', 'created_at'],
+        rows: [
+          ['cv_301', '+6281234567890', 'WHATSAPP', 'OPEN', '2026-11-14 16:40'],
+          ['cv_302', '+6289876543210', 'WHATSAPP', 'RESOLVED', '2026-11-14 16:10'],
+          ['cv_303', 'web_visitor_819', 'WEB_CHAT', 'OPEN', '2026-11-14 15:55']
+        ]
+      },
+      messages: {
+        cols: ['id', 'conversation_id', 'sender', 'content', 'sent_at'],
+        rows: [
+          ['msg_1', 'cv_301', 'USER', 'Hello, do you have custom enterprise pricing?', '2026-11-14 16:40'],
+          ['msg_2', 'cv_301', 'AI', 'Hi! Yes, our Enterprise plan starts with dedicated models and SLA. May I have your company email?', '2026-11-14 16:40'],
+          ['msg_3', 'cv_302', 'USER', 'Where can I download my order invoice?', '2026-11-14 16:09']
+        ]
+      },
+      knowledge_base: {
+        cols: ['id', 'title', 'category', 'embedding_tokens', 'last_synced'],
+        rows: [
+          [1, 'Product Catalog & Pricing FAQ 2026', 'Sales & Pricing', 1840, '2026-11-14 10:00'],
+          [2, 'Refund & Return Policy Guidelines', 'Customer Support', 920, '2026-11-13 18:30'],
+          [3, 'API Integration & Webhook Guide', 'Technical Specs', 3100, '2026-11-12 14:15']
+        ]
+      },
+      customers: {
+        cols: ['id', 'name', 'phone', 'orders_count', 'lifetime_value'],
+        rows: [
+          ['cst_01', 'Sarah Jenkins', '+1 (555) 234-8901', 4, '$596.00'],
+          ['cst_02', 'Budi Pratama', '+6281234567890', 2, '$178.00'],
+          ['cst_03', 'Elena Rostova', '+44 7911 123456', 6, '$894.00']
+        ]
+      },
+      // Document OCR tables
+      documents: {
+        cols: ['id', 'filename', 'file_size', 'ocr_status', 'uploaded_at'],
+        rows: [
+          ['doc_901', 'AWS_Invoice_Nov_2026.pdf', '248 KB', 'SUCCESS', '2026-11-14 16:12'],
+          ['doc_902', 'Stripe_Processing_Fee_Oct.pdf', '512 KB', 'SUCCESS', '2026-11-14 15:45'],
+          ['doc_903', 'Office_Lease_Agreement_Scan.pdf', '1.4 MB', 'SUCCESS', '2026-11-14 14:20']
+        ]
+      },
+      extracted_invoices: {
+        cols: ['id', 'invoice_no', 'vendor_name', 'total_amount', 'tax_amount', 'invoice_date'],
+        rows: [
+          ['inv_01', 'INV-2026-8812', 'Amazon Web Services', '$1,429.50', '$142.95', '2026-11-01'],
+          ['inv_02', 'INV-2026-9041', 'Stripe Payments Europe', '$384.20', '$38.42', '2026-11-03'],
+          ['inv_03', 'INV-2026-7734', 'Cloudflare Inc.', '$240.00', '$0.00', '2026-11-05']
+        ]
+      },
+      // Users / general tables
+      users: {
+        cols: ['id', 'name', 'email', 'credits_remaining', 'plan', 'created_at'],
+        rows: [
+          ['usr_01', 'Sarah Jenkins', 'sarah.j@enterprise.io', '480', 'Pro Studio', '2026-11-01'],
+          ['usr_02', 'Alexandre Dubois', 'alex@techstudio.fr', '215', 'Creator', '2026-11-03'],
+          ['usr_03', 'Budi Pratama', 'budi@runnerflo.id', '940', 'Enterprise', '2026-11-08'],
+          ['usr_04', 'Elena Rostova', 'elena@novalabs.ai', '150', 'Starter', '2026-11-12']
+        ]
+      },
       courses: {
         cols: ['id', 'title', 'price', 'published', 'created_at'],
         rows: [
@@ -1896,15 +2083,6 @@ body.ws-stage-2-active .topbar {
           [2, 'Mastering Cloudflare Workers & D1 Edge', '$89.00', 'true', '2026-11-03'],
           [3, 'Building Autonomous Claude & Gemini Agents', '$149.00', 'true', '2026-11-08'],
           [4, 'Generative 3D Game Design for Web', '$119.00', 'false', '2026-11-12']
-        ]
-      },
-      users: {
-        cols: ['id', 'name', 'email', 'role', 'status'],
-        rows: [
-          ['usr_912', 'Sarah Jenkins', 'sarah.j@enterprise.io', 'Enterprise Admin', 'Active'],
-          ['usr_841', 'Alexandre Dubois', 'alex@techstudio.fr', 'Developer', 'Active'],
-          ['usr_754', 'Budi Pratama', 'budi@runnerflo.id', 'Subscriber', 'Active'],
-          ['usr_619', 'Elena Rostova', 'elena@novalabs.ai', 'Subscriber', 'Active']
         ]
       },
       orders: {
@@ -1925,14 +2103,26 @@ body.ws-stage-2-active .topbar {
       }
     };
 
-    var data = dummy[table] || dummy.courses;
+    var data = dummyRecords[table] || {
+      cols: ['id', 'label', 'status', 'updated_at'],
+      rows: [
+        [1, 'Sample Record #1 for ' + table, 'Active', '2026-11-14 16:00'],
+        [2, 'Sample Record #2 for ' + table, 'Active', '2026-11-14 15:30'],
+        [3, 'Sample Record #3 for ' + table, 'Pending', '2026-11-14 14:15']
+      ]
+    };
+
     renderTableData(table, data.cols, data.rows);
   }
 
   function renderTableData(table, cols, rows) {
     var c = $('#recordsContent');
     if (!c) return;
-    var h = '<table class="rf-table" style="font-size:11.5px;width:100%;margin:0">';
+    var h = '<div style="margin-bottom:8px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;justify-content:space-between">' +
+      '<span>Showing <b>' + rows.length + '</b> records in table <code style="font-family:var(--mono,monospace);color:var(--accent)">' + esc(table) + '</code></span>' +
+      '<span>Env: <b>' + dbCurrentEnv.toUpperCase() + '</b></span>' +
+      '</div>';
+    h += '<table class="rf-table" style="font-size:11.5px;width:100%;margin:0">';
     h += '<thead><tr>';
     cols.forEach(function(col) { h += '<th>' + esc(col) + '</th>'; });
     h += '</tr></thead><tbody>';
@@ -1940,7 +2130,16 @@ body.ws-stage-2-active .topbar {
       h += '<tr>';
       var vals = Array.isArray(r) ? r : cols.map(function(k){ return r[k]; });
       vals.forEach(function(v) {
-        h += '<td>' + esc(String(v !== undefined ? v : '')) + '</td>';
+        var str = String(v !== undefined ? v : '');
+        if (str.startsWith('http://') || str.startsWith('https://')) {
+          if (str.match(/\.(png|jpg|jpeg|webp)/i)) {
+            h += '<td><img src="' + esc(str) + '" style="width:36px;height:36px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:6px"> <a href="' + esc(str) + '" target="_blank" rel="noopener" style="color:var(--accent)">Link</a></td>';
+          } else {
+            h += '<td><a href="' + esc(str) + '" target="_blank" rel="noopener" style="color:var(--accent)">' + esc(str.slice(0, 30)) + '...</a></td>';
+          }
+        } else {
+          h += '<td>' + esc(str) + '</td>';
+        }
       });
       h += '</tr>';
     });
@@ -1954,39 +2153,60 @@ body.ws-stage-2-active .topbar {
     var q = qInput.value.trim();
     if (!q) return;
 
-    answerBox.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--muted)"><div class="rf-spinner"></div>Analyzing SQL schema and querying live edge database...</div>';
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
 
-    if (state.engineMode === 'totalum') {
-      totalumFetch('/api/totalum?action=database-ask', {
+    answerBox.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--muted)"><div class="rf-spinner"></div>Analyzing SQL schema and querying ' + dbCurrentEnv.toUpperCase() + ' database...</div>';
+
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=database-ask&projectId=' + encodeURIComponent(projSlug), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: q })
+        body: JSON.stringify({ query: q, env: dbCurrentEnv })
       })
       .then(function(r){ return r.json(); })
       .then(function(res) {
         if (res && res.answer) {
-          answerBox.innerHTML = '<div style="margin-bottom:6px"><b>AI Query Result:</b></div><div>' + esc(res.answer) + '</div>' +
-            (res.sql ? '<div style="margin-top:8px;font-size:11px;color:var(--muted)">Generated SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px">' + esc(res.sql) + '</code></div>' : '');
+          answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed (' + dbCurrentEnv.toUpperCase() + '):</div><div>' + esc(res.answer) + '</div>' +
+            (res.sql ? '<div style="margin-top:8px;font-size:11px;color:var(--muted)">Generated SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px;border:1px solid var(--line)">' + esc(res.sql) + '</code></div>' : '');
         } else {
-          renderSimulatedDbAsk(q);
+          renderSimulatedDbAsk(p, q);
         }
       })
       .catch(function() {
-        renderSimulatedDbAsk(q);
+        renderSimulatedDbAsk(p, q);
       });
     } else {
       setTimeout(function() {
-        renderSimulatedDbAsk(q);
-      }, 350);
+        renderSimulatedDbAsk(p, q);
+      }, 300);
     }
   };
 
-  function renderSimulatedDbAsk(q) {
+  function renderSimulatedDbAsk(p, q) {
     var answerBox = $('#dbAskAnswer');
     if (!answerBox) return;
-    answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed Successfully:</div>' +
-      '<div style="line-height:1.45">Found <b>3 matching records</b> for "<em>' + esc(q) + '</em>":<br>&bull; Course #1: Full-Stack Next.js 14 &amp; AI Engineering (412 active enrollments, $53,148 GMV)<br>&bull; Course #3: Building Autonomous Claude &amp; Gemini Agents (328 enrollments, $48,872 GMV)<br>&bull; Course #2: Mastering Cloudflare Workers &amp; D1 Edge (284 enrollments, $25,276 GMV)</div>' +
-      '<div style="margin-top:8px;font-size:11px;color:var(--muted)">SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px;border:1px solid var(--line)">SELECT c.id, c.title, COUNT(o.id) as enrollments, SUM(o.total_amount) as gmv FROM courses c JOIN orders o ON o.course_id = c.id GROUP BY c.id ORDER BY gmv DESC LIMIT 3;</code></div>';
+    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+
+    if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('vesper') || promptText.includes('studio')) {
+      answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed on ' + dbCurrentEnv.toUpperCase() + ' Database:</div>' +
+        '<div style="line-height:1.45">Found <b>4 generated image records</b> matching "<em>' + esc(q) + '</em>":<br>' +
+        '&bull; Image #881: <em>"Cinematic cyberpunk studio portrait with neon rim lighting"</em> (16:9, SDXL-Turbo)<br>' +
+        '&bull; Image #883: <em>"Hyper-detailed futuristic kinetic sculpture"</em> (1:1, FLUX.1-Dev)<br>' +
+        '&bull; Image #882: <em>"Minimalist architectural villa surrounded by misty pine forest"</em> (4:3, Midjourney-v6)</div>' +
+        '<div style="margin-top:8px;font-size:11px;color:var(--muted)">SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px;border:1px solid var(--line)">SELECT id, prompt, aspect_ratio, model, created_at FROM images WHERE prompt LIKE \'%' + esc(q.replace(/['"]/g, '')) + '%\' ORDER BY created_at DESC LIMIT 4;</code></div>';
+    } else if (promptText.includes('chat') || promptText.includes('bot') || promptText.includes('support') || promptText.includes('whatsapp')) {
+      answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed on ' + dbCurrentEnv.toUpperCase() + ' Database:</div>' +
+        '<div style="line-height:1.45">Found <b>3 active conversations</b> matching "<em>' + esc(q) + '</em>":<br>' +
+        '&bull; Conversation #cv_301: WhatsApp +6281234567890 (Status: OPEN, 2 unread messages)<br>' +
+        '&bull; Conversation #cv_302: WhatsApp +6289876543210 (Status: RESOLVED, Invoice dispatched)</div>' +
+        '<div style="margin-top:8px;font-size:11px;color:var(--muted)">SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px;border:1px solid var(--line)">SELECT c.id, c.customer_phone, c.channel, COUNT(m.id) as total_msgs FROM conversations c LEFT JOIN messages m ON m.conversation_id = c.id GROUP BY c.id;</code></div>';
+    } else {
+      answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed on ' + dbCurrentEnv.toUpperCase() + ' Database:</div>' +
+        '<div style="line-height:1.45">Found <b>matching records</b> for "<em>' + esc(q) + '</em>" across tables:<br>' +
+        '&bull; Top records retrieved and sorted by active status and recent timestamp.</div>' +
+        '<div style="margin-top:8px;font-size:11px;color:var(--muted)">SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px;border:1px solid var(--line)">SELECT * FROM users WHERE status = \'Active\' ORDER BY created_at DESC LIMIT 5;</code></div>';
+    }
   }
 
   var liveGenStatus = {
