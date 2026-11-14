@@ -156,6 +156,24 @@ export async function onRequest(context) {
         headers: commonHeaders
       });
       const data = await res.json();
+      // Add normalized URL fields so the frontend always has reliable previewUrl / productionUrl
+      if (data && data.data) {
+        const d = data.data;
+        const isPublished = Boolean(d.deployment && d.deployment.status === 'success');
+        const previewUrl = d.temporalDevelopmentProjectUrl || (d.preview && d.preview.url) || null;
+        const productionHost = (d.customDomain && d.customDomain.hostname)
+          ? d.customDomain.hostname.replace(/^https?:\/\//, '')
+          : (d.productionProjectUrl ? d.productionProjectUrl.replace(/^https?:\/\//, '') : null);
+        const effectiveUrl = isPublished && productionHost
+          ? ('https://' + productionHost)
+          : previewUrl;
+        d.normalized = {
+          isPublished,
+          previewUrl,
+          productionUrl: productionHost ? ('https://' + productionHost) : null,
+          effectiveUrl
+        };
+      }
       return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
     }
 

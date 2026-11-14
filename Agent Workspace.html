@@ -1273,6 +1273,11 @@ body.ws-stage-2-active .topbar {
             </a>
           </div>
         </div>
+        <!-- Sandbox preview quick-access row (shown when not yet published to production) -->
+        <div id="pubModalSandboxRow" style="margin-top:8px;padding:8px 10px;background:var(--accent-soft);border-radius:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px" hidden>
+          <span style="color:var(--muted)">🧪 <b>Sandbox Preview</b> (working now):</span>
+          <a id="pubSandboxLink" href="#" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%">#</a>
+        </div>
       </div>
 
       <!-- 2. Publish Status & Execution -->
@@ -1541,7 +1546,9 @@ body.ws-stage-2-active .topbar {
       dismissed: false,
       totalumProjectId: '',
       totalumPreviewUrl: '',
+      totalumProductionUrl: '',
       totalumLiveUrl: '',
+      totalumPublished: false,
       totalumCreditsSpent: 0,
       customDomain: ''
     };
@@ -1568,7 +1575,9 @@ body.ws-stage-2-active .topbar {
         p.busy = false;
         if (typeof p.totalumProjectId === 'undefined') p.totalumProjectId = '';
         if (typeof p.totalumPreviewUrl === 'undefined') p.totalumPreviewUrl = '';
+        if (typeof p.totalumProductionUrl === 'undefined') p.totalumProductionUrl = '';
         if (typeof p.totalumLiveUrl === 'undefined') p.totalumLiveUrl = '';
+        if (typeof p.totalumPublished === 'undefined') p.totalumPublished = false;
         if (typeof p.totalumCreditsSpent === 'undefined') p.totalumCreditsSpent = 0;
       });
       if (s.active === 'home' || !s.active) {
@@ -2902,10 +2911,14 @@ body.ws-stage-2-active .topbar {
     .then(function(projRes) {
       if (my !== runId) return;
       var d = projRes.data || {};
+      var norm = d.normalized || {};
       p.busy = false;
       p.stage = 4;
-      p.totalumPreviewUrl = d.temporalDevelopmentProjectUrl || ('https://' + projSlug + '.runnerflo.app');
-      p.totalumLiveUrl = d.productionProjectUrl || (projSlug + '.runnerflo.app');
+      var isPub = norm.isPublished || Boolean(d.deployment && d.deployment.status === 'success');
+      p.totalumPublished = isPub;
+      p.totalumPreviewUrl = norm.previewUrl || d.temporalDevelopmentProjectUrl || (d.preview && d.preview.url) || '';
+      p.totalumProductionUrl = (norm.productionUrl || (d.customDomain && d.customDomain.hostname) || d.productionProjectUrl || '').replace(/^https?:\/\//, '');
+      p.totalumLiveUrl = isPub ? p.totalumProductionUrl : p.totalumPreviewUrl;
       p.totalumCreditsSpent = d.totalCreditsSpent || 0;
       p.updated = Date.now();
 
@@ -2925,14 +2938,18 @@ body.ws-stage-2-active .topbar {
         })
         .catch(function(){});
 
-      m.text += '\n\n✨ **Build Successful! Application is live in preview.**\n' +
-                '• Preview Address: ' + p.totalumPreviewUrl + '\n' +
+      var statusLine = isPub
+        ? '• Live Production Domain: https://' + p.totalumProductionUrl.replace(/^https?:\/\//, '')
+        : '• Live Sandbox Preview: ' + p.totalumPreviewUrl + '\n• Target Production Domain: https://' + p.totalumProductionUrl.replace(/^https?:\/\//, '') + ' (Publish to activate)';
+
+      m.text += '\n\n✨ **Build Successful! Application is live and running.**\n' +
+                statusLine + '\n' +
                 '• Credits used: ' + p.totalumCreditsSpent + '\n' +
-                '• Database & auth verified. You can now publish to production or attach your custom domain.';
+                '• Database & auth verified. Your app is running in the live sandbox. Click "Open Preview" to test it now!';
 
       m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button type="button" class="rf-btn" onclick="window.openActiveLiveUrl()">↗ Open Sandbox Preview</button>' +
         '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publish Website</button>' +
-        '<button type="button" class="rf-btn" onclick="window.open(\'' + p.totalumPreviewUrl + '\', \'_blank\')">↗ Open Preview</button>' +
         '</div>';
 
       p.suggest = ['Publish Website Live', 'Connect Custom Domain', 'Add New Feature'];
@@ -2957,14 +2974,32 @@ body.ws-stage-2-active .topbar {
     var p = cur(); if (!p) return;
     var isTotalum = (state.engineMode === 'totalum');
     var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
-    var liveUrl = isTotalum
-      ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + projSlug + '.runnerflo.app')))
-      : 'https://runnerflo-ai.pages.dev';
+    var isPublished = isTotalum && Boolean(p.totalumPublished);
+    var sandboxUrl = isTotalum ? (p.totalumPreviewUrl || '') : '';
+    var targetProdRaw = isTotalum
+      ? (p.totalumProductionUrl ? p.totalumProductionUrl.replace(/^https?:\/\//, '') : (projSlug + '.totalum-project.com'))
+      : 'runnerflo-ai.pages.dev';
+    var targetProdUrl = 'https://' + targetProdRaw;
+
+    // The URL shown prominently: sandbox preview (working) if not published, production if live
+    var shownUrl = isPublished ? targetProdUrl : (sandboxUrl || targetProdUrl);
 
     var urlTxt = $('#pubModalUrlText');
-    if (urlTxt) urlTxt.textContent = liveUrl;
+    if (urlTxt) urlTxt.textContent = shownUrl;
     var openBtn = $('#btnOpenPubUrl');
-    if (openBtn) openBtn.href = liveUrl;
+    if (openBtn) { openBtn.href = shownUrl; openBtn.textContent = isPublished ? 'Open Production' : 'Open Sandbox Preview'; }
+
+    // Sandbox row: show the working dev link when not yet published
+    var sandboxRow = $('#pubModalSandboxRow');
+    if (sandboxRow) {
+      if (isTotalum && !isPublished && sandboxUrl && sandboxUrl !== shownUrl) {
+        sandboxRow.hidden = false;
+        var sandboxLink = $('#pubSandboxLink');
+        if (sandboxLink) { sandboxLink.href = sandboxUrl; sandboxLink.textContent = sandboxUrl; }
+      } else {
+        sandboxRow.hidden = true;
+      }
+    }
 
     var noticeEl = $('#pubEngineNotice');
     var btnExec = $('#btnExecutePublish');
@@ -2979,9 +3014,13 @@ body.ws-stage-2-active .topbar {
     if (isTotalum) {
       if (noticeEl) {
         noticeEl.className = 'rf-callout info';
-        noticeEl.innerHTML = '<b>🚀 Production Cloud Engine (Next.js 14)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Your full-stack application runs with Next.js 14, edge runtime, and automated SSL. Click below to deploy your app live to the internet.</div>';
+        var prodStatusNote = isPublished
+          ? '<b>✅ Production Engine — Live</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Your application is published and running on the global edge network with automated SSL.</div>'
+          : '<b>🚀 Production Cloud Engine (Next.js 14)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Your app is built and running in <b>Sandbox Preview</b>. Click below to publish it live to the production domain.</div>'
+            + '<div style="margin-top:7px;padding:7px 10px;background:var(--accent-soft);border-radius:6px;font-size:11.5px"><b>Target Production URL:</b> <code>' + targetProdUrl + '</code><br><span style="color:var(--muted);font-size:11px">(Will activate once publish succeeds)</span></div>';
+        noticeEl.innerHTML = prodStatusNote;
       }
-      if (btnText) btnText.textContent = '🚀 Publish to Production';
+      if (btnText) btnText.textContent = isPublished ? '🔄 Re-publish to Production' : '🚀 Publish to Production';
     } else {
       if (noticeEl) {
         noticeEl.className = 'rf-callout warning';
@@ -2995,7 +3034,7 @@ body.ws-stage-2-active .topbar {
     var statusBadge = $('#domainStatusBadge');
     var dnsHelper = $('#domainDnsHelper');
     var dnsHost = $('#dnsTargetHost');
-    var dnsTarget = isTotalum ? (projSlug + '.runnerflo.app') : 'runnerflo-ai.pages.dev';
+    var dnsTarget = isTotalum ? targetProdRaw : 'runnerflo-ai.pages.dev';
     if (dnsHost) dnsHost.textContent = dnsTarget;
 
     if (statusBadge) {
@@ -3018,6 +3057,24 @@ body.ws-stage-2-active .topbar {
   window.openPublishModal = openPublishModal;
   window.openDeployModal = openPublishModal;
   window.openDomainModal = openPublishModal;
+
+  // Open the working live URL (sandbox preview if not published, production if live)
+  window.openActiveLiveUrl = function() {
+    var p = cur(); if (!p) return;
+    var url = (p.totalumPublished && p.totalumProductionUrl)
+      ? ('https://' + p.totalumProductionUrl.replace(/^https?:\/\//, ''))
+      : (p.totalumPreviewUrl || '');
+    if (url) window.open(url, '_blank', 'noopener');
+    else toast('Preview URL not available yet. Please wait for the build to complete.');
+  };
+  window.copyActiveLiveUrl = function() {
+    var p = cur(); if (!p) return;
+    var url = (p.totalumPublished && p.totalumProductionUrl)
+      ? ('https://' + p.totalumProductionUrl.replace(/^https?:\/\//, ''))
+      : (p.totalumPreviewUrl || '');
+    if (url && navigator.clipboard) navigator.clipboard.writeText(url).then(function() { toast('URL copied!'); });
+    else if (url) toast(url);
+  };
 
   function executePublish() {
     var p = cur(); if (!p) return;
@@ -3074,10 +3131,22 @@ body.ws-stage-2-active .topbar {
     })
     .catch(function(err) {
       btnExec.disabled = false;
-      toast('Publishing failed: ' + err.message);
+      var errMsg = err.message || 'Unknown error';
+      var isCredits = /credit|balance|VCaaS/i.test(errMsg);
+      toast('Publishing failed: ' + errMsg);
       var errEl = $('#pubEngineNotice');
       if (errEl) {
-        errEl.innerHTML = '<div class="rf-callout warning"><b>Publishing Failed:</b> ' + esc(err.message) + '</div>';
+        if (isCredits) {
+          var sandboxUrl = p.totalumPreviewUrl || '';
+          errEl.className = 'rf-callout warning';
+          errEl.innerHTML = '<b>⚠️ Publishing Failed — Insufficient Credits</b>'
+            + '<div style="margin-top:5px;font-size:12px;color:var(--muted)">' + esc(errMsg) + '</div>'
+            + (sandboxUrl ? '<div style="margin-top:8px;padding:7px 10px;background:var(--accent-soft);border-radius:6px;font-size:12px"><b>Your app is still running in Sandbox Preview:</b><br><a href="' + esc(sandboxUrl) + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;word-break:break-all">' + esc(sandboxUrl) + '</a></div>' : '')
+            + '<div style="margin-top:8px;font-size:12px;color:var(--muted)">Top up your Totalum credits to publish to production. Your sandbox preview remains fully functional.</div>';
+        } else {
+          errEl.className = 'rf-callout warning';
+          errEl.innerHTML = '<b>Publishing Failed:</b> ' + esc(errMsg);
+        }
       }
     });
   }
@@ -3962,6 +4031,24 @@ body.ws-stage-2-active .topbar {
     save();
     render();
     toast('✓ Switched to project: ' + target.name);
+
+    // Hydrate URL fields from live API
+    var projId = slug || id;
+    if (projId && state.engineMode === 'totalum') {
+      totalumFetch('/api/totalum?action=project&projectId=' + encodeURIComponent(projId))
+        .then(function(r) { return r.json(); })
+        .then(function(projRes) {
+          var d = projRes.data || {};
+          var norm = d.normalized || {};
+          target.totalumPublished = norm.isPublished || Boolean(d.deployment && d.deployment.status === 'success');
+          target.totalumPreviewUrl = norm.previewUrl || d.temporalDevelopmentProjectUrl || (d.preview && d.preview.url) || '';
+          target.totalumProductionUrl = (norm.productionUrl || (d.customDomain && d.customDomain.hostname) || d.productionProjectUrl || '').replace(/^https?:\/\//, '');
+          target.totalumLiveUrl = target.totalumPublished ? target.totalumProductionUrl : target.totalumPreviewUrl;
+          save();
+          renderSide();
+        })
+        .catch(function() {});
+    }
   };
 
   window.startFreshProject = function() {
@@ -3986,16 +4073,24 @@ body.ws-stage-2-active .topbar {
     } else if (uiMode === 'live') {
       var isGenerating = (p && p.busy);
       var isTotalum = (state.engineMode === 'totalum');
+      var isPublished = isTotalum && Boolean(p.totalumPublished);
+      var sandboxUrl = isTotalum ? (p.totalumPreviewUrl || '') : '';
+      var prodUrl = isTotalum ? (p.totalumProductionUrl ? ('https://' + p.totalumProductionUrl.replace(/^https?:\/\//, '')) : '') : '';
+
       var badgeHtml = isTotalum
-        ? '<span class="badge-mode badge-mode-totalum">PRODUCTION LIVE</span>'
+        ? (isPublished
+            ? '<span class="badge-mode badge-mode-totalum">PRODUCTION LIVE</span>'
+            : '<span class="badge-mode badge-mode-sandbox" style="background:#f59e0b;color:#1a0a00;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:.04em">DEV SANDBOX</span>')
         : '<span class="badge-mode badge-mode-sim">LIVE DEMO</span>';
-      
+
+      // Always display sandbox URL in browser bar (the one that actually resolves)
       var displayUrl = isTotalum
-        ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + (p.totalumProjectId || p.name) + '.runnerflo.app (Draft)')))
+        ? (sandboxUrl || prodUrl || 'https://' + (p.totalumProjectId || p.name) + '.totalum-project.com')
         : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Demo)';
-      
+
+      // Always load the sandbox preview URL in the iframe (productionProjectUrl 404s until published)
       var frameSrc = isTotalum
-        ? (p.totalumPreviewUrl || (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : 'loading-wave-3d.html'))
+        ? (sandboxUrl || 'loading-wave-3d.html')
         : 'https://runnerflo-ai.pages.dev';
 
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
