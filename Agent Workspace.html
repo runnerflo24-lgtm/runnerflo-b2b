@@ -2658,15 +2658,18 @@ body.ws-stage-2-active .topbar {
 
   function finishWave() {
     liveGenStatus.pct = 100;
-    liveGenStatus.title = 'Generation 100% Complete! EdTech LMS Platform is Live.';
-    liveGenStatus.sub = 'Progress: 100% &bull; Connected to 1,000+ Global Marketplaces';
-    _sendWaveMsg({ type: 'done', text: 'Ready \u2014 EdTech LMS is Live!' });
+    liveGenStatus.title = '✅ Build Complete! Application is live and running.';
+    liveGenStatus.sub = 'Progress: 100% • Application built and deployed to sandbox';
+    _sendWaveMsg({ type: 'progress', value: 100, text: 'Build Complete!' });
+    setTimeout(function() {
+      _sendWaveMsg({ type: 'done', text: 'Your app is ready — open the sandbox preview to test it.' });
+    }, 300);
     setTimeout(function () {
       var w = $('#waveLoading');
       if (w) w.classList.add('done');
       var iframe = $('#wsLiveFrame');
       if (iframe) iframe.style.opacity = '1';
-    }, 800);
+    }, 900);
   }
 
   var wsCurrentStage = 1; // Default enlarged (Full width with AI chat visible)
@@ -2855,7 +2858,32 @@ body.ws-stage-2-active .topbar {
   function pollTotalumProgress(p, m, my) {
     var projSlug = p.totalumProjectId || p.name;
     var pollCount = 0;
-    var maxPolls = 120;
+    var maxPolls = 150; // 150 × 4s = 10 min max
+    var startMs = Date.now();
+    var lastDisplayPct = 15;
+
+    // Smart progress: interpolate from elapsed time + API turns/stage data
+    function calcPct(prog, stat) {
+      // If API provides an explicit percentage, trust it (up to 92 to leave room for finalization)
+      var apiPct = (prog && (prog.percentage || prog.percent || prog.progress)) || 0;
+      if (apiPct > 0) return Math.min(92, Math.max(lastDisplayPct, apiPct));
+
+      // Phase-based heuristic from status stage
+      var stage = (stat && stat.stage) || (prog && prog.stage) || '';
+      var elapsed = (Date.now() - startMs) / 1000; // seconds
+      var turns = (prog && prog.turns) || 1;
+
+      var phasePct;
+      if (/init|start|plan/i.test(stage)) phasePct = 15 + Math.min(10, elapsed / 5);
+      else if (/build|compile|code/i.test(stage)) phasePct = 30 + Math.min(30, turns * 8);
+      else if (/test|check|verif/i.test(stage)) phasePct = 70 + Math.min(15, elapsed / 10);
+      else if (/deploy|upload|push/i.test(stage)) phasePct = 85 + Math.min(7, elapsed / 20);
+      else {
+        // Generic: turns × 10, smoothed with elapsed time
+        phasePct = Math.min(90, Math.max(15 + Math.min(20, elapsed / 8), turns * 10));
+      }
+      return Math.min(92, Math.max(lastDisplayPct, phasePct));
+    }
 
     var timer = setInterval(function() {
       if (my !== runId || !p.busy) {
@@ -2864,44 +2892,73 @@ body.ws-stage-2-active .topbar {
       }
       pollCount++;
 
-      totalumFetch('/api/totalum?action=agent-progress&projectId=' + encodeURIComponent(projSlug))
+      // Single fetch: agent-status (which includes status + enough for progress)
+      totalumFetch('/api/totalum?action=agent-status&projectId=' + encodeURIComponent(projSlug))
       .then(function(r) { return r.json(); })
-      .then(function(progRes) {
+      .then(function(statRes) {
         if (my !== runId) return;
-        var prog = progRes.data;
-        if (prog) {
-          var stage = prog.stage || 'working';
-          var pct = Math.min(95, Math.max(15, (prog.turns || 1) * 12));
-          updateWave(pct, 'AI Engine: ' + stage + '...', 'Turns: ' + (prog.turns || 1) + ' &bull; Files changed: ' + (prog.files ? prog.files.length : 0));
+        var stat = statRes.data || {};
+        var status = stat.status || stat.state || '';
 
+        if (status === 'done' || status === 'completed' || status === 'ready') {
+          clearInterval(timer);
+          // Jump to 99% first for visual feedback, then onBuildDone pushes to 100
+          updateWave(99, 'AI Engine: Finalizing deployment...', 'Progress: 99% • Verifying build output');
+          onTotalumBuildDone(p, m, my);
+          return;
+        }
+
+        if (pollCount >= maxPolls) {
+          clearInterval(timer);
+          updateWave(99, 'AI Engine: Build complete (timeout)...', 'Fetching final project state...');
+          onTotalumBuildDone(p, m, my);
+          return;
+        }
+
+        // Smooth progress display
+        var pct = calcPct(null, stat);
+        lastDisplayPct = pct;
+        var stageLabel = stat.stage || stat.currentTask || stat.phase || ('Step ' + pollCount);
+        var subLabel = 'Progress: ' + Math.round(pct) + '% • ' + (stat.message || stat.description || ('Turn ' + pollCount + ' — building your app...'));
+        updateWave(pct, 'AI Engine: ' + stageLabel + '...', subLabel);
+      })
+      .catch(function() {
+        // On network error, just advance a tiny bit based on time
+        var pct = Math.min(90, lastDisplayPct + 0.5);
+        lastDisplayPct = pct;
+        updateWave(pct, 'AI Engine: working...', 'Progress: ' + Math.round(pct) + '% • Connecting to agent...');
+      });
+
+      // Separately fetch detailed progress steps (non-blocking, every other tick to reduce load)
+      if (pollCount % 2 === 0) {
+        totalumFetch('/api/totalum?action=agent-progress&projectId=' + encodeURIComponent(projSlug))
+        .then(function(r) { return r.json(); })
+        .then(function(progRes) {
+          if (my !== runId) return;
+          var prog = progRes.data;
+          if (!prog) return;
+
+          // Refine progress % if API gives us more detail
+          var apiPct = prog.percentage || prog.percent || prog.progress || 0;
+          if (apiPct > 0 && apiPct < 100) {
+            var refined = Math.min(92, Math.max(lastDisplayPct, apiPct));
+            lastDisplayPct = refined;
+          }
+
+          // Render step breadcrumbs in chat
           if (Array.isArray(prog.steps) && prog.steps.length) {
-            prog.steps.slice(-4).forEach(function(st) {
-              var stepLabel = (st.kind ? (st.kind.toUpperCase() + ': ') : '') + (st.file || st.task || 'working');
+            prog.steps.slice(-5).forEach(function(st) {
+              var stepLabel = (st.kind ? (st.kind.toUpperCase() + ': ') : '') + (st.file || st.task || st.message || 'working');
               if (!m.steps.some(function(s) { return s.label === stepLabel; })) {
                 m.steps.push({ label: stepLabel, done: true });
               }
             });
             renderIf(p);
           }
-        }
-      })
-      .catch(function() {});
-
-      totalumFetch('/api/totalum?action=agent-status&projectId=' + encodeURIComponent(projSlug))
-      .then(function(r) { return r.json(); })
-      .then(function(statRes) {
-        if (my !== runId) return;
-        var stat = statRes.data;
-        if (stat && stat.status === 'done') {
-          clearInterval(timer);
-          onTotalumBuildDone(p, m, my);
-        } else if (pollCount >= maxPolls) {
-          clearInterval(timer);
-          onTotalumBuildDone(p, m, my);
-        }
-      })
-      .catch(function() {});
-    }, 3500);
+        })
+        .catch(function() {});
+      }
+    }, 4000);
   }
 
   function onTotalumBuildDone(p, m, my) {
@@ -3597,8 +3654,21 @@ body.ws-stage-2-active .topbar {
   function renderThread() {
     var p = cur(), th = $('#thread'); if (!p) return;
     var stick = nearBottom(th), h = '';
-    p.msgs.forEach(function (m) {
-      if (m.role === 'user') { h += '<div class="msg me"><div class="bubble"></div></div>'; return; }
+    p.msgs.forEach(function (m, idx) {
+      if (m.role === 'user') {
+        // User bubble with edit button (shown on hover, like Claude)
+        h += '<div class="msg me" data-midx="' + idx + '">'
+           + '<div class="msg-edit-wrap" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:80%">'
+           + '<div class="bubble"></div>'
+           + (!p.busy ? '<div class="msg-edit-bar" style="display:flex;gap:4px;opacity:0;transition:opacity .15s;justify-content:flex-end">'
+             + '<button type="button" class="msg-edit-btn" data-edit-idx="' + idx + '" title="Edit message" style="background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:4px;color:var(--muted);font-size:11px;display:flex;align-items:center;gap:3px">'
+             + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
+             + 'Edit</button>'
+             + '</div>' : '')
+           + '</div>'
+           + '</div>';
+        return;
+      }
       var body = m.text.split('\n\n').map(function (x) { return '<p>' + esc(x).replace(/\n/g, '<br>') + '</p>'; }).join('');
       if (m.steps && m.steps.length) body += '<ul class="steps">' + m.steps.map(function (s) { return '<li class="' + (s.done ? 'done' : '') + '"><span class="ck">' + (s.done ? I.check : '') + '</span>' + esc(s.label) + '</li>'; }).join('') + '</ul>';
       if (m.actionHtml) body += m.actionHtml;
@@ -3609,10 +3679,57 @@ body.ws-stage-2-active .topbar {
     var last = p.msgs[p.msgs.length - 1];
     if (p.busy && (!last || last.role === 'user')) h += '<div class="msg agent"><span class="bot">' + I.bot + '</span><div class="body"><span class="typing"><i></i><i></i><i></i></span></div></div>';
     th.innerHTML = h;
+    // Fill user bubble text
     var bubbles = th.querySelectorAll('.msg.me .bubble'), k = 0;
     p.msgs.forEach(function (m) { if (m.role === 'user') bubbles[k++].textContent = m.text; });
+    // Show edit bar on hover
+    Array.prototype.forEach.call(th.querySelectorAll('.msg.me'), function(el) {
+      var bar = el.querySelector('.msg-edit-bar');
+      if (bar) {
+        el.addEventListener('mouseenter', function() { bar.style.opacity = '1'; });
+        el.addEventListener('mouseleave', function() { bar.style.opacity = '0'; });
+      }
+    });
     if (stick) th.scrollTop = th.scrollHeight;
     $('#jump').hidden = nearBottom(th);
+  }
+
+  // Handle chat message editing (called from thread click delegation)
+  window.startMsgEdit = function(idx) {
+    var p = cur(); if (!p) return;
+    var th = $('#thread');
+    var msgEl = th.querySelector('.msg.me[data-midx="' + idx + '"]');
+    if (!msgEl) return;
+    var origText = p.msgs[idx] ? p.msgs[idx].text : '';
+    var wrap = msgEl.querySelector('.msg-edit-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;width:100%">'
+      + '<textarea id="msgEditTextarea" style="width:min(360px,80vw);min-height:72px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--accent);font:inherit;font-size:13px;resize:vertical;background:var(--panel);color:var(--fg);outline:none" autocomplete="off">' + esc(origText) + '</textarea>'
+      + '<div style="display:flex;gap:6px">'
+      + '<button type="button" id="msgEditCancel" style="padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:12px;cursor:pointer">Cancel</button>'
+      + '<button type="button" id="msgEditSubmit" style="padding:4px 12px;border-radius:6px;border:none;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:600;cursor:pointer">Send Edit</button>'
+      + '</div></div>';
+    var ta = wrap.querySelector('#msgEditTextarea');
+    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+    wrap.querySelector('#msgEditCancel').addEventListener('click', function() { renderThread(); });
+    wrap.querySelector('#msgEditSubmit').addEventListener('click', function() { submitMsgEdit(idx, ta.value); });
+    if (ta) ta.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitMsgEdit(idx, ta.value); }
+      if (e.key === 'Escape') renderThread();
+    });
+  };
+
+  function submitMsgEdit(idx, newText) {
+    newText = newText.trim();
+    if (!newText) return;
+    var p = cur(); if (!p) return;
+    // Truncate messages at this index (keep messages before the edited one)
+    p.msgs = p.msgs.slice(0, idx);
+    save();
+    // Re-send as a fresh user message
+    var msgInp = $('#msg');
+    if (msgInp) msgInp.value = newText;
+    send(newText);
   }
   function renderStatus() {
     var p = cur(), el = $('#status'); if (!p) return;
@@ -4548,6 +4665,7 @@ body.ws-stage-2-active .topbar {
     if (c('#autoBtn')) { var p = cur(); if (p && p.suggest[0]) send(p.suggest[0]); return; }
     if (c('#dismissBtn')) { var p2 = cur(); p2.dismissed = true; renderStatus(); return; }
     if ((el = c('[data-s]'))) { var p3 = cur(); send(p3.suggest[+el.dataset.s]); return; }
+    if ((el = c('[data-edit-idx]'))) { window.startMsgEdit(+el.dataset.editIdx); return; }
     if (c('#stopBtn')) { stopRun(); return; }
     if (c('#attach') || c('#pick')) { $('#fileIn').click(); return; }
     if (c('#modeBtn')) { openMenu('mode', $('#modeBtn')); return; }
