@@ -188,11 +188,12 @@ body.is-resizing iframe {
 .menu small { color: var(--muted); font-size: 12px; }
 
 /* right */
-.sbar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.sq { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); display: grid; place-items: center; background: var(--panel); position: relative; }
+.sbar { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+.sbar::-webkit-scrollbar { display: none; }
+.sq { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); display: grid; place-items: center; background: var(--panel); position: relative; flex-shrink: 0; flex: none; }
 .sq:hover { background: var(--bg); }
-.toggle { display: flex; padding: 3px; border-radius: 12px; background: var(--bg); gap: 2px; border: 1px solid var(--line); }
-.toggle button { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9px; font-weight: 500; }
+.toggle { display: flex; padding: 2px; border-radius: 9px; background: var(--bg); gap: 2px; border: 1px solid var(--line); flex-shrink: 0; flex: none; }
+.toggle button { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-weight: 500; font-size: 11.5px; white-space: nowrap; flex-shrink: 0; }
 .toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 .confirm { display: flex; gap: 6px; align-items: center; font-size: 13px; }
 .confirm button { padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); }
@@ -444,7 +445,7 @@ body.ws-stage-2-active .topbar {
   border: 1px solid var(--line) !important;
 }
 .work.ws-stage-1 .sbar {
-  display: flex !important; /* TETAP ADA HEADER TABS (.sbar) */
+  display: flex !important; /* Header tabs (.sbar) preserved */
 }
 .work.ws-stage-1 .pane {
   padding: 14px !important;
@@ -471,7 +472,7 @@ body.ws-stage-2-active .topbar {
   border-color: var(--accent);
 }
 
-/* Responsif Mobile untuk Stage 1 & Workspace di Layar HP */
+/* Responsive mobile layout for Stage 1 & Workspace on mobile screens */
 @media (max-width: 860px) {
   html, body {
     height: auto !important;
@@ -532,18 +533,13 @@ body.ws-stage-2-active .topbar {
   .ws-bar-dots {
     display: none !important;
   }
-  .sbar {
-    padding: 8px 10px !important;
-    gap: 6px !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  .sbar { padding: 6px 8px !important; gap: 5px !important; flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .toggle button {
     padding: 5px 8px !important;
     font-size: 11.5px !important;
   }
   .box textarea {
-    font-size: 16px !important; /* Mencegah auto-zoom browser iOS */
+    font-size: 16px !important; /* Prevent iOS browser auto-zoom */
   }
 }
 
@@ -753,21 +749,7 @@ body.ws-stage-2-active .topbar {
 }
 
 /* -- Publish Action Button (Runnerflo Minimalist Style) -- */
-.rf-publish-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line));
-  background: var(--accent);
-  color: var(--accent-ink);
-  transition: all 0.2s;
-  white-space: nowrap;
-}
+.rf-publish-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 7px; background: #6366f1; color: #fff; font-weight: 600; font-size: 11.5px; border: none; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
 .rf-publish-btn:hover {
   opacity: 0.92;
   transform: translateY(-1px);
@@ -1136,12 +1118,8 @@ body.ws-stage-2-active .topbar {
     <a href="index.html" class="brand" title="Return to Home" style="text-decoration:none;color:inherit"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8L10 3Zm8 9l.9 2.6 2.6.9-2.6.9L18 19l-.9-2.6-2.6-.9 2.6-.9L18 12Z"/></svg></i><span>Runnerflo Workspace</span></a>
     <div class="tabs" id="tabs" role="tablist" aria-label="Open projects"></div>
     <button class="newtab" type="button" id="newTab" aria-label="New project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-    <div class="engine-switch" id="engineSwitch" title="Pilih Engine: Demo Simulasi atau Totalum Cloud">
-      <button type="button" class="es-btn active" id="btnModeSim" data-engine="sim">⚡ Demo</button>
-      <button type="button" class="es-btn" id="btnModeTotalum" data-engine="totalum">🚀 Totalum</button>
-    </div>
     <span class="spacer"></span>
-    <span class="plan" id="topPlanBadge">Plan Pro</span>
+    <span class="plan" id="topPlanBadge">Pro Workspace</span>
     <span class="me-av" aria-hidden="true">NW</span>
   </header>
 
@@ -1153,7 +1131,7 @@ body.ws-stage-2-active .topbar {
         <div class="status" id="status" hidden></div>
         <form class="box" id="form">
           <label for="msg" style="position:absolute;left:-9999px">Message for agent</label>
-          <textarea id="msg" rows="2" placeholder="Tulis ide aplikasi atau bisnis yang ingin Anda buat... (contoh: Buat website kursus online dengan kuis dan pembayaran otomatis)"></textarea>
+          <textarea id="msg" rows="2" placeholder="Describe what application or business platform you want to build... (e.g., Build an online course platform with video lessons, quizzes, and automated checkout)"></textarea>
           <div class="tools">
             <button class="t" type="button" id="attach" aria-label="Attach files"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11l-9 9a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.3-8.3"/></svg></button>
             <input type="file" id="fileIn" multiple hidden>
@@ -1172,21 +1150,21 @@ body.ws-stage-2-active .topbar {
 
     <section class="card side" aria-label="Preview">
       <div class="sbar">
-        <button class="sq" type="button" id="togChat" aria-label="Toggle chat panel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
-        <button class="sq" type="button" id="togWide" title="Toggle Layout: Normal (50:50) / Fullscreen" aria-label="Toggle full width"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+        <button class="sq" type="button" id="togChat" aria-label="Toggle chat panel" title="Toggle Chat"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
+        <button class="sq" type="button" id="togWide" title="Toggle Layout: Normal (50:50) / Fullscreen" aria-label="Toggle full width"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
         <div class="toggle" role="group" aria-label="View mode" id="modes">
-          <button type="button" data-m="preview" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>Assets</button>
-          <button type="button" data-m="live" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Live</button>
-          <button type="button" data-m="code" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Code</button>
-          <button type="button" data-m="radar" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 0 1 10 10M12 6a6 6 0 0 1 6 6M12 10a2 2 0 0 1 2 2"/></svg>Radar</button>
-          <button type="button" data-m="workflow" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8l6.8-4M8.6 13.2l6.8 4"/></svg>Workflow</button>
+          <button type="button" data-m="preview" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>Assets</button>
+          <button type="button" data-m="live" aria-pressed="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Live</button>
+          <button type="button" data-m="code" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Code</button>
+          <button type="button" data-m="radar" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 0 1 10 10M12 6a6 6 0 0 1 6 6M12 10a2 2 0 0 1 2 2"/></svg>Radar</button>
+          <button type="button" data-m="workflow" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8l6.8-4M8.6 13.2l6.8 4"/></svg>Workflow</button>
         </div>
         <span class="spacer"></span>
-        <button class="rf-publish-btn" id="btnPublish" type="button" title="Publikasikan Website">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
-          <span>Publikasikan</span>
+        <button class="rf-publish-btn" id="btnPublish" type="button" title="Publish Website Live">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
+          <span>Publish</span>
         </button>
-        <button class="sq" type="button" id="theme" aria-label="Toggle color theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+        <button class="sq" type="button" id="theme" aria-label="Toggle color theme" title="Toggle Theme"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
         <span id="resetBox"></span>
       </div>
       <div class="pane" id="pane"></div>
@@ -1219,98 +1197,98 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
-<!-- Modal Publikasikan (Unified Runnerflo Native Publish & Settings) -->
+<!-- Modal Publish (Unified Runnerflo Native Publish & Settings) -->
 <div id="modalPublish" class="rf-modal-backdrop" hidden>
   <div class="rf-modal-card">
     <div class="rf-modal-head">
       <h3>
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
-        Publikasikan Website
+        Publish Website
       </h3>
-      <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Tutup">&times;</button>
+      <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Close">&times;</button>
     </div>
 
     <div class="rf-modal-body">
-      <!-- 1. Alamat Website (Live Address) -->
+      <!-- 1. Live Address -->
       <div class="rf-section">
-        <label class="rf-label">Alamat Website Anda (Tautan Publik)</label>
+        <label class="rf-label">Public Website Address</label>
         <div class="rf-url-box">
           <span class="rf-url-text" id="pubModalUrlText">https://runnerflo-ai.pages.dev</span>
           <div style="display:flex;gap:6px;flex:none">
-            <button type="button" class="rf-pill-btn" id="btnCopyPubUrl" title="Salin tautan">
+            <button type="button" class="rf-pill-btn" id="btnCopyPubUrl" title="Copy link">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span>Salin</span>
+              <span>Copy</span>
             </button>
-            <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" class="rf-pill-btn" title="Buka website">
+            <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" class="rf-pill-btn" title="Open in new tab">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-              <span>Buka</span>
+              <span>Open</span>
             </a>
           </div>
         </div>
       </div>
 
-      <!-- 2. Status & Tindakan Publikasi -->
+      <!-- 2. Publish Status & Execution -->
       <div class="rf-section">
         <div id="pubEngineNotice" class="rf-callout"></div>
 
         <!-- Progress Steps -->
         <div id="pubStepsList" class="deploy-steps-list" hidden>
-          <div class="deploy-step-item" id="pstep-1"><span class="deploy-step-icon">1</span><span>Memeriksa berkas &amp; tata letak website...</span></div>
-          <div class="deploy-step-item" id="pstep-2"><span class="deploy-step-icon">2</span><span>Mempersiapkan server &amp; database...</span></div>
-          <div class="deploy-step-item" id="pstep-3"><span class="deploy-step-icon">3</span><span>Menerbitkan website ke jaringan internet global...</span></div>
+          <div class="deploy-step-item" id="pstep-1"><span class="deploy-step-icon">1</span><span>Verifying application layout &amp; responsive assets...</span></div>
+          <div class="deploy-step-item" id="pstep-2"><span class="deploy-step-icon">2</span><span>Configuring cloud runtime &amp; edge database...</span></div>
+          <div class="deploy-step-item" id="pstep-3"><span class="deploy-step-icon">3</span><span>Publishing live to global edge network...</span></div>
         </div>
 
         <div id="pubSuccessNotice" class="rf-callout success" hidden>
-          <b>🎉 Website Berhasil Dipublikasikan ke Internet!</b>
-          <p style="margin:4px 0 6px">Website Anda sekarang aktif dan dapat diakses langsung oleh publik:</p>
+          <b>🎉 Website Successfully Published Live!</b>
+          <p style="margin:4px 0 6px">Your application is now active and accessible globally:</p>
           <a id="pubSuccessLink" href="#" target="_blank" rel="noopener" style="font-weight:700;color:var(--accent);text-decoration:underline;word-break:break-all"></a>
         </div>
 
         <button type="button" class="rf-action-btn" id="btnExecutePublish">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
-          <span id="pubActionBtnText">🚀 Publikasikan Sekarang</span>
+          <span id="pubActionBtnText">🚀 Publish to Production</span>
         </button>
       </div>
 
-      <!-- 3. Domain Pribadi (Custom Domain) -->
+      <!-- 3. Custom Domain -->
       <div class="rf-section" style="border-top:1px solid var(--line);padding-top:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <label class="rf-label" style="margin:0">Domain Pribadi (Nama Domain Sendiri)</label>
-          <span id="domainStatusBadge" class="rf-badge-muted">Belum terhubung</span>
+          <label class="rf-label" style="margin:0">Custom Domain</label>
+          <span id="domainStatusBadge" class="rf-badge-muted">Not Connected</span>
         </div>
-        <p style="margin:0 0 8px;font-size:12px;color:var(--muted)">Gunakan nama domain Anda sendiri (misal: <code>tokoku.com</code> atau <code>app.tokoku.com</code>).</p>
+        <p style="margin:0 0 8px;font-size:12px;color:var(--muted)">Connect your own branded domain (e.g. <code>app.mycompany.com</code> or <code>store.mydomain.com</code>).</p>
         <div style="display:flex;gap:8px">
-          <input type="text" id="customDomainInput" placeholder="contoh: app.bisnissaya.com" autocomplete="off" style="flex:1">
-          <button type="button" class="rf-btn rf-btn-primary" id="btnSubmitDomain" style="flex:none">Hubungkan</button>
+          <input type="text" id="customDomainInput" placeholder="e.g. app.mycompany.com" autocomplete="off" style="flex:1">
+          <button type="button" class="rf-btn rf-btn-primary" id="btnSubmitDomain" style="flex:none">Connect</button>
         </div>
         <div id="domainDnsHelper" style="margin-top:10px;font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:none">
-          <b>Panduan CNAME:</b> Buka pengaturan DNS domain Anda dan tambahkan:
-          <div style="margin-top:4px">Type: <code>CNAME</code> &bull; Name: <code id="dnsSubName">app</code> &bull; Target: <code id="dnsTargetHost">app.totalum-project.com</code></div>
+          <b>DNS CNAME Setup:</b> In your DNS provider manager, point:
+          <div style="margin-top:4px">Type: <code>CNAME</code> &bull; Name: <code id="dnsSubName">app</code> &bull; Target: <code id="dnsTargetHost">app.runnerflo.app</code></div>
         </div>
       </div>
 
-      <!-- 4. Pengaturan Lanjutan (Collapsible) -->
+      <!-- 4. Advanced Settings (Collapsible) -->
       <details class="rf-details" id="pubAdvancedDetails">
-        <summary class="rf-summary">⚙️ Pengaturan Tambahan (Kunci API &amp; Token Eksternal)</summary>
+        <summary class="rf-summary">⚙️ Advanced Settings (API Tokens &amp; Integrations)</summary>
         <div style="padding-top:10px;display:flex;flex-direction:column;gap:12px">
           <div class="rf-form-row">
-            <label for="inputTotalumKeyLocal" style="font-size:11px">Tes Kunci Totalum API (Browser):</label>
+            <label for="inputTotalumKeyLocal" style="font-size:11px">Production Engine API Token (Browser Test):</label>
             <div style="display:flex;gap:8px">
-              <input type="password" id="inputTotalumKeyLocal" placeholder="Paste tlm_sk_... untuk tes koneksi cepat">
-              <button type="button" class="rf-btn" id="btnTestTotalumConn" style="flex:none">Uji Coba</button>
+              <input type="password" id="inputTotalumKeyLocal" placeholder="Paste API token to test connection">
+              <button type="button" class="rf-btn" id="btnTestTotalumConn" style="flex:none">Test Key</button>
             </div>
-            <small style="color:var(--muted);font-size:11px">Totalum API Key juga sudah terpasang di Cloudflare Workers runnerflo-b2b.</small>
+            <small style="color:var(--muted);font-size:11px">API credentials are automatically configured on Cloudflare Workers environment.</small>
           </div>
           <div class="rf-form-row">
-            <label style="font-size:11px">Token Pihak Ketiga (Opsional: Stripe, WhatsApp, dll):</label>
+            <label style="font-size:11px">Third-Party Secrets (Optional: Stripe, WhatsApp, etc.):</label>
             <div style="display:flex;gap:6px">
-              <input type="text" id="inputSecretName" placeholder="NAMA (misal: STRIPE_KEY)" style="flex:1;text-transform:uppercase;font-size:12px">
-              <input type="password" id="inputSecretVal" placeholder="Nilai Token" style="flex:1.5;font-size:12px">
-              <button type="button" class="rf-btn" id="btnSaveSecret" style="flex:none">+ Simpan</button>
+              <input type="text" id="inputSecretName" placeholder="NAME (e.g. STRIPE_KEY)" style="flex:1;text-transform:uppercase;font-size:12px">
+              <input type="password" id="inputSecretVal" placeholder="Token Value" style="flex:1.5;font-size:12px">
+              <button type="button" class="rf-btn" id="btnSaveSecret" style="flex:none">+ Save</button>
             </div>
-            <div id="secretsEmpty" style="font-size:11px;color:var(--muted)">Belum ada token tambahan yang tersimpan.</div>
+            <div id="secretsEmpty" style="font-size:11px;color:var(--muted)">No custom secrets stored yet.</div>
             <table class="rf-table" id="secretsTable" hidden style="margin-top:4px">
-              <thead><tr><th>Nama</th><th>Status</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>Secret Name</th><th>Status</th><th>Action</th></tr></thead>
               <tbody id="secretsTbody"></tbody>
             </table>
           </div>
@@ -1319,7 +1297,7 @@ body.ws-stage-2-active .topbar {
     </div>
 
     <div class="rf-modal-foot">
-      <button type="button" class="rf-btn" id="btnCancelPublish">Tutup</button>
+      <button type="button" class="rf-btn" id="btnCancelPublish">Close</button>
     </div>
   </div>
 </div>
@@ -1377,9 +1355,9 @@ body.ws-stage-2-active .topbar {
     ['auth.ts', 4],
     ['webhooks.ts', 4]
   ];
-  var STAGE_LABEL = ['Belum Dimulai', 'Arsitektur & Tampilan', 'Modul & Fitur', 'Dasbor & Pengujian', 'Selesai & Aktif'];
-  var NEXT = ['Buat modul pemutar video interaktif', 'Tambahkan dasbor analitik pembelajaran', 'Hubungkan sistem kuis & sertifikat'];
-  var AUDIENCE = ['Buat Platform Kursus & Edukasi Online', 'Buat Toko Online dengan Sistem Checkout', 'Buat Website Profil Bisnis & Portofolio'];
+  var STAGE_LABEL = ['Not Started', 'Architecture & Layout', 'Modules & Features', 'Dashboard & Testing', 'Completed & Live'];
+  var NEXT = ['Build interactive video player module', 'Add student learning analytics dashboard', 'Connect quiz engine & certificates'];
+  var AUDIENCE = ['Build an Online Course & LMS Platform', 'Build an E-commerce Store with Checkout', 'Build a Business Portfolio & Agency Website'];
 
   /* ---------- State ---------- */
   var runId = 0, uiMode = 'live', tip = 0, codeFile = 'HeroSection.tsx';
@@ -1390,7 +1368,7 @@ body.ws-stage-2-active .topbar {
   var state = load() || seed();
 
   function greet() {
-    return { role: 'agent', text: 'Halo! Ide aplikasi atau website apa yang ingin Anda buat hari ini? Tulis langsung ide Anda di kotak chat di bawah, AI akan langsung merancang dan membuatnya untuk Anda. 🚀', steps: [] };
+    return { role: 'agent', text: 'Hello! What kind of application or website would you like to build today? Type your idea in the chat box below, and the AI agent will design and build it for you in real time. 🚀', steps: [] };
   }
   function mkProject(name, stage) {
     return {
@@ -1775,39 +1753,26 @@ body.ws-stage-2-active .topbar {
     updateEngineUI();
     renderSide();
     if (mode === 'totalum') {
-      toast('🚀 Totalum Cloud Engine (Paid Mode) Activated!');
+      toast('🚀 Production Cloud Engine Activated!');
       totalumFetch('/api/totalum?action=status')
       .then(function(r){ return r.json(); })
       .then(function(d){
         if (!d.configured) {
-          openTotalumConfig();
+          openPublishModal();
         }
       }).catch(function(){});
     } else {
-      toast('⚡ Free Simulation Mode (Unpaid Demo) Active.');
+      toast('⚡ Demo Mode Active.');
     }
   }
   window.setEngineMode = setEngineMode;
 
   function updateEngineUI() {
-    var isTotalum = (state.engineMode === 'totalum');
-    var bSim = $('#btnModeSim'), bTot = $('#btnModeTotalum');
-    if (bSim) bSim.classList.toggle('active', !isTotalum);
-    if (bTot) bTot.classList.toggle('active', isTotalum);
-
     var planBdg = $('#topPlanBadge');
     if (planBdg) {
-      if (isTotalum) {
-        var p = cur();
-        var credits = (p && p.totalumCreditsSpent) ? ('Spent: ' + p.totalumCreditsSpent) : 'Totalum v2';
-        planBdg.textContent = '🚀 Totalum Live (' + credits + ')';
-        planBdg.style.background = '#10b981';
-        planBdg.style.color = '#fff';
-      } else {
-        planBdg.textContent = '⚡ Simulation Demo';
-        planBdg.style.background = 'var(--warn)';
-        planBdg.style.color = 'var(--warn-fg)';
-      }
+      planBdg.textContent = 'Pro Workspace';
+      planBdg.style.background = '';
+      planBdg.style.color = '';
     }
   }
 
@@ -1815,19 +1780,19 @@ body.ws-stage-2-active .topbar {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
-    updateWave(10, 'Totalum AI: Menganalisis ide & menyusun proyek...', 'Progres: 10% &bull; Menyiapkan sistem Next.js & basis data terdistribusi');
+    updateWave(10, 'AI Agent: Initializing application architecture...', 'Progress: 10% &bull; Configuring full-stack engine & cloud database');
     renderChat(); renderTabs(); renderSide();
 
     var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
     p.msgs.push(m);
     renderIf(p);
 
-    var tierMap = { 'Auto': 'auto', 'Hemat': 'cheap', 'Standar': 'normal', 'Pro': 'expensive' };
+    var tierMap = { 'Auto': 'auto', 'Fast': 'cheap', 'Standard': 'normal', 'Pro': 'expensive', 'Hemat': 'cheap', 'Standar': 'normal' };
     var chosenTier = tierMap[state.mode] || 'auto';
     var isNew = !p.totalumProjectId;
     var projSlug = (p.totalumProjectId || p.name || 'app-' + Math.random().toString(36).slice(2, 8)).toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 32);
 
-    m.steps.push({ label: isNew ? ('Menyiapkan proyek baru (' + projSlug + ')...') : 'Mengirim instruksi ke AI...', done: false });
+    m.steps.push({ label: isNew ? ('Provisioning new project (' + projSlug + ')...') : 'Sending prompt to AI Agent...', done: false });
     renderIf(p);
 
     var ep = isNew ? '/api/totalum?action=launch' : ('/api/totalum?action=prompt&projectId=' + encodeURIComponent(projSlug));
@@ -1855,7 +1820,7 @@ body.ws-stage-2-active .topbar {
       }
       m.steps[0].done = true;
       var estMin = (data.agent && data.agent.expectedMinutes) ? data.agent.expectedMinutes : 3;
-      m.text = '🚀 **AI Agent Totalum sedang bekerja!**\nMode kecerdasan: `' + state.mode + '` (Tier: `' + chosenTier + '`)\nEstimasi pengerjaan: ~' + estMin + ' menit.\n\nAI sedang merancang antarmuka visual, menyusun kode aplikasi, dan menghubungkan basis data...';
+      m.text = '🚀 **AI Agent is building your application!**\nReasoning tier: `' + state.mode + '` (Tier: `' + chosenTier + '`)\nEstimated completion: ~' + estMin + ' min.\n\nSynthesizing frontend components, setting up database schema, and deploying edge endpoints...';
       renderIf(p);
 
       pollTotalumProgress(p, m, my);
@@ -1864,9 +1829,8 @@ body.ws-stage-2-active .topbar {
       if (my !== runId) return;
       p.busy = false;
       m.steps[0].done = false;
-      m.text = '⚠️ **Catatan Totalum:** ' + err.message + '\n\n' +
-               'Pastikan `TOTALUM_API_KEY` sudah terpasang di Cloudflare Pages > Settings > Environment Variables, atau gunakan tombol **Publikasikan** di kanan atas > Pengaturan Tambahan untuk tes kunci lokal.';
-      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">⚙️ Buka Pengaturan</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Beralih ke Demo Simulasi</button></div>';
+      m.text = '⚠️ **Notice:** ' + err.message + '\n\nPlease ensure your API credentials are configured in Cloudflare Workers settings or under Publish > Additional Settings.';
+      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">⚙️ Settings</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Demo</button></div>';
       finishWave();
       save();
       renderChat();
@@ -1895,7 +1859,7 @@ body.ws-stage-2-active .topbar {
         if (prog) {
           var stage = prog.stage || 'working';
           var pct = Math.min(95, Math.max(15, (prog.turns || 1) * 12));
-          updateWave(pct, 'Totalum Engine: ' + stage + '...', 'Turns: ' + (prog.turns || 1) + ' &bull; Files changed: ' + (prog.files ? prog.files.length : 0));
+          updateWave(pct, 'AI Engine: ' + stage + '...', 'Turns: ' + (prog.turns || 1) + ' &bull; Files changed: ' + (prog.files ? prog.files.length : 0));
 
           if (Array.isArray(prog.steps) && prog.steps.length) {
             prog.steps.slice(-4).forEach(function(st) {
@@ -1936,25 +1900,25 @@ body.ws-stage-2-active .topbar {
       var d = projRes.data || {};
       p.busy = false;
       p.stage = 4;
-      p.totalumPreviewUrl = d.temporalDevelopmentProjectUrl || ('https://' + projSlug + '.totalum-project.com');
-      p.totalumLiveUrl = d.productionProjectUrl || (projSlug + '.totalum-project.com');
+      p.totalumPreviewUrl = d.temporalDevelopmentProjectUrl || ('https://' + projSlug + '.runnerflo.app');
+      p.totalumLiveUrl = d.productionProjectUrl || (projSlug + '.runnerflo.app');
       p.totalumCreditsSpent = d.totalCreditsSpent || 0;
       p.updated = Date.now();
 
-      m.text += '\n\n✨ **Build Successful! App is Live in Preview!**\n' +
-                '• Preview URL: ' + p.totalumPreviewUrl + '\n' +
-                '• Credits spent: ' + p.totalumCreditsSpent + '\n' +
-                '• Database & auth ready. You can now publish to production or attach your custom domain.';
+      m.text += '\n\n✨ **Build Successful! Application is live in preview.**\n' +
+                '• Preview Address: ' + p.totalumPreviewUrl + '\n' +
+                '• Credits used: ' + p.totalumCreditsSpent + '\n' +
+                '• Database & auth verified. You can now publish to production or attach your custom domain.';
 
       m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
-        '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publikasikan Website</button>' +
-        '<button type="button" class="rf-btn" onclick="window.open(\'' + p.totalumPreviewUrl + '\', \'_blank\')">↗ Buka Pratinjau</button>' +
+        '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publish Website</button>' +
+        '<button type="button" class="rf-btn" onclick="window.open(\'' + p.totalumPreviewUrl + '\', \'_blank\')">↗ Open Preview</button>' +
         '</div>';
 
-      p.suggest = ['Publikasikan ke Web', 'Hubungkan Domain Pribadi', 'Tanya AI untuk Fitur Baru'];
+      p.suggest = ['Publish Website Live', 'Connect Custom Domain', 'Add New Feature'];
       finishWave();
       save();
-      toast('🚀 Proyek Totalum siap! Pratinjau live aktif.');
+      toast('🚀 Project ready! Live preview active.');
       renderChat();
       renderTabs();
       renderSide();
@@ -1974,7 +1938,7 @@ body.ws-stage-2-active .topbar {
     var isTotalum = (state.engineMode === 'totalum');
     var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
     var liveUrl = isTotalum
-      ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + projSlug + '.totalum-project.com')))
+      ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + projSlug + '.runnerflo.app')))
       : 'https://runnerflo-ai.pages.dev';
 
     var urlTxt = $('#pubModalUrlText');
@@ -1995,15 +1959,15 @@ body.ws-stage-2-active .topbar {
     if (isTotalum) {
       if (noticeEl) {
         noticeEl.className = 'rf-callout info';
-        noticeEl.innerHTML = '<b>🚀 Totalum Cloud Engine (Full-Stack Next.js 14)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Aplikasi Anda dibangun dengan Next.js 14, database terdistribusi Cloudflare D1, dan SSL otomatis. Klik tombol di bawah untuk menerbitkan aplikasi ke internet.</div>';
+        noticeEl.innerHTML = '<b>🚀 Production Cloud Engine (Next.js 14)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Your full-stack application runs with Next.js 14, edge runtime, and automated SSL. Click below to deploy your app live to the internet.</div>';
       }
-      if (btnText) btnText.textContent = '🚀 Publikasikan Sekarang';
+      if (btnText) btnText.textContent = '🚀 Publish to Production';
     } else {
       if (noticeEl) {
         noticeEl.className = 'rf-callout warning';
-        noticeEl.innerHTML = '<b>⚡ Mode Demo Simulasi (Gratis)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Anda sedang dalam mode demo gratis. Anda dapat menguji proses publikasi simulasi tanpa biaya, atau beralih ke engine Totalum untuk aplikasi nyata.</div><div style="margin-top:8px"><button type="button" class="rf-pill-btn" onclick="window.setEngineMode(\'totalum\');window.openPublishModal()">Beralih ke Totalum Cloud →</button></div>';
+        noticeEl.innerHTML = '<b>⚡ Demo Simulation Mode</b><div style="margin-top:4px;color:var(--muted);font-size:12px">You are currently in demo mode. Test the simulated publishing flow, or activate the production engine.</div><div style="margin-top:8px"><button type="button" class="rf-pill-btn" onclick="window.setEngineMode(\'totalum\');window.openPublishModal()">Activate Production Engine →</button></div>';
       }
-      if (btnText) btnText.textContent = '⚡ Uji Simulasi Publikasi (Gratis)';
+      if (btnText) btnText.textContent = '⚡ Test Demo Publish';
     }
 
     var inpDomain = $('#customDomainInput');
@@ -2011,16 +1975,16 @@ body.ws-stage-2-active .topbar {
     var statusBadge = $('#domainStatusBadge');
     var dnsHelper = $('#domainDnsHelper');
     var dnsHost = $('#dnsTargetHost');
-    var dnsTarget = isTotalum ? (projSlug + '.totalum-project.com') : 'runnerflo-ai.pages.dev';
+    var dnsTarget = isTotalum ? (projSlug + '.runnerflo.app') : 'runnerflo-ai.pages.dev';
     if (dnsHost) dnsHost.textContent = dnsTarget;
 
     if (statusBadge) {
       if (p.customDomain) {
-        statusBadge.textContent = 'Terhubung: ' + p.customDomain;
+        statusBadge.textContent = 'Connected: ' + p.customDomain;
         statusBadge.style.color = '#10b981';
         if (dnsHelper) dnsHelper.style.display = 'block';
       } else {
-        statusBadge.textContent = 'Belum terhubung';
+        statusBadge.textContent = 'Not Connected';
         statusBadge.style.color = 'var(--muted)';
         if (dnsHelper) dnsHelper.style.display = 'none';
       }
@@ -2067,7 +2031,7 @@ body.ws-stage-2-active .topbar {
           succLink.href = simUrl;
           succLink.textContent = simUrl;
           btnExec.style.display = 'none';
-          toast('🎉 Simulasi publikasi selesai! Website siap diakses.');
+          toast('🎉 Demo publication complete! Website is live.');
         }
       }
       nextSimStep();
@@ -2085,15 +2049,15 @@ body.ws-stage-2-active .topbar {
     .then(function(res) { return res.json(); })
     .then(function(resJson) {
       if (resJson.errors) throw new Error(resJson.errors.errorMessage || 'Deploy error');
-      toast('Proses publikasi dimulai...');
+      toast('Publishing in progress...');
       pollDeployStatus(projSlug, p);
     })
     .catch(function(err) {
       btnExec.disabled = false;
-      toast('Publikasi gagal: ' + err.message);
+      toast('Publishing failed: ' + err.message);
       var errEl = $('#pubEngineNotice');
       if (errEl) {
-        errEl.innerHTML = '<div class="rf-callout warning"><b>Gagal Publikasi:</b> ' + esc(err.message) + '</div>';
+        errEl.innerHTML = '<div class="rf-callout warning"><b>Publishing Failed:</b> ' + esc(err.message) + '</div>';
       }
     });
   }
@@ -2129,7 +2093,7 @@ body.ws-stage-2-active .topbar {
             if (el) { el.classList.remove('active'); el.classList.add('done'); }
           });
           succNotice.hidden = false;
-          var finalUrl = d.liveUrl || (projSlug + '.totalum-project.com');
+          var finalUrl = d.liveUrl || (projSlug + '.runnerflo.app');
           if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
           p.totalumLiveUrl = finalUrl.replace(/^https?:\/\//, '');
           succLink.href = finalUrl;
@@ -2137,12 +2101,12 @@ body.ws-stage-2-active .topbar {
           btnExec.style.display = 'none';
           save();
           renderSide();
-          toast('🎉 Website berhasil dipublikasikan!');
+          toast('🎉 Website published live successfully!');
         } else if (d.status === 'error') {
           clearInterval(timer);
           btnExec.disabled = false;
-          var errMsg = (d.errorDetails && d.errorDetails.message) || 'Terjadi kendala saat publikasi';
-          toast('Gagal: ' + errMsg);
+          var errMsg = (d.errorDetails && d.errorDetails.message) || 'Deployment encountered an error';
+          toast('Error: ' + errMsg);
         }
       })
       .catch(function() {
@@ -2156,25 +2120,25 @@ body.ws-stage-2-active .topbar {
     var inp = $('#customDomainInput');
     var domain = (inp ? inp.value : '').trim().toLowerCase();
     if (!domain) {
-      toast('Masukkan nama domain yang valid (contoh: app.bisnissaya.com)');
+      toast('Please enter a valid domain name (e.g. app.mycompany.com)');
       return;
     }
     var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
     var btnSub = $('#btnSubmitDomain');
     btnSub.disabled = true;
-    btnSub.textContent = 'Menghubungkan...';
+    btnSub.textContent = 'Connecting...';
 
     if (state.engineMode !== 'totalum') {
       setTimeout(function() {
         p.customDomain = domain;
         save();
         btnSub.disabled = false;
-        btnSub.textContent = 'Hubungkan';
+        btnSub.textContent = 'Connect';
         var badge = $('#domainStatusBadge');
-        if (badge) { badge.textContent = 'Terhubung: ' + domain; badge.style.color = '#10b981'; }
+        if (badge) { badge.textContent = 'Connected: ' + domain; badge.style.color = '#10b981'; }
         var helper = $('#domainDnsHelper');
         if (helper) helper.style.display = 'block';
-        toast('🌐 Domain simulasi berhasil dihubungkan!');
+        toast('🌐 Custom domain connected successfully!');
       }, 500);
       return;
     }
@@ -2187,61 +2151,47 @@ body.ws-stage-2-active .topbar {
     .then(function(r) { return r.json(); })
     .then(function(json) {
       btnSub.disabled = false;
-      btnSub.textContent = 'Hubungkan';
-      if (json.errors) throw new Error(json.errors.errorMessage || 'Gagal menghubungkan domain');
+      btnSub.textContent = 'Connect';
+      if (json.errors) throw new Error(json.errors.errorMessage || 'Failed to bind custom domain');
       p.customDomain = domain;
       p.totalumLiveUrl = domain;
       save();
       renderSide();
       var badge = $('#domainStatusBadge');
-      if (badge) { badge.textContent = 'Terhubung: ' + domain; badge.style.color = '#10b981'; }
+      if (badge) { badge.textContent = 'Connected: ' + domain; badge.style.color = '#10b981'; }
       var helper = $('#domainDnsHelper');
       if (helper) helper.style.display = 'block';
-      toast('✅ Domain pribadi berhasil terhubung ke Totalum!');
+      toast('✅ Custom domain bound to production live!');
     })
     .catch(function(err) {
       btnSub.disabled = false;
-      btnSub.textContent = 'Hubungkan';
-      toast('Gagal: ' + err.message);
+      btnSub.textContent = 'Connect';
+      toast('Error: ' + err.message);
     });
   }
 
   function openTotalumConfig() {
-    var inp = $('#inputTotalumKeyLocal');
-    if (inp) {
-      inp.value = localStorage.getItem('rf_totalum_key') || '';
-    }
-    var fb = $('#cfgStatusFeedback');
-    if (fb) fb.style.display = 'none';
-    $('#modalTotalumConfig').hidden = false;
+    openPublishModal();
   }
   window.openTotalumConfig = openTotalumConfig;
 
   function testTotalumConn() {
-    var fb = $('#cfgStatusFeedback');
-    if (fb) {
-      fb.style.display = 'block';
-      fb.className = 'rf-callout info';
-      fb.textContent = 'Testing connection to Totalum VCaaS API...';
+    var val = ($('#inputTotalumKeyLocal') ? $('#inputTotalumKeyLocal').value : '').trim();
+    if (val) {
+      localStorage.setItem('rf_totalum_key', val);
     }
+    toast('Testing connection to production API...');
     totalumFetch('/api/totalum?action=status')
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      if (fb) {
-        if (d.configured) {
-          fb.className = 'rf-callout success';
-          fb.innerHTML = '<b>✅ Totalum API Connected!</b><br>' + esc(d.message) + ' (Source: <code>' + esc(d.source) + '</code>)';
-        } else {
-          fb.className = 'rf-callout warning';
-          fb.innerHTML = '<b>⚠️ Not Connected Yet:</b><br>' + esc(d.message);
-        }
+      if (d.configured) {
+        toast('✅ Production Engine API Connected!');
+      } else {
+        toast('⚠️ API Key Not Active: ' + (d.message || 'Key invalid'));
       }
     })
     .catch(function(err) {
-      if (fb) {
-        fb.className = 'rf-callout warning';
-        fb.innerHTML = '<b>Connection Error:</b> ' + esc(err.message);
-      }
+      toast('Connection error: ' + err.message);
     });
   }
 
@@ -2279,13 +2229,13 @@ body.ws-stage-2-active .topbar {
       tbodyEl.innerHTML = list.map(function(s) {
         var name = esc(s.secretName || s.name || '');
         var env = esc(s.environment || 'both');
-        return '<tr><td><code>' + name + '</code></td><td><span style="font-size:11px;padding:2px 6px;border-radius:4px;background:var(--code-bg);color:var(--muted)">' + env + '</span></td><td><button type="button" class="rf-btn" data-del-secret="' + name + '" style="padding:3px 8px;font-size:11px;color:var(--danger)">Hapus</button></td></tr>';
+        return '<tr><td><code>' + name + '</code></td><td><span style="font-size:11px;padding:2px 6px;border-radius:4px;background:var(--code-bg);color:var(--muted)">' + env + '</span></td><td><button type="button" class="rf-btn" data-del-secret="' + name + '" style="padding:3px 8px;font-size:11px;color:var(--danger)">Delete</button></td></tr>';
       }).join('');
     })
     .catch(function(err) {
       loadingEl.hidden = true;
       emptyEl.hidden = false;
-      emptyEl.textContent = 'Gagal memuat secrets: ' + err.message;
+      emptyEl.textContent = 'Failed to load secrets: ' + err.message;
     });
   }
 
@@ -2300,12 +2250,12 @@ body.ws-stage-2-active .topbar {
     var sVal = (valInp ? valInp.value : '').trim();
 
     if (!sName || !sVal) {
-      toast('Nama secret dan nilainya wajib diisi.');
+      toast('Secret name and value are required.');
       return;
     }
 
     btn.disabled = true;
-    btn.textContent = 'Menyimpan...';
+    btn.textContent = 'Saving...';
 
     totalumFetch('/api/totalum?action=secret&projectId=' + encodeURIComponent(projSlug), {
       method: 'POST',
@@ -2315,18 +2265,18 @@ body.ws-stage-2-active .topbar {
     .then(function(r) { return r.json(); })
     .then(function(json) {
       btn.disabled = false;
-      btn.textContent = '+ Simpan';
+      btn.textContent = '+ Save';
       if (json.errors) {
-        throw new Error(json.errors.errorMessage || 'Gagal menyimpan secret');
+        throw new Error(json.errors.errorMessage || 'Failed to save secret');
       }
-      toast('Secret ' + sName + ' berhasil disimpan!');
+      toast('Secret ' + sName + ' saved successfully!');
       if (nameInp) nameInp.value = '';
       if (valInp) valInp.value = '';
       loadProjectSecrets();
     })
     .catch(function(err) {
       btn.disabled = false;
-      btn.textContent = '+ Simpan';
+      btn.textContent = '+ Save';
       toast('Error: ' + err.message);
     });
   }
@@ -2334,20 +2284,20 @@ body.ws-stage-2-active .topbar {
   function deleteProjectSecret(name) {
     var p = cur(); if (!p) return;
     var projSlug = p.totalumProjectId || p.name;
-    if (!window.confirm('Hapus secret ' + name + '?')) return;
+    if (!window.confirm('Delete secret "' + name + '"?')) return;
 
-    toast('Menghapus secret ' + name + '...');
+    toast('Deleting secret ' + name + '...');
     totalumFetch('/api/totalum?action=secret&projectId=' + encodeURIComponent(projSlug) + '&secretName=' + encodeURIComponent(name), {
       method: 'DELETE'
     })
     .then(function(r) { return r.json(); })
     .then(function(json) {
-      if (json.errors) throw new Error(json.errors.errorMessage || 'Gagal menghapus');
-      toast('Secret ' + name + ' dihapus.');
+      if (json.errors) throw new Error(json.errors.errorMessage || 'Failed to delete secret');
+      toast('Secret ' + name + ' deleted.');
       loadProjectSecrets();
     })
     .catch(function(err) {
-      toast('Error hapus: ' + err.message);
+      toast('Delete error: ' + err.message);
     });
   }
 
@@ -2376,7 +2326,7 @@ body.ws-stage-2-active .topbar {
       loadingEl.hidden = true;
       if (json.errors || !json.data) {
         emptyEl.hidden = false;
-        emptyEl.textContent = 'Belum ada skema terdeteksi atau proyek masih dalam inisialisasi.';
+        emptyEl.textContent = 'No database schema detected yet or project is still initializing.';
         return;
       }
       var schemaData = json.data;
@@ -2393,8 +2343,8 @@ body.ws-stage-2-active .topbar {
         var cols = tbl.columns || tbl.fields || [];
         var colsList = Array.isArray(cols) ? cols : Object.keys(cols).map(function(ck){ return { name: ck, type: cols[ck].type || cols[ck] }; });
         return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px">' +
-          '<div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px">🗄️ Tabel: <code>' + tName + '</code></div>' +
-          '<table class="rf-table"><thead><tr><th>Kolom</th><th>Tipe Data</th></tr></thead><tbody>' +
+          '<div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px">🗄️ Table: <code>' + tName + '</code></div>' +
+          '<table class="rf-table"><thead><tr><th>Column</th><th>Data Type</th></tr></thead><tbody>' +
           colsList.map(function(c) {
             return '<tr><td><code>' + esc(c.name || c) + '</code></td><td><span style="font-size:11px;color:var(--muted)">' + esc(c.type || 'text') + '</span></td></tr>';
           }).join('') +
@@ -2405,7 +2355,7 @@ body.ws-stage-2-active .topbar {
     .catch(function(err) {
       loadingEl.hidden = true;
       emptyEl.hidden = false;
-      emptyEl.textContent = 'Gagal memuat skema: ' + err.message;
+      emptyEl.textContent = 'Failed to load schema: ' + err.message;
     });
   }
 
@@ -2417,7 +2367,7 @@ body.ws-stage-2-active .topbar {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
-    updateWave(5, 'Langkah 1/5: Menganalisis ide bisnis...', 'Memahami kebutuhan fitur & target pengguna');
+    updateWave(5, 'Step 1/5: Analyzing business concept...', 'Understanding feature requirements & target audience');
     renderChat(); renderTabs(); renderSide();
 
     var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
@@ -2426,42 +2376,42 @@ body.ws-stage-2-active .topbar {
 
     var simSteps = [
       {
-        step: "Menganalisis ide bisnis & alur aplikasi",
-        msg: "💡 **Menganalisis ide bisnis Anda...**\nMenyusun struktur sistem aplikasi yang siap pakai, cepat, dan mudah digunakan oleh pelanggan.",
-        waveTitle: "Langkah 1/5: Menganalisis ide bisnis & alur...",
-        waveSub: "Menyusun fondasi aplikasi yang ramah pengguna",
+        step: "Analyzing business concept & system architecture",
+        msg: "💡 **Analyzing your business requirements...**\nStructuring a complete, high-performance web platform tailored for your target audience.",
+        waveTitle: "Step 1/5: Analyzing architecture & requirements...",
+        waveSub: "Building user-friendly system foundation",
         pct: 20,
         delay: 2200
       },
       {
-        step: "Merancang tampilan visual modern & responsif",
-        msg: "\n\n🎨 **Merancang antarmuka visual (UI):**\n  • Halaman utama yang menarik & profesional\n  • Tampilan responsif & ringan di HP, tablet, maupun laptop\n  • Navigasi yang intuitif untuk kemudahan pengunjung",
-        waveTitle: "Langkah 2/5: Menyusun desain visual...",
-        waveSub: "Mengatur tata letak & palet warna elegan",
+        step: "Designing modern & responsive user interface (UI)",
+        msg: "\n\n🎨 **Designing visual interface (UI):**\n  • Clean, high-converting landing page & hero layout\n  • Fully responsive across mobile, tablet, and desktop\n  • Intuitive navigation for optimal user experience",
+        waveTitle: "Step 2/5: Crafting visual design...",
+        waveSub: "Setting responsive layouts & elegant typography",
         pct: 45,
         delay: 2400
       },
       {
-        step: "Menyiapkan katalog produk, materi & akun pengguna",
-        msg: "\n\n📚 **Menyiapkan fitur inti aplikasi:**\n  • Katalog produk/kursus interaktif dengan filter pencarian\n  • Sistem akun & login yang aman untuk pengunjung\n  • Dasbor personal untuk memantau aktivitas & riwayat",
-        waveTitle: "Langkah 3/5: Menyiapkan data & katalog...",
-        waveSub: "Menyusun sistem akun pengguna & dasbor",
+        step: "Configuring product catalog, curriculum & user accounts",
+        msg: "\n\n📚 **Setting up core application modules:**\n  • Interactive product & course catalog with dynamic search\n  • Secure authentication & visitor account management\n  • Personalized dashboard to track progress and activity",
+        waveTitle: "Step 3/5: Setting up data models & catalog...",
+        waveSub: "Configuring user auth & dashboard",
         pct: 70,
         delay: 2400
       },
       {
-        step: "Menghubungkan fitur kuis interaktif & sertifikat",
-        msg: "\n\n🎓 **Menghubungkan modul interaktif:**\n  • Pemutar video pembelajaran yang lancar\n  • Sistem kuis interaktif dengan penilaian otomatis\n  • Sertifikat kelulusan digital instan",
-        waveTitle: "Langkah 4/5: Menghubungkan fitur interaktif...",
-        waveSub: "Mengaktifkan kuis, video & sertifikat",
+        step: "Integrating interactive quiz engine & certificates",
+        msg: "\n\n🎓 **Connecting interactive modules:**\n  • Smooth adaptive video player with progress memory\n  • Interactive assessment quiz with instant auto-grading\n  • Verified digital completion certificate generator",
+        waveTitle: "Step 4/5: Connecting interactive modules...",
+        waveSub: "Enabling quizzes, video streaming & certificates",
         pct: 90,
         delay: 2200
       },
       {
-        step: "Aplikasi selesai dibuat & siap diluncurkan!",
-        msg: "\n\n✨ **Aplikasi Anda Berhasil Dibuat dan Siap Digunakan!**\nSistem siap diuji langsung pada layar pratinjau di sebelah kanan. Anda dapat mencoba navigasi, kuis, atau langsung mempublikasikannya ke internet dengan tombol **Publikasikan** di atas.",
-        waveTitle: "Langkah 5/5: Selesai! Pratinjau aktif...",
-        waveSub: "Aplikasi siap diuji dan dipublikasikan",
+        step: "Application successfully built & ready to launch!",
+        msg: "\n\n✨ **Your Application is Successfully Built & Ready to Use!**\nThe system is ready to test live in the preview pane on the right. You can explore navigation, take interactive quizzes, or publish your application to the global web with the **Publish** button above.",
+        waveTitle: "Step 5/5: Done! Live preview active...",
+        waveSub: "Application ready to test and publish",
         pct: 100,
         delay: 2000
       }
@@ -2473,17 +2423,17 @@ body.ws-stage-2-active .topbar {
       if (stepIdx >= simSteps.length) {
         p.busy = false;
         p.stage = 4;
-        p.suggest = ['Publikasikan ke Web', 'Coba Fitur Kuis Interaktif', 'Hubungkan Domain Pribadi'];
+        p.suggest = ['Publish Website Live', 'Test Interactive Quiz', 'Connect Custom Domain'];
         p.updated = Date.now();
         m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
-          '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publikasikan Website</button>' +
+          '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publish Website</button>' +
           '<button type="button" class="stage-btn" onclick="window.wsNextStage()" style="padding:7px 14px;font-size:12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">' +
-          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Perbesar Tampilan' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge View' +
           '</button>' +
           '</div>';
         finishWave();
         save();
-        toast('✨ Aplikasi Anda berhasil dibuat & siap digunakan!');
+        toast('✨ Application successfully generated & ready!');
         renderChat();
         renderTabs();
         renderSide();
@@ -2630,7 +2580,7 @@ body.ws-stage-2-active .topbar {
     if (f === 'CourseCard.tsx') return '// components/CourseCard.tsx\nimport React from "react";\n\nexport const CourseCard = ({ title, lessons, rating, instructor }: any) => (\n  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-violet-500">\n    <div className="aspect-video w-full rounded-xl bg-slate-800 flex items-center justify-center font-bold text-violet-400">\n      HLS Video Lesson Player\n    </div>\n    <h3 className="mt-4 font-bold text-white text-base">{title}</h3>\n    <div className="mt-2 flex items-center justify-between text-xs text-slate-400">\n      <span>{instructor}</span>\n      <span>\u2b50 {rating} &middot; {lessons} Chapters</span>\n    </div>\n  </div>\n);';
     if (f === 'VideoPlayer.tsx') return '// components/VideoPlayer.tsx\nimport React, { useRef, useEffect } from "react";\nimport Hls from "hls.js";\n\nexport default function VideoPlayer({ src }: { src: string }) {\n  const videoRef = useRef<HTMLVideoElement>(null);\n  useEffect(() => {\n    if (videoRef.current && Hls.isSupported()) {\n      const hls = new Hls({ enableWorker: true, lowLatencyMode: true });\n      hls.loadSource(src);\n      hls.attachMedia(videoRef.current);\n      return () => hls.destroy();\n    }\n  }, [src]);\n  return (\n    <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl">\n      <video ref={videoRef} controls className="h-full w-full" poster="/cover.webp" />\n    </div>\n  );\n}';
     if (f === 'QuizEngine.tsx') return '// components/QuizEngine.tsx\nexport class QuizEngine {\n  private questions: any[];\n  private answers: Map<number, number> = new Map();\n  constructor(questions: any[]) { this.questions = questions; }\n  submit(id: number, opt: number) { this.answers.set(id, opt); }\n  score() {\n    let ok = 0;\n    this.questions.forEach(q => { if (this.answers.get(q.id) === q.answer) ok++; });\n    return { correct: ok, total: this.questions.length, pct: Math.round((ok/this.questions.length)*100) };\n  }\n}';
-    if (f === 'LMSDashboard.tsx') return '// components/LMSDashboard.tsx\nimport React from "react";\n\nexport default function LMSDashboard({ user, progress }: any) {\n  return (\n    <div className="p-8 space-y-6 bg-slate-950 text-white min-h-screen">\n      <header className="flex justify-between items-center border-b border-slate-800 pb-4">\n        <div>\n          <h1 className="text-2xl font-bold">Hello, {user?.name || "Student"} \ud83d\udc4b</h1>\n          <p className="text-sm text-slate-400">Your learning progress & certificates are verified in real time.</p>\n        </div>\n      </header>\n      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Total Study Time</span>\n          <div className="text-2xl font-bold mt-1">18.5 Jam</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Courses Completed</span>\n          <div className="text-2xl font-bold mt-1">4 dari 6</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Average Quiz Score</span>\n          <div className="text-2xl font-bold mt-1 text-emerald-400">94%</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Official Certificates</span>\n          <div className="text-2xl font-bold mt-1 text-violet-400">QR Verified</div>\n        </div>\n      </div>\n    </div>\n  );\n}';
+    if (f === 'LMSDashboard.tsx') return '// components/LMSDashboard.tsx\nimport React from "react";\n\nexport default function LMSDashboard({ user, progress }: any) {\n  return (\n    <div className="p-8 space-y-6 bg-slate-950 text-white min-h-screen">\n      <header className="flex justify-between items-center border-b border-slate-800 pb-4">\n        <div>\n          <h1 className="text-2xl font-bold">Hello, {user?.name || "Student"} \ud83d\udc4b</h1>\n          <p className="text-sm text-slate-400">Your learning progress & certificates are verified in real time.</p>\n        </div>\n      </header>\n      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Total Study Time</span>\n          <div className="text-2xl font-bold mt-1">18.5 Hours</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Courses Completed</span>\n          <div className="text-2xl font-bold mt-1">4 of 6</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Average Quiz Score</span>\n          <div className="text-2xl font-bold mt-1 text-emerald-400">94%</div>\n        </div>\n        <div className="p-5 rounded-xl bg-slate-900 border border-slate-800">\n          <span className="text-xs text-slate-400">Official Certificates</span>\n          <div className="text-2xl font-bold mt-1 text-violet-400">QR Verified</div>\n        </div>\n      </div>\n    </div>\n  );\n}';
     if (f === 'CertificateGenerator.tsx') return '// components/CertificateGenerator.tsx\nexport async function generateCertificate(studentName: string, courseTitle: string) {\n  return { certId: "CERT-" + Date.now().toString(36).toUpperCase(), student: studentName, course: courseTitle, issuedAt: new Date().toISOString() };\n}';
     if (f === 'auth.ts') return '// lib/auth.ts - Multi-Role Auth (Student, Instructor, Admin)\nexport const authConfig = {\n  providers: ["credentials", "google", "github"],\n  session: { strategy: "jwt" },\n  callbacks: { jwt({ token, user }: any) { if (user) token.role = user.role; return token; } }\n};';
     return '// api/webhooks.ts - 1.000+ Marketplace Auto-Enrollment Webhook\nexport async function POST(req: Request) {\n  const payload = await req.json();\n  // Synchronize transactions & students from global marketplaces\n  return Response.json({ status: "enrolled", timestamp: Date.now() });\n}';
@@ -2647,11 +2597,11 @@ body.ws-stage-2-active .topbar {
       var isGenerating = (p && p.busy);
       var isTotalum = (state.engineMode === 'totalum');
       var badgeHtml = isTotalum
-        ? '<span class="badge-mode badge-mode-totalum">TOTALUM CLOUD</span>'
-        : '<span class="badge-mode badge-mode-sim">DEMO SIMULASI</span>';
+        ? '<span class="badge-mode badge-mode-totalum">PRODUCTION LIVE</span>'
+        : '<span class="badge-mode badge-mode-sim">LIVE DEMO</span>';
       
       var displayUrl = isTotalum
-        ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + (p.totalumProjectId || p.name) + '.totalum-project.com (Draft)')))
+        ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + (p.totalumProjectId || p.name) + '.runnerflo.app (Draft)')))
         : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Demo)';
       
       var frameSrc = isTotalum
@@ -2661,20 +2611,20 @@ body.ws-stage-2-active .topbar {
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
         '<div class="chrome">' +
         '<div class="ws-bar-dots" title="Size Controls">' +
-        '<i class="dot-red" id="ws-restore-dot" title="Tampilan Normal"></i>' +
-        '<i class="dot-yellow" id="ws-stage1-dot" title="Stage 1: Lebar Penuh (Chat Terbuka)"></i>' +
-        '<i class="dot-green" id="ws-stage2-dot" title="Stage 2: Layar Penuh"></i>' +
+        '<i class="dot-red" id="ws-restore-dot" title="Normal View"></i>' +
+        '<i class="dot-yellow" id="ws-stage1-dot" title="Stage 1: Expanded (Chat Open)"></i>' +
+        '<i class="dot-green" id="ws-stage2-dot" title="Stage 2: Fullscreen"></i>' +
         '</div>' +
         '<span class="url" style="display:flex;align-items:center;gap:8px">' +
         badgeHtml + ' ' +
         '<span id="liveDisplayUrlText" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + displayUrl + '</span></span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
-        '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Perbesar Tampilan">' +
+        '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Enlarge View">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
-        '<span id="wsStageLabel">Perbesar</span>' +
+        '<span id="wsStageLabel">Enlarge</span>' +
         '<span class="stage-tag" id="wsStageBadge">Stage 1/3</span>' +
         '</button>' +
-        '<button type="button" class="stage-btn restore-btn" id="wsBtnRestore" title="Tampilan Normal" style="display:none">' +
+        '<button type="button" class="stage-btn restore-btn" id="wsBtnRestore" title="Normal View" style="display:none">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>' +
         '<span id="wsRestoreLabel">Normal</span>' +
         '</button>' +
@@ -2745,14 +2695,14 @@ body.ws-stage-2-active .topbar {
     var m = $('#menu');
     if (!m.hidden && m.dataset.k === kind) return closeMenu();
     var opts = kind === 'mode' ? [
-      ['Auto', 'Otomatis: AI memilih model terbaik sesuai prompt Anda'],
-      ['Hemat', 'Cepat & Hemat: Cocok untuk revisi teks & tampilan'],
-      ['Standar', 'Standar: Seimbang untuk fitur baru & katalog'],
-      ['Pro', 'Kecerdasan Maksimal: Pemikiran mendalam & logika rumit']
+      ['Auto', 'Auto: AI dynamically selects optimal reasoning for your task'],
+      ['Fast', 'Fast: Rapid response & minimal credits, ideal for edits'],
+      ['Standard', 'Standard: Balanced speed & depth for new features'],
+      ['Pro', 'Pro: Maximum reasoning capacity for complex logic']
     ] : [
-      ['Build', 'Buat Aplikasi: AI langsung menyusun & menulis kode'],
-      ['Plan', 'Rencana Konsep: Rancangan arsitektur tanpa ubah kode'],
-      ['Tanya', 'Konsultasi: Tanya jawab ide fitur & bisnis']
+      ['Build', 'Build: AI generates and modifies production code'],
+      ['Plan', 'Plan: High-level architectural roadmap without writing code'],
+      ['Ask', 'Ask: Strategic consultation and technical guidance']
     ];
     var cv = kind === 'mode' ? state.mode : state.build;
     m.dataset.k = kind;
@@ -2868,7 +2818,7 @@ body.ws-stage-2-active .topbar {
         ta.focus();
         fit();
         updSend();
-        toast('Directif arsitektur ditambahkan');
+        toast('Architecture prompt added');
       }
       return;
     }
@@ -2881,9 +2831,9 @@ body.ws-stage-2-active .topbar {
       if (urlTxt) {
         try {
           navigator.clipboard.writeText(urlTxt);
-          toast('✅ Tautan website disalin!');
+          toast('✅ Website link copied!');
         } catch(e) {
-          toast('Gagal menyalin tautan');
+          toast('Failed to copy link');
         }
       }
       return;
