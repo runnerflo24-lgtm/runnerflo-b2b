@@ -879,6 +879,36 @@ body.ws-stage-2-active .topbar {
   font-weight: 600;
 }
 
+/* ===== Claude-Style Chat Message Edit UI (Phase 6) ===== */
+.msg.me .msg-edit-bar {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.msg.me:hover .msg-edit-bar {
+  opacity: 1 !important;
+}
+.msg-edit-btn {
+  background: var(--panel) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  color: var(--muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: all 0.15s ease;
+}
+.msg-edit-btn:hover {
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  transform: translateY(-1px);
+}
+
 /* ===== 3D Floating Deploy Settings Card Theme (From floating-card.html) ===== */
 @keyframes floaty { 0% { translate: 0 0; } 50% { translate: 0 -10px; } 100% { translate: 0 0; } }
 @keyframes floaty2 { 0% { translate: 0 0; } 50% { translate: 0 8px; } 100% { translate: 0 0; } }
@@ -4231,27 +4261,39 @@ body.ws-stage-2-active .topbar {
     $('#jump').hidden = nearBottom(th);
   }
 
-  // Handle chat message editing (called from thread click delegation)
+  // Handle chat message editing (Claude-style inline editor with auto-grow & keyboard shortcuts)
   window.startMsgEdit = function(idx) {
-    var p = cur(); if (!p) return;
+    var p = cur(); if (!p || p.busy) return;
     var th = $('#thread');
     var msgEl = th.querySelector('.msg.me[data-midx="' + idx + '"]');
     if (!msgEl) return;
     var origText = p.msgs[idx] ? p.msgs[idx].text : '';
     var wrap = msgEl.querySelector('.msg-edit-wrap');
     if (!wrap) return;
-    wrap.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;width:100%">'
-      + '<textarea id="msgEditTextarea" style="width:min(360px,80vw);min-height:72px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--accent);font:inherit;font-size:13px;resize:vertical;background:var(--panel);color:var(--fg);outline:none" autocomplete="off">' + esc(origText) + '</textarea>'
-      + '<div style="display:flex;gap:6px">'
-      + '<button type="button" id="msgEditCancel" style="padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:12px;cursor:pointer">Cancel</button>'
-      + '<button type="button" id="msgEditSubmit" style="padding:4px 12px;border-radius:6px;border:none;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:600;cursor:pointer">Send Edit</button>'
+    wrap.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;width:100%">'
+      + '<textarea id="msgEditTextarea" style="width:min(440px,85vw);min-height:76px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--accent);font:inherit;font-size:13px;line-height:1.5;resize:vertical;background:var(--panel);color:var(--fg);outline:none;box-shadow:0 4px 18px rgba(0,0,0,0.08)" autocomplete="off">' + esc(origText) + '</textarea>'
+      + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">'
+      + '<span style="font-size:11px;color:var(--muted)">Enter to save &bull; Shift+Enter for new line &bull; Esc to cancel</span>'
+      + '<button type="button" id="msgEditCancel" style="padding:5px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer">Cancel</button>'
+      + '<button type="button" id="msgEditSubmit" style="padding:5px 14px;border-radius:6px;border:none;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;cursor:pointer">Send Edit</button>'
       + '</div></div>';
     var ta = wrap.querySelector('#msgEditTextarea');
-    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+    if (ta) {
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+      ta.style.height = Math.max(76, ta.scrollHeight) + 'px';
+      ta.addEventListener('input', function() {
+        ta.style.height = 'auto';
+        ta.style.height = Math.max(76, ta.scrollHeight) + 'px';
+      });
+    }
     wrap.querySelector('#msgEditCancel').addEventListener('click', function() { renderThread(); });
     wrap.querySelector('#msgEditSubmit').addEventListener('click', function() { submitMsgEdit(idx, ta.value); });
     if (ta) ta.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitMsgEdit(idx, ta.value); }
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitMsgEdit(idx, ta.value);
+      }
       if (e.key === 'Escape') renderThread();
     });
   };
