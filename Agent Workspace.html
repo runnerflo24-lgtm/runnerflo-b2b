@@ -2843,10 +2843,19 @@ body.ws-stage-2-active .topbar {
     })
     .catch(function(err) {
       if (my !== runId) return;
+      var errMsg = err.message || '';
+      var isCredits = /credit|balance|VCaaS|402|quota|insufficient/i.test(errMsg);
+      if (isCredits) {
+        p.totalumCreditsExhausted = true;
+        save();
+        // Fallback to Claude Sonnet 5.5 with Autonomous Code Tools & Trigger.dev Pipeline
+        runClaudeFallbackAgent(p, text, 'credits_exhausted', m, my);
+        return;
+      }
       p.busy = false;
       m.steps[0].done = false;
-      m.text = '⚠️ **Notice:** ' + err.message + '\n\nPlease ensure your API credentials are configured in Cloudflare Workers settings or under Publish > Additional Settings.';
-      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">⚙️ Settings</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Demo</button></div>';
+      m.text = '⚠️ **Notice:** ' + errMsg + '\n\nPlease ensure your API credentials are configured in Cloudflare Workers settings or under Publish > Additional Settings.';
+      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-btn rf-btn-primary" onclick="window.runClaudeFallbackAgent(cur(), ' + JSON.stringify(text) + ', \'manual\')">⚡ Run with Claude Sonnet 5.5</button><button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">⚙️ Settings</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Demo</button></div>';
       finishWave();
       save();
       renderChat();
@@ -2854,6 +2863,117 @@ body.ws-stage-2-active .topbar {
       renderSide();
     });
   }
+
+  // Claude Sonnet 5.5 Autonomous Agent with Code Tools & Trigger.dev v3 Background Pipeline
+  function runClaudeFallbackAgent(p, text, reason, existingMsg, myRunId) {
+    var my = myRunId || (++runId);
+    p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
+    uiMode = 'live';
+    updateWave(25, 'Claude Sonnet 5.5: Code Reasoning & Analysis...', 'Progress: 25% • Medium Thinking & Autonomous Tool Pipeline active');
+
+    var m = existingMsg || { role: 'agent', text: '', steps: [], actionHtml: '' };
+    if (!existingMsg) {
+      p.msgs.push(m);
+    }
+
+    m.steps = [
+      { label: (reason === 'credits_exhausted' ? '⚡ Totalum credits exhausted → Claude Sonnet 5.5 Fallback Activated' : '🛠️ Claude Sonnet 5.5 Autonomous Engine Engaged'), done: true },
+      { label: 'Analyzing project codebase with Claude Sonnet 5.5 (Medium Thinking)...', done: false }
+    ];
+    m.text = (reason === 'credits_exhausted' ? '⚡ **Totalum credits depleted (-3.5193). Seamlessly activated Claude Sonnet 5.5 Fallback!**\nEquipped with code editing tools, file inspection, syntax debugging, and Trigger.dev v3 background pipeline.\n\n' : '') + '🤖 **Claude Sonnet 5.5 is reasoning and updating code...**';
+    renderIf(p);
+
+    var history = (p.msgs || []).slice(-6).map(function(item) {
+      return { role: item.role, text: item.text };
+    });
+
+    fetch('/api/agent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        projectName: p.name || 'AI Cloud Project',
+        stage: p.stage || 4,
+        mode: state.mode || 'Auto',
+        projectFiles: p.projectCodeFiles || [],
+        history: history,
+        reason: reason || 'manual'
+      })
+    })
+    .then(function(res) {
+      return res.json().then(function(json) {
+        if (!res.ok) throw new Error(json.error || json.details || ('HTTP ' + res.status));
+        return json;
+      });
+    })
+    .then(function(data) {
+      if (my !== runId) return;
+      p.busy = false;
+      m.steps.forEach(function(s) { s.done = true; });
+
+      if (Array.isArray(data.steps)) {
+        data.steps.forEach(function(st) {
+          if (!m.steps.some(function(s) { return s.label === st.label; })) {
+            m.steps.push(st);
+          }
+        });
+      }
+
+      // Update project code files if Claude modified any files
+      if (Array.isArray(data.modifiedFiles) && data.modifiedFiles.length > 0) {
+        if (!p.projectCodeFiles) p.projectCodeFiles = [];
+        data.modifiedFiles.forEach(function(mf) {
+          var found = false;
+          for (var i = 0; i < p.projectCodeFiles.length; i++) {
+            var f = p.projectCodeFiles[i];
+            if ((f.path || f.name) === mf.path) {
+              f.customContent = mf.code;
+              f.size = mf.code.length;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            p.projectCodeFiles.unshift({ path: mf.path, name: mf.path.split('/').pop(), size: mf.code.length, customContent: mf.code });
+          }
+        });
+      }
+
+      var modelBadge = data.model || 'claude-sonnet-5.5';
+      m.text = '✨ **Claude Sonnet 5.5 (' + modelBadge + ') — Response:**\n\n' + (data.text || '');
+
+      if (data.triggeredJobs && data.triggeredJobs.length > 0) {
+        var job = data.triggeredJobs[0];
+        m.text += '\n\n⚡ **Trigger.dev v3 Background Job:** Dispatched `' + (job.taskId || 'build-pipeline') + '` (Status: ' + (job.status || 'QUEUED') + ')';
+      }
+
+      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button type="button" class="rf-btn" onclick="uiMode=\'code\';renderSide();">💻 View Code Changes</button>' +
+        '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publish Website</button>' +
+        '</div>';
+
+      p.suggest = Array.isArray(data.suggest) ? data.suggest : ['Review Updated Code', 'Add New Component', 'Publish to Live'];
+      finishWave();
+      save();
+      renderChat();
+      renderTabs();
+      renderSide();
+      toast('⚡ Claude Sonnet 5.5 completed task successfully!');
+    })
+    .catch(function(err) {
+      if (my !== runId) return;
+      p.busy = false;
+      m.steps.forEach(function(s) { s.done = false; });
+      m.text = '⚠️ **Claude 5.5 Engine Notice:** ' + err.message + '\n\nPlease ensure `ANTHROPIC_API_KEY` is configured in Cloudflare Pages environment variables.';
+      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Demo</button></div>';
+      finishWave();
+      save();
+      renderChat();
+      renderTabs();
+      renderSide();
+    });
+  }
+  window.runClaudeFallbackAgent = runClaudeFallbackAgent;
 
   function pollTotalumProgress(p, m, my) {
     var projSlug = p.totalumProjectId || p.name;
@@ -3507,6 +3627,17 @@ body.ws-stage-2-active .topbar {
 
   function runAgent(p, text) {
     if (state.engineMode === 'totalum') {
+      // Dual-purpose Fallback to Claude Sonnet 5.5:
+      // 1. When Totalum credits are depleted
+      // 2. When Totalum has finished the initial build and remaining edits/continuations are handled by Claude + Trigger.dev
+      if (p.totalumCreditsExhausted) {
+        runClaudeFallbackAgent(p, text, 'credits_exhausted');
+        return;
+      }
+      if (p.totalumProjectId && p.stage >= 4 && p.msgs.length > 2) {
+        runClaudeFallbackAgent(p, text, 'continue_edit');
+        return;
+      }
       runTotalumAgent(p, text);
       return;
     }

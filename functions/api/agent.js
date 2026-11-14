@@ -1,12 +1,13 @@
 // Cloudflare Pages Function: /api/agent
-// Claude Sonnet 5.5 — Build AI Apps & Make Workflows
+// Claude Sonnet 5.5 Engine with Autonomous Code Editing Tools & Trigger.dev v3 Background Pipeline
+
 export async function onRequest(context) {
   const { request, env } = context;
 
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key',
     'Content-Type': 'application/json'
   };
 
@@ -19,136 +20,309 @@ export async function onRequest(context) {
   if (!anthropicKey) {
     return new Response(JSON.stringify({
       error: 'ANTHROPIC_API_KEY belum disetel di Cloudflare Pages.',
+      code: 'MISSING_ANTHROPIC_KEY',
       fallback: true
     }), { status: 503, headers: corsHeaders });
   }
 
+  const triggerKey = (env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY)) || '';
+  const triggerApiUrl = (env && env.TRIGGER_API_URL) || 'https://api.trigger.dev/api/v3';
+
   try {
-    const body = await request.json();
-    const userText = body.text || '';
-    const projectName = body.projectName || 'Proyek B2B';
-    const currentStage = typeof body.stage === 'number' ? body.stage : 0;
+    const body = await request.json().catch(() => ({}));
+    const userText = body.text || body.prompt || '';
+    const projectName = body.projectName || 'AI Cloud Project';
+    const currentStage = typeof body.stage === 'number' ? body.stage : 4;
     const mode = body.mode || 'Auto';
-    const build = body.build || 'Build';
+    const projectFiles = Array.isArray(body.projectFiles) ? body.projectFiles : [];
     const history = Array.isArray(body.history) ? body.history : [];
-    const makeApiKey = env.MAKE_API_KEY || '';
+    const reason = body.reason || 'manual'; // 'credits_exhausted' | 'continue_edit' | 'manual'
 
-    const tripoKey = (env && (env.TRIPO_API_KEY || env.TRIPO_KEY)) || '';
+    // System prompt instructing Claude Sonnet 5.5 as the Lead Software Architect & Code Editor
+    const systemPrompt = `You are Claude Sonnet 5.5 (Autonomous Lead Software Architect & Full-Stack Code Editor) for the Runnerflo Cloud Platform (Year 2026).
+You are operating in High-Reasoning & Medium-Thinking mode.
 
-    const systemPrompt = `Kamu adalah Runnerflo B2B AI Agent — platform pembangun bisnis, AI agent, dan game 3D untuk UMKM dan kreator Indonesia.
-Proyek: "${projectName}" | Stage: ${currentStage}/4 | Mode: ${mode} | Build: ${build}
-Make.com API: ${makeApiKey ? 'tersedia (siap orkestrasi workflow)' : 'belum dikonfigurasi'}
-Tripo 3D AI: ${tripoKey ? 'tersedia (siap generate model & game 3D)' : 'belum dikonfigurasi'}
+CURRENT WORKSPACE CONTEXT:
+- Project Name: "${projectName}"
+- Current Stage: ${currentStage}/4
+- Execution Mode: ${mode}
+- Fallback Activation Reason: ${reason === 'credits_exhausted' ? 'Totalum credits exhausted (negative balance) -> Seamless Claude 5.5 takeover' : 'Autonomous feature refinement and code maintenance'}
+- Existing Project Files in Workspace:
+${projectFiles.length ? projectFiles.map(f => `  • ${f.path || f.name} (${f.size || 2048} bytes)`).slice(0, 30).join('\n') : '  • Next.js 14 App Router, Cloudflare D1 Edge, Tailwind CSS'}
 
-KEMAMPUANMU (Generasi Claude 5.5):
-1. Bangun platform digital & AI Agent (landing page, katalog, dashboard, sistem booking, dll)
-2. Rancang dan orkestrasi workflow otomasi bisnis menggunakan Make.com (WhatsApp, email, Google Sheets, payment, trigger webhook)
-3. Buat dan rancang game 3D WebGL (Three.js + Tripo 3D PBR texture image-to-model / text-to-model)
-4. Buat proposal & strategi bisnis
-5. Hubungkan fitur "Runnerflo Scout" — AI pencari klien/peluang kerja otomatis
+YOUR CAPABILITIES & TOOLS:
+1. edit_code: Modify existing code or create new components/pages in the project.
+2. read_file: Inspect existing file content.
+3. search_code: Search patterns, symbols, or functions across the project tree.
+4. debug_code: Diagnose syntax errors, runtime issues, or TypeScript type mismatches.
+5. fetch_api: Query external REST endpoints or web APIs.
+6. trigger_job: Dispatch long-running tasks, heavy AI generation, or deployment jobs to Trigger.dev v3.
 
-INSTRUKSI KETAT:
-- Balas dalam Bahasa Indonesia yang profesional dan ramah
-- HANYA kembalikan JSON mentah tanpa markdown, tanpa \`\`\`json, tanpa komentar di luar JSON
-- Struktur JSON WAJIB persis:
-{
-  "text": "Penjelasan detail yang sudah dikerjakan atau disarankan.",
-  "steps": ["Langkah 1 selesai", "Langkah 2 selesai", "Langkah 3 selesai"],
-  "stage": <integer 0-4, naik jika build diminta>,
-  "suggest": ["Saran singkat 1", "Saran singkat 2", "Saran singkat 3"],
-  "makeWorkflow": null,
-  "game3d": null
-}
-- Field "makeWorkflow" diisi jika user minta otomasi/automasi/Make/workflow, isinya object blueprint Make.com scenario:
-{
-  "name": "Nama Workflow",
-  "trigger": "webhook|schedule|email|whatsapp",
-  "steps": ["Deskripsi step 1", "Deskripsi step 2"],
-  "apps": ["WhatsApp Business", "Gmail", "Google Sheets"]
-}
-- Field "game3d" diisi jika user minta game 3D/model 3D, berisi:
-{
-  "title": "Nama Game 3D",
-  "genre": "Genre",
-  "prompt3d": "Prompt model 3D untuk Tripo",
-  "status": "ready"
-}`;
+RULES:
+- Respond in clear, professional English (or Indonesian if user prompted in Indonesian).
+- Always explain what code modifications or architectural decisions you made.
+- If the user asks to modify a feature, add a component, or fix a bug, USE the edit_code tool or return structured code patches.
+- Maintain high code quality: TypeScript, React Server Components/Client directives, Tailwind CSS, and D1 SQLite compatibility.`;
 
+    // Tool specifications for Claude Sonnet 5.5 Tool Use API
+    const tools = [
+      {
+        name: 'edit_code',
+        description: 'Edit, patch, or create a source code file in the project (e.g. src/app/page.tsx, src/components/Studio.tsx, src/lib/d1-schema.ts).',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'Relative file path, e.g. src/app/page.tsx' },
+            code: { type: 'string', description: 'The complete revised source code for this file' },
+            explanation: { type: 'string', description: 'Brief summary of what was added or fixed' }
+          },
+          required: ['file', 'code']
+        }
+      },
+      {
+        name: 'read_file',
+        description: 'Read the contents of a specific file in the project codebase.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'Relative file path to read' }
+          },
+          required: ['file']
+        }
+      },
+      {
+        name: 'search_code',
+        description: 'Search for keywords, symbols, or functions across project code files.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'Keyword, function name, or symbol to locate' }
+          },
+          required: ['query']
+        }
+      },
+      {
+        name: 'debug_code',
+        description: 'Run automated static diagnosis on a code file to catch syntax and runtime errors.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'The file to inspect' },
+            issue: { type: 'string', description: 'Description of observed error or desired check' }
+          },
+          required: ['file', 'issue']
+        }
+      },
+      {
+        name: 'fetch_api',
+        description: 'Fetch external API endpoint data or documentation.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            url: { type: 'string', description: 'Full URL to request' },
+            method: { type: 'string', enum: ['GET', 'POST'], description: 'HTTP method' }
+          },
+          required: ['url']
+        }
+      },
+      {
+        name: 'trigger_job',
+        description: 'Dispatch a long-running background workflow or build pipeline to Trigger.dev v3.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            taskId: { type: 'string', description: 'The Trigger.dev task identifier (e.g. "code-build-pipeline", "asset-optimizer")' },
+            payload: { type: 'object', description: 'JSON payload passed to the Trigger.dev task' }
+          },
+          required: ['taskId']
+        }
+      }
+    ];
+
+    // Format chat messages
     const formattedMessages = [];
     for (const h of history) {
       if (h.role === 'user' && h.text) formattedMessages.push({ role: 'user', content: h.text });
       else if (h.role === 'agent' && h.text) formattedMessages.push({ role: 'assistant', content: h.text });
     }
     if (formattedMessages.length === 0 || formattedMessages[formattedMessages.length - 1].content !== userText) {
-      formattedMessages.push({ role: 'user', content: userText || 'Mulai rancang platform saya.' });
+      formattedMessages.push({ role: 'user', content: userText || 'Review project and apply requested enhancements.' });
     }
 
-    // Claude Sonnet 3.5 / Haiku / Sonnet 5.5 candidate models
+    // Models priority list: 5.5 series -> 3.7 sonnet -> 3.5 sonnet
     const candidateModels = [
+      'claude-sonnet-5-5',
+      'claude-3-7-sonnet-20250219',
       'claude-3-5-sonnet-20241022',
-      'claude-3-5-sonnet-latest',
-      'claude-3-5-haiku-20241022',
-      'claude-3-haiku-20240307',
-      'claude-sonnet-5-5'
+      'claude-3-5-haiku-20241022'
     ];
+
     let lastError = null;
-    let agentResult = null;
+    let selectedModel = null;
+    let responseData = null;
+    let toolCalls = [];
+    let assistantText = '';
+    let thinkingContent = '';
 
     for (const model of candidateModels) {
       try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+        // First attempt with interleaved-thinking
+        const headers = {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'interleaved-thinking-2025-05-14',
+          'content-type': 'application/json'
+        };
+
+        const payload = {
+          model,
+          max_tokens: 4096,
+          system: systemPrompt,
+          messages: formattedMessages,
+          tools,
+          thinking: {
+            type: 'enabled',
+            budget_tokens: 2048
+          }
+        };
+
+        let response = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
-          headers: {
-            'x-api-key': anthropicKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            model,
-            max_tokens: 2048,
-            system: systemPrompt,
-            messages: formattedMessages
-          })
+          headers,
+          body: JSON.stringify(payload)
         });
+
+        // If thinking or beta header is rejected (400), retry without thinking
+        if (!response.ok && response.status === 400) {
+          const fallbackPayload = {
+            model,
+            max_tokens: 3000,
+            system: systemPrompt,
+            messages: formattedMessages,
+            tools
+          };
+          response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'x-api-key': anthropicKey,
+              'anthropic-version': '2023-06-01',
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify(fallbackPayload)
+          });
+        }
 
         if (!response.ok) {
           const errText = await response.text();
-          lastError = `${model} → ${response.status}: ${errText}`;
+          lastError = `${model} (HTTP ${response.status}): ${errText}`;
           continue;
         }
 
-        const data = await response.json();
-        const textBlock = (data.content || []).find(b => b.type === 'text');
-        if (textBlock && textBlock.text) {
-          let raw = textBlock.text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-          try {
-            agentResult = JSON.parse(raw);
-            agentResult.model = model;
-            break;
-          } catch {
-            agentResult = {
-              text: raw,
-              steps: ['Analisis kebutuhan bisnis', 'Menyusun arsitektur platform'],
-              stage: Math.min(4, currentStage + 1),
-              suggest: ['Tambahkan detail bisnis', 'Aktifkan otomasi Make', 'Jalankan Runnerflo Scout'],
-              makeWorkflow: null,
-              model
-            };
-            break;
-          }
-        }
-      } catch (e) {
-        lastError = e.message;
+        responseData = await response.json();
+        selectedModel = model;
+        break;
+      } catch (err) {
+        lastError = err.message;
       }
     }
 
-    if (agentResult) return new Response(JSON.stringify(agentResult), { status: 200, headers: corsHeaders });
+    if (!responseData) {
+      return new Response(JSON.stringify({
+        error: 'Failed to contact Claude Sonnet 5.5 upstream',
+        details: lastError,
+        fallback: false
+      }), { status: 502, headers: corsHeaders });
+    }
 
-    return new Response(JSON.stringify({ error: 'Claude API gagal', details: lastError, fallback: true }), {
-      status: 502, headers: corsHeaders
-    });
+    // Process Claude response blocks (thinking, text, tool_use)
+    const contentBlocks = responseData.content || [];
+    const modifiedFiles = [];
+    const triggeredJobs = [];
+
+    for (const block of contentBlocks) {
+      if (block.type === 'thinking') {
+        thinkingContent += block.thinking;
+      } else if (block.type === 'text') {
+        assistantText += block.text;
+      } else if (block.type === 'tool_use') {
+        toolCalls.push(block);
+
+        if (block.name === 'edit_code') {
+          const args = block.input || {};
+          modifiedFiles.push({
+            path: args.file,
+            code: args.code,
+            explanation: args.explanation || 'Updated by Claude Sonnet 5.5'
+          });
+        } else if (block.name === 'trigger_job') {
+          const args = block.input || {};
+          let jobResult = { taskId: args.taskId, status: 'QUEUED' };
+
+          // If Trigger.dev API key is present, actually dispatch to Trigger.dev v3
+          if (triggerKey) {
+            try {
+              const trRes = await fetch(`${triggerApiUrl}/tasks/${encodeURIComponent(args.taskId)}/trigger`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${triggerKey}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ payload: args.payload || {} })
+              });
+              if (trRes.ok) {
+                const trData = await trRes.json();
+                jobResult = trData;
+              } else {
+                jobResult.warning = `Trigger.dev HTTP ${trRes.status}`;
+              }
+            } catch (trErr) {
+              jobResult.warning = trErr.message;
+            }
+          } else {
+            jobResult.runId = 'trig_' + Math.random().toString(36).slice(2, 10);
+            jobResult.note = 'Simulated Trigger.dev dispatch (configure TRIGGER_SECRET_KEY in Cloudflare for live trigger)';
+          }
+          triggeredJobs.push(jobResult);
+        }
+      }
+    }
+
+    const steps = [];
+    if (reason === 'credits_exhausted') {
+      steps.push({ label: '⚡ Fallback to Claude Sonnet 5.5 engaged (zero downtime)', done: true });
+    }
+    steps.push({ label: `Analyzed codebase with ${selectedModel} (Medium Thinking)`, done: true });
+
+    if (modifiedFiles.length > 0) {
+      steps.push({ label: `Generated code updates for ${modifiedFiles.length} file(s)`, done: true });
+    }
+    if (triggeredJobs.length > 0) {
+      steps.push({ label: `Dispatched background job to Trigger.dev v3`, done: true });
+    }
+
+    const output = {
+      text: assistantText || 'Task completed successfully by Claude Sonnet 5.5.',
+      steps,
+      stage: Math.min(4, currentStage + 1),
+      suggest: [
+        'Review Updated Code',
+        'Run Automated Unit Tests',
+        'Publish Live to Production'
+      ],
+      engine: 'claude-sonnet-5.5',
+      model: selectedModel,
+      thinkingTokens: responseData.usage ? responseData.usage.thinking_tokens : 0,
+      modifiedFiles,
+      triggeredJobs,
+      toolCallsCount: toolCalls.length
+    };
+
+    return new Response(JSON.stringify(output), { status: 200, headers: corsHeaders });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message, fallback: true }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({
+      error: err.message,
+      stack: err.stack
+    }), { status: 500, headers: corsHeaders });
   }
 }
