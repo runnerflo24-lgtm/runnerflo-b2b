@@ -80,11 +80,14 @@ h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}
 .comp textarea::placeholder{color:var(--mut)}
 .send{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--acc);color:var(--on);cursor:pointer;display:grid;place-items:center;transition:opacity .2s,transform .2s}
 .send:hover{transform:scale(1.08)}
-.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
-.chips button{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:4px;padding:8px 15px;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .2s,transform .2s}
-.chips button:hover{border-color:var(--acc);transform:translateY(-2px)}
+.chips{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:18px;max-width:980px;margin-left:auto;margin-right:auto}
+.chips-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;width:100%}
+.chips button{font:inherit;font-size:12.5px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:7px 14px;cursor:pointer;backdrop-filter:blur(8px);transition:all .2s ease;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chips button:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-1.5px);box-shadow:0 4px 14px -3px color-mix(in srgb,var(--acc) 25%,transparent)}
 .btn-ideas-highlight{background:color-mix(in srgb,var(--acc) 18%,var(--card))!important;border-color:var(--acc)!important;color:var(--ink)!important;font-weight:700!important;display:inline-flex!important;align-items:center!important;gap:8px!important;box-shadow:0 0 20px -5px color-mix(in srgb,var(--acc) 45%,transparent)}
 .btn-ideas-highlight svg{color:var(--acc)}
+.chip-saas{font-weight:500;border-color:color-mix(in srgb,var(--line) 80%,var(--acc))}
+.chip-saas:hover{background:color-mix(in srgb,var(--acc) 8%,var(--card))}
 .note{margin-top:14px;font-size:12px;color:var(--mut)}
 /* ===== DIGITAL ASSET EXAMPLES SHOWCASE ===== */
 .showcase-outer{width:100%;margin:36px auto 0;position:relative}
@@ -413,18 +416,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
   }
   
   /* Horizontal swipeable chips carousel */
-  .chips {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
-    gap: 8px;
-    padding: 4px 14px 10px;
-    margin: 12px -14px 0;
-    scrollbar-width: none;
-  }
+  .chips { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 10px; margin-top: 14px; }
+  .chips-row { display: flex; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; gap: 8px; padding: 4px 6px 8px; scrollbar-width: none; }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .chips-row button { flex: none; scroll-snap-align: start; }
   .chips::-webkit-scrollbar { display: none; }
   .chips button {
     flex: none;
@@ -724,15 +719,21 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
       </div>
     </div>
     <div class="chips" id="chips">
-      <button id="btn-ideas" class="btn-ideas-highlight" type="button" aria-label="Explore 10,284+ AI App Ideas">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-        <span>10,284+ Ready-to-Deploy AI App Ideas</span>
-      </button>
-      <button id="chip-demo" type="button" aria-label="View 3D AI Game Studio"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="6 3 20 12 6 21 6 3"/></svg>Example: 3D AI Game Studio &#x2192;</button>
-      <button id="chip-workspace" type="button" aria-label="Open Agent Workspace" style="color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Agent Workspace &#x2197;</button>
-      <button type="button">Automate customer WhatsApp &amp; omnichannel replies</button>
-      <button type="button">How much does it cost to build a custom AI agent?</button>
-      <button type="button">How do digital products generate recurring revenue?</button>
+      <div class="chips-row">
+        <button id="btn-ideas" class="btn-ideas-highlight" type="button" aria-label="Explore 10,284+ AI App Ideas">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span>10,284+ Ready-to-Deploy AI App Ideas</span>
+        </button>
+        <button id="chip-demo" type="button" aria-label="View 3D AI Game Studio"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="6 3 20 12 6 21 6 3"/></svg>Example: 3D AI Game Studio &#x2192;</button>
+        <button id="chip-workspace" type="button" aria-label="Open Agent Workspace" style="color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Agent Workspace &#x2197;</button>
+      </div>
+      <div class="chips-row">
+        <button type="button" class="chip-saas" data-prompt="Build a custom AI Customer Support Chatbot with automated omnichannel replies and CRM knowledge base"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI Chatbot &amp; Assistant</button>
+        <button type="button" class="chip-saas" data-prompt="Build an AI Image Generator SaaS with text-to-image prompts, style filters, and gallery downloads"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> AI Image Generator</button>
+        <button type="button" class="chip-saas" data-prompt="Build an AI Video Generator platform for converting scripts into HD marketing video clips"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> AI Video &amp; Motion</button>
+        <button type="button" class="chip-saas" data-prompt="Build an AI Document &amp; Invoice Scanner SaaS with automatic table extraction and CSV export"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Invoice OCR &amp; Doc AI</button>
+        <button type="button" class="chip-saas" data-prompt="Build a full-stack AI SaaS platform with user authentication, Stripe subscription billing, and API quota tracking"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> AI SaaS Subscriptions</button>
+      </div>
     </div>
     <p class="note">Veltra Interactive AI Assistant. Powered by Anthropic Claude &amp; Google Gemini models.</p>
     <!-- ====== DIGITAL ASSET EXAMPLES SHOWCASE ====== -->
@@ -1501,7 +1502,7 @@ document.querySelectorAll("#chips button:not(#btn-ideas)").forEach(b => {
       window.location.href = "Agent%20Workspace.html";
       return;
     }
-    goToWorkspace(b.textContent);
+    goToWorkspace(b.dataset.prompt || b.textContent);
   });
 });
 })();

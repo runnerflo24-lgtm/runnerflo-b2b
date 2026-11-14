@@ -297,6 +297,86 @@ export async function onRequest(context) {
     }
 
     // -------------------------------------------------------------
+    // ACTION: database-rows (Get records from table)
+    // POST /api/totalum?action=database-rows&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'database-rows' && request.method === 'POST') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      const body = await request.json().catch(() => ({}));
+      const payload = {
+        env: body.env || 'dev',
+        table: body.table || '',
+        page: { limit: body.limit || 25, offset: body.offset || 0 }
+      };
+      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/database/rows`, {
+        method: 'POST',
+        headers: commonHeaders,
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: database-ask (Ask AI plain English questions about data)
+    // POST /api/totalum?action=database-ask&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'database-ask' && request.method === 'POST') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      const body = await request.json().catch(() => ({}));
+      const question = body.question || '';
+      const payload = {
+        env: body.env || 'dev',
+        questionBase64: btoa(unescape(encodeURIComponent(question)))
+      };
+      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/database/ask`, {
+        method: 'POST',
+        headers: commonHeaders,
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: agent-stop (Stop running agent task)
+    // POST /api/totalum?action=agent-stop&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'agent-stop' && request.method === 'POST') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/agent/stop`, {
+        method: 'POST',
+        headers: commonHeaders,
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: agent-clear (Clear conversation memory for fresh build)
+    // POST /api/totalum?action=agent-clear&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'agent-clear' && request.method === 'POST') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/agent/clear-context`, {
+        method: 'POST',
+        headers: commonHeaders,
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+    }
+
+    // -------------------------------------------------------------
     // ACTION: projects (List projects)
     // GET /api/totalum?action=projects
     // -------------------------------------------------------------

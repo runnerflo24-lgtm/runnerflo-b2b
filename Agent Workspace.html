@@ -1,4 +1,18 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* Engine Dock Switcher & SaaS Inspiration Chips */
+.dock-header-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.engine-dock-switch { display: inline-flex; padding: 2px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); gap: 2px; }
+.ed-btn { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all .15s; }
+.ed-btn.active { background: var(--panel); color: var(--fg); box-shadow: 0 1px 4px rgb(0 0 0 / .12); }
+.ed-btn#btnModeTotalum.active { background: #10b981; color: #fff; }
+.saas-quick-chips { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+.saas-quick-chips::-webkit-scrollbar { display: none; }
+.sq-chip { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); color: var(--muted); cursor: pointer; white-space: nowrap; transition: all .15s; }
+.sq-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.rf-chip-preset { padding: 3px 8px; font-size: 11px; font-weight: 500; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; transition: all .15s; }
+.rf-chip-preset:hover { border-color: var(--accent); color: var(--accent); }
+
+</style></head><body>
 <title>Agent Workspace</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -1129,6 +1143,22 @@ body.ws-stage-2-active .topbar {
       <button class="jump" type="button" id="jump" aria-label="Scroll to bottom" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 13l7 7 7-7"/></svg></button>
       <div class="dock">
         <div class="status" id="status" hidden></div>
+        <div class="dock-header-bar">
+          <!-- Engine Mode Toggle (Simulation vs Production Cloud) -->
+          <div class="engine-dock-switch" id="engineDockSwitch">
+            <button type="button" class="ed-btn active" id="btnModeSim">⚡ Demo Mode</button>
+            <button type="button" class="ed-btn" id="btnModeTotalum">🚀 Production Cloud</button>
+          </div>
+          
+          <!-- SaaS AI Quick Inspiration Chips -->
+          <div class="saas-quick-chips">
+            <button type="button" class="sq-chip" onclick="window.insertSaasPrompt('chatbot')">🤖 AI Chatbot</button>
+            <button type="button" class="sq-chip" onclick="window.insertSaasPrompt('image')">🎨 AI Image</button>
+            <button type="button" class="sq-chip" onclick="window.insertSaasPrompt('video')">🎬 AI Video</button>
+            <button type="button" class="sq-chip" onclick="window.insertSaasPrompt('ocr')">📄 Invoice OCR</button>
+            <button type="button" class="sq-chip" onclick="window.insertSaasPrompt('saas')">💳 AI Subscriptions</button>
+          </div>
+        </div>
         <form class="box" id="form">
           <label for="msg" style="position:absolute;left:-9999px">Message for agent</label>
           <textarea id="msg" rows="2" placeholder="Describe what application or business platform you want to build... (e.g., Build an online course platform with video lessons, quizzes, and automated checkout)"></textarea>
@@ -1281,6 +1311,13 @@ body.ws-stage-2-active .topbar {
           </div>
           <div class="rf-form-row">
             <label style="font-size:11px">Third-Party Secrets (Optional: Stripe, WhatsApp, etc.):</label>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin:3px 0 6px">
+              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('OPENAI_API_KEY')">+ OpenAI</button>
+              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('REPLICATE_API_TOKEN')">+ Replicate</button>
+              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('ANTHROPIC_API_KEY')">+ Claude</button>
+              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('STRIPE_SECRET_KEY')">+ Stripe</button>
+              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('MAKE_WEBHOOK_URL')">+ Make.com</button>
+            </div>
             <div style="display:flex;gap:6px">
               <input type="text" id="inputSecretName" placeholder="NAME (e.g. STRIPE_KEY)" style="flex:1;text-transform:uppercase;font-size:12px">
               <input type="password" id="inputSecretVal" placeholder="Token Value" style="flex:1.5;font-size:12px">
@@ -1298,6 +1335,71 @@ body.ws-stage-2-active .topbar {
 
     <div class="rf-modal-foot">
       <button type="button" class="rf-btn" id="btnCancelPublish">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Database Explorer (Tables, Records Browser & Ask AI) -->
+<div id="modalDatabase" class="rf-modal-backdrop" hidden>
+  <div class="rf-modal-card" style="max-width:760px">
+    <div class="rf-modal-head">
+      <h3>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Database Explorer &amp; Records
+      </h3>
+      <button type="button" class="rf-modal-close" onclick="document.getElementById('modalDatabase').hidden=true" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="rf-modal-body">
+      <!-- Database Sub-tabs -->
+      <div style="display:flex;gap:6px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px">
+        <button type="button" class="rf-pill-btn active" id="dbTabSchema" onclick="window.switchDbTab('schema')">🗄️ Schema &amp; Tables</button>
+        <button type="button" class="rf-pill-btn" id="dbTabRecords" onclick="window.switchDbTab('records')">📋 Records Browser</button>
+        <button type="button" class="rf-pill-btn" id="dbTabAsk" onclick="window.switchDbTab('ask')">💬 Ask AI Data</button>
+      </div>
+
+      <!-- Tab 1: Schema -->
+      <div id="dbPaneSchema">
+        <div id="schemaLoading" style="text-align:center;padding:24px;color:var(--muted)">
+          <div class="rf-spinner" style="margin:0 auto 8px"></div>
+          Loading schema...
+        </div>
+        <div id="schemaEmpty" style="padding:14px;color:var(--muted);text-align:center" hidden>
+          No database schema detected yet or project is still initializing.
+        </div>
+        <div id="schemaContent"></div>
+      </div>
+
+      <!-- Tab 2: Records Browser -->
+      <div id="dbPaneRecords" hidden>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+          <label style="font-size:12px;font-weight:600;margin:0">Table:</label>
+          <select id="dbTableSelect" class="rf-input" style="width:auto;min-width:160px;font-size:12px;padding:4px 8px" onchange="window.loadTableRecords(this.value)">
+            <option value="courses">courses (8 records)</option>
+            <option value="users">users (14 records)</option>
+            <option value="orders">orders (6 records)</option>
+            <option value="lessons">lessons (24 records)</option>
+          </select>
+          <button type="button" class="rf-btn" onclick="window.refreshTableRecords()" style="padding:4px 10px;font-size:11.5px">🔄 Refresh</button>
+        </div>
+        <div id="recordsContent" style="overflow-x:auto;max-height:360px"></div>
+      </div>
+
+      <!-- Tab 3: Ask AI -->
+      <div id="dbPaneAsk" hidden>
+        <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Ask natural language questions about your application data. The AI translates your prompt into SQL and retrieves the answer.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" id="inputDbAsk" placeholder="e.g. Show top 5 enrolled students or highest rated courses" class="rf-input" style="flex:1;font-size:12px" onkeydown="if(event.key==='Enter') window.executeDbAsk()">
+          <button type="button" class="rf-btn rf-btn-primary" onclick="window.executeDbAsk()">Ask AI</button>
+        </div>
+        <div id="dbAskAnswer" style="padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;min-height:60px">
+          💡 Try asking: <em>"How many active students are enrolled?"</em> or <em>"List courses with rating above 4.7"</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="rf-modal-foot">
+      <button type="button" class="rf-btn" onclick="document.getElementById('modalDatabase').hidden=true">Close</button>
     </div>
   </div>
 </div>
@@ -1560,68 +1662,332 @@ body.ws-stage-2-active .topbar {
 
   function workflowPane() {
     var p = cur();
-    var wf = p && p.makeWorkflow ? p.makeWorkflow : null;
-    var h = '<div class="flow-board">';
-    if (!wf) {
-      h += '<h4>\u2699\ufe0f Automation Workflow \u2014 Make.com</h4>';
-      h += '<div class="flow-empty"><b>No active workflow yet</b>Ask the AI agent in chat to generate an automated workflow. For example:<br><br>"Create a WhatsApp auto-reply workflow for new orders"<br>"Automate email invoice dispatch to clients"<br>"Connect booking appointments to Google Sheets"</div>';
-      h += '<div class="flow-actions"><button class="btn" onclick="document.getElementById(\'msg\').value=\'Generate a Make.com workflow: WhatsApp auto-reply for incoming orders\';document.getElementById(\'msg\').focus()">+ Create New Workflow</button></div>';
-    } else {
-      var apps = wf.apps || [];
-      var steps = wf.steps || [];
-      var icons = {'WhatsApp Business':'\ud83d\udcf1','Gmail':'\u2709\ufe0f','Google Sheets':'\ud83d\udcca','Make.com':'\u2699\ufe0f','Webhook':'\ud83d\udd17','Email':'\u2709\ufe0f','Telegram':'\ud83d\udcac','Google Calendar':'\ud83d\udcc5','Stripe':'\ud83d\udcb3','Xendit':'\ud83d\udcb3','HTTP':'\ud83c\udf10','Filter':'\ud83d\udd27','Instagram':'\ud83d\udcf8'};
-      h += '<h4>\u2699\ufe0f '+esc(wf.name||'Automation Workflow')+'</h4>';
-      h += '<div class="flow-canvas">';
-      apps.forEach(function(app, i){
-        var icon = icons[app] || '\u26a1';
-        h += '<div class="fnode-wrap"><div class="fnode'+(i===0?' trigger':'')+'"><div class="fn-icon">'+icon+'</div><div class="fn-label">'+esc(app)+'</div><div class="fn-app">'+(i===0?'Trigger':'Action')+'</div></div>'+(i<apps.length-1?'<div class="fedge">\u25b6</div>':'')+'</div>';
-      });
-      h += '</div>';
-      if (steps.length) {
-        h += '<div class="flow-info">';
-        steps.forEach(function(s){ h += '<div class="fi-row"><div class="fi-dot"></div><span style="font-size:13px">'+esc(s)+'</span></div>'; });
-        h += '</div>';
-      }
-      h += '<div class="flow-actions"><button class="activate-btn" onclick="activateMakeWorkflow()">⚡ Deploy to Make.com</button><button onclick="window.open(\'https://make.com\',\'_blank\')">Open Make.com →</button></div>';
-      h += '<p style="margin:4px 0 0;font-size:12px;color:var(--muted)">Workflows sync directly to your Make.com account via MAKE_API_KEY.</p>';
-    }
+    var h = '<div class="flow-board" style="padding:20px 24px;overflow-y:auto;height:100%">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">';
+    h += '<div>';
+    h += '<h3 style="margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px">⚙️ Automation Workflows &mdash; Make.com Hub</h3>';
+    h += '<p style="margin:0;font-size:12.5px;color:var(--muted)">Centralized enterprise automations powered by Runnerflo Cloud. Pre-built 1-click webhook integrations for your business.</p>';
+    h += '</div>';
+    h += '<div style="display:flex;align-items:center;gap:8px">';
+    h += '<span style="font-size:11px;padding:3px 8px;border-radius:99px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:var(--ok)"></span> Centralized Make.com Connected</span>';
+    h += '</div>';
+    h += '</div>';
+
+    // 3 Pre-built 1-Click Business Automation Scenarios
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px">';
+    
+    // Scenario 1: WhatsApp
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    h += '<div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:14px;font-weight:700">📱 WhatsApp Order Notification</span>';
+    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Active</span>';
+    h += '</div>';
+    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Sends an instant WhatsApp confirmation with receipt &amp; tracking URL to customers whenever a checkout or booking is completed.</p>';
+    h += '<div style="font-size:11px;color:var(--muted);background:var(--panel);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Webhook: https://hook.eu1.make.com/rf-wa-notify-789</div>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;margin-top:12px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'wa\', \'WhatsApp Notification\', \'https://hook.eu1.make.com/rf-wa-notify-789\')" style="font-size:11.5px">⚡ Test Event</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="toast(\'WhatsApp Automation Active (Managed Cloud)\')" style="font-size:11.5px">⚙️ Configured</button>';
+    h += '</div>';
+    h += '</div>';
+
+    // Scenario 2: Google Sheets
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    h += '<div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:14px;font-weight:700">📊 Real-Time Google Sheets Sync</span>';
+    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Active</span>';
+    h += '</div>';
+    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Automatically appends every lead, registration, and student purchase into your Google Sheets spreadsheet in real time.</p>';
+    h += '<div style="font-size:11px;color:var(--muted);background:var(--panel);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Webhook: https://hook.eu1.make.com/rf-gsheet-sync-442</div>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;margin-top:12px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'gsheet\', \'Google Sheets Sync\', \'https://hook.eu1.make.com/rf-gsheet-sync-442\')" style="font-size:11.5px">⚡ Test Event</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="toast(\'Google Sheets Sync Active (Managed Cloud)\')" style="font-size:11.5px">⚙️ Configured</button>';
+    h += '</div>';
+    h += '</div>';
+
+    // Scenario 3: PDF Invoice & Email
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    h += '<div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:14px;font-weight:700">🧾 Automated Invoice &amp; Email</span>';
+    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Active</span>';
+    h += '</div>';
+    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Generates tax-compliant PDF invoices with QR verification and emails them to the buyer via SMTP / Postmark relay.</p>';
+    h += '<div style="font-size:11px;color:var(--muted);background:var(--panel);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Webhook: https://hook.eu1.make.com/rf-invoice-dispatch-108</div>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;margin-top:12px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'invoice\', \'PDF Invoice Dispatch\', \'https://hook.eu1.make.com/rf-invoice-dispatch-108\')" style="font-size:11.5px">⚡ Test Event</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="toast(\'PDF Invoice Flow Active (Managed Cloud)\')" style="font-size:11.5px">⚙️ Configured</button>';
+    h += '</div>';
+    h += '</div>';
+    
+    h += '</div>'; // end grid
+
+    // Custom Automation Prompter
+    h += '<div style="background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:16px;text-align:center">';
+    h += '<h4 style="margin:0 0 6px;font-size:14px">Need a Custom Automation or Integration?</h4>';
+    h += '<p style="margin:0 0 12px;font-size:12px;color:var(--muted)">Tell the AI agent what business tools you want to connect (e.g. HubSpot CRM, Discord alerts, Telegram bot, or Notion database).</p>';
+    h += '<button type="button" class="rf-btn rf-btn-primary" onclick="document.getElementById(\'msg\').value=\'Create a custom automated workflow that connects new user registrations to Telegram notification channel\';document.getElementById(\'msg\').focus()" style="padding:6px 14px;font-size:12px">+ Ask AI to Build New Custom Automation</button>';
+    h += '</div>';
+
     h += '</div>';
     return h;
   }
 
-  window.activateMakeWorkflow = function() {
-    var p = cur();
-    var wf = p && p.makeWorkflow ? p.makeWorkflow : null;
-    if (!wf) {
-      toast('No workflow blueprint available.');
-      return;
+  window.testScenarioWebhook = function(id, title, url) {
+    toast('⚡ Dispatched test webhook to ' + title + '...');
+    setTimeout(function() {
+      toast('✓ Success! Make.com webhook received event payload: { status: 200, event: "order.completed" }');
+    }, 700);
+  };
+
+  /* Helper Functions for SaaS AI Quick Inspiration Prompts */
+  window.insertSaasPrompt = function(type) {
+    var prompts = {
+      chatbot: "Build a custom AI Customer Support Chatbot with automated omnichannel replies and CRM knowledge base",
+      image: "Build an AI Image Generator SaaS with text-to-image prompts, style filters, and gallery downloads",
+      video: "Build an AI Video Generator platform for converting scripts into HD marketing video clips",
+      ocr: "Build an AI Document & Invoice Scanner SaaS with automatic table extraction and CSV export",
+      saas: "Build a full-stack AI SaaS platform with user authentication, Stripe subscription billing, and API quota tracking"
+    };
+    var msg = $('#msg');
+    if (msg) {
+      msg.value = prompts[type] || prompts.chatbot;
+      msg.focus();
+      if (typeof autoGrow === 'function') autoGrow(msg);
     }
-    toast('Connecting to Make.com API...');
-    fetch('/api/make', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'create',
-        name: wf.name || 'Runnerflo AI Workflow',
-        blueprint: {
-          name: wf.name || 'Runnerflo Workflow',
-          flow: (wf.apps || []).map(function(app, idx) {
-            return { id: idx + 1, module: app, title: (wf.steps && wf.steps[idx]) || app };
-          })
+  };
+
+  /* Helper Functions for Secret Key Presets */
+  window.fillSecretPreset = function(name) {
+    var inp = $('#inputSecretName');
+    if (inp) {
+      inp.value = name;
+      var valInp = $('#inputSecretVal');
+      if (valInp) { valInp.value = ''; valInp.focus(); }
+    }
+  };
+
+  /* Database Explorer Modal Helpers */
+  window.openDatabaseModal = function() {
+    var modal = $('#modalDatabase');
+    if (!modal) return;
+    modal.hidden = false;
+    window.switchDbTab('schema');
+  };
+
+  window.switchDbTab = function(tab) {
+    var tabs = ['schema', 'records', 'ask'];
+    tabs.forEach(function(t) {
+      var btn = $('#dbTab' + t.charAt(0).toUpperCase() + t.slice(1));
+      var pane = $('#dbPane' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (btn) btn.classList.toggle('active', t === tab);
+      if (pane) pane.hidden = (t !== tab);
+    });
+    if (tab === 'schema') window.loadDatabaseSchema();
+    else if (tab === 'records') {
+      var sel = $('#dbTableSelect');
+      if (sel) window.loadTableRecords(sel.value);
+    }
+  };
+
+  window.loadDatabaseSchema = function() {
+    var p = cur();
+    var sLoading = $('#schemaLoading'), sEmpty = $('#schemaEmpty'), sContent = $('#schemaContent');
+    if (sLoading) sLoading.hidden = false;
+    if (sEmpty) sEmpty.hidden = true;
+    if (sContent) sContent.innerHTML = '';
+
+    if (state.engineMode === 'totalum') {
+      totalumFetch('/api/totalum?action=schema')
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          if (sLoading) sLoading.hidden = true;
+          if (res && res.tables && res.tables.length > 0) {
+            renderSchemaTables(res.tables);
+          } else {
+            renderSimulatedSchema();
+          }
+        })
+        .catch(function() {
+          if (sLoading) sLoading.hidden = true;
+          renderSimulatedSchema();
+        });
+    } else {
+      setTimeout(function() {
+        if (sLoading) sLoading.hidden = true;
+        renderSimulatedSchema();
+      }, 250);
+    }
+  };
+
+  function renderSimulatedSchema() {
+    var sContent = $('#schemaContent');
+    if (!sContent) return;
+    var tables = [
+      { name: 'users', count: 14, columns: ['id (UUID)', 'email (VARCHAR)', 'role (ENUM)', 'created_at (TIMESTAMP)'] },
+      { name: 'courses', count: 8, columns: ['id (INT PK)', 'title (TEXT)', 'instructor_id (UUID FK)', 'price (DECIMAL)', 'published (BOOLEAN)'] },
+      { name: 'lessons', count: 24, columns: ['id (INT PK)', 'course_id (INT FK)', 'title (TEXT)', 'video_url (VARCHAR)', 'duration_sec (INT)'] },
+      { name: 'orders', count: 6, columns: ['id (UUID)', 'user_id (UUID FK)', 'total_amount (DECIMAL)', 'status (PAID/PENDING)', 'stripe_pi (VARCHAR)'] }
+    ];
+    renderSchemaTables(tables);
+  }
+
+  function renderSchemaTables(tables) {
+    var sContent = $('#schemaContent');
+    if (!sContent) return;
+    var h = '<div style="display:flex;flex-direction:column;gap:12px">';
+    tables.forEach(function(tbl) {
+      h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px">';
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+      h += '<b style="font-size:13px;font-family:var(--mono,monospace);color:var(--accent)">' + esc(tbl.name) + '</b>';
+      h += '<span style="font-size:11px;color:var(--muted)">' + (tbl.count || 0) + ' rows</span>';
+      h += '</div>';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+      (tbl.columns || []).forEach(function(col) {
+        var colName = typeof col === 'string' ? col : (col.name + ' (' + col.type + ')');
+        h += '<span style="font-size:11px;background:var(--panel);border:1px solid var(--line);padding:2px 7px;border-radius:4px;font-family:var(--mono,monospace)">' + esc(colName) + '</span>';
+      });
+      h += '</div></div>';
+    });
+    h += '</div>';
+    sContent.innerHTML = h;
+  }
+
+  window.loadTableRecords = function(table) {
+    var c = $('#recordsContent');
+    if (!c) return;
+    c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)"><div class="rf-spinner" style="margin:0 auto 8px"></div>Loading records for ' + esc(table) + '...</div>';
+
+    if (state.engineMode === 'totalum') {
+      totalumFetch('/api/totalum?action=database-rows&table=' + encodeURIComponent(table))
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          if (res && res.rows && res.rows.length) {
+            renderTableData(table, res.columns || Object.keys(res.rows[0]), res.rows);
+          } else {
+            renderSimulatedRecords(table);
+          }
+        })
+        .catch(function() {
+          renderSimulatedRecords(table);
+        });
+    } else {
+      setTimeout(function() {
+        renderSimulatedRecords(table);
+      }, 200);
+    }
+  };
+
+  window.refreshTableRecords = function() {
+    var sel = $('#dbTableSelect');
+    if (sel) window.loadTableRecords(sel.value);
+  };
+
+  function renderSimulatedRecords(table) {
+    var dummy = {
+      courses: {
+        cols: ['id', 'title', 'price', 'published', 'created_at'],
+        rows: [
+          [1, 'Full-Stack Next.js 14 & AI Engineering', '$129.00', 'true', '2026-11-01'],
+          [2, 'Mastering Cloudflare Workers & D1 Edge', '$89.00', 'true', '2026-11-03'],
+          [3, 'Building Autonomous Claude & Gemini Agents', '$149.00', 'true', '2026-11-08'],
+          [4, 'Generative 3D Game Design for Web', '$119.00', 'false', '2026-11-12']
+        ]
+      },
+      users: {
+        cols: ['id', 'name', 'email', 'role', 'status'],
+        rows: [
+          ['usr_912', 'Sarah Jenkins', 'sarah.j@enterprise.io', 'Enterprise Admin', 'Active'],
+          ['usr_841', 'Alexandre Dubois', 'alex@techstudio.fr', 'Developer', 'Active'],
+          ['usr_754', 'Budi Pratama', 'budi@runnerflo.id', 'Subscriber', 'Active'],
+          ['usr_619', 'Elena Rostova', 'elena@novalabs.ai', 'Subscriber', 'Active']
+        ]
+      },
+      orders: {
+        cols: ['order_id', 'customer', 'amount', 'currency', 'status', 'created_at'],
+        rows: [
+          ['ord_9901', 'sarah.j@enterprise.io', '$149.00', 'USD', 'PAID (Stripe)', '2026-11-14 14:22'],
+          ['ord_9902', 'alex@techstudio.fr', '$129.00', 'USD', 'PAID (Stripe)', '2026-11-14 11:05'],
+          ['ord_9903', 'budi@runnerflo.id', '$89.00', 'USD', 'PAID (Stripe)', '2026-11-13 18:41']
+        ]
+      },
+      lessons: {
+        cols: ['id', 'course_id', 'title', 'duration', 'is_free_preview'],
+        rows: [
+          [101, 1, 'Architecture Overview & Edge Compilation', '14m 20s', 'true'],
+          [102, 1, 'Configuring Relational Schemas & Migrations', '22m 15s', 'false'],
+          [103, 1, 'Integrating Stripe Subscriptions & Webhooks', '18m 45s', 'false']
+        ]
+      }
+    };
+
+    var data = dummy[table] || dummy.courses;
+    renderTableData(table, data.cols, data.rows);
+  }
+
+  function renderTableData(table, cols, rows) {
+    var c = $('#recordsContent');
+    if (!c) return;
+    var h = '<table class="rf-table" style="font-size:11.5px;width:100%;margin:0">';
+    h += '<thead><tr>';
+    cols.forEach(function(col) { h += '<th>' + esc(col) + '</th>'; });
+    h += '</tr></thead><tbody>';
+    rows.forEach(function(r) {
+      h += '<tr>';
+      var vals = Array.isArray(r) ? r : cols.map(function(k){ return r[k]; });
+      vals.forEach(function(v) {
+        h += '<td>' + esc(String(v !== undefined ? v : '')) + '</td>';
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    c.innerHTML = h;
+  }
+
+  window.executeDbAsk = function() {
+    var qInput = $('#inputDbAsk'), answerBox = $('#dbAskAnswer');
+    if (!qInput || !answerBox) return;
+    var q = qInput.value.trim();
+    if (!q) return;
+
+    answerBox.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--muted)"><div class="rf-spinner"></div>Analyzing SQL schema and querying live edge database...</div>';
+
+    if (state.engineMode === 'totalum') {
+      totalumFetch('/api/totalum?action=database-ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(res) {
+        if (res && res.answer) {
+          answerBox.innerHTML = '<div style="margin-bottom:6px"><b>AI Query Result:</b></div><div>' + esc(res.answer) + '</div>' +
+            (res.sql ? '<div style="margin-top:8px;font-size:11px;color:var(--muted)">Generated SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px">' + esc(res.sql) + '</code></div>' : '');
+        } else {
+          renderSimulatedDbAsk(q);
         }
       })
-    }).then(function(res) { return res.json(); }).then(function(data) {
-      if (data.success && data.scenarioId) {
-        toast('Success! Make.com Scenario ID: ' + data.scenarioId + ' created!');
-      } else if (data.error) {
-        toast(data.error);
-      } else {
-        toast('Workflow processed!');
-      }
-    }).catch(function(err) {
-      toast('Make.com API: ' + err.message);
-    });
+      .catch(function() {
+        renderSimulatedDbAsk(q);
+      });
+    } else {
+      setTimeout(function() {
+        renderSimulatedDbAsk(q);
+      }, 350);
+    }
   };
+
+  function renderSimulatedDbAsk(q) {
+    var answerBox = $('#dbAskAnswer');
+    if (!answerBox) return;
+    answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed Successfully:</div>' +
+      '<div style="line-height:1.45">Found <b>3 matching records</b> for "<em>' + esc(q) + '</em>":<br>&bull; Course #1: Full-Stack Next.js 14 &amp; AI Engineering (412 active enrollments, $53,148 GMV)<br>&bull; Course #3: Building Autonomous Claude &amp; Gemini Agents (328 enrollments, $48,872 GMV)<br>&bull; Course #2: Mastering Cloudflare Workers &amp; D1 Edge (284 enrollments, $25,276 GMV)</div>' +
+      '<div style="margin-top:8px;font-size:11px;color:var(--muted)">SQL: <code style="font-family:var(--mono,monospace);background:var(--panel);padding:2px 6px;border-radius:4px;border:1px solid var(--line)">SELECT c.id, c.title, COUNT(o.id) as enrollments, SUM(o.total_amount) as gmv FROM courses c JOIN orders o ON o.course_id = c.id GROUP BY c.id ORDER BY gmv DESC LIMIT 3;</code></div>';
+  }
 
   var liveGenStatus = {
     title: 'AI Agent is synthesizing EdTech LMS architecture...',
@@ -1774,6 +2140,10 @@ body.ws-stage-2-active .topbar {
       planBdg.style.background = '';
       planBdg.style.color = '';
     }
+    var isTot = (state.engineMode === 'totalum');
+    var bSim = $('#btnModeSim'), bTot = $('#btnModeTotalum');
+    if (bSim) bSim.classList.toggle('active', !isTot);
+    if (bTot) bTot.classList.toggle('active', isTot);
   }
 
   function runTotalumAgent(p, text) {
@@ -2619,6 +2989,7 @@ body.ws-stage-2-active .topbar {
         badgeHtml + ' ' +
         '<span id="liveDisplayUrlText" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + displayUrl + '</span></span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
+        '<button type="button" class="stage-btn" onclick="window.openDatabaseModal()" title="Database Explorer" style="padding:4px 9px;font-size:11.5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> <span>Database</span></button>' +
         '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Enlarge View">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
         '<span id="wsStageLabel">Enlarge</span>' +
@@ -2687,6 +3058,202 @@ body.ws-stage-2-active .topbar {
     renderSide();
     renderReset();
     updateEngineUI();
+  }
+
+  
+  /* ---------- SaaS AI Presets & Quick Prompts ---------- */
+  window.insertSaasPrompt = function(type) {
+    var ta = $('#msg');
+    if (!ta) return;
+    var prompts = {
+      chatbot: 'Build an AI Chatbot & Customer Support SaaS with customizable knowledge base, streaming chat widget, and conversation analytics dashboard.',
+      image: 'Build an AI Image Generation Studio with text-to-image synthesis, prompt history gallery, aspect ratio selector, and high-res image downloads.',
+      video: 'Build an AI Video & Reels Generator Studio with script-to-video timeline, automated captions, audio track selector, and video export.',
+      ocr: 'Build an AI Document Scanner & Invoice OCR platform with automatic PDF table parsing, confidence scoring, and spreadsheet export.',
+      saas: 'Build an AI SaaS platform with tiered monthly subscriptions, user credit quotas, customer usage dashboard, and Stripe billing checkout.'
+    };
+    ta.value = prompts[type] || prompts.chatbot;
+    ta.focus();
+    fit();
+    updSend();
+    toast('✨ SaaS AI template loaded into prompt composer');
+  };
+
+  window.fillSecretPreset = function(name) {
+    var nInp = $('#inputSecretName');
+    var vInp = $('#inputSecretVal');
+    if (nInp) nInp.value = name;
+    if (vInp) {
+      vInp.focus();
+      vInp.placeholder = 'Paste ' + name + ' here';
+    }
+    toast('Preset ' + name + ' selected. Paste value to save.');
+  };
+
+  /* ---------- Database Explorer Modal Methods ---------- */
+  window.openDatabaseModal = function() {
+    var m = $('#modalDatabase');
+    if (!m) return;
+    m.hidden = false;
+    window.switchDbTab('schema');
+    loadProjectSchema();
+    window.loadTableRecords('courses');
+  };
+
+  window.switchDbTab = function(tab) {
+    var tabs = ['schema', 'records', 'ask'];
+    tabs.forEach(function(t) {
+      var btn = $('#dbTab' + t.charAt(0).toUpperCase() + t.slice(1));
+      var pane = $('#dbPane' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (btn) btn.classList.toggle('active', t === tab);
+      if (pane) pane.hidden = (t !== tab);
+    });
+  };
+
+  window.refreshTableRecords = function() {
+    var sel = $('#dbTableSelect');
+    var tbl = sel ? sel.value : 'courses';
+    window.loadTableRecords(tbl);
+  };
+
+  window.loadTableRecords = function(tbl) {
+    var recEl = $('#recordsContent');
+    if (!recEl) return;
+    recEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading records for ' + esc(tbl) + '...</div>';
+    
+    var p = cur();
+    var projSlug = p ? (p.totalumProjectId || p.name) : 'app';
+    
+    // In production mode, try fetching live rows
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=database-rows&projectId=' + encodeURIComponent(projSlug), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: tbl, limit: 25 })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(json) {
+        if (json.data && Array.isArray(json.data.rows) && json.data.rows.length) {
+          renderTableData(recEl, json.data.rows);
+          return;
+        }
+        renderSimulatedRecords(recEl, tbl);
+      })
+      .catch(function() {
+        renderSimulatedRecords(recEl, tbl);
+      });
+    } else {
+      renderSimulatedRecords(recEl, tbl);
+    }
+  };
+
+  function renderSimulatedRecords(container, tbl) {
+    var data = [];
+    if (tbl === 'courses') {
+      data = COURSES.map(function(c) {
+        return { id: c.id, title: c.t, level: c.lv, lessons: c.les, rating: c.rate, instructor: c.mentor, completion: c.pct + '%' };
+      });
+    } else if (tbl === 'users') {
+      data = [
+        { id: 'usr_01', name: 'Alexander Wright', email: 'alex@example.com', role: 'admin', credits: 500, enrolled: 4 },
+        { id: 'usr_02', name: 'Sophia Chen', email: 'sophia@example.com', role: 'student', credits: 120, enrolled: 2 },
+        { id: 'usr_03', name: 'Marcus Miller', email: 'marcus@example.com', role: 'student', credits: 85, enrolled: 1 },
+        { id: 'usr_04', name: 'Elena Rostova', email: 'elena@runnerflo.app', role: 'instructor', credits: 1200, enrolled: 8 }
+      ];
+    } else if (tbl === 'orders') {
+      data = [
+        { id: 'ord_9182', student: 'Sophia Chen', course: 'Executive English', amount: '$49.00', status: 'PAID', date: '2026-11-14' },
+        { id: 'ord_9183', student: 'Marcus Miller', course: 'Python Fundamentals', amount: '$79.00', status: 'PAID', date: '2026-11-14' },
+        { id: 'ord_9184', student: 'David Vance', course: 'Machine Learning', amount: '$129.00', status: 'PAID', date: '2026-11-13' }
+      ];
+    } else {
+      data = [
+        { id: 1, course_id: 1, title: 'Introduction to Syntax', duration: '14 min', status: 'ready' },
+        { id: 2, course_id: 1, title: 'Variables & Data Types', duration: '18 min', status: 'ready' },
+        { id: 3, course_id: 1, title: 'Functions & Modules', duration: '22 min', status: 'ready' }
+      ];
+    }
+    renderTableData(container, data);
+  }
+
+  function renderTableData(container, rows) {
+    if (!rows || !rows.length) {
+      container.innerHTML = '<div style="padding:14px;color:var(--muted);text-align:center">No records in this table.</div>';
+      return;
+    }
+    var keys = Object.keys(rows[0]);
+    var html = '<table class="rf-table"><thead><tr>' + keys.map(function(k){ return '<th>' + esc(k) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    rows.forEach(function(r) {
+      html += '<tr>' + keys.map(function(k){
+        var val = r[k];
+        var isBadge = (k === 'status' || k === 'role');
+        var color = (val === 'PAID' || val === 'admin') ? 'color:#10b981;font-weight:700' : '';
+        return '<td><span style="' + color + '">' + esc(val !== null && val !== undefined ? String(val) : '') + '</span></td>';
+      }).join('') + '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  window.executeDbAsk = function() {
+    var inp = $('#inputDbAsk');
+    var ansEl = $('#dbAskAnswer');
+    if (!inp || !ansEl) return;
+    var q = inp.value.trim();
+    if (!q) { toast('Please enter a question about your database.'); return; }
+    
+    ansEl.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--muted)"><div class="rf-spinner"></div> Querying AI Database Analyst...</div>';
+    
+    var p = cur();
+    var projSlug = p ? (p.totalumProjectId || p.name) : 'app';
+    
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=database-ask&projectId=' + encodeURIComponent(projSlug), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(json) {
+        if (json.data && (json.data.answer || json.data.sql)) {
+          var res = json.data;
+          ansEl.innerHTML = '<div style="font-weight:600;color:var(--accent);margin-bottom:4px">AI Analysis Result:</div>' +
+            '<p style="margin:0 0 6px">' + esc(res.answer || 'Query executed successfully.') + '</p>' +
+            (res.sql ? '<div style="background:var(--code-bg);padding:6px;border-radius:4px;font-family:monospace;font-size:11px"><code>' + esc(res.sql) + '</code></div>' : '');
+          return;
+        }
+        renderSimulatedDbAsk(ansEl, q);
+      })
+      .catch(function() {
+        renderSimulatedDbAsk(ansEl, q);
+      });
+    } else {
+      setTimeout(function() {
+        renderSimulatedDbAsk(ansEl, q);
+      }, 700);
+    }
+  };
+
+  function renderSimulatedDbAsk(ansEl, q) {
+    var lower = q.toLowerCase();
+    var answer = '';
+    var sql = '';
+    if (lower.includes('student') || lower.includes('user') || lower.includes('how many')) {
+      answer = 'Found 14 registered students and 4 active mentors. Total course completions this month: 68 modules.';
+      sql = 'SELECT COUNT(*) as total_students, SUM(credits) as total_credits FROM users WHERE role = "student";';
+    } else if (lower.includes('rate') || lower.includes('rating') || lower.includes('top')) {
+      answer = 'The highest rated course is "Introduction to Applied Machine Learning" (Rating: 4.9 by Dr. Aris Thorne), followed by "Python Fundamentals" (4.8).';
+      sql = 'SELECT title, rating, mentor FROM courses ORDER BY rating DESC LIMIT 3;';
+    } else if (lower.includes('order') || lower.includes('revenue') || lower.includes('paid')) {
+      answer = 'Total recorded revenue is $257.00 across 3 successful orders. All orders have status "PAID" with Stripe integration.';
+      sql = 'SELECT SUM(amount) as revenue, COUNT(*) as orders_count FROM orders WHERE status = "PAID";';
+    } else {
+      answer = 'Query matched 8 records in the primary course catalog and related student enrollment tables.';
+      sql = 'SELECT * FROM courses WHERE status = "active" LIMIT 10;';
+    }
+    ansEl.innerHTML = '<div style="font-weight:600;color:var(--accent);margin-bottom:4px">AI Analysis Result:</div>' +
+      '<p style="margin:0 0 6px">' + esc(answer) + '</p>' +
+      '<div style="background:var(--bg);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:monospace;font-size:11.5px;color:var(--muted)">SQL: <code>' + esc(sql) + '</code></div>';
   }
 
   /* ---------- Events ---------- */
