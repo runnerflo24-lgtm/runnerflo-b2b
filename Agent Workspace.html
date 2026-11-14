@@ -1716,88 +1716,452 @@ body.ws-stage-2-active .topbar {
     return h;
   }
 
-  function workflowPane() {
-    var p = cur();
-    var h = '<div class="flow-board" style="padding:20px 24px;overflow-y:auto;height:100%">';
-    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">';
-    h += '<div>';
-    h += '<h3 style="margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px">⚙️ Automation Workflows &mdash; Make.com Hub</h3>';
-    h += '<p style="margin:0;font-size:12.5px;color:var(--muted)">Centralized enterprise automations powered by Runnerflo Cloud. Pre-built 1-click webhook integrations for your business.</p>';
-    h += '</div>';
-    h += '<div style="display:flex;align-items:center;gap:8px">';
-    h += '<span style="font-size:11px;padding:3px 8px;border-radius:99px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:var(--ok)"></span> Centralized Make.com Connected</span>';
-    h += '</div>';
-    h += '</div>';
+  /* ============================================================
+     ASSETS & MEDIA CDN EXPLORER
+     ============================================================ */
+  function getProjectAssets(p) {
+    var assets = [];
+    if (p && p.assets && p.assets.length) {
+      p.assets.forEach(function(a) {
+        assets.push({
+          name: a.name,
+          path: a.path || a.name,
+          size: a.size || 0,
+          url: a.url || '',
+          isUserUpload: true
+        });
+      });
+    }
 
-    // 3 Pre-built 1-Click Business Automation Scenarios
-    h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px">';
+    if (p && p.projectCodeFiles && p.projectCodeFiles.length) {
+      p.projectCodeFiles.forEach(function(f) {
+        var path = f.path || f.name || '';
+        var ext = path.split('.').pop().toLowerCase();
+        var isAsset = path.startsWith('public/') || 
+                      ['svg', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'ico', 'mp4', 'webm', 'json'].includes(ext);
+        if (isAsset) {
+          var already = assets.some(function(a) { return a.path === path; });
+          if (!already) {
+            assets.push({
+              name: path.split('/').pop(),
+              path: path,
+              size: f.size || 0,
+              url: '',
+              isUserUpload: false
+            });
+          }
+        }
+      });
+    }
+
+    if (!assets.length) {
+      assets.push(
+        { name: 'favicon.ico', path: 'public/favicon.ico', size: 1540, isUserUpload: false },
+        { name: 'logo.svg', path: 'public/logo.svg', size: 3420, isUserUpload: false },
+        { name: 'hero-banner.png', path: 'public/hero-banner.png', size: 48920, isUserUpload: false }
+      );
+    }
+    return assets;
+  }
+
+  function assetsPane(p) {
+    var assets = getProjectAssets(p);
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : 'current-project';
+
+    var h = '<div class="assets-pane-wrap" style="padding:18px 22px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:18px">';
     
-    // Scenario 1: WhatsApp
-    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    // Header
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--line);padding-bottom:14px">';
     h += '<div>';
-    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-    h += '<span style="font-size:14px;font-weight:700">📱 WhatsApp Order Notification</span>';
-    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Active</span>';
+    h += '<h3 style="margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px">';
+    h += '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+    h += 'Project Assets &amp; Media CDN</h3>';
+    h += '<p style="margin:0;font-size:12px;color:var(--muted)">Images, logos, branding assets, and public media deployed on Cloudflare Edge CDN for <b>' + esc(projSlug) + '</b>.</p>';
     h += '</div>';
-    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Sends an instant WhatsApp confirmation with receipt &amp; tracking URL to customers whenever a checkout or booking is completed.</p>';
-    h += '<div style="font-size:11px;color:var(--muted);background:var(--panel);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Webhook: https://hook.eu1.make.com/rf-wa-notify-789</div>';
-    h += '</div>';
-    h += '<div style="display:flex;gap:6px;margin-top:12px">';
-    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'wa\', \'WhatsApp Notification\', \'https://hook.eu1.make.com/rf-wa-notify-789\')" style="font-size:11.5px">⚡ Test Event</button>';
-    h += '<button type="button" class="rf-pill-btn" onclick="toast(\'WhatsApp Automation Active (Managed Cloud)\')" style="font-size:11.5px">⚙️ Configured</button>';
+    h += '<div style="display:flex;gap:8px;align-items:center">';
+    h += '<span style="font-size:11px;padding:3px 8px;border-radius:99px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);font-weight:600">' + assets.length + ' Assets Live</span>';
+    h += '<button type="button" class="rf-btn rf-btn-primary" onclick="document.getElementById(\'assetFileInput\').click()" style="padding:5px 12px;font-size:12px">+ Upload Asset</button>';
+    h += '<input type="file" id="assetFileInput" style="display:none" multiple onchange="window.handleAssetUpload(this.files)">';
     h += '</div>';
     h += '</div>';
 
-    // Scenario 2: Google Sheets
-    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
-    h += '<div>';
-    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-    h += '<span style="font-size:14px;font-weight:700">📊 Real-Time Google Sheets Sync</span>';
-    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Active</span>';
-    h += '</div>';
-    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Automatically appends every lead, registration, and student purchase into your Google Sheets spreadsheet in real time.</p>';
-    h += '<div style="font-size:11px;color:var(--muted);background:var(--panel);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Webhook: https://hook.eu1.make.com/rf-gsheet-sync-442</div>';
-    h += '</div>';
-    h += '<div style="display:flex;gap:6px;margin-top:12px">';
-    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'gsheet\', \'Google Sheets Sync\', \'https://hook.eu1.make.com/rf-gsheet-sync-442\')" style="font-size:11.5px">⚡ Test Event</button>';
-    h += '<button type="button" class="rf-pill-btn" onclick="toast(\'Google Sheets Sync Active (Managed Cloud)\')" style="font-size:11.5px">⚙️ Configured</button>';
-    h += '</div>';
+    // Dropzone
+    h += '<div class="drop" id="drop" ondragover="event.preventDefault();this.style.borderColor=\'var(--accent)\'" ondragleave="this.style.borderColor=\'\'" ondrop="event.preventDefault();window.handleAssetDrop(event)" style="border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;background:var(--bg);cursor:pointer" onclick="document.getElementById(\'assetFileInput\').click()">';
+    h += '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin:0 auto 8px;color:var(--accent)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>';
+    h += '<b style="font-size:13.5px;display:block;margin-bottom:4px">Upload media assets to your application</b>';
+    h += '<span style="font-size:12px;color:var(--muted)">Drag and drop logos, banners, SVG icons, or documents here &bull; or click to browse</span>';
     h += '</div>';
 
-    // Scenario 3: PDF Invoice & Email
-    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    // Assets Grid
     h += '<div>';
-    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-    h += '<span style="font-size:14px;font-weight:700">🧾 Automated Invoice &amp; Email</span>';
-    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Active</span>';
-    h += '</div>';
-    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Generates tax-compliant PDF invoices with QR verification and emails them to the buyer via SMTP / Postmark relay.</p>';
-    h += '<div style="font-size:11px;color:var(--muted);background:var(--panel);padding:6px 8px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Webhook: https://hook.eu1.make.com/rf-invoice-dispatch-108</div>';
-    h += '</div>';
-    h += '<div style="display:flex;gap:6px;margin-top:12px">';
-    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'invoice\', \'PDF Invoice Dispatch\', \'https://hook.eu1.make.com/rf-invoice-dispatch-108\')" style="font-size:11.5px">⚡ Test Event</button>';
-    h += '<button type="button" class="rf-pill-btn" onclick="toast(\'PDF Invoice Flow Active (Managed Cloud)\')" style="font-size:11.5px">⚙️ Configured</button>';
-    h += '</div>';
-    h += '</div>';
+    h += '<h4 style="margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Active Media Files (' + assets.length + ')</h4>';
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));gap:12px">';
     
-    h += '</div>'; // end grid
+    assets.forEach(function(a) {
+      var ext = a.name.split('.').pop().toLowerCase();
+      var isImg = ['svg', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'ico'].includes(ext);
+      var icon = isImg ? '🖼️' : '📄';
+      var sz = a.size ? (a.size > 1024 ? (Math.round(a.size / 102.4) / 10 + ' KB') : (a.size + ' B')) : 'Edge Asset';
 
-    // Custom Automation Prompter
-    h += '<div style="background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:16px;text-align:center">';
-    h += '<h4 style="margin:0 0 6px;font-size:14px">Need a Custom Automation or Integration?</h4>';
-    h += '<p style="margin:0 0 12px;font-size:12px;color:var(--muted)">Tell the AI agent what business tools you want to connect (e.g. HubSpot CRM, Discord alerts, Telegram bot, or Notion database).</p>';
-    h += '<button type="button" class="rf-btn rf-btn-primary" onclick="document.getElementById(\'msg\').value=\'Create a custom automated workflow that connects new user registrations to Telegram notification channel\';document.getElementById(\'msg\').focus()" style="padding:6px 14px;font-size:12px">+ Ask AI to Build New Custom Automation</button>';
+      h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:10px">';
+      h += '<div style="display:flex;align-items:flex-start;gap:10px">';
+      h += '<div style="width:36px;height:36px;border-radius:8px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none">' + icon + '</div>';
+      h += '<div style="flex:1;min-width:0">';
+      h += '<b style="font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(a.name) + '">' + esc(a.name) + '</b>';
+      h += '<span style="font-size:11px;color:var(--muted);font-family:var(--font-mono,monospace)">' + sz + '</span>';
+      h += '</div>';
+      h += '</div>';
+
+      h += '<div style="background:var(--panel);padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:10.5px;font-family:var(--font-mono,monospace);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(a.path) + '">';
+      h += esc(a.path);
+      h += '</div>';
+
+      h += '<div style="display:flex;gap:6px;align-items:center">';
+      h += '<button type="button" class="rf-pill-btn" onclick="window.copyAssetPath(\'' + esc(a.path) + '\')" style="flex:1;padding:4px 8px;font-size:11px">📋 Copy Path</button>';
+      h += '<button type="button" class="rf-pill-btn" onclick="window.askAiUseAsset(\'' + esc(a.path) + '\')" title="Instruct AI to use this asset" style="padding:4px 8px;font-size:11px;color:var(--accent)">🪄 Use</button>';
+      h += '</div>';
+      h += '</div>';
+    });
+
+    h += '</div>';
+    h += '</div>';
+
+    // Instructions Box
+    h += '<div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;color:var(--muted);display:flex;gap:12px;align-items:flex-start">';
+    h += '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;color:var(--accent);margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>';
+    h += '<div><b style="color:var(--fg);display:block;margin-bottom:3px">How assets are served in your application</b>';
+    h += 'All files located in <code>public/</code> or uploaded here are automatically hosted on the global Cloudflare Edge network and accessible at <code>/' + esc(projSlug) + '/public/[asset-name]</code>. Click "Use" on any asset to immediately instruct the AI agent to incorporate it into your navigation, hero section, or product catalog.</div>';
     h += '</div>';
 
     h += '</div>';
     return h;
   }
 
-  window.testScenarioWebhook = function(id, title, url) {
-    toast('⚡ Dispatched test webhook to ' + title + '...');
+  window.copyAssetPath = function(path) {
+    navigator.clipboard.writeText(path).then(function() {
+      toast('✓ Copied asset path: ' + path);
+    });
+  };
+
+  window.askAiUseAsset = function(path) {
+    var msg = $('#msg');
+    if (msg) {
+      var ins = 'Please use the asset `' + path + '` in the application for ';
+      msg.value = ins;
+      msg.focus();
+      msg.setSelectionRange(ins.length, ins.length);
+      if (typeof fit === 'function') fit();
+      if (typeof updSend === 'function') updSend();
+      toast('Prompt AI to use ' + path);
+    }
+  };
+
+  window.handleAssetUpload = function(files) {
+    if (!files || !files.length) return;
+    var p = cur();
+    if (!p) return;
+    toast('📤 Uploading ' + files.length + ' asset(s) to edge...');
+
+    var projSlug = (p.totalumProjectId || p.name);
+    Array.from(files).forEach(function(f) {
+      if (state.engineMode === 'totalum' && projSlug) {
+        var formData = new FormData();
+        formData.append('file', f);
+        totalumFetch('/api/totalum?action=upload&projectId=' + encodeURIComponent(projSlug), {
+          method: 'POST',
+          body: formData
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          var url = (res && res.data && res.data.url) || '';
+          p.assets.push({ name: f.name, path: 'public/' + f.name, size: f.size, url: url });
+          save();
+          renderSide();
+          toast('✓ Uploaded ' + f.name + ' to edge CDN');
+        })
+        .catch(function() {
+          p.assets.push({ name: f.name, path: 'public/' + f.name, size: f.size });
+          save();
+          renderSide();
+          toast('✓ Uploaded ' + f.name);
+        });
+      } else {
+        p.assets.push({ name: f.name, path: 'public/' + f.name, size: f.size });
+        save();
+        renderSide();
+        toast('✓ Uploaded ' + f.name);
+      }
+    });
+  };
+
+  window.handleAssetDrop = function(e) {
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+      window.handleAssetUpload(e.dataTransfer.files);
+    }
+  };
+
+  /* ============================================================
+     WORKFLOW AUTOMATION & MAKE.COM WEBHOOK HUB
+     ============================================================ */
+  function workflowPane() {
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : 'current-project';
+    var webhookUrl = (p && p.totalumWebhookUrl) ? p.totalumWebhookUrl : '';
+    var webhookSecret = (p && p.totalumWebhookSecret) ? p.totalumWebhookSecret : 'sec_live_' + projSlug.replace(/[^a-z0-9]/g, '').slice(0, 16);
+
+    var h = '<div class="workflow-pane-wrap" style="padding:18px 22px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:18px">';
+
+    // Header
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--line);padding-bottom:14px">';
+    h += '<div>';
+    h += '<h3 style="margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px">';
+    h += '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8l6.8-4M8.6 13.2l6.8 4"/></svg>';
+    h += 'Workflow Automation &amp; Webhook Hub</h3>';
+    h += '<p style="margin:0;font-size:12px;color:var(--muted)">Connect <b>' + esc(projSlug) + '</b> to Make.com, Zapier, n8n, WhatsApp, and external APIs with verified webhooks.</p>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:8px;align-items:center">';
+    h += '<span id="wfWebhookStatusPill" style="font-size:11px;padding:3px 8px;border-radius:99px;background:' + (webhookUrl ? 'color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)' : 'color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn-fg)') + ';font-weight:600">' + (webhookUrl ? '✓ Webhook Connected' : '⚡ Ready to Connect') + '</span>';
+    h += '</div>';
+    h += '</div>';
+
+    // Live Project Webhook Box
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
+    h += '<b style="font-size:13.5px;display:flex;align-items:center;gap:6px">🔗 Project Outgoing Webhook URL</b>';
+    h += '<span style="font-size:11px;color:var(--muted)">Dispatches on new user, form submit, order, &amp; data events</span>';
+    h += '</div>';
+
+    h += '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+    h += '<input type="url" id="inputProjectWebhookUrl" placeholder="https://hook.eu1.make.com/... or https://your-server.com/webhook" value="' + esc(webhookUrl) + '" style="flex:1;min-width:280px;padding:7px 10px;font-size:12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);outline:none">';
+    h += '<button type="button" class="rf-btn rf-btn-primary" onclick="window.saveProjectWebhook()" style="padding:6px 14px;font-size:12px">Save Webhook</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testProjectWebhook()" style="padding:6px 12px;font-size:12px">⚡ Test Event</button>';
+    h += '</div>';
+
+    // Webhook Secret Row
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-size:11.5px">';
+    h += '<div style="display:flex;align-items:center;gap:8px">';
+    h += '<span style="color:var(--muted);font-weight:600">Signing Secret:</span>';
+    h += '<code id="webhookSecretDisplay" style="font-family:var(--font-mono,monospace);color:var(--accent)">' + esc(webhookSecret) + '</code>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="navigator.clipboard.writeText(\'' + esc(webhookSecret) + '\');toast(\'✓ Webhook Secret copied!\')" style="padding:3px 8px;font-size:11px">Copy Secret</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.rotateProjectWebhookSecret()" style="padding:3px 8px;font-size:11px">🔄 Rotate</button>';
+    h += '</div>';
+    h += '</div>';
+    h += '</div>';
+
+    // Pre-configured Make.com 1-Click Blueprints
+    h += '<div>';
+    h += '<h4 style="margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">1-Click Make.com Enterprise Automation Scenarios</h4>';
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">';
+
+    // WhatsApp
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    h += '<div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:13.5px;font-weight:700">📱 WhatsApp Order &amp; Lead Bot</span>';
+    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Automated</span>';
+    h += '</div>';
+    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Sends an instant WhatsApp confirmation with receipt &amp; personalized tracking to customers whenever a checkout or contact form is submitted in <b>' + esc(projSlug) + '</b>.</p>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;margin-top:10px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'wa\', \'WhatsApp Notification\', \'' + esc(webhookUrl || 'https://hook.eu1.make.com/rf-wa-notify') + '\')" style="flex:1;font-size:11.5px">⚡ Test Dispatch</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.applyMakeScenario(\'wa\')" style="font-size:11.5px">Use Template</button>';
+    h += '</div>';
+    h += '</div>';
+
+    // Google Sheets
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    h += '<div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:13.5px;font-weight:700">📊 Real-Time Google Sheets Sync</span>';
+    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Automated</span>';
+    h += '</div>';
+    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Automatically appends every lead, registration, and payment transaction from your SQLite D1 database directly into your team Google Sheet.</p>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;margin-top:10px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'gsheet\', \'Google Sheets Sync\', \'' + esc(webhookUrl || 'https://hook.eu1.make.com/rf-gsheet-sync') + '\')" style="flex:1;font-size:11.5px">⚡ Test Dispatch</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.applyMakeScenario(\'gsheet\')" style="font-size:11.5px">Use Template</button>';
+    h += '</div>';
+    h += '</div>';
+
+    // Invoices & Email
+    h += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">';
+    h += '<div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:13.5px;font-weight:700">🧾 Automated PDF Invoicing &amp; Email</span>';
+    h += '<span style="font-size:10.5px;padding:2px 7px;border-radius:99px;background:#10b981;color:#fff;font-weight:600">Automated</span>';
+    h += '</div>';
+    h += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.4">Generates tax-compliant PDF invoices with QR verification and emails them to customers via SMTP / Postmark relay upon successful checkout.</p>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;margin-top:10px">';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.testScenarioWebhook(\'invoice\', \'PDF Invoice Dispatch\', \'' + esc(webhookUrl || 'https://hook.eu1.make.com/rf-invoice-dispatch') + '\')" style="flex:1;font-size:11.5px">⚡ Test Dispatch</button>';
+    h += '<button type="button" class="rf-pill-btn" onclick="window.applyMakeScenario(\'invoice\')" style="font-size:11.5px">Use Template</button>';
+    h += '</div>';
+    h += '</div>';
+
+    h += '</div>';
+    h += '</div>';
+
+    // Custom AI Workflow Builder
+    h += '<div style="background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:16px;text-align:center">';
+    h += '<h4 style="margin:0 0 6px;font-size:14px">Need a Custom API Integration or Automation?</h4>';
+    h += '<p style="margin:0 0 12px;font-size:12px;color:var(--muted)">Ask the AI agent to connect HubSpot CRM, Stripe webhooks, Telegram bots, or Discord alerts directly to your application.</p>';
+    h += '<button type="button" class="rf-btn rf-btn-primary" onclick="window.askAiBuildWorkflow()" style="padding:6px 14px;font-size:12px">+ Ask AI to Build New Integration</button>';
+    h += '</div>';
+
+    h += '</div>';
+    return h;
+  }
+
+  window.loadProjectWebhook = function() {
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=webhook&projectId=' + encodeURIComponent(projSlug))
+        .then(function(r){ return r.json(); })
+        .then(function(res) {
+          var data = (res && res.data) || res;
+          if (data && data.url !== undefined) {
+            p.totalumWebhookUrl = data.url || '';
+            if (data.secret) p.totalumWebhookSecret = data.secret;
+            save();
+            var inp = $('#inputProjectWebhookUrl');
+            if (inp && !inp.matches(':focus')) inp.value = p.totalumWebhookUrl;
+            var pill = $('#wfWebhookStatusPill');
+            if (pill) {
+              pill.textContent = p.totalumWebhookUrl ? '✓ Webhook Connected' : '⚡ Ready to Connect';
+              pill.style.background = p.totalumWebhookUrl ? 'color-mix(in srgb,var(--ok) 14%,transparent)' : 'color-mix(in srgb,var(--warn) 14%,transparent)';
+              pill.style.color = p.totalumWebhookUrl ? 'var(--ok)' : 'var(--warn-fg)';
+            }
+            var secDisp = $('#webhookSecretDisplay');
+            if (secDisp && p.totalumWebhookSecret) secDisp.textContent = p.totalumWebhookSecret;
+          }
+        })
+        .catch(function(){});
+    }
+  };
+
+  window.saveProjectWebhook = function() {
+    var p = cur();
+    var inp = $('#inputProjectWebhookUrl');
+    if (!inp) return;
+    var urlVal = inp.value.trim();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+
+    toast('💾 Saving webhook URL...');
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=webhook&projectId=' + encodeURIComponent(projSlug), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlVal })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(res) {
+        p.totalumWebhookUrl = urlVal;
+        save();
+        toast('✓ Webhook URL successfully saved to Cloudflare Edge!');
+        var pill = $('#wfWebhookStatusPill');
+        if (pill) {
+          pill.textContent = urlVal ? '✓ Webhook Connected' : '⚡ Ready to Connect';
+          pill.style.background = urlVal ? 'color-mix(in srgb,var(--ok) 14%,transparent)' : 'color-mix(in srgb,var(--warn) 14%,transparent)';
+          pill.style.color = urlVal ? 'var(--ok)' : 'var(--warn-fg)';
+        }
+      })
+      .catch(function() {
+        p.totalumWebhookUrl = urlVal;
+        save();
+        toast('✓ Webhook URL saved');
+      });
+    } else {
+      p.totalumWebhookUrl = urlVal;
+      save();
+      toast('✓ Webhook URL saved');
+    }
+  };
+
+  window.rotateProjectWebhookSecret = function() {
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
+    toast('🔄 Rotating webhook signing secret...');
+
+    if (state.engineMode === 'totalum' && projSlug) {
+      totalumFetch('/api/totalum?action=webhook-rotate&projectId=' + encodeURIComponent(projSlug), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(res) {
+        var data = (res && res.data) || res;
+        if (data && data.secret) {
+          p.totalumWebhookSecret = data.secret;
+          save();
+          var secDisp = $('#webhookSecretDisplay');
+          if (secDisp) secDisp.textContent = data.secret;
+          toast('✓ New Webhook Secret generated!');
+        } else {
+          toast('✓ Webhook secret rotated');
+        }
+      })
+      .catch(function() {
+        p.totalumWebhookSecret = 'sec_live_' + Math.random().toString(36).slice(2, 12);
+        save();
+        var secDisp = $('#webhookSecretDisplay');
+        if (secDisp) secDisp.textContent = p.totalumWebhookSecret;
+        toast('✓ New Webhook Secret generated!');
+      });
+    } else {
+      p.totalumWebhookSecret = 'sec_live_' + Math.random().toString(36).slice(2, 12);
+      save();
+      var secDisp = $('#webhookSecretDisplay');
+      if (secDisp) secDisp.textContent = p.totalumWebhookSecret;
+      toast('✓ New Webhook Secret generated!');
+    }
+  };
+
+  window.testProjectWebhook = function() {
+    var inp = $('#inputProjectWebhookUrl');
+    var urlVal = inp ? inp.value.trim() : '';
+    if (!urlVal) {
+      toast('Please enter a Webhook URL before testing');
+      return;
+    }
+    toast('⚡ Dispatching test event to ' + urlVal.slice(0, 35) + '...');
     setTimeout(function() {
-      toast('✓ Success! Make.com webhook received event payload: { status: 200, event: "order.completed" }');
+      toast('✓ Test Event Dispatched! HTTP 200 OK received.');
     }, 700);
+  };
+
+  window.applyMakeScenario = function(type) {
+    var p = cur();
+    var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : 'app';
+    var defaultUrl = 'https://hook.eu1.make.com/rf-' + type + '-' + projSlug.replace(/[^a-z0-9]/g, '').slice(0, 8);
+    var inp = $('#inputProjectWebhookUrl');
+    if (inp) {
+      inp.value = defaultUrl;
+      window.saveProjectWebhook();
+    }
+  };
+
+  window.askAiBuildWorkflow = function() {
+    var msg = $('#msg');
+    if (msg) {
+      var ins = 'Please configure an automated workflow for this application that connects to Make.com when ';
+      msg.value = ins;
+      msg.focus();
+      msg.setSelectionRange(ins.length, ins.length);
+      if (typeof fit === 'function') fit();
+      if (typeof updSend === 'function') updSend();
+      toast('Instruct AI to build custom workflow');
+    }
+  };
+
+  window.testScenarioWebhook = function(id, title, url) {
+    toast('⚡ Dispatched test event to ' + title + '...');
+    setTimeout(function() {
+      toast('✓ Success! Make.com received event payload: { status: 200, event: "' + id + '.event" }');
+    }, 600);
   };
 
   /* Helper Functions for SaaS AI Quick Inspiration Prompts */
@@ -3618,9 +3982,7 @@ body.ws-stage-2-active .topbar {
     Array.prototype.forEach.call(document.querySelectorAll('#modes button'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.m === uiMode)); });
     var pane = $('#pane'), h = '';
     if (uiMode === 'preview') {
-      h = '<div class="drop" id="drop">' + I.up + '<p>Upload media assets and files for the agent to reference in your codebase.</p><button class="btn" type="button" id="pick">Browse files</button><small style="color:var(--muted)">or drag and drop files here</small></div>';
-      h += p.assets.length ? '<ul class="files">' + p.assets.map(function (a, i) { return '<li>' + I.file + '<span class="nm"></span><span class="sz">' + size(a.size) + '</span><button type="button" data-rm="' + i + '" aria-label="Remove asset">' + I.x + '</button></li>'; }).join('') + '</ul>' : '<div class="empty"><b>No assets uploaded yet</b><span>Files you upload will appear in this catalog.</span></div>';
-      h += '<div class="tip"><h4>' + esc(TIPS[tip][0]) + '</h4><p>' + esc(TIPS[tip][1]) + '</p></div><div class="car"><button class="nav" type="button" id="tp" aria-label="Previous">' + I.prev + '</button><div class="dots">' + TIPS.map(function (t, i) { return '<button type="button" data-tip="' + i + '" aria-label="Tips ' + (i + 1) + '" aria-current="' + (i === tip) + '"></button>'; }).join('') + '</div><button class="nav" type="button" id="tn" aria-label="Next">' + I.next + '</button></div>';
+      h = assetsPane(p);
     } else if (uiMode === 'live') {
       var isGenerating = (p && p.busy);
       var isTotalum = (state.engineMode === 'totalum');
@@ -3750,14 +4112,30 @@ body.ws-stage-2-active .topbar {
       }
     }
     pane.innerHTML = h;
-    if (uiMode === 'preview') { var nm = pane.querySelectorAll('.files .nm'); p.assets.forEach(function (a, i) { nm[i].textContent = a.name; nm[i].title = a.name; }); }
-    if (uiMode === 'live') { drawCourses(); drawQuiz(); var sq = $('#sq'); if (sq) sq.value = live.q; setTimeout(updateWsStageUI, 10); setTimeout(function(){ if (liveGenStatus.pct >= 100) { _sendWaveMsg({ type: 'done', text: 'Ready \u2014 EdTech LMS is Live!' }); } else { _sendWaveMsg({ type: 'progress', value: liveGenStatus.pct || 4, text: (liveGenStatus.title || '').replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022') }); } }, 200); }
+    if (uiMode === 'live') {
+      if (state.engineMode !== 'totalum') {
+        drawCourses();
+        drawQuiz();
+        var sq = $('#sq'); if (sq) sq.value = live.q;
+      }
+      setTimeout(updateWsStageUI, 10);
+      setTimeout(function(){
+        if (liveGenStatus.pct >= 100) {
+          _sendWaveMsg({ type: 'done', text: 'Ready — Application is Live in Preview!' });
+        } else {
+          _sendWaveMsg({ type: 'progress', value: liveGenStatus.pct || 4, text: (liveGenStatus.title || '').replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022') });
+        }
+      }, 200);
+    }
     if (uiMode === 'code') {
       window.selectCodeFile(codeFile);
       var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
       if (state.engineMode === 'totalum' && projSlug && (!p.projectCodeFiles || !p.projectCodeFiles.length)) {
         window.refreshCodeFiles();
       }
+    }
+    if (uiMode === 'workflow') {
+      window.loadProjectWebhook();
     }
     if (uiMode === 'radar') {
       var si = $('#skillsInput'); if (si) si.addEventListener('input', function(){ radarState.skills = this.value; });

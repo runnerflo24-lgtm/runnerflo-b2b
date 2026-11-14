@@ -221,6 +221,95 @@ export async function onRequest(context) {
     }
 
     // -------------------------------------------------------------
+    // ACTION: webhook (Get / Update Project Webhook URL & Secret)
+    // GET /api/totalum?action=webhook&projectId=:id
+    // POST/PUT /api/totalum?action=webhook&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'webhook') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+
+      if (request.method === 'GET') {
+        try {
+          const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/webhook`, {
+            method: 'GET',
+            headers: commonHeaders
+          });
+          const data = await res.json();
+          return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+        } catch (err) {
+          return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+        }
+      }
+
+      if (request.method === 'POST' || request.method === 'PUT') {
+        try {
+          const body = await request.json().catch(() => ({}));
+          const targetUrl = (body.url !== undefined) ? body.url : (body.webhookUrl || null);
+          const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/webhook`, {
+            method: 'PUT',
+            headers: commonHeaders,
+            body: JSON.stringify({ url: targetUrl })
+          });
+          const data = await res.json();
+          return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+        } catch (err) {
+          return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: webhook-rotate (Rotate Project Webhook Signing Secret)
+    // POST /api/totalum?action=webhook-rotate&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'webhook-rotate' && request.method === 'POST') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      try {
+        const res = await fetch(`${TOTALUM_BASE_URL}/projects/${encodeURIComponent(projectId)}/webhook/rotate-secret`, {
+          method: 'POST',
+          headers: commonHeaders,
+          body: JSON.stringify({})
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      } catch (err) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: upload (Upload media asset to project CDN)
+    // POST /api/totalum?action=upload&projectId=:id
+    // -------------------------------------------------------------
+    if (action === 'upload' && request.method === 'POST') {
+      if (!projectId) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'MISSING_PROJECT_ID', errorMessage: 'Parameter projectId wajib diisi.' }, data: null }), { status: 400, headers: corsHeaders });
+      }
+      try {
+        const contentType = request.headers.get('content-type') || '';
+        const uploadHeaders = {
+          'api-key': apiKey
+        };
+        if (contentType) uploadHeaders['content-type'] = contentType;
+
+        const bodyData = await request.arrayBuffer();
+        const res = await fetch(`${TOTALUM_BASE_URL}/upload/${encodeURIComponent(projectId)}`, {
+          method: 'POST',
+          headers: uploadHeaders,
+          body: bodyData
+        });
+        const data = await res.json();
+        return new Response(JSON.stringify(data), { status: res.status, headers: corsHeaders });
+      } catch (err) {
+        return new Response(JSON.stringify({ errors: { errorCode: 'UPSTREAM_ERROR', errorMessage: err.message }, data: null }), { status: 502, headers: corsHeaders });
+      }
+    }
+
+    // -------------------------------------------------------------
     // ACTION: secret (Create / Update / Delete environment variable secret)
     // POST /api/totalum?action=secret&projectId=:id
     // DELETE /api/totalum?action=secret&projectId=:id&secretName=:name
