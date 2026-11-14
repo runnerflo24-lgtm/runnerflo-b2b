@@ -76,9 +76,10 @@
 <body>
   <canvas id="cloth"></canvas>
 
-  <div class="content" role="status" aria-live="polite" aria-label="Memuat AI">
+  <div class="content" role="status" aria-live="polite" aria-label="AI Agent Building Application">
     <div class="percent" id="percent">0%</div>
-    <div class="label"><span id="label">Menyiapkan AI</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    <div class="label"><span id="label">Initializing AI Engine</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    <div class="sublabel" id="sublabel" style="font-size:13px;opacity:0.8;letter-spacing:0.3px;margin-top:3px;max-width:85%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Configuring Next.js runtime &amp; edge database...</div>
   </div>
 
 <script>
@@ -310,11 +311,12 @@
 function progressLogic() {
   const percent = document.getElementById('percent');
   const label = document.getElementById('label');
+  const sublabel = document.getElementById('sublabel');
 
   let current = 0, target = 0, external = false, glow = 0, glowTarget = 0;
 
   function loop() {
-    current += (target - current) * 0.04;
+    current += (target - current) * 0.05;
     if (Math.abs(target - current) < 0.05) current = target;
     glow += (glowTarget - glow) * 0.08;
     percent.textContent = Math.round(current) + '%';
@@ -322,22 +324,24 @@ function progressLogic() {
   }
   requestAnimationFrame(loop);
 
-  // Mode mandiri: simulasi loading berulang
+  // Auto simulation fallback when standalone
   function auto() {
     if (external) return;
-    const steps = [18, 37, 55, 71, 86, 100];
+    const steps = [15, 35, 55, 75, 90, 100];
     let i = 0;
     const id = setInterval(() => {
       if (external) return clearInterval(id);
       target = steps[i++];
       if (target >= 100) {
         clearInterval(id);
-        label.textContent = 'Siap';
+        label.textContent = 'Build Ready';
+        if (sublabel) sublabel.textContent = 'Connected to global edge network';
         glowTarget = 1;
         setTimeout(() => {
           if (external) return;
           glowTarget = 0;
-          label.textContent = 'Menyiapkan AI';
+          label.textContent = 'Initializing AI Engine';
+          if (sublabel) sublabel.textContent = 'Configuring Next.js runtime & edge database...';
           target = 0; current = 0;
           auto();
         }, 2200);
@@ -346,8 +350,8 @@ function progressLogic() {
   }
   auto();
 
-  // Kontrol dari halaman induk:
-  //   iframe.contentWindow.postMessage({ type: 'progress', value: 60, text: 'Memuat model' }, '*')
+  // Control from parent window:
+  //   iframe.contentWindow.postMessage({ type: 'progress', value: 60, text: '...', sub: '...' }, '*')
   //   iframe.contentWindow.postMessage({ type: 'done' }, '*')
   window.addEventListener('message', (e) => {
     const d = e.data || {};
@@ -356,11 +360,13 @@ function progressLogic() {
       target = Math.max(0, Math.min(100, Number(d.value) || 0));
       glowTarget = 0;
       if (d.text) label.textContent = d.text;
+      if (d.sub && sublabel) sublabel.textContent = d.sub;
     } else if (d.type === 'done') {
       external = true;
       target = 100;
       glowTarget = 1;
-      label.textContent = d.text || 'Siap';
+      label.textContent = d.text || 'Build Ready!';
+      if (sublabel) sublabel.textContent = 'Application is live in preview';
     }
   });
 

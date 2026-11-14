@@ -848,6 +848,37 @@ body.ws-stage-2-active .topbar {
   flex-direction: column;
 }
 
+/* ===== Precision Dynamic Live Progress Bar (Phase 5) ===== */
+.rf-live-progress-bar {
+  margin: 12px 0 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.rf-pb-track {
+  width: 100%;
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.rf-pb-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #6366f1 100%);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+.rf-pb-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 /* ===== 3D Floating Deploy Settings Card Theme (From floating-card.html) ===== */
 @keyframes floaty { 0% { translate: 0 0; } 50% { translate: 0 -10px; } 100% { translate: 0 0; } }
 @keyframes floaty2 { 0% { translate: 0 0; } 50% { translate: 0 8px; } 100% { translate: 0 0; } }
@@ -2801,7 +2832,12 @@ body.ws-stage-2-active .topbar {
     liveGenStatus.sub = sub;
     var w = $('#waveLoading');
     if (w) w.classList.remove('done');
-    _sendWaveMsg({ type: 'progress', value: pct, text: title.replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022') });
+    _sendWaveMsg({
+      type: 'progress',
+      value: pct,
+      text: title.replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022'),
+      sub: (sub || '').replace(/&amp;/g,'&').replace(/&bull;/g,'\u2022')
+    });
     var frame = $('#wsLiveFrame');
     if (frame && pct < 100) frame.style.opacity = '0';
   }
@@ -3132,27 +3168,36 @@ body.ws-stage-2-active .topbar {
     var startMs = Date.now();
     var lastDisplayPct = 15;
 
-    // Smart progress: interpolate from elapsed time + API turns/stage data
+    // Smart precision progress: interpolate from elapsed time + API turns/stage data (Never stuck at 95%)
     function calcPct(prog, stat) {
-      // If API provides an explicit percentage, trust it (up to 92 to leave room for finalization)
       var apiPct = (prog && (prog.percentage || prog.percent || prog.progress)) || 0;
-      if (apiPct > 0) return Math.min(92, Math.max(lastDisplayPct, apiPct));
+      if (apiPct > 0) return Math.min(98, Math.max(lastDisplayPct, apiPct));
 
-      // Phase-based heuristic from status stage
-      var stage = (stat && stat.stage) || (prog && prog.stage) || '';
-      var elapsed = (Date.now() - startMs) / 1000; // seconds
-      var turns = (prog && prog.turns) || 1;
+      var stage = (stat && (stat.stage || stat.phase || stat.currentTask)) || (prog && prog.stage) || '';
+      var elapsed = (Date.now() - startMs) / 1000;
+      var turns = (prog && prog.turns) || pollCount || 1;
 
-      var phasePct;
-      if (/init|start|plan/i.test(stage)) phasePct = 15 + Math.min(10, elapsed / 5);
-      else if (/build|compile|code/i.test(stage)) phasePct = 30 + Math.min(30, turns * 8);
-      else if (/test|check|verif/i.test(stage)) phasePct = 70 + Math.min(15, elapsed / 10);
-      else if (/deploy|upload|push/i.test(stage)) phasePct = 85 + Math.min(7, elapsed / 20);
-      else {
-        // Generic: turns × 10, smoothed with elapsed time
-        phasePct = Math.min(90, Math.max(15 + Math.min(20, elapsed / 8), turns * 10));
+      var basePct = 15;
+      if (/init|start|plan|setup/i.test(stage)) {
+        basePct = 15 + Math.min(15, turns * 6 + elapsed / 3);
+      } else if (/build|compile|code|synthesiz/i.test(stage)) {
+        basePct = 30 + Math.min(42, turns * 5 + elapsed / 2.5);
+      } else if (/test|check|verif|probe/i.test(stage)) {
+        basePct = 72 + Math.min(16, turns * 2 + elapsed / 4);
+      } else if (/deploy|upload|push|finish/i.test(stage)) {
+        basePct = 88 + Math.min(9, elapsed / 6);
+      } else {
+        basePct = 15 + Math.min(72, turns * 6 + elapsed / 3);
       }
-      return Math.min(92, Math.max(lastDisplayPct, phasePct));
+
+      // Asymptotic creeping when in high progress range (never freezes at 92% or 95%)
+      if (basePct > lastDisplayPct) {
+        lastDisplayPct = Math.min(98, basePct);
+      } else {
+        var remaining = 98.5 - lastDisplayPct;
+        lastDisplayPct += Math.max(0.2, remaining * 0.05);
+      }
+      return Math.min(98.5, Math.round(lastDisplayPct * 10) / 10);
     }
 
     var timer = setInterval(function() {
@@ -3188,15 +3233,30 @@ body.ws-stage-2-active .topbar {
         // Smooth progress display
         var pct = calcPct(null, stat);
         lastDisplayPct = pct;
-        var stageLabel = stat.stage || stat.currentTask || stat.phase || ('Step ' + pollCount);
-        var subLabel = 'Progress: ' + Math.round(pct) + '% • ' + (stat.message || stat.description || ('Turn ' + pollCount + ' — building your app...'));
+        var elapsedSec = Math.round((Date.now() - startMs) / 1000);
+        var elapsedStr = Math.floor(elapsedSec / 60) + 'm ' + (elapsedSec % 60) + 's';
+        var stageLabel = stat.stage || stat.currentTask || stat.phase || ('Building components (Turn ' + pollCount + ')');
+        var subLabel = 'Progress: ' + Math.round(pct) + '% • ' + elapsedStr + ' elapsed • Active synthesis';
         updateWave(pct, 'AI Engine: ' + stageLabel + '...', subLabel);
+
+        // Update inline progress bar in chat message
+        m.progressHtml = '<div class="rf-live-progress-bar">'
+          + '<div class="rf-pb-track"><div class="rf-pb-fill" style="width:' + pct + '%"></div></div>'
+          + '<div class="rf-pb-info">'
+          + '<span>⚡ ' + esc(stageLabel) + '</span>'
+          + '<span>' + Math.round(pct) + '% • Turn ' + pollCount + ' (' + elapsedStr + ')</span>'
+          + '</div>'
+          + '</div>';
+        renderIf(p);
       })
       .catch(function() {
-        // On network error, just advance a tiny bit based on time
-        var pct = Math.min(90, lastDisplayPct + 0.5);
+        // On network error, asymptotically advance based on elapsed time
+        var remaining = 98 - lastDisplayPct;
+        var pct = lastDisplayPct + Math.max(0.15, remaining * 0.03);
         lastDisplayPct = pct;
-        updateWave(pct, 'AI Engine: working...', 'Progress: ' + Math.round(pct) + '% • Connecting to agent...');
+        var elapsedSec = Math.round((Date.now() - startMs) / 1000);
+        var elapsedStr = Math.floor(elapsedSec / 60) + 'm ' + (elapsedSec % 60) + 's';
+        updateWave(pct, 'AI Engine: Synthesizing...', 'Progress: ' + Math.round(pct) + '% • ' + elapsedStr + ' • Compiling components');
       });
 
       // Separately fetch detailed progress steps (non-blocking, every other tick to reduce load)
@@ -3241,6 +3301,7 @@ body.ws-stage-2-active .topbar {
       var norm = d.normalized || {};
       p.busy = false;
       p.stage = 4;
+      m.progressHtml = '';
       var isPub = norm.isPublished || Boolean(d.deployment && d.deployment.status === 'success');
       p.totalumPublished = isPub;
       p.totalumPreviewUrl = norm.previewUrl || d.temporalDevelopmentProjectUrl || (d.preview && d.preview.url) || '';
@@ -4145,6 +4206,7 @@ body.ws-stage-2-active .topbar {
         return;
       }
       var body = m.text.split('\n\n').map(function (x) { return '<p>' + esc(x).replace(/\n/g, '<br>') + '</p>'; }).join('');
+      if (m.progressHtml) body += m.progressHtml;
       if (m.steps && m.steps.length) body += '<ul class="steps">' + m.steps.map(function (s) { return '<li class="' + (s.done ? 'done' : '') + '"><span class="ck">' + (s.done ? I.check : '') + '</span>' + esc(s.label) + '</li>'; }).join('') + '</ul>';
       if (m.actionHtml) body += m.actionHtml;
       var isLastActive = (p.busy && m === p.msgs[p.msgs.length - 1]);
