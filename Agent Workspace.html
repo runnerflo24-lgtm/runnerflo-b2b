@@ -847,6 +847,115 @@ body.ws-stage-2-active .topbar {
   display: flex;
   flex-direction: column;
 }
+
+/* ===== 3D Floating Deploy Settings Card Theme (From floating-card.html) ===== */
+@keyframes floaty { 0% { translate: 0 0; } 50% { translate: 0 -10px; } 100% { translate: 0 0; } }
+@keyframes floaty2 { 0% { translate: 0 0; } 50% { translate: 0 8px; } 100% { translate: 0 0; } }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+
+.rf-floating-card {
+  position: relative;
+  background: linear-gradient(165deg, #ffffff 0%, #eaf1fc 45%, #c3d8f8 100%) !important;
+  border: 1px solid #c9daf6 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 30px 80px -15px rgba(31, 91, 255, 0.28), 0 0 0 1px rgba(255,255,255,0.7) inset !important;
+  color: #0f1b3d !important;
+  overflow: visible !important;
+}
+.rf-floating-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; width: 100%; height: 110px;
+  background: repeating-linear-gradient(120deg, rgba(120,150,210,0.12) 0px, rgba(120,150,210,0.12) 2px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 26px);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 22px 22px 0 0;
+}
+.rf-floating-card::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0; width: 100%; height: 160px;
+  background: linear-gradient(180deg, rgba(47,107,255,0) 0%, rgba(47,107,255,0.18) 100%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 0 0 22px 22px;
+}
+.rf-floating-card .rf-modal-head,
+.rf-floating-card .rf-modal-body,
+.rf-floating-card .rf-modal-foot {
+  position: relative;
+  z-index: 1;
+}
+.rf-floating-card .rf-modal-head {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(201, 218, 246, 0.6) !important;
+  padding: 18px 24px 14px !important;
+}
+.rf-floating-card .deploy-settings-subtag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #3a4a73;
+  text-transform: uppercase;
+}
+.rf-floating-card .diamond-dot {
+  width: 7px;
+  height: 7px;
+  background: #1f5bff;
+  transform: rotate(45deg);
+  display: inline-block;
+}
+.rf-floating-card .main-publish-title {
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #0f1b3d;
+  margin: 4px 0 0;
+}
+.rf-floating-card .rf-url-box {
+  background: rgba(255,255,255,0.88) !important;
+  border: 1px solid #cfdcf5 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 6px rgba(15,27,61,0.04) !important;
+}
+.rf-floating-card .rf-pill-btn {
+  background: #ffffff !important;
+  border: 1px solid #bccdec !important;
+  color: #0f1b3d !important;
+  font-weight: 700 !important;
+}
+.rf-floating-card .rf-action-btn#btnExecutePublish {
+  height: 48px;
+  border-radius: 999px !important;
+  background: #1f5bff !important;
+  box-shadow: 0 8px 24px rgba(31,91,255,0.32) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em !important;
+}
+.rf-floating-card .deploy-step-item {
+  border-radius: 10px !important;
+  background: rgba(255,255,255,0.72) !important;
+  border: 1px solid #cfdcf5 !important;
+  color: #1c2a52 !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+}
+.rf-floating-card .deploy-step-item.active {
+  background: #e3ebff !important;
+  border: 1.5px solid #1f5bff !important;
+  color: #0f1b3d !important;
+  font-weight: 600 !important;
+}
+.rf-floating-card .deploy-step-item.done {
+  background: #e6f9f0 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
 .rf-modal-head {
   display: flex;
   align-items: center;
@@ -1245,15 +1354,22 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
-<!-- Modal Publish (Unified Runnerflo Native Publish & Settings) -->
+<!-- Modal Publish (Unified Runnerflo Native Publish & Settings - Floating 3D Card) -->
 <div id="modalPublish" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card">
-    <div class="rf-modal-head">
-      <h3>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
-        Publish Website
-      </h3>
-      <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Close">&times;</button>
+  <div class="rf-modal-card rf-floating-card">
+    <!-- Floating 3D Sparkles & Coins from floating-card.html -->
+    <svg style="position:absolute;left:-16px;top:20px;pointer-events:none;animation:floaty 6s ease-in-out infinite" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1.2" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
+    <svg style="position:absolute;right:-14px;top:70px;pointer-events:none;animation:floaty2 5s ease-in-out infinite" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1.2" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
+
+    <div class="rf-modal-head" style="flex-direction:column;align-items:flex-start;position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <div class="deploy-settings-subtag">
+          <span class="diamond-dot"></span>
+          <span>DEPLOY SETTINGS</span>
+        </div>
+        <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Close" style="color:#3a4a73">&times;</button>
+      </div>
+      <h1 class="main-publish-title">PUBLISH WEBSITE</h1>
     </div>
 
     <div class="rf-modal-body">
