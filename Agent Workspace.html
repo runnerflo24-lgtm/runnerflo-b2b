@@ -712,31 +712,30 @@ body.ws-stage-2-active .topbar {
   }
 }
 
-/* -- Engine Mode Switcher (Simulation vs Totalum Cloud) -- */
+/* -- Engine Mode Switcher (Clean & Minimalist) -- */
 .engine-switch {
   display: inline-flex;
   align-items: center;
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 3px;
-  gap: 3px;
+  padding: 2px;
+  gap: 2px;
   align-self: center;
-  margin: 0 10px 6px;
 }
 .es-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
+  gap: 4px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--muted);
   cursor: pointer;
   border: 0;
   background: transparent;
-  transition: all 0.2s;
+  transition: all 0.15s;
   white-space: nowrap;
 }
 .es-btn:hover {
@@ -744,153 +743,72 @@ body.ws-stage-2-active .topbar {
 }
 .es-btn.active {
   background: var(--panel);
-  color: var(--accent);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  font-weight: 700;
+  color: var(--fg);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 .es-btn[data-engine="totalum"].active {
-  background: #10b981;
-  color: #ffffff;
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
-}
-
-/* -- Sbar Action Buttons (Deploy Live & Custom Domain) -- */
-.sbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.sbar-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--fg);
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.sbar-action-btn:hover {
-  transform: translateY(-1px);
-}
-.sbar-action-btn.btn-deploy {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #fff;
-  border-color: #059669;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28);
-}
-.sbar-action-btn.btn-deploy:hover {
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
-}
-.sbar-action-btn.btn-domain {
-  background: color-mix(in srgb, var(--accent) 15%, var(--panel));
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-}
-.sbar-action-btn.btn-domain:hover {
   background: var(--accent);
   color: var(--accent-ink);
 }
-.sbar-action-btn.btn-key {
-  color: var(--muted);
-  font-size: 11px;
-  padding: 5px 8px;
-}
-.sbar-action-btn.btn-key:hover {
-  color: var(--fg);
-  border-color: var(--fg);
-}
-.sbar-action-btn.btn-secrets {
-  background: color-mix(in srgb, #a855f7 15%, var(--panel));
-  color: #c084fc;
-  border-color: color-mix(in srgb, #a855f7 40%, transparent);
-}
-.sbar-action-btn.btn-secrets:hover {
-  background: #a855f7;
-  color: #fff;
-}
-.sbar-action-btn.btn-schema {
-  background: color-mix(in srgb, #06b6d4 15%, var(--panel));
-  color: #22d3ee;
-  border-color: color-mix(in srgb, #06b6d4 40%, transparent);
-}
-.sbar-action-btn.btn-schema:hover {
-  background: #06b6d4;
-  color: #042f2e;
-}
 
-/* -- Integration Feature Chips (Totalum Directives) -- */
-.integration-chips {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 4px 6px 8px;
-  scrollbar-width: none;
-  font-size: 11px;
-}
-.integration-chips::-webkit-scrollbar {
-  display: none;
-}
-.ichip-title {
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.ichip {
+/* -- Publish Action Button (Runnerflo Minimalist Style) -- */
+.rf-publish-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: 99px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--fg);
-  font-size: 11px;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line));
+  background: var(--accent);
+  color: var(--accent-ink);
+  transition: all 0.2s;
   white-space: nowrap;
-  transition: all .15s ease;
 }
-.ichip:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+.rf-publish-btn:hover {
+  opacity: 0.92;
   transform: translateY(-1px);
 }
+.pub-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  display: inline-block;
+}
 
-/* -- Mode Badges in Chrome URL -- */
+/* -- Mode Badges in Chrome URL (Runnerflo Minimalist Style) -- */
 .badge-mode {
-  padding: 2px 7px;
-  border-radius: 99px;
-  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
   font-size: 10px;
-  letter-spacing: .03em;
+  letter-spacing: .02em;
   text-transform: uppercase;
   flex: none;
 }
 .badge-mode-sim {
-  background: #f59e0b;
-  color: #1a1300;
+  background: color-mix(in srgb, #f59e0b 20%, transparent);
+  color: #f59e0b;
+  border: 1px solid color-mix(in srgb, #f59e0b 40%, transparent);
 }
 .badge-mode-totalum {
-  background: #10b981;
-  color: #ffffff;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
 }
 .badge-mode-live {
-  background: #3b82f6;
-  color: #ffffff;
+  background: color-mix(in srgb, #10b981 20%, transparent);
+  color: #10b981;
+  border: 1px solid color-mix(in srgb, #10b981 40%, transparent);
 }
 
-/* -- Modals (Deploy, Custom Domain, Cloudflare Setup) -- */
+/* -- Unified Modal System (Runnerflo Native) -- */
 .rf-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -910,12 +828,12 @@ body.ws-stage-2-active .topbar {
 }
 .rf-modal-card {
   width: 100%;
-  max-width: 540px;
+  max-width: 520px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 24px 70px -12px rgba(0,0,0,0.65), 0 0 40px -10px color-mix(in srgb, var(--accent) 25%, transparent);
+  box-shadow: 0 24px 70px -12px rgba(0,0,0,0.65), 0 0 40px -10px color-mix(in srgb, var(--accent) 20%, transparent);
   display: flex;
   flex-direction: column;
 }
@@ -929,11 +847,12 @@ body.ws-stage-2-active .topbar {
 }
 .rf-modal-head h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--fg);
 }
 .rf-modal-close {
   width: 28px;
@@ -945,18 +864,21 @@ body.ws-stage-2-active .topbar {
   cursor: pointer;
   border: 0;
   background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  transition: all 0.15s;
 }
 .rf-modal-close:hover {
   background: var(--line);
   color: var(--fg);
 }
 .rf-modal-body {
-  padding: 20px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  font-size: 13.5px;
-  max-height: 70vh;
+  gap: 16px;
+  font-size: 13px;
+  max-height: 72vh;
   overflow-y: auto;
 }
 .rf-modal-foot {
@@ -964,7 +886,7 @@ body.ws-stage-2-active .topbar {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  padding: 14px 20px;
+  padding: 12px 20px;
   border-top: 1px solid var(--line);
   background: color-mix(in srgb, var(--panel) 92%, var(--bg));
 }
@@ -974,8 +896,8 @@ body.ws-stage-2-active .topbar {
   gap: 6px;
   padding: 8px 16px;
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
   cursor: pointer;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -995,55 +917,143 @@ body.ws-stage-2-active .topbar {
   opacity: 0.92;
   transform: translateY(-1px);
 }
-.rf-btn-success {
-  background: #10b981;
-  color: #fff;
-  border-color: transparent;
+.rf-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.rf-btn-success:hover {
-  background: #059669;
+.rf-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+}
+.rf-url-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.rf-url-text {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rf-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.rf-pill-btn:hover {
+  background: var(--line);
+}
+.rf-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 18px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.rf-action-btn:hover {
+  opacity: 0.92;
   transform: translateY(-1px);
 }
+.rf-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.rf-badge-muted {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+  color: var(--muted);
+}
+.rf-details {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: color-mix(in srgb, var(--panel) 60%, var(--bg));
+  font-size: 12px;
+}
+.rf-summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+  font-size: 11.5px;
+}
+.rf-summary:hover {
+  color: var(--fg);
+}
 .rf-callout {
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--panel) 80%, var(--bg));
-  font-size: 12.5px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.5;
 }
 .rf-callout.info {
-  border-color: color-mix(in srgb, #3b82f6 35%, transparent);
-  background: color-mix(in srgb, #3b82f6 10%, var(--panel));
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
 }
 .rf-callout.success {
-  border-color: color-mix(in srgb, #10b981 35%, transparent);
-  background: color-mix(in srgb, #10b981 10%, var(--panel));
+  border-color: color-mix(in srgb, #10b981 30%, transparent);
+  background: color-mix(in srgb, #10b981 8%, var(--panel));
 }
 .rf-callout.warning {
-  border-color: color-mix(in srgb, #f59e0b 35%, transparent);
-  background: color-mix(in srgb, #f59e0b 10%, var(--panel));
+  border-color: color-mix(in srgb, #f59e0b 30%, transparent);
+  background: color-mix(in srgb, #f59e0b 8%, var(--panel));
 }
 .rf-form-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 .rf-form-row label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .04em;
 }
 .rf-form-row input, .rf-form-row select {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   background: var(--bg);
   color: var(--fg);
-  font-size: 13.5px;
+  font-size: 12.5px;
   outline: none;
   font-family: inherit;
   box-sizing: border-box;
@@ -1054,11 +1064,11 @@ body.ws-stage-2-active .topbar {
 .rf-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 11.5px;
   margin-top: 6px;
 }
 .rf-table th, .rf-table td {
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid var(--line);
   text-align: left;
 }
@@ -1071,24 +1081,24 @@ body.ws-stage-2-active .topbar {
   font-family: var(--font-mono);
   background: var(--code-bg);
   color: var(--code-fg);
-  padding: 2px 6px;
+  padding: 2px 5px;
   border-radius: 4px;
 }
 .deploy-steps-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 10px 0;
+  gap: 6px;
+  margin: 6px 0;
 }
 .deploy-step-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 10px;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   background: var(--bg);
-  font-size: 12.5px;
+  font-size: 12px;
 }
 .deploy-step-item.active {
   border-color: var(--accent);
@@ -1106,7 +1116,7 @@ body.ws-stage-2-active .topbar {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 10px;
   flex: none;
   border: 1.5px solid var(--line);
 }
@@ -1119,7 +1129,6 @@ body.ws-stage-2-active .topbar {
   border-top-color: var(--accent);
   animation: spin .8s linear infinite;
 }
-}
 </style>
 
 <div class="app">
@@ -1127,9 +1136,9 @@ body.ws-stage-2-active .topbar {
     <a href="index.html" class="brand" title="Return to Home" style="text-decoration:none;color:inherit"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8L10 3Zm8 9l.9 2.6 2.6.9-2.6.9L18 19l-.9-2.6-2.6-.9 2.6-.9L18 12Z"/></svg></i><span>Runnerflo Workspace</span></a>
     <div class="tabs" id="tabs" role="tablist" aria-label="Open projects"></div>
     <button class="newtab" type="button" id="newTab" aria-label="New project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-    <div class="engine-switch" id="engineSwitch" title="Switch between Free Simulation (Unpaid Demo) and Totalum Cloud Engine (Paid Full-Stack Next.js + SQLite D1)">
-      <button type="button" class="es-btn active" id="btnModeSim" data-engine="sim">⚡ Simulation (Demo)</button>
-      <button type="button" class="es-btn" id="btnModeTotalum" data-engine="totalum">🚀 Totalum Cloud (Paid)</button>
+    <div class="engine-switch" id="engineSwitch" title="Pilih Engine: Demo Simulasi atau Totalum Cloud">
+      <button type="button" class="es-btn active" id="btnModeSim" data-engine="sim">⚡ Demo</button>
+      <button type="button" class="es-btn" id="btnModeTotalum" data-engine="totalum">🚀 Totalum</button>
     </div>
     <span class="spacer"></span>
     <span class="plan" id="topPlanBadge">Plan Pro</span>
@@ -1142,20 +1151,9 @@ body.ws-stage-2-active .topbar {
       <button class="jump" type="button" id="jump" aria-label="Scroll to bottom" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 13l7 7 7-7"/></svg></button>
       <div class="dock">
         <div class="status" id="status" hidden></div>
-        <!-- Integration Quick Directives (Totalum Built-in SDK Chips) -->
-        <div class="integration-chips" id="integrationChips" title="Klik untuk menyelipkan direktif arsitektur Totalum v2">
-          <span class="ichip-title">⚡ Integrasi Totalum:</span>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: AI Chat streaming & Vision via totalum-sdk/ai]">🤖 AI Chat & Vision</button>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: Database Cloudflare D1 SQLite & Drizzle ORM]">🗄️ SQLite D1 DB</button>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: Pembayaran Stripe Checkout & Langganan via Stripe Connect]">💳 Stripe Payments</button>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: Background Scheduled Cron Jobs]">⏰ Cron Jobs</button>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: Web Scraping otomatis ke Markdown/HTML]">🌐 Web Scraper</button>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: Realtime WebSocket Channels & Presence]">⚡ Realtime WS</button>
-          <button type="button" class="ichip" data-insert="[Fitur Totalum: File Storage upload & OCR Document Scanner]">📁 Storage & OCR</button>
-        </div>
         <form class="box" id="form">
           <label for="msg" style="position:absolute;left:-9999px">Message for agent</label>
-          <textarea id="msg" rows="2" placeholder="Describe your business or domain, or request an autonomous workflow..."></textarea>
+          <textarea id="msg" rows="2" placeholder="Tulis ide aplikasi atau bisnis yang ingin Anda buat... (contoh: Buat website kursus online dengan kuis dan pembayaran otomatis)"></textarea>
           <div class="tools">
             <button class="t" type="button" id="attach" aria-label="Attach files"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11l-9 9a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.3-8.3"/></svg></button>
             <input type="file" id="fileIn" multiple hidden>
@@ -1183,29 +1181,11 @@ body.ws-stage-2-active .topbar {
           <button type="button" data-m="radar" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 0 1 10 10M12 6a6 6 0 0 1 6 6M12 10a2 2 0 0 1 2 2"/></svg>Radar</button>
           <button type="button" data-m="workflow" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8l6.8-4M8.6 13.2l6.8 4"/></svg>Workflow</button>
         </div>
-        <div class="sbar-actions">
-          <button class="sbar-action-btn btn-deploy" id="btnDeployLive" type="button" title="Deploy / Publish Live with Totalum Engine">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
-            <span>Deploy Live</span>
-          </button>
-          <button class="sbar-action-btn btn-domain" id="btnCustomDomain" type="button" title="Connect Custom Domain (Totalum)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <span>Domain</span>
-          </button>
-          <button class="sbar-action-btn btn-secrets" id="btnSecretsModal" type="button" title="Kelola External API Secrets & Keys (Totalum)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Secrets</span>
-          </button>
-          <button class="sbar-action-btn btn-schema" id="btnSchemaModal" type="button" title="Inspeksi Skema Database Cloudflare D1">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            <span>Schema</span>
-          </button>
-          <button class="sbar-action-btn btn-key" id="btnTotalumConfig" type="button" title="Totalum API Key & Cloudflare Config">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            <span>Config</span>
-          </button>
-        </div>
         <span class="spacer"></span>
+        <button class="rf-publish-btn" id="btnPublish" type="button" title="Publikasikan Website">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
+          <span>Publikasikan</span>
+        </button>
         <button class="sq" type="button" id="theme" aria-label="Toggle color theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
         <span id="resetBox"></span>
       </div>
@@ -1239,177 +1219,107 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
-<!-- Modal 1: Deploy to Production (Totalum VCaaS Engine) -->
-<div id="modalDeploy" class="rf-modal-backdrop" hidden>
+<!-- Modal Publikasikan (Unified Runnerflo Native Publish & Settings) -->
+<div id="modalPublish" class="rf-modal-backdrop" hidden>
   <div class="rf-modal-card">
     <div class="rf-modal-head">
-      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>Deploy App to Production Live</h3>
-      <button type="button" class="rf-modal-close" id="btnCloseDeployModal" aria-label="Close">&times;</button>
+      <h3>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
+        Publikasikan Website
+      </h3>
+      <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Tutup">&times;</button>
     </div>
-    <div class="rf-modal-body" id="deployModalBody">
-      <div id="deployModeInfo"></div>
-      <div id="deployStepsContainer" class="deploy-steps-list" hidden>
-        <div class="deploy-step-item" id="dstep-build"><span class="deploy-step-icon">1</span><span>Compiling Next.js 14 Bundle & TypeScript checks...</span></div>
-        <div class="deploy-step-item" id="dstep-migration"><span class="deploy-step-icon">2</span><span>Running SQLite Cloudflare D1 schema migrations...</span></div>
-        <div class="deploy-step-item" id="dstep-upload"><span class="deploy-step-icon">3</span><span>Distributing assets across 300+ Edge Cloudflare Workers CDN...</span></div>
-        <div class="deploy-step-item" id="dstep-probe"><span class="deploy-step-icon">4</span><span>Running zero-downtime health probe & SSL verification...</span></div>
-      </div>
-      <div id="deploySuccessContainer" class="rf-callout success" hidden>
-        <b>🎉 App Successfully Deployed to Production!</b>
-        <p style="margin:4px 0 8px">Your live full-stack app is now active on the global edge:</p>
-        <a id="deployLiveUrlLink" href="#" target="_blank" rel="noopener" style="font-size:14px;font-weight:700;color:#10b981;text-decoration:underline;word-break:break-all"></a>
-      </div>
-    </div>
-    <div class="rf-modal-foot" id="deployModalFoot">
-      <button type="button" class="rf-btn" id="btnCancelDeploy">Cancel</button>
-      <button type="button" class="rf-btn rf-btn-success" id="btnExecuteDeploy">🚀 Publish to Production (0.5 Credits)</button>
-    </div>
-  </div>
-</div>
 
-<!-- Modal 2: Custom Domain (Totalum Engine) -->
-<div id="modalDomain" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card">
-    <div class="rf-modal-head">
-      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Connect Custom Domain</h3>
-      <button type="button" class="rf-modal-close" id="btnCloseDomainModal" aria-label="Close">&times;</button>
-    </div>
     <div class="rf-modal-body">
-      <div class="rf-callout info">
-        <b>Connect your own domain or subdomain</b>
-        <p style="margin:4px 0 0">Totalum provides automated SSL certificates and edge routing on Cloudflare Workers for any verified domain.</p>
-      </div>
-      <div class="rf-form-row">
-        <label for="customDomainInput">Custom Domain / Subdomain</label>
-        <input type="text" id="customDomainInput" placeholder="e.g. app.yourcompany.com or portal.myshop.id" autocomplete="off">
-      </div>
-      <div class="rf-callout">
-        <b style="display:block;margin-bottom:4px">DNS Configuration (Add to your DNS provider):</b>
-        <table class="rf-table">
-          <thead><tr><th>Type</th><th>Name</th><th>Target / Value</th><th>Proxy Status</th></tr></thead>
-          <tbody>
-            <tr>
-              <td><code>CNAME</code></td>
-              <td><code id="dnsSubName">app</code></td>
-              <td><code id="dnsTargetHost">app-project.totalum-project.com</code></td>
-              <td>DNS Only (Grey cloud)</td>
-            </tr>
-          </tbody>
-        </table>
-        <small style="display:block;margin-top:6px;color:var(--muted)">Note: Project must be deployed at least once before binding a domain.</small>
-      </div>
-      <div id="domainStatusAlert" class="rf-callout success" hidden></div>
-    </div>
-    <div class="rf-modal-foot">
-      <button type="button" class="rf-btn" id="btnCancelDomain">Cancel</button>
-      <button type="button" class="rf-btn rf-btn-primary" id="btnSubmitDomain">🌐 Connect Domain</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal 3: Totalum API Key & Cloudflare Config -->
-<div id="modalTotalumConfig" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card">
-    <div class="rf-modal-head">
-      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Totalum Engine & Cloudflare Setup</h3>
-      <button type="button" class="rf-modal-close" id="btnCloseConfigModal" aria-label="Close">&times;</button>
-    </div>
-    <div class="rf-modal-body">
-      <div class="rf-callout info">
-        <b>Cara Memasukkan Key di Cloudflare Workers / Pages:</b>
-        <ol style="margin:6px 0 0;padding-left:18px;line-height:1.6">
-          <li>Buka <a href="https://dash.cloudflare.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">Cloudflare Dashboard</a> &rarr; <b>Workers &amp; Pages</b>.</li>
-          <li>Pilih project <b>runnerflo-b2b</b>.</li>
-          <li>Klik menu <b>Settings</b> &rarr; <b>Environment variables</b>.</li>
-          <li>Klik <b>Add variable</b>:
-            <ul style="margin:4px 0;padding-left:16px">
-              <li>Variable name: <code style="background:var(--code-bg);color:#38bdf8;padding:2px 6px;border-radius:4px">TOTALUM_API_KEY</code></li>
-              <li>Value: <code>tlm_sk_...</code> (pilih Encrypt/Secret)</li>
-            </ul>
-          </li>
-          <li>Klik <b>Save and Deploy</b> (atau Redeploy deployment terakhir).</li>
-        </ol>
-      </div>
-
-      <div class="rf-form-row">
-        <label for="inputTotalumKeyLocal">Quick Connect (Browser Token Test):</label>
-        <input type="password" id="inputTotalumKeyLocal" placeholder="Paste tlm_sk_... di sini untuk test langsung tanpa nunggu deploy">
-        <small style="color:var(--muted)">Disimpan aman di localStorage browser Anda untuk pengujian instan.</small>
-      </div>
-
-      <div id="cfgStatusFeedback" class="rf-callout" style="display:none"></div>
-    </div>
-    <div class="rf-modal-foot">
-      <button type="button" class="rf-btn" id="btnTestTotalumConn">⚡ Test Connection</button>
-      <button type="button" class="rf-btn rf-btn-primary" id="btnSaveTotalumKeyLocal">Save Key</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal 4: Secrets & Environment Variables Manager (Totalum) -->
-<div id="modalSecrets" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card">
-    <div class="rf-modal-head">
-      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secrets &amp; API Keys Manager</h3>
-      <button type="button" class="rf-modal-close" id="btnCloseSecretsModal" aria-label="Close">&times;</button>
-    </div>
-    <div class="rf-modal-body">
-      <div class="rf-callout info">
-        <b>Server-Side Environment Variables (Totalum Secrets)</b>
-        <p style="margin:4px 0 0">Simpan API key eksternal (misal: <code>STRIPE_KEY</code>, <code>WHATSAPP_TOKEN</code>, <code>OPENAI_API_KEY</code>). Totalum akan menginjeksinya langsung ke server <code>process.env</code> tanpa terekspos ke browser pengguna.</p>
-      </div>
-
-      <div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:14px">
-        <b style="display:block;font-size:12px;margin-bottom:8px;color:var(--fg)">+ Tambah Secret Baru:</b>
-        <div style="display:grid;grid-template-columns:1fr 1.5fr auto;gap:8px;align-items:end">
-          <div class="rf-form-row" style="margin:0">
-            <label for="inputSecretName" style="font-size:11px">Nama Secret (HURUF_BESAR):</label>
-            <input type="text" id="inputSecretName" placeholder="CONTOH: STRIPE_KEY" style="text-transform:uppercase">
+      <!-- 1. Alamat Website (Live Address) -->
+      <div class="rf-section">
+        <label class="rf-label">Alamat Website Anda (Tautan Publik)</label>
+        <div class="rf-url-box">
+          <span class="rf-url-text" id="pubModalUrlText">https://runnerflo-ai.pages.dev</span>
+          <div style="display:flex;gap:6px;flex:none">
+            <button type="button" class="rf-pill-btn" id="btnCopyPubUrl" title="Salin tautan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Salin</span>
+            </button>
+            <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" class="rf-pill-btn" title="Buka website">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+              <span>Buka</span>
+            </a>
           </div>
-          <div class="rf-form-row" style="margin:0">
-            <label for="inputSecretVal" style="font-size:11px">Nilai Secret (Token / Key):</label>
-            <input type="password" id="inputSecretVal" placeholder="sk_live_... / Bearer token">
-          </div>
-          <button type="button" class="rf-btn rf-btn-primary" id="btnSaveSecret" style="padding:7px 14px;font-size:12px;height:36px">+ Simpan</button>
         </div>
       </div>
 
-      <div id="secretsListContainer">
-        <b style="display:block;font-size:12px;margin-bottom:6px">Daftar Secrets Proyek Aktif:</b>
-        <div id="secretsLoading" style="font-size:12px;color:var(--muted)">Memuat secrets dari Totalum...</div>
-        <div id="secretsEmpty" style="font-size:12px;color:var(--muted);padding:8px 0" hidden>Belum ada secret yang tersimpan. Tambahkan secret di atas jika app Anda membutuhkan koneksi ke API pihak ketiga.</div>
-        <table class="rf-table" id="secretsTable" hidden>
-          <thead><tr><th>Nama Secret</th><th>Environment</th><th>Aksi</th></tr></thead>
-          <tbody id="secretsTbody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="rf-modal-foot">
-      <button type="button" class="rf-btn" id="btnCloseSecretsFoot">Tutup</button>
-    </div>
-  </div>
-</div>
+      <!-- 2. Status & Tindakan Publikasi -->
+      <div class="rf-section">
+        <div id="pubEngineNotice" class="rf-callout"></div>
 
-<!-- Modal 5: Database Schema Inspector (Cloudflare D1 via Totalum) -->
-<div id="modalSchema" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card">
-    <div class="rf-modal-head">
-      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Cloudflare D1 Database Schema Inspector</h3>
-      <button type="button" class="rf-modal-close" id="btnCloseSchemaModal" aria-label="Close">&times;</button>
-    </div>
-    <div class="rf-modal-body">
-      <div class="rf-callout info">
-        <b>Arsitektur Database Terdistribusi D1 (SQLite + Drizzle ORM)</b>
-        <p style="margin:4px 0 0">Totalum secara otomatis membuat tabel SQL, tipe data, dan relasi berdasarkan prompt Anda. Saat Anda klik <b>Deploy</b>, skema ini dimigrasikan secara aman ke production.</p>
+        <!-- Progress Steps -->
+        <div id="pubStepsList" class="deploy-steps-list" hidden>
+          <div class="deploy-step-item" id="pstep-1"><span class="deploy-step-icon">1</span><span>Memeriksa berkas &amp; tata letak website...</span></div>
+          <div class="deploy-step-item" id="pstep-2"><span class="deploy-step-icon">2</span><span>Mempersiapkan server &amp; database...</span></div>
+          <div class="deploy-step-item" id="pstep-3"><span class="deploy-step-icon">3</span><span>Menerbitkan website ke jaringan internet global...</span></div>
+        </div>
+
+        <div id="pubSuccessNotice" class="rf-callout success" hidden>
+          <b>🎉 Website Berhasil Dipublikasikan ke Internet!</b>
+          <p style="margin:4px 0 6px">Website Anda sekarang aktif dan dapat diakses langsung oleh publik:</p>
+          <a id="pubSuccessLink" href="#" target="_blank" rel="noopener" style="font-weight:700;color:var(--accent);text-decoration:underline;word-break:break-all"></a>
+        </div>
+
+        <button type="button" class="rf-action-btn" id="btnExecutePublish">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
+          <span id="pubActionBtnText">🚀 Publikasikan Sekarang</span>
+        </button>
       </div>
 
-      <div id="schemaLoading" style="font-size:12px;color:var(--muted);padding:12px 0">Mengambil struktur tabel dari Totalum Cloud...</div>
-      <div id="schemaEmpty" style="font-size:12px;color:var(--muted);padding:12px 0" hidden>Belum ada skema database terdaftar untuk proyek ini. Jalankan prompt pembuatan database terlebih dahulu.</div>
-      <div id="schemaContent" style="max-height:360px;overflow-y:auto"></div>
+      <!-- 3. Domain Pribadi (Custom Domain) -->
+      <div class="rf-section" style="border-top:1px solid var(--line);padding-top:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label class="rf-label" style="margin:0">Domain Pribadi (Nama Domain Sendiri)</label>
+          <span id="domainStatusBadge" class="rf-badge-muted">Belum terhubung</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:12px;color:var(--muted)">Gunakan nama domain Anda sendiri (misal: <code>tokoku.com</code> atau <code>app.tokoku.com</code>).</p>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="customDomainInput" placeholder="contoh: app.bisnissaya.com" autocomplete="off" style="flex:1">
+          <button type="button" class="rf-btn rf-btn-primary" id="btnSubmitDomain" style="flex:none">Hubungkan</button>
+        </div>
+        <div id="domainDnsHelper" style="margin-top:10px;font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:none">
+          <b>Panduan CNAME:</b> Buka pengaturan DNS domain Anda dan tambahkan:
+          <div style="margin-top:4px">Type: <code>CNAME</code> &bull; Name: <code id="dnsSubName">app</code> &bull; Target: <code id="dnsTargetHost">app.totalum-project.com</code></div>
+        </div>
+      </div>
+
+      <!-- 4. Pengaturan Lanjutan (Collapsible) -->
+      <details class="rf-details" id="pubAdvancedDetails">
+        <summary class="rf-summary">⚙️ Pengaturan Tambahan (Kunci API &amp; Token Eksternal)</summary>
+        <div style="padding-top:10px;display:flex;flex-direction:column;gap:12px">
+          <div class="rf-form-row">
+            <label for="inputTotalumKeyLocal" style="font-size:11px">Tes Kunci Totalum API (Browser):</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="inputTotalumKeyLocal" placeholder="Paste tlm_sk_... untuk tes koneksi cepat">
+              <button type="button" class="rf-btn" id="btnTestTotalumConn" style="flex:none">Uji Coba</button>
+            </div>
+            <small style="color:var(--muted);font-size:11px">Totalum API Key juga sudah terpasang di Cloudflare Workers runnerflo-b2b.</small>
+          </div>
+          <div class="rf-form-row">
+            <label style="font-size:11px">Token Pihak Ketiga (Opsional: Stripe, WhatsApp, dll):</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="inputSecretName" placeholder="NAMA (misal: STRIPE_KEY)" style="flex:1;text-transform:uppercase;font-size:12px">
+              <input type="password" id="inputSecretVal" placeholder="Nilai Token" style="flex:1.5;font-size:12px">
+              <button type="button" class="rf-btn" id="btnSaveSecret" style="flex:none">+ Simpan</button>
+            </div>
+            <div id="secretsEmpty" style="font-size:11px;color:var(--muted)">Belum ada token tambahan yang tersimpan.</div>
+            <table class="rf-table" id="secretsTable" hidden style="margin-top:4px">
+              <thead><tr><th>Nama</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="secretsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </details>
     </div>
+
     <div class="rf-modal-foot">
-      <button type="button" class="rf-btn" id="btnRefreshSchema">🔄 Refresh Schema</button>
-      <button type="button" class="rf-btn rf-btn-primary" id="btnCloseSchemaFoot">Selesai</button>
+      <button type="button" class="rf-btn" id="btnCancelPublish">Tutup</button>
     </div>
   </div>
 </div>
@@ -1467,9 +1377,9 @@ body.ws-stage-2-active .topbar {
     ['auth.ts', 4],
     ['webhooks.ts', 4]
   ];
-  var STAGE_LABEL = ['Not Started', 'Architecture & Hero', 'Course Modules & Video', 'Dashboard & Assessments', 'Completed & Live'];
-  var NEXT = ['Add adaptive HLS video player', 'Build learning progress analytics', 'Add interactive quiz engine'];
-  var AUDIENCE = ['K-12 & University EdTech Platform', 'Professional Online Academy & Upskilling', 'Global Language Institute & Certifications'];
+  var STAGE_LABEL = ['Belum Dimulai', 'Arsitektur & Tampilan', 'Modul & Fitur', 'Dasbor & Pengujian', 'Selesai & Aktif'];
+  var NEXT = ['Buat modul pemutar video interaktif', 'Tambahkan dasbor analitik pembelajaran', 'Hubungkan sistem kuis & sertifikat'];
+  var AUDIENCE = ['Buat Platform Kursus & Edukasi Online', 'Buat Toko Online dengan Sistem Checkout', 'Buat Website Profil Bisnis & Portofolio'];
 
   /* ---------- State ---------- */
   var runId = 0, uiMode = 'live', tip = 0, codeFile = 'HeroSection.tsx';
@@ -1480,7 +1390,7 @@ body.ws-stage-2-active .topbar {
   var state = load() || seed();
 
   function greet() {
-    return { role: 'agent', text: 'What digital product would you like to build \u2014 or what target clients should our AI scout for you today? \ud83d\ude80', steps: [] };
+    return { role: 'agent', text: 'Halo! Ide aplikasi atau website apa yang ingin Anda buat hari ini? Tulis langsung ide Anda di kotak chat di bawah, AI akan langsung merancang dan membuatnya untuk Anda. 🚀', steps: [] };
   }
   function mkProject(name, stage) {
     return {
@@ -1905,23 +1815,25 @@ body.ws-stage-2-active .topbar {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
-    updateWave(8, 'Totalum Engine v2: Initializing Full-Stack Next.js Project...', 'Progress: 8% &bull; Edge Cloudflare Workers + D1 SQLite Database');
+    updateWave(10, 'Totalum AI: Menganalisis ide & menyusun proyek...', 'Progres: 10% &bull; Menyiapkan sistem Next.js & basis data terdistribusi');
     renderChat(); renderTabs(); renderSide();
 
     var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
     p.msgs.push(m);
     renderIf(p);
 
+    var tierMap = { 'Auto': 'auto', 'Hemat': 'cheap', 'Standar': 'normal', 'Pro': 'expensive' };
+    var chosenTier = tierMap[state.mode] || 'auto';
     var isNew = !p.totalumProjectId;
     var projSlug = (p.totalumProjectId || p.name || 'app-' + Math.random().toString(36).slice(2, 8)).toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 32);
 
-    m.steps.push({ label: isNew ? ('Provisioning Totalum v2 Project (' + projSlug + ')') : 'Sending prompt to Totalum Agent...', done: false });
+    m.steps.push({ label: isNew ? ('Menyiapkan proyek baru (' + projSlug + ')...') : 'Mengirim instruksi ke AI...', done: false });
     renderIf(p);
 
     var ep = isNew ? '/api/totalum?action=launch' : ('/api/totalum?action=prompt&projectId=' + encodeURIComponent(projSlug));
     var reqBody = isNew
-      ? { projectId: projSlug, prompt: text, label: p.name, engineVersion: 'v2', tier: 'auto' }
-      : { prompt: text, tier: 'auto' };
+      ? { projectId: projSlug, prompt: text, label: p.name, engineVersion: 'v2', tier: chosenTier }
+      : { prompt: text, tier: chosenTier };
 
     totalumFetch(ep, {
       method: 'POST',
@@ -1943,7 +1855,7 @@ body.ws-stage-2-active .topbar {
       }
       m.steps[0].done = true;
       var estMin = (data.agent && data.agent.expectedMinutes) ? data.agent.expectedMinutes : 3;
-      m.text = '🚀 **Totalum v2 AI Agent started!**\nProject ID: `' + p.totalumProjectId + '` (Cloudflare Workers + D1 SQLite + Drizzle ORM)\nEstimated build time: ~' + estMin + ' minute(s).\n\nNow compiling Next.js 14 App Router, building schema migrations, and generating edge routes...';
+      m.text = '🚀 **AI Agent Totalum sedang bekerja!**\nMode kecerdasan: `' + state.mode + '` (Tier: `' + chosenTier + '`)\nEstimasi pengerjaan: ~' + estMin + ' menit.\n\nAI sedang merancang antarmuka visual, menyusun kode aplikasi, dan menghubungkan basis data...';
       renderIf(p);
 
       pollTotalumProgress(p, m, my);
@@ -1952,9 +1864,9 @@ body.ws-stage-2-active .topbar {
       if (my !== runId) return;
       p.busy = false;
       m.steps[0].done = false;
-      m.text = '⚠️ **Totalum Notice:** ' + err.message + '\n\n' +
-               'Pastikan `TOTALUM_API_KEY` sudah disetel di Cloudflare Pages > Settings > Environment Variables, atau klik tombol **Config** di atas untuk memasukkan key sementara.';
-      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-btn rf-btn-primary" onclick="window.openTotalumConfig()">⚙️ Setup Totalum API Key</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Free Simulation</button></div>';
+      m.text = '⚠️ **Catatan Totalum:** ' + err.message + '\n\n' +
+               'Pastikan `TOTALUM_API_KEY` sudah terpasang di Cloudflare Pages > Settings > Environment Variables, atau gunakan tombol **Publikasikan** di kanan atas > Pengaturan Tambahan untuk tes kunci lokal.';
+      m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">⚙️ Buka Pengaturan</button><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Beralih ke Demo Simulasi</button></div>';
       finishWave();
       save();
       renderChat();
@@ -2035,15 +1947,14 @@ body.ws-stage-2-active .topbar {
                 '• Database & auth ready. You can now publish to production or attach your custom domain.';
 
       m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
-        '<button type="button" class="rf-btn rf-btn-success" onclick="window.openDeployModal()">🚀 Deploy to Production Live</button>' +
-        '<button type="button" class="rf-btn rf-btn-primary" onclick="window.openDomainModal()">🌐 Connect Custom Domain</button>' +
-        '<button type="button" class="rf-btn" onclick="window.open(\'' + p.totalumPreviewUrl + '\', \'_blank\')">↗ Open Preview in New Tab</button>' +
+        '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publikasikan Website</button>' +
+        '<button type="button" class="rf-btn" onclick="window.open(\'' + p.totalumPreviewUrl + '\', \'_blank\')">↗ Buka Pratinjau</button>' +
         '</div>';
 
-      p.suggest = ['Deploy to production', 'Connect custom domain', 'Add database schema', 'Add user authentication'];
+      p.suggest = ['Publikasikan ke Web', 'Hubungkan Domain Pribadi', 'Tanya AI untuk Fitur Baru'];
       finishWave();
       save();
-      toast('🚀 Totalum project ready! Preview live.');
+      toast('🚀 Proyek Totalum siap! Pratinjau live aktif.');
       renderChat();
       renderTabs();
       renderSide();
@@ -2058,90 +1969,113 @@ body.ws-stage-2-active .topbar {
     });
   }
 
-  function openDeployModal() {
+  function openPublishModal() {
     var p = cur(); if (!p) return;
     var isTotalum = (state.engineMode === 'totalum');
-    var mInfo = $('#deployModeInfo');
-    var sCont = $('#deployStepsContainer');
-    var succCont = $('#deploySuccessContainer');
-    var btnExec = $('#btnExecuteDeploy');
+    var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+    var liveUrl = isTotalum
+      ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + projSlug + '.totalum-project.com')))
+      : 'https://runnerflo-ai.pages.dev';
 
-    sCont.hidden = true;
-    succCont.hidden = true;
-    btnExec.disabled = false;
+    var urlTxt = $('#pubModalUrlText');
+    if (urlTxt) urlTxt.textContent = liveUrl;
+    var openBtn = $('#btnOpenPubUrl');
+    if (openBtn) openBtn.href = liveUrl;
+
+    var noticeEl = $('#pubEngineNotice');
+    var btnExec = $('#btnExecutePublish');
+    var btnText = $('#pubActionBtnText');
+    var stepsList = $('#pubStepsList');
+    var succNotice = $('#pubSuccessNotice');
+
+    if (stepsList) stepsList.hidden = true;
+    if (succNotice) succNotice.hidden = true;
+    if (btnExec) { btnExec.disabled = false; btnExec.style.display = 'flex'; }
 
     if (isTotalum) {
-      var projSlug = p.totalumProjectId || p.name;
-      var targetHost = p.totalumLiveUrl || (projSlug + '.totalum-project.com');
-      mInfo.innerHTML = '<div class="rf-callout success">' +
-        '<b>🚀 Totalum Live Cloud Deployment Ready</b>' +
-        '<div style="margin-top:6px;font-size:12.5px;line-height:1.6">' +
-        '<div>&bull; <b>Project ID:</b> <code>' + esc(projSlug) + '</code></div>' +
-        '<div>&bull; <b>Production Host:</b> <code>https://' + esc(targetHost) + '</code></div>' +
-        '<div>&bull; <b>Stack:</b> Next.js 14 App Router + SQLite D1 (Drizzle ORM) + Cloudflare Workers</div>' +
-        '<div>&bull; <b>Cost:</b> 0.5 Credits per deployment</div>' +
-        '</div></div>' +
-        '<p style="margin:10px 0 0;color:var(--muted);font-size:12.5px">Publishing will apply database migrations to production, compile edge bundles, and distribute the site across 300+ global Cloudflare Workers edge nodes.</p>';
-      btnExec.textContent = '🚀 Publish to Production (0.5 Credits)';
-      btnExec.style.display = 'inline-flex';
+      if (noticeEl) {
+        noticeEl.className = 'rf-callout info';
+        noticeEl.innerHTML = '<b>🚀 Totalum Cloud Engine (Full-Stack Next.js 14)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Aplikasi Anda dibangun dengan Next.js 14, database terdistribusi Cloudflare D1, dan SSL otomatis. Klik tombol di bawah untuk menerbitkan aplikasi ke internet.</div>';
+      }
+      if (btnText) btnText.textContent = '🚀 Publikasikan Sekarang';
     } else {
-      mInfo.innerHTML = '<div class="rf-callout warning">' +
-        '<b>⚡ You are currently in Free Simulation Mode (Unpaid Demo)</b>' +
-        '<p style="margin:6px 0 0">In simulation mode, you can test a <b>Simulated Deployment</b> preview without charges.<br><br>' +
-        'If you want to deploy a <b>REAL live full-stack Next.js app</b> with SQLite Cloudflare D1 database and custom domain, switch to <b>Totalum Cloud Engine (Paid Mode)</b>.</p>' +
-        '</div>' +
-        '<div style="margin-top:12px;display:flex;gap:8px">' +
-        '<button type="button" class="rf-btn rf-btn-primary" onclick="window.setEngineMode(\'totalum\');window.openDeployModal()">Switch to Totalum Cloud (Paid)</button>' +
-        '</div>';
-      btnExec.textContent = 'Test Simulated Deploy (Demo)';
-      btnExec.style.display = 'inline-flex';
+      if (noticeEl) {
+        noticeEl.className = 'rf-callout warning';
+        noticeEl.innerHTML = '<b>⚡ Mode Demo Simulasi (Gratis)</b><div style="margin-top:4px;color:var(--muted);font-size:12px">Anda sedang dalam mode demo gratis. Anda dapat menguji proses publikasi simulasi tanpa biaya, atau beralih ke engine Totalum untuk aplikasi nyata.</div><div style="margin-top:8px"><button type="button" class="rf-pill-btn" onclick="window.setEngineMode(\'totalum\');window.openPublishModal()">Beralih ke Totalum Cloud →</button></div>';
+      }
+      if (btnText) btnText.textContent = '⚡ Uji Simulasi Publikasi (Gratis)';
     }
 
-    $('#modalDeploy').hidden = false;
-  }
-  window.openDeployModal = openDeployModal;
+    var inpDomain = $('#customDomainInput');
+    if (inpDomain) inpDomain.value = p.customDomain || '';
+    var statusBadge = $('#domainStatusBadge');
+    var dnsHelper = $('#domainDnsHelper');
+    var dnsHost = $('#dnsTargetHost');
+    var dnsTarget = isTotalum ? (projSlug + '.totalum-project.com') : 'runnerflo-ai.pages.dev';
+    if (dnsHost) dnsHost.textContent = dnsTarget;
 
-  function executeDeploy() {
+    if (statusBadge) {
+      if (p.customDomain) {
+        statusBadge.textContent = 'Terhubung: ' + p.customDomain;
+        statusBadge.style.color = '#10b981';
+        if (dnsHelper) dnsHelper.style.display = 'block';
+      } else {
+        statusBadge.textContent = 'Belum terhubung';
+        statusBadge.style.color = 'var(--muted)';
+        if (dnsHelper) dnsHelper.style.display = 'none';
+      }
+    }
+
+    var localKeyInp = $('#inputTotalumKeyLocal');
+    if (localKeyInp) localKeyInp.value = localStorage.getItem('rf_totalum_key') || '';
+
+    $('#modalPublish').hidden = false;
+  }
+  window.openPublishModal = openPublishModal;
+  window.openDeployModal = openPublishModal;
+  window.openDomainModal = openPublishModal;
+
+  function executePublish() {
     var p = cur(); if (!p) return;
     var isTotalum = (state.engineMode === 'totalum');
-    var btnExec = $('#btnExecuteDeploy');
-    var sCont = $('#deployStepsContainer');
-    var succCont = $('#deploySuccessContainer');
-    var liveLink = $('#deployLiveUrlLink');
+    var btnExec = $('#btnExecutePublish');
+    var stepsList = $('#pubStepsList');
+    var succNotice = $('#pubSuccessNotice');
+    var succLink = $('#pubSuccessLink');
 
     btnExec.disabled = true;
-    sCont.hidden = false;
+    stepsList.hidden = false;
 
-    ['dstep-build', 'dstep-migration', 'dstep-upload', 'dstep-probe'].forEach(function(id){
+    ['pstep-1', 'pstep-2', 'pstep-3'].forEach(function(id) {
       var el = $('#' + id);
-      if (el) { el.classList.remove('active', 'done'); }
+      if (el) el.classList.remove('active', 'done');
     });
 
     if (!isTotalum) {
-      var steps = ['dstep-build', 'dstep-migration', 'dstep-upload', 'dstep-probe'];
       var sIdx = 0;
+      var sIds = ['pstep-1', 'pstep-2', 'pstep-3'];
       function nextSimStep() {
-        if (sIdx < steps.length) {
-          if (sIdx > 0) $('#' + steps[sIdx - 1]).classList.replace('active', 'done');
-          $('#' + steps[sIdx]).classList.add('active');
+        if (sIdx < sIds.length) {
+          if (sIdx > 0) $('#' + sIds[sIdx - 1]).classList.replace('active', 'done');
+          $('#' + sIds[sIdx]).classList.add('active');
           sIdx++;
-          setTimeout(nextSimStep, 700);
+          setTimeout(nextSimStep, 600);
         } else {
-          $('#' + steps[steps.length - 1]).classList.replace('active', 'done');
-          succCont.hidden = false;
-          var simLiveUrl = 'https://runnerflo-ai.pages.dev';
-          liveLink.href = simLiveUrl;
-          liveLink.textContent = simLiveUrl + ' (Simulation Live 200 OK)';
+          $('#' + sIds[sIds.length - 1]).classList.replace('active', 'done');
+          succNotice.hidden = false;
+          var simUrl = 'https://runnerflo-ai.pages.dev';
+          succLink.href = simUrl;
+          succLink.textContent = simUrl;
           btnExec.style.display = 'none';
-          toast('🎉 Simulated Deployment Complete!');
+          toast('🎉 Simulasi publikasi selesai! Website siap diakses.');
         }
       }
       nextSimStep();
       return;
     }
 
-    var projSlug = p.totalumProjectId || p.name;
-    $('#dstep-build').classList.add('active');
+    var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+    $('#pstep-1').classList.add('active');
 
     totalumFetch('/api/totalum?action=deploy&projectId=' + encodeURIComponent(projSlug), {
       method: 'POST',
@@ -2150,26 +2084,24 @@ body.ws-stage-2-active .topbar {
     })
     .then(function(res) { return res.json(); })
     .then(function(resJson) {
-      if (resJson.errors) {
-        throw new Error(resJson.errors.errorMessage || 'Deploy error');
-      }
-      toast('Deployment initiated! Polling status...');
+      if (resJson.errors) throw new Error(resJson.errors.errorMessage || 'Deploy error');
+      toast('Proses publikasi dimulai...');
       pollDeployStatus(projSlug, p);
     })
     .catch(function(err) {
       btnExec.disabled = false;
-      toast('Deploy failed: ' + err.message);
-      var errEl = $('#deployModeInfo');
+      toast('Publikasi gagal: ' + err.message);
+      var errEl = $('#pubEngineNotice');
       if (errEl) {
-        errEl.innerHTML = '<div class="rf-callout warning"><b>Deploy Error:</b> ' + esc(err.message) + '</div>';
+        errEl.innerHTML = '<div class="rf-callout warning"><b>Gagal Publikasi:</b> ' + esc(err.message) + '</div>';
       }
     });
   }
 
   function pollDeployStatus(projSlug, p) {
-    var btnExec = $('#btnExecuteDeploy');
-    var succCont = $('#deploySuccessContainer');
-    var liveLink = $('#deployLiveUrlLink');
+    var btnExec = $('#btnExecutePublish');
+    var succNotice = $('#pubSuccessNotice');
+    var succLink = $('#pubSuccessLink');
     var pollCount = 0;
 
     var timer = setInterval(function() {
@@ -2181,81 +2113,71 @@ body.ws-stage-2-active .topbar {
         var step = d.step || '';
 
         if (step === 'build') {
-          $('#dstep-build').classList.add('active');
-        } else if (step === 'migration') {
-          $('#dstep-build').classList.replace('active', 'done');
-          $('#dstep-migration').classList.add('active');
-        } else if (step === 'upload') {
-          $('#dstep-migration').classList.replace('active', 'done');
-          $('#dstep-upload').classList.add('active');
+          $('#pstep-1').classList.add('active');
+        } else if (step === 'migration' || step === 'upload') {
+          $('#pstep-1').classList.replace('active', 'done');
+          $('#pstep-2').classList.add('active');
         } else if (step === 'probe' || step === 'fixing') {
-          $('#dstep-upload').classList.replace('active', 'done');
-          $('#dstep-probe').classList.add('active');
+          $('#pstep-2').classList.replace('active', 'done');
+          $('#pstep-3').classList.add('active');
         }
 
         if (d.status === 'success' || pollCount > 30) {
           clearInterval(timer);
-          ['dstep-build', 'dstep-migration', 'dstep-upload', 'dstep-probe'].forEach(function(id){
+          ['pstep-1', 'pstep-2', 'pstep-3'].forEach(function(id){
             var el = $('#' + id);
             if (el) { el.classList.remove('active'); el.classList.add('done'); }
           });
-          succCont.hidden = false;
+          succNotice.hidden = false;
           var finalUrl = d.liveUrl || (projSlug + '.totalum-project.com');
           if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
           p.totalumLiveUrl = finalUrl.replace(/^https?:\/\//, '');
-          liveLink.href = finalUrl;
-          liveLink.textContent = finalUrl;
+          succLink.href = finalUrl;
+          succLink.textContent = finalUrl;
           btnExec.style.display = 'none';
           save();
           renderSide();
-          toast('🎉 App Successfully Published to Live!');
+          toast('🎉 Website berhasil dipublikasikan!');
         } else if (d.status === 'error') {
           clearInterval(timer);
           btnExec.disabled = false;
-          var errMsg = (d.errorDetails && d.errorDetails.message) || 'Deployment encountered an error';
-          toast('Deploy error: ' + errMsg);
+          var errMsg = (d.errorDetails && d.errorDetails.message) || 'Terjadi kendala saat publikasi';
+          toast('Gagal: ' + errMsg);
         }
       })
-      .catch(function(e) {
+      .catch(function() {
         if (pollCount > 20) clearInterval(timer);
       });
     }, 4000);
   }
-
-  function openDomainModal() {
-    var p = cur(); if (!p) return;
-    var projSlug = p.totalumProjectId || p.name;
-    var dnsTarget = (p.totalumProjectId || projSlug) + '.totalum-project.com';
-    var dt = $('#dnsTargetHost'); if (dt) dt.textContent = dnsTarget;
-    var inp = $('#customDomainInput');
-    if (inp) {
-      inp.value = p.customDomain || '';
-    }
-    var alertEl = $('#domainStatusAlert');
-    if (alertEl) {
-      if (p.customDomain) {
-        alertEl.hidden = false;
-        alertEl.innerHTML = '<b>Current Connected Domain:</b> <code>' + esc(p.customDomain) + '</code>';
-      } else {
-        alertEl.hidden = true;
-      }
-    }
-    $('#modalDomain').hidden = false;
-  }
-  window.openDomainModal = openDomainModal;
 
   function submitCustomDomain() {
     var p = cur(); if (!p) return;
     var inp = $('#customDomainInput');
     var domain = (inp ? inp.value : '').trim().toLowerCase();
     if (!domain) {
-      toast('Please enter a valid domain name (e.g. app.mycompany.com)');
+      toast('Masukkan nama domain yang valid (contoh: app.bisnissaya.com)');
       return;
     }
-    var projSlug = p.totalumProjectId || p.name;
+    var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
     var btnSub = $('#btnSubmitDomain');
     btnSub.disabled = true;
-    btnSub.textContent = 'Connecting...';
+    btnSub.textContent = 'Menghubungkan...';
+
+    if (state.engineMode !== 'totalum') {
+      setTimeout(function() {
+        p.customDomain = domain;
+        save();
+        btnSub.disabled = false;
+        btnSub.textContent = 'Hubungkan';
+        var badge = $('#domainStatusBadge');
+        if (badge) { badge.textContent = 'Terhubung: ' + domain; badge.style.color = '#10b981'; }
+        var helper = $('#domainDnsHelper');
+        if (helper) helper.style.display = 'block';
+        toast('🌐 Domain simulasi berhasil dihubungkan!');
+      }, 500);
+      return;
+    }
 
     totalumFetch('/api/totalum?action=domain&projectId=' + encodeURIComponent(projSlug), {
       method: 'POST',
@@ -2265,32 +2187,22 @@ body.ws-stage-2-active .topbar {
     .then(function(r) { return r.json(); })
     .then(function(json) {
       btnSub.disabled = false;
-      btnSub.textContent = '🌐 Connect Domain';
-      if (json.errors) {
-        throw new Error(json.errors.errorMessage || 'Domain binding error');
-      }
+      btnSub.textContent = 'Hubungkan';
+      if (json.errors) throw new Error(json.errors.errorMessage || 'Gagal menghubungkan domain');
       p.customDomain = domain;
       p.totalumLiveUrl = domain;
       save();
       renderSide();
-      var alertEl = $('#domainStatusAlert');
-      if (alertEl) {
-        alertEl.hidden = false;
-        alertEl.className = 'rf-callout success';
-        alertEl.innerHTML = '<b>✅ Custom Domain Connected!</b><br>Added <code>' + esc(domain) + '</code>. Once DNS CNAME resolves, SSL will activate automatically.';
-      }
-      toast('✅ Custom Domain bound to Totalum!');
+      var badge = $('#domainStatusBadge');
+      if (badge) { badge.textContent = 'Terhubung: ' + domain; badge.style.color = '#10b981'; }
+      var helper = $('#domainDnsHelper');
+      if (helper) helper.style.display = 'block';
+      toast('✅ Domain pribadi berhasil terhubung ke Totalum!');
     })
     .catch(function(err) {
       btnSub.disabled = false;
-      btnSub.textContent = '🌐 Connect Domain';
-      toast('Domain error: ' + err.message);
-      var alertEl = $('#domainStatusAlert');
-      if (alertEl) {
-        alertEl.hidden = false;
-        alertEl.className = 'rf-callout warning';
-        alertEl.innerHTML = '<b>Notice:</b> ' + esc(err.message) + '<br><small>Make sure the project has been deployed at least once.</small>';
-      }
+      btnSub.textContent = 'Hubungkan';
+      toast('Gagal: ' + err.message);
     });
   }
 
@@ -2505,7 +2417,7 @@ body.ws-stage-2-active .topbar {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
-    updateWave(4, 'Phase 1/8: Initializing Next.js 14 Engine & LMS Architecture...', 'Progress: 4% &bull; Configuring App Router & Edge Runtime');
+    updateWave(5, 'Langkah 1/5: Menganalisis ide bisnis...', 'Memahami kebutuhan fitur & target pengguna');
     renderChat(); renderTabs(); renderSide();
 
     var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
@@ -2514,68 +2426,44 @@ body.ws-stage-2-active .topbar {
 
     var simSteps = [
       {
-        step: "Initialize Project Engine & Full-Stack Next.js 14 Architecture",
-        msg: "\u26a1 Analyzing enterprise-scale EdTech LMS platform specifications...\nSelected stack architecture: Next.js 14 App Router, TypeScript, TailwindCSS v3.4, Cloudflare Pages Edge Runtime, and PostgreSQL / Prisma Schema.",
-        waveTitle: "Phase 1/8: Designing EdTech LMS System Architecture...",
-        waveSub: "Progress: 12% &bull; Configuring Next.js 14 App Router & Edge Runtime",
-        pct: 12,
-        delay: 4800
+        step: "Menganalisis ide bisnis & alur aplikasi",
+        msg: "💡 **Menganalisis ide bisnis Anda...**\nMenyusun struktur sistem aplikasi yang siap pakai, cepat, dan mudah digunakan oleh pelanggan.",
+        waveTitle: "Langkah 1/5: Menganalisis ide bisnis & alur...",
+        waveSub: "Menyusun fondasi aplikasi yang ramah pengguna",
+        pct: 20,
+        delay: 2200
       },
       {
-        step: "Design Relational Database Schema & Multi-Role Permissions",
-        msg: "\n\n\ud83d\udcd0 Structuring relational schemas: Students, Instructors, Course Modules, Video Assets, adaptive quizzes, HLS encryption tokens, and global marketplace transactions.",
-        waveTitle: "Phase 2/8: Generating Database Schema & Module Relations...",
-        waveSub: "Progress: 25% &bull; Synchronizing PostgreSQL tables & Redis cache",
-        pct: 25,
-        delay: 4800
+        step: "Merancang tampilan visual modern & responsif",
+        msg: "\n\n🎨 **Merancang antarmuka visual (UI):**\n  • Halaman utama yang menarik & profesional\n  • Tampilan responsif & ringan di HP, tablet, maupun laptop\n  • Navigasi yang intuitif untuk kemudahan pengunjung",
+        waveTitle: "Langkah 2/5: Menyusun desain visual...",
+        waveSub: "Mengatur tata letak & palet warna elegan",
+        pct: 45,
+        delay: 2400
       },
       {
-        step: "Synthesize Multi-Bitrate HLS Video Streaming & AI Transcription",
-        msg: "\n\n\ud83c\udfa5 Initializing Video Streaming Engine: HLS (HTTP Live Streaming) adaptive bitrate protocol (1080p, 720p, 480p), AES-128 token encryption, Whisper AI automated subtitles, and CDN edge caching.",
-        waveTitle: "Phase 3/8: Synthesizing Multi-Bitrate HLS Video Player...",
-        waveSub: "Progress: 38% &bull; Configuring adaptive streams & Whisper AI subtitles",
-        pct: 38,
-        delay: 5200
+        step: "Menyiapkan katalog produk, materi & akun pengguna",
+        msg: "\n\n📚 **Menyiapkan fitur inti aplikasi:**\n  • Katalog produk/kursus interaktif dengan filter pencarian\n  • Sistem akun & login yang aman untuk pengunjung\n  • Dasbor personal untuk memantau aktivitas & riwayat",
+        waveTitle: "Langkah 3/5: Menyiapkan data & katalog...",
+        waveSub: "Menyusun sistem akun pengguna & dasbor",
+        pct: 70,
+        delay: 2400
       },
       {
-        step: "Generate Frontend Components (Hero, Catalog, Video Player, Dashboard)",
-        msg: "\n\n\ud83d\udcbb Generating full frontend interactive suite:\n  \u2022 components/HeroSection.tsx (Interactive animated hero) [OK]\n  \u2022 components/CourseCard.tsx (Filtered course catalog) [OK]\n  \u2022 components/VideoPlayer.tsx (HLS Stream player with bookmarks) [OK]\n  \u2022 components/QuizEngine.tsx (Real-time adaptive quiz engine) [OK]\n  \u2022 components/LMSDashboard.tsx (Student analytics & module progress) [OK]\n  \u2022 lib/auth.ts (Multi-role student & mentor auth) [OK]",
-        waveTitle: "Phase 4/8: Generating Frontend Components & Quiz Engine...",
-        waveSub: "Progress: 55% &bull; Writing HeroSection, CourseCard, QuizEngine, VideoPlayer",
-        pct: 55,
-        delay: 5500
+        step: "Menghubungkan fitur kuis interaktif & sertifikat",
+        msg: "\n\n🎓 **Menghubungkan modul interaktif:**\n  • Pemutar video pembelajaran yang lancar\n  • Sistem kuis interaktif dengan penilaian otomatis\n  • Sertifikat kelulusan digital instan",
+        waveTitle: "Langkah 4/5: Menghubungkan fitur interaktif...",
+        waveSub: "Mengaktifkan kuis, video & sertifikat",
+        pct: 90,
+        delay: 2200
       },
       {
-        step: "Integrate Interactive Quiz Engine & QR Code Certificate Generator",
-        msg: "\n\n\ud83c\udf93 Building adaptive student evaluation system:\n  \u2022 components/CertificateGenerator.tsx (Automated e-certificate issuance) [OK]\n  \u2022 Real-time passing grade validation & anti-fraud QR verification.",
-        waveTitle: "Phase 5/8: Integrating Certificate Generator & QR Validation...",
-        waveSub: "Progress: 68% &bull; Verifying accredited digital certificate standards",
-        pct: 68,
-        delay: 4800
-      },
-      {
-        step: "Compile Turbopack Edge Static Bundle & Tree-Shaking Optimization",
-        msg: "\n\n\ud83d\udd04 Compiling Edge assets static bundle with Turbopack:\n  \u2022 Minified CSS & JavaScript bundles\n  \u2022 Pre-rendering static lesson modules for sub-0.3s load times\n  \u2022 Responsive mobile/desktop & iframe compatibility tested.",
-        waveTitle: "Phase 6/8: Compiling Edge Assets & Turbopack Bundle...",
-        waveSub: "Progress: 82% &bull; 100% tree-shaking & zero-latency edge minification",
-        pct: 82,
-        delay: 5000
-      },
-      {
-        step: "Global Edge Network CDN Deployment: runnerflo-ai.pages.dev",
-        msg: "\n\n\ud83d\ude80 Deploying across 300+ Edge Data Centers globally:\nProduction domain active: https://runnerflo-ai.pages.dev [STATUS: LIVE 200 OK]\nVideo streaming engine, adaptive quiz modules, and student dashboard are live online.",
-        waveTitle: "Phase 7/8: Global Deployment to Cloudflare Pages Edge...",
-        waveSub: "Progress: 94% &bull; CDN edge routing propagated to 300+ global cities",
-        pct: 94,
-        delay: 4800
-      },
-      {
-        step: "Automated Integration to 1,000+ Global Marketplaces",
-        msg: "\n\n\ud83c\udf10 Connecting automatically to 1,000+ global marketplaces (Udemy, Skillshare, Coursera, Teachable, Gumroad) via Webhooks & Make.com automation.\n\n\u2728 EdTech LMS Platform Successfully Deployed from Scratch!\nNext.js 14 architecture, HLS adaptive video player, interactive quiz engine, and student analytics are live online. Test it live in the preview pane on the right or click expand below.",
-        waveTitle: "Phase 8/8: Complete! Activating Live Production Preview...",
-        waveSub: "Progress: 100% &bull; Connected to 1,000+ global marketplaces",
+        step: "Aplikasi selesai dibuat & siap diluncurkan!",
+        msg: "\n\n✨ **Aplikasi Anda Berhasil Dibuat dan Siap Digunakan!**\nSistem siap diuji langsung pada layar pratinjau di sebelah kanan. Anda dapat mencoba navigasi, kuis, atau langsung mempublikasikannya ke internet dengan tombol **Publikasikan** di atas.",
+        waveTitle: "Langkah 5/5: Selesai! Pratinjau aktif...",
+        waveSub: "Aplikasi siap diuji dan dipublikasikan",
         pct: 100,
-        delay: 4800
+        delay: 2000
       }
     ];
 
@@ -2585,12 +2473,17 @@ body.ws-stage-2-active .topbar {
       if (stepIdx >= simSteps.length) {
         p.busy = false;
         p.stage = 4;
-        p.suggest = ['Test HLS video player', 'View quiz & scores', 'Open Radar client scout', 'Deploy Make.com workflow'];
+        p.suggest = ['Publikasikan ke Web', 'Coba Fitur Kuis Interaktif', 'Hubungkan Domain Pribadi'];
         p.updated = Date.now();
-        m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="stage-btn" onclick="window.wsNextStage()" style="padding:9px 18px;font-size:13px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Enlarge Preview (Stage 1/3)</button></div>';
+        m.actionHtml = '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
+          '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publikasikan Website</button>' +
+          '<button type="button" class="stage-btn" onclick="window.wsNextStage()" style="padding:7px 14px;font-size:12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Perbesar Tampilan' +
+          '</button>' +
+          '</div>';
         finishWave();
         save();
-        toast('\ud83d\ude80 EdTech LMS Platform successfully built & live!');
+        toast('✨ Aplikasi Anda berhasil dibuat & siap digunakan!');
         renderChat();
         renderTabs();
         renderSide();
@@ -2754,12 +2647,12 @@ body.ws-stage-2-active .topbar {
       var isGenerating = (p && p.busy);
       var isTotalum = (state.engineMode === 'totalum');
       var badgeHtml = isTotalum
-        ? '<span class="badge-mode badge-mode-totalum">TOTALUM v2</span>'
-        : '<span class="badge-mode badge-mode-sim">SIMULATION</span>';
+        ? '<span class="badge-mode badge-mode-totalum">TOTALUM CLOUD</span>'
+        : '<span class="badge-mode badge-mode-sim">DEMO SIMULASI</span>';
       
       var displayUrl = isTotalum
         ? (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : (p.totalumPreviewUrl || ('https://' + (p.totalumProjectId || p.name) + '.totalum-project.com (Draft)')))
-        : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Simulation Demo)';
+        : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Demo)';
       
       var frameSrc = isTotalum
         ? (p.totalumPreviewUrl || (p.totalumLiveUrl ? ('https://' + p.totalumLiveUrl) : 'loading-wave-3d.html'))
@@ -2768,24 +2661,22 @@ body.ws-stage-2-active .topbar {
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
         '<div class="chrome">' +
         '<div class="ws-bar-dots" title="Size Controls">' +
-        '<i class="dot-red" id="ws-restore-dot" title="Restore / Normal View"></i>' +
-        '<i class="dot-yellow" id="ws-stage1-dot" title="Stage 1: Full Width (AI Chat Visible)"></i>' +
-        '<i class="dot-green" id="ws-stage2-dot" title="Stage 2: Fullscreen"></i>' +
+        '<i class="dot-red" id="ws-restore-dot" title="Tampilan Normal"></i>' +
+        '<i class="dot-yellow" id="ws-stage1-dot" title="Stage 1: Lebar Penuh (Chat Terbuka)"></i>' +
+        '<i class="dot-green" id="ws-stage2-dot" title="Stage 2: Layar Penuh"></i>' +
         '</div>' +
         '<span class="url" style="display:flex;align-items:center;gap:8px">' +
         badgeHtml + ' ' +
         '<span id="liveDisplayUrlText" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + displayUrl + '</span></span>' +
         '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
-        '<button type="button" class="stage-btn" id="wsBtnChromeDeploy" title="Deploy / Publish Live" style="color:#10b981;font-weight:700">🚀 Deploy</button>' +
-        '<button type="button" class="stage-btn" id="wsBtnChromeDomain" title="Connect Custom Domain">🌐 Domain</button>' +
-        '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Enlarge View">' +
+        '<button type="button" class="stage-btn" id="wsBtnNextStage" title="Perbesar Tampilan">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>' +
-        '<span id="wsStageLabel">Enlarge</span>' +
+        '<span id="wsStageLabel">Perbesar</span>' +
         '<span class="stage-tag" id="wsStageBadge">Stage 1/3</span>' +
         '</button>' +
-        '<button type="button" class="stage-btn restore-btn" id="wsBtnRestore" title="Restore Normal View" style="display:none">' +
+        '<button type="button" class="stage-btn restore-btn" id="wsBtnRestore" title="Tampilan Normal" style="display:none">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>' +
-        '<span id="wsRestoreLabel">Restore</span>' +
+        '<span id="wsRestoreLabel">Normal</span>' +
         '</button>' +
         '</div>' +
         '</div>' +
@@ -2853,7 +2744,16 @@ body.ws-stage-2-active .topbar {
   function openMenu(kind, btn) {
     var m = $('#menu');
     if (!m.hidden && m.dataset.k === kind) return closeMenu();
-    var opts = kind === 'mode' ? [['Auto', 'Agent proactively suggests next steps'], ['Manual', 'No suggestions, you lead the flow']] : [['Build', 'Generate and modify project code'], ['Plan', 'Architecture roadmap only, no code changes'], ['Ask', 'Consultation and Q&A only']];
+    var opts = kind === 'mode' ? [
+      ['Auto', 'Otomatis: AI memilih model terbaik sesuai prompt Anda'],
+      ['Hemat', 'Cepat & Hemat: Cocok untuk revisi teks & tampilan'],
+      ['Standar', 'Standar: Seimbang untuk fitur baru & katalog'],
+      ['Pro', 'Kecerdasan Maksimal: Pemikiran mendalam & logika rumit']
+    ] : [
+      ['Build', 'Buat Aplikasi: AI langsung menyusun & menulis kode'],
+      ['Plan', 'Rencana Konsep: Rancangan arsitektur tanpa ubah kode'],
+      ['Tanya', 'Konsultasi: Tanya jawab ide fitur & bisnis']
+    ];
     var cv = kind === 'mode' ? state.mode : state.build;
     m.dataset.k = kind;
     m.innerHTML = opts.map(function (o) { return '<button type="button" role="menuitemradio" data-v="' + o[0] + '" aria-checked="' + (o[0] === cv) + '"><b>' + o[0] + '</b><small>' + o[1] + '</small></button>'; }).join('');
@@ -2974,34 +2874,28 @@ body.ws-stage-2-active .topbar {
     }
     if (c('#btnModeSim')) { setEngineMode('sim'); return; }
     if (c('#btnModeTotalum')) { setEngineMode('totalum'); return; }
-    if (c('#btnDeployLive') || c('#wsBtnChromeDeploy')) { openDeployModal(); return; }
-    if (c('#btnCustomDomain') || c('#wsBtnChromeDomain')) { openDomainModal(); return; }
-    if (c('#btnSecretsModal')) { openSecretsModal(); return; }
-    if (c('#btnCloseSecretsModal') || c('#btnCloseSecretsFoot') || t.id === 'modalSecrets') { $('#modalSecrets').hidden = true; return; }
-    if (c('#btnSaveSecret')) { saveProjectSecret(); return; }
-    if ((el = c('[data-del-secret]'))) { deleteProjectSecret(el.dataset.delSecret); return; }
-    if (c('#btnSchemaModal')) { openSchemaModal(); return; }
-    if (c('#btnCloseSchemaModal') || c('#btnCloseSchemaFoot') || t.id === 'modalSchema') { $('#modalSchema').hidden = true; return; }
-    if (c('#btnRefreshSchema')) { loadProjectSchema(); return; }
-    if (c('#btnTotalumConfig')) { openTotalumConfig(); return; }
-    if (c('#btnCloseDeployModal') || c('#btnCancelDeploy') || t.id === 'modalDeploy') { $('#modalDeploy').hidden = true; return; }
-    if (c('#btnCloseDomainModal') || c('#btnCancelDomain') || t.id === 'modalDomain') { $('#modalDomain').hidden = true; return; }
-    if (c('#btnCloseConfigModal') || t.id === 'modalTotalumConfig') { $('#modalTotalumConfig').hidden = true; return; }
-    if (c('#btnExecuteDeploy')) { executeDeploy(); return; }
-    if (c('#btnSubmitDomain')) { submitCustomDomain(); return; }
-    if (c('#btnTestTotalumConn')) { testTotalumConn(); return; }
-    if (c('#btnSaveTotalumKeyLocal')) {
-      var val = ($('#inputTotalumKeyLocal') ? $('#inputTotalumKeyLocal').value : '').trim();
-      if (val) {
-        localStorage.setItem('rf_totalum_key', val);
-        toast('Totalum Key saved in browser storage!');
-        testTotalumConn();
-      } else {
-        localStorage.removeItem('rf_totalum_key');
-        toast('Totalum Key cleared.');
+    if (c('#btnPublish') || c('#btnDeployLive') || c('#wsBtnChromeDeploy')) { openPublishModal(); return; }
+    if (c('#btnClosePublishModal') || c('#btnCancelPublish') || t.id === 'modalPublish') { $('#modalPublish').hidden = true; return; }
+    if (c('#btnCopyPubUrl')) {
+      var urlTxt = $('#pubModalUrlText') ? $('#pubModalUrlText').textContent : '';
+      if (urlTxt) {
+        try {
+          navigator.clipboard.writeText(urlTxt);
+          toast('✅ Tautan website disalin!');
+        } catch(e) {
+          toast('Gagal menyalin tautan');
+        }
       }
       return;
     }
+    if (c('#btnExecutePublish') || c('#btnExecuteDeploy')) { executePublish(); return; }
+    if (c('#btnSubmitDomain')) { submitCustomDomain(); return; }
+    if (c('#btnTestTotalumConn')) { testTotalumConn(); return; }
+    if (c('#btnSaveSecret')) { saveProjectSecret(); return; }
+    if ((el = c('[data-del-secret]'))) { deleteProjectSecret(el.dataset.delSecret); return; }
+    if (c('#btnCloseSecretsModal') || c('#btnCloseSecretsFoot') || t.id === 'modalSecrets') { var ms = $('#modalSecrets'); if (ms) ms.hidden = true; return; }
+    if (c('#btnCloseDeployModal') || c('#btnCancelDeploy') || t.id === 'modalDeploy') { var md = $('#modalDeploy'); if (md) md.hidden = true; return; }
+    if (c('#btnCloseDomainModal') || c('#btnCancelDomain') || t.id === 'modalDomain') { var mdm = $('#modalDomain'); if (mdm) mdm.hidden = true; return; }
   });
   document.addEventListener('keydown', function (e) {
     var tg = e.target;
