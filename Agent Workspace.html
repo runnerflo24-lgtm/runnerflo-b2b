@@ -1420,9 +1420,9 @@ body.ws-stage-2-active .topbar {
   <div style="position: relative; width: 500px; height: 730px; flex-shrink: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif">
 
     <!-- main card -->
-    <div style="position: absolute; left: 36px; top: 130px; width: 428px; height: 540px; box-sizing: border-box; border-radius: 22px; overflow: hidden; border: 1px solid #c9daf6; background: linear-gradient(165deg, #ffffff 0%, #eaf1fc 45%, #c3d8f8 100%)">
-      <div style="position: absolute; left: 0; top: 0; width: 100%; height: 110px; background: repeating-linear-gradient(120deg, rgba(120,150,210,0.10) 0px, rgba(120,150,210,0.10) 2px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 26px); pointer-events: none"></div>
-      <div style="position: absolute; left: 0; bottom: 0; width: 100%; height: 200px; background: linear-gradient(180deg, rgba(47,107,255,0) 0%, rgba(47,107,255,0.20) 100%); pointer-events: none"></div>
+    <div style="position: absolute; left: 36px; top: 130px; width: 428px; height: 540px; box-sizing: border-box; border-radius: 22px; overflow: visible; border: 1px solid #c9daf6; background: linear-gradient(165deg, #ffffff 0%, #eaf1fc 45%, #c3d8f8 100%)">
+      <div style="position: absolute; left: 0; top: 0; width: 100%; height: 110px; background: repeating-linear-gradient(120deg, rgba(120,150,210,0.10) 0px, rgba(120,150,210,0.10) 2px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 26px); pointer-events: none; border-radius: 22px 22px 0 0; overflow: hidden"></div>
+      <div style="position: absolute; left: 0; bottom: 0; width: 100%; height: 200px; background: linear-gradient(180deg, rgba(47,107,255,0) 0%, rgba(47,107,255,0.20) 100%); pointer-events: none; border-radius: 0 0 22px 22px; overflow: hidden"></div>
 
       <div style="position: absolute; left: 28px; top: 108px; width: 370px; display: flex; flex-direction: column">
 
@@ -1446,14 +1446,11 @@ body.ws-stage-2-active .topbar {
           </a>
         </div>
 
-        <!-- failed / notice message -->
-        <div id="pubEngineNotice" style="margin-top: 12px; box-sizing: border-box; padding: 11px 12px; border-radius: 12px; background: #fff4e0; border: 1px solid #f0d49a; display: flex; gap: 9px; align-items: flex-start">
-          <svg style="flex: none; margin-top: 1px" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18.5v.01"/></svg>
-          <div id="pubNoticeContent" style="font-size: 12px; line-height: 1.45; color: #4a2f00"><b>Publishing Failed:</b> VCaaS API requires a minimum credit balance of 1. Your balance is -3.5193.</div>
-        </div>
+        <!-- engine notice (JS sets className + innerHTML directly) -->
+        <div id="pubEngineNotice" style="margin-top: 12px; padding: 11px 12px; border-radius: 12px; font-size: 12px; line-height: 1.45"></div>
 
         <!-- steps -->
-        <div id="pubStepsList" style="margin-top: 12px; display: flex; flex-direction: column; gap: 5px">
+        <div id="pubStepsList" hidden style="margin-top: 12px; display: flex; flex-direction: column; gap: 5px">
           <div id="pstep-1" class="deploy-step-item active" style="height: 32px; box-sizing: border-box; padding: 0 10px; border-radius: 10px; background: #e3ebff; border: 1.5px solid #1f5bff; display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600; color: #0f1b3d">
             <svg style="flex: none; animation: spin 1.2s linear infinite" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#c3d3f5" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" stroke="#1f5bff" stroke-width="3" stroke-linecap="round"/></svg>
             <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Verifying application layout &amp; responsive assets…</div>
@@ -1468,11 +1465,94 @@ body.ws-stage-2-active .topbar {
           </div>
         </div>
 
-        <!-- custom domain -->
-        <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between">
-          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #3a4a73">CUSTOM DOMAIN</div>
-          <div id="domainStatusBadge" style="height: 24px; padding: 0 11px; border-radius: 999px; background: #d9e4f8; display: flex; align-items: center; font-size: 11.5px; font-weight: 600; color: #34446b; cursor: pointer" onclick="window.switchDomainTab ? window.switchDomainTab('buy') : null">Not Connected</div>
+        <!-- sandbox preview row -->
+        <div id="pubModalSandboxRow" hidden style="margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(31,91,255,0.07); border: 1px solid #c3d3f5; font-size: 11px; color: #34446b">
+          <span style="font-weight: 700">Sandbox Preview:</span>
+          <a id="pubSandboxLink" href="#" target="_blank" rel="noopener" style="color: #1f5bff; word-break: break-all; text-decoration: none; font-family: ui-monospace, monospace; font-size: 10.5px"></a>
         </div>
+
+        <!-- success notice -->
+        <div id="pubSuccessNotice" hidden style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #d1fae5; border: 1px solid #6ee7b7; font-size: 12px; color: #064e3b">
+          ✅ <b>Published Successfully!</b>
+          <div style="margin-top: 4px; font-size: 11px; color: #065f46">Your app is now live at: <a id="pubSuccessLink" href="#" target="_blank" rel="noopener" style="color: #047857; font-family: ui-monospace, monospace; word-break: break-all; text-decoration: none"></a></div>
+        </div>
+
+        <!-- scrollable lower section -->
+        <div style="margin-top: 12px; overflow-y: auto; max-height: 220px; padding-right: 2px">
+
+          <!-- custom domain header -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #3a4a73">CUSTOM DOMAIN</div>
+            <div id="domainStatusBadge" style="height: 22px; padding: 0 10px; border-radius: 999px; background: #d9e4f8; display: flex; align-items: center; font-size: 11px; font-weight: 600; color: #34446b; cursor: pointer" onclick="window.switchDomainTab && window.switchDomainTab('buy')">Not Connected</div>
+          </div>
+
+          <!-- domain tabs -->
+          <div style="display: flex; gap: 4px; margin-bottom: 8px">
+            <button type="button" id="tabDomainBuy" onclick="window.switchDomainTab && window.switchDomainTab('buy')" style="flex:1; height:26px; border-radius:8px; border:1.5px solid #1f5bff; background:#1f5bff; color:#fff; font-size:11px; font-weight:700; cursor:pointer">Buy Domain</button>
+            <button type="button" id="tabDomainFree" onclick="window.switchDomainTab && window.switchDomainTab('free')" style="flex:1; height:26px; border-radius:8px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.7); color:#3a4a73; font-size:11px; font-weight:600; cursor:pointer">Free Subdomain</button>
+            <button type="button" id="tabDomainExternal" onclick="window.switchDomainTab && window.switchDomainTab('external')" style="flex:1; height:26px; border-radius:8px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.7); color:#3a4a73; font-size:11px; font-weight:600; cursor:pointer">I Have Domain</button>
+          </div>
+
+          <!-- pane: Buy -->
+          <div id="paneDomainBuy">
+            <div style="display:flex; gap:5px; margin-bottom:5px">
+              <input type="text" id="domainSearchQuery" placeholder="Search a domain name…" style="flex:1; height:30px; padding:0 8px; border-radius:8px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11.5px; color:#0f1b3d; outline:none" onkeydown="if(event.key==='Enter') window.searchDomains && window.searchDomains()">
+              <button type="button" id="btnSearchDomain" onclick="window.searchDomains && window.searchDomains()" style="height:30px; padding:0 12px; border-radius:8px; border:none; background:#1f5bff; color:#fff; font-size:11.5px; font-weight:700; cursor:pointer">Search</button>
+            </div>
+            <div id="domainSearchResults" style="font-size:11px; color:#3a4a73; min-height:20px"></div>
+          </div>
+
+          <!-- pane: Free Subdomain -->
+          <div id="paneDomainFree" hidden>
+            <div style="font-size:11px; color:#3a4a73; margin-bottom:5px">Your free subdomain:</div>
+            <div id="freeSubdomainPreview" style="padding:7px 10px; border-radius:8px; background:rgba(255,255,255,0.85); border:1px solid #cfdcf5; font-family:ui-monospace,monospace; font-size:11.5px; color:#1f5bff; word-break:break-all"></div>
+          </div>
+
+          <!-- pane: External Domain -->
+          <div id="paneDomainExternal" hidden>
+            <div style="font-size:11px; color:#3a4a73; margin-bottom:5px">Enter your domain:</div>
+            <div style="display:flex; gap:5px; margin-bottom:6px">
+              <input type="text" id="customDomainInput" placeholder="yourdomain.com" style="flex:1; height:30px; padding:0 8px; border-radius:8px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11.5px; color:#0f1b3d; outline:none">
+              <button type="button" id="btnSubmitDomain" onclick="window.submitCustomDomain && window.submitCustomDomain()" style="height:30px; padding:0 12px; border-radius:8px; border:none; background:#1f5bff; color:#fff; font-size:11.5px; font-weight:700; cursor:pointer">Connect</button>
+            </div>
+            <div id="domainDnsHelper" style="display:none; padding:7px 10px; border-radius:8px; background:rgba(255,255,255,0.85); border:1px solid #cfdcf5; font-size:11px; color:#3a4a73">
+              Add a <b>CNAME</b> record:<br>
+              Name: <b id="dnsSubName">@</b> → Target: <b id="dnsTargetHost"></b>
+            </div>
+          </div>
+
+          <!-- advanced settings -->
+          <details id="pubAdvancedDetails" style="margin-top:10px">
+            <summary style="font-size:11px; font-weight:700; letter-spacing:0.08em; color:#3a4a73; cursor:pointer; user-select:none">ADVANCED SETTINGS</summary>
+            <div style="margin-top:8px; display:flex; flex-direction:column; gap:7px">
+              <div>
+                <div style="font-size:10.5px; font-weight:600; color:#3a4a73; margin-bottom:3px">Totalum API Key (override)</div>
+                <div style="display:flex; gap:5px">
+                  <input type="password" id="inputTotalumKeyLocal" placeholder="tok_••••••••" style="flex:1; height:28px; padding:0 8px; border-radius:7px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11px; outline:none">
+                  <button type="button" id="btnTestTotalumConn" onclick="window.testTotalumConn && window.testTotalumConn()" style="height:28px; padding:0 10px; border-radius:7px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11px; cursor:pointer; color:#3a4a73">Test</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:10.5px; font-weight:600; color:#3a4a73; margin-bottom:3px">Environment Secrets</div>
+                <div style="display:flex; gap:5px; margin-bottom:5px">
+                  <input type="text" id="inputSecretName" placeholder="SECRET_NAME" style="flex:1; height:28px; padding:0 8px; border-radius:7px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11px; outline:none; font-family:ui-monospace,monospace">
+                  <input type="password" id="inputSecretVal" placeholder="value" style="flex:1; height:28px; padding:0 8px; border-radius:7px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11px; outline:none">
+                  <button type="button" id="btnSaveSecret" onclick="window.saveProjectSecret && window.saveProjectSecret()" style="height:28px; padding:0 10px; border-radius:7px; border:none; background:#1f5bff; color:#fff; font-size:11px; cursor:pointer; font-weight:700">Save</button>
+                </div>
+                <div id="secretsEmpty" style="font-size:11px; color:#9fb2d9; text-align:center; padding:5px 0">No secrets saved yet.</div>
+                <table id="secretsTable" hidden style="width:100%; font-size:11px; border-collapse:collapse">
+                  <tbody id="secretsTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+
+          <!-- close button -->
+          <div style="margin-top:12px; text-align:center">
+            <button type="button" id="btnCancelPublish" onclick="document.getElementById('modalPublish').hidden=true; document.getElementById('modalPublish').style.display='none'" style="height:28px; padding:0 18px; border-radius:999px; border:1px solid #cfdcf5; background:rgba(255,255,255,0.85); font-size:11.5px; font-weight:600; color:#3a4a73; cursor:pointer">Close</button>
+          </div>
+
+        </div><!-- /scrollable -->
 
       </div>
     </div>
