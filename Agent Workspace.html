@@ -3366,10 +3366,46 @@ body.ws-stage-2-active .topbar {
             p.projectCodeFiles.unshift({ path: mf.path, name: mf.path.split('/').pop(), size: mf.code.length, customContent: mf.code });
           }
         });
+
+        // Inject the HTML file into the live preview iframe so user sees changes immediately
+        var htmlFile = data.modifiedFiles.find(function(mf) {
+          return /\.(html|htm)$/i.test(mf.path) || mf.path === 'index.html' || /preview/i.test(mf.path);
+        });
+        if (!htmlFile) {
+          // Fall back to the file with the most content
+          htmlFile = data.modifiedFiles.reduce(function(best, mf) {
+            return (!best || mf.code.length > best.code.length) ? mf : best;
+          }, null);
+        }
+        if (htmlFile && htmlFile.code) {
+          try {
+            var blob = new Blob([htmlFile.code], { type: 'text/html' });
+            var blobUrl = URL.createObjectURL(blob);
+            p.claudePreviewBlobUrl = blobUrl;
+            p.claudePreviewFile = htmlFile.path;
+            // Update the live preview frame (#wsLiveFrame)
+            var liveFrame = document.getElementById('wsLiveFrame');
+            if (liveFrame) {
+              liveFrame.style.transition = 'opacity 0.3s';
+              liveFrame.style.opacity = '0';
+              setTimeout(function() {
+                liveFrame.src = blobUrl;
+                liveFrame.style.opacity = '1';
+              }, 300);
+            }
+          } catch(blobErr) { /* Blob API unavailable */ }
+        }
       }
 
       var modelBadge = data.model || 'claude-sonnet-5.5';
       m.text = '✨ **Claude Sonnet 5.5 (' + modelBadge + ') — Response:**\n\n' + (data.text || '');
+
+      // Add helpful note if code was edited but preview may still show old Totalum build
+      if (Array.isArray(data.modifiedFiles) && data.modifiedFiles.length > 0) {
+        m.text += '\n\n> 💡 **' + data.modifiedFiles.length + ' file(s) updated** oleh Claude. Preview di kanan sudah diperbarui secara lokal. Klik **Re-Deploy** untuk mendorong perubahan ke production.';
+      } else {
+        m.text += '\n\n> ⚠️ Claude menyelesaikan analisis tapi tidak ada kode yang diubah. Coba deskripsikan perubahan yang lebih spesifik (misal: "ubah background jadi putih, teks jadi hitam").';
+      }
 
       if (data.triggeredJobs && data.triggeredJobs.length > 0) {
         var job = data.triggeredJobs[0];
@@ -3382,10 +3418,12 @@ body.ws-stage-2-active .topbar {
         });
       }
 
+      var hasEdits = Array.isArray(data.modifiedFiles) && data.modifiedFiles.length > 0;
       m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+        (hasEdits ? '<button type="button" class="rf-btn rf-btn-primary" onclick="window.applyClaudePreview && window.applyClaudePreview()" style="background:#10b981;border-color:#10b981;color:#fff">👁️ Lihat Preview Perubahan</button>' : '') +
         '<button type="button" class="rf-btn" onclick="uiMode=\'code\';renderSide();">💻 View Code Changes</button>' +
         '<button type="button" class="rf-btn" onclick="window.openComposioModal()">🔌 SaaS Integrations</button>' +
-        '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Publish Website</button>' +
+        '<button type="button" class="rf-publish-btn" onclick="window.openPublishModal()">🚀 Re-Deploy</button>' +
         '</div>';
 
       p.suggest = Array.isArray(data.suggest) ? data.suggest : ['Review Updated Code', 'Add New Component', 'Publish to Live'];
@@ -3708,6 +3746,29 @@ body.ws-stage-2-active .topbar {
       : (p.totalumPreviewUrl || '');
     if (url) window.open(url, '_blank', 'noopener');
     else toast('Preview URL not available yet. Please wait for the build to complete.');
+  };
+
+  // Apply Claude-edited preview code into the live frame
+  window.applyClaudePreview = function() {
+    var p = cur(); if (!p) return;
+    if (p.claudePreviewBlobUrl) {
+      var liveFrame = document.getElementById('wsLiveFrame');
+      if (liveFrame) {
+        liveFrame.style.transition = 'opacity 0.3s';
+        liveFrame.style.opacity = '0';
+        setTimeout(function() {
+          liveFrame.src = p.claudePreviewBlobUrl;
+          liveFrame.style.opacity = '1';
+        }, 300);
+        uiMode = 'live';
+        renderSide();
+        toast('✅ Preview diperbarui dengan kode Claude!');
+      } else {
+        toast('Frame preview tidak ditemukan. Buka tab Live terlebih dahulu.');
+      }
+    } else {
+      toast('Belum ada perubahan kode dari Claude untuk ditampilkan.');
+    }
   };
   window.copyActiveLiveUrl = function() {
     var p = cur(); if (!p) return;

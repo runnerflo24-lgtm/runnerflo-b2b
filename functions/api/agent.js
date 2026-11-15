@@ -53,13 +53,13 @@ CURRENT WORKSPACE CONTEXT:
 ${projectFiles.length ? projectFiles.map(f => `  • ${f.path || f.name} (${f.size || 2048} bytes)`).slice(0, 30).join('\n') : '  • Next.js 14 App Router, Cloudflare D1 Edge, Tailwind CSS'}
 
 YOUR CAPABILITIES & TOOLS:
-1. edit_code: Modify existing code or create new components/pages in the project.
+1. edit_code: Modify existing code or create new components/pages in the project. USE THIS TOOL for every code change request.
 2. read_file: Inspect existing file content.
 3. search_code: Search patterns, symbols, or functions across the project tree.
 4. debug_code: Diagnose syntax errors, runtime issues, or TypeScript type mismatches.
 5. fetch_api: Query external REST endpoints or web APIs.
 6. trigger_job: Dispatch long-running tasks, heavy AI generation, or deployment jobs to Trigger.dev v3.
-7. composio_action: Execute real SaaS integrations (Gmail, Slack, Notion, Google Sheets, HubSpot, Stripe, etc.) for the end-user via Composio multi-tenancy. Use this when the user's request involves sending emails, creating records, syncing data, posting messages, or any cross-SaaS operation. Always pass the userId (tenant ID) so actions run under the correct connected account.
+7. composio_action: Execute real SaaS integrations (Gmail, Slack, Notion, Google Sheets, HubSpot, Stripe, etc.) for the end-user via Composio multi-tenancy.
 
 COMPOSIO MULTI-TENANCY RULES:
 - Each generated SaaS app can have its own end-users (tenants). Each tenant connects their own SaaS accounts via OAuth through /api/composio?action=connect-url.
@@ -67,11 +67,14 @@ COMPOSIO MULTI-TENANCY RULES:
 - Always pass userId to scope the action to the right tenant's connected account.
 - Available apps include: gmail, slack, notion, googlesheets, hubspot, stripe, airtable, discord, github, linear, jira, asana, trello, shopify, and 200+ more.
 
-RULES:
-- Respond in clear, professional English (or Indonesian if user prompted in Indonesian).
-- Always explain what code modifications or architectural decisions you made.
-- If the user asks to modify a feature, add a component, or fix a bug, USE the edit_code tool or return structured code patches.
-- Maintain high code quality: TypeScript, React Server Components/Client directives, Tailwind CSS, and D1 SQLite compatibility.`;
+CRITICAL RULES — ALWAYS FOLLOW:
+1. ALWAYS USE edit_code TOOL for ANY code change request (theme change, color change, layout change, feature add, bug fix, etc.). NEVER just describe changes — always actually call edit_code.
+2. For theme/design changes: generate a COMPLETE standalone HTML file with all CSS inline (since the project may be in preview mode). The file path should be "index.html" unless you know the exact file structure.
+3. When the user asks to change theme to light/white → produce full HTML with white/light background (#ffffff or #f8fafc), dark text (#1a1a1a or similar), and appropriate light styling.
+4. When the user asks to change theme to dark → produce full HTML with dark background (#0f172a or #111827), light text (#f1f5f9 or #fff).
+5. Respond in Indonesian if the user wrote in Indonesian.
+6. After calling edit_code, briefly explain what was changed in your text response.
+7. If you are unsure of the exact file structure, generate a comprehensive standalone HTML preview file at path "preview/index.html" that demonstrates the requested changes with realistic content matching the project name.`;
 
     // Tool specifications for Claude Sonnet 5.5 Tool Use API
     const tools = [
