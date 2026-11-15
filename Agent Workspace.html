@@ -1415,161 +1415,119 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
-<!-- Modal Publish (Unified Runnerflo Native Publish & Settings - Floating 3D Card) -->
-<div id="modalPublish" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card rf-floating-card">
-    <!-- Floating 3D Sparkles & Coins from floating-card.html -->
-    <svg style="position:absolute;left:-16px;top:20px;pointer-events:none;animation:floaty 6s ease-in-out infinite" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1.2" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
-    <svg style="position:absolute;right:-14px;top:70px;pointer-events:none;animation:floaty2 5s ease-in-out infinite" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1.2" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
+<!-- Modal Publish (Floating 3D Card copied directly from floating-card.html) -->
+<div id="modalPublish" class="rf-modal-backdrop" hidden style="display:none;position:fixed;inset:0;background:rgba(5,10,25,0.72);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;overflow-y:auto;padding:20px">
+  <div style="position: relative; width: 500px; height: 730px; flex-shrink: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif">
 
-    <div class="rf-modal-head" style="flex-direction:column;align-items:flex-start;position:relative">
-      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-        <div class="deploy-settings-subtag">
-          <span class="diamond-dot"></span>
-          <span>DEPLOY SETTINGS</span>
+    <!-- main card -->
+    <div style="position: absolute; left: 36px; top: 130px; width: 428px; height: 540px; box-sizing: border-box; border-radius: 22px; overflow: hidden; border: 1px solid #c9daf6; background: linear-gradient(165deg, #ffffff 0%, #eaf1fc 45%, #c3d8f8 100%)">
+      <div style="position: absolute; left: 0; top: 0; width: 100%; height: 110px; background: repeating-linear-gradient(120deg, rgba(120,150,210,0.10) 0px, rgba(120,150,210,0.10) 2px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 26px); pointer-events: none"></div>
+      <div style="position: absolute; left: 0; bottom: 0; width: 100%; height: 200px; background: linear-gradient(180deg, rgba(47,107,255,0) 0%, rgba(47,107,255,0.20) 100%); pointer-events: none"></div>
+
+      <div style="position: absolute; left: 28px; top: 108px; width: 370px; display: flex; flex-direction: column">
+
+        <div style="display: flex; align-items: center; gap: 8px">
+          <div style="width: 7px; height: 7px; background: #1f5bff; transform: rotate(45deg)"></div>
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: #3a4a73">DEPLOY SETTINGS</div>
         </div>
-        <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Close" style="color:#3a4a73">&times;</button>
+
+        <h1 style="margin: 8px 0 0 0; font-size: 30px; line-height: 1.12; font-weight: 800; letter-spacing: -0.01em; color: #0f1b3d">PUBLISH WEBSITE</h1>
+
+        <div style="margin-top: 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #3a4a73">PUBLIC WEBSITE ADDRESS</div>
+
+        <!-- address field -->
+        <div style="margin-top: 6px; height: 46px; box-sizing: border-box; padding: 0 8px 0 12px; border-radius: 12px; background: rgba(255,255,255,0.85); border: 1px solid #cfdcf5; display: flex; align-items: center; gap: 8px">
+          <div id="pubModalUrlText" style="flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 11.5px; color: #0f1b3d">https://build-a-custom-ai-customer-s…</div>
+          <div id="btnCopyPubUrl" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('pubModalUrlText').textContent); window.toast && window.toast('Link copied!')" style="height: 30px; padding: 0 10px; border-radius: 999px; background: #ffffff; border: 1px solid #bccdec; display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #0f1b3d; cursor: pointer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0f1b3d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy
+          </div>
+          <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" style="height: 30px; padding: 0 10px; border-radius: 999px; background: #ffffff; border: 1px solid #bccdec; display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #0f1b3d; text-decoration: none; cursor: pointer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0f1b3d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Open
+          </a>
+        </div>
+
+        <!-- failed / notice message -->
+        <div id="pubEngineNotice" style="margin-top: 12px; box-sizing: border-box; padding: 11px 12px; border-radius: 12px; background: #fff4e0; border: 1px solid #f0d49a; display: flex; gap: 9px; align-items: flex-start">
+          <svg style="flex: none; margin-top: 1px" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18.5v.01"/></svg>
+          <div id="pubNoticeContent" style="font-size: 12px; line-height: 1.45; color: #4a2f00"><b>Publishing Failed:</b> VCaaS API requires a minimum credit balance of 1. Your balance is -3.5193.</div>
+        </div>
+
+        <!-- steps -->
+        <div id="pubStepsList" style="margin-top: 12px; display: flex; flex-direction: column; gap: 5px">
+          <div id="pstep-1" class="deploy-step-item active" style="height: 32px; box-sizing: border-box; padding: 0 10px; border-radius: 10px; background: #e3ebff; border: 1.5px solid #1f5bff; display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600; color: #0f1b3d">
+            <svg style="flex: none; animation: spin 1.2s linear infinite" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#c3d3f5" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" stroke="#1f5bff" stroke-width="3" stroke-linecap="round"/></svg>
+            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Verifying application layout &amp; responsive assets…</div>
+          </div>
+          <div id="pstep-2" class="deploy-step-item" style="height: 32px; box-sizing: border-box; padding: 0 10px; border-radius: 10px; background: rgba(255,255,255,0.7); border: 1px solid #cfdcf5; display: flex; align-items: center; gap: 9px; font-size: 12px; color: #1c2a52">
+            <div style="flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #9fb2d9; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: #3a4a73">2</div>
+            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Configuring cloud runtime &amp; edge database…</div>
+          </div>
+          <div id="pstep-3" class="deploy-step-item" style="height: 32px; box-sizing: border-box; padding: 0 10px; border-radius: 10px; background: rgba(255,255,255,0.7); border: 1px solid #cfdcf5; display: flex; align-items: center; gap: 9px; font-size: 12px; color: #1c2a52">
+            <div style="flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #9fb2d9; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: #3a4a73">3</div>
+            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Publishing live to global edge network…</div>
+          </div>
+        </div>
+
+        <!-- custom domain -->
+        <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #3a4a73">CUSTOM DOMAIN</div>
+          <div id="domainStatusBadge" style="height: 24px; padding: 0 11px; border-radius: 999px; background: #d9e4f8; display: flex; align-items: center; font-size: 11.5px; font-weight: 600; color: #34446b; cursor: pointer" onclick="window.switchDomainTab ? window.switchDomainTab('buy') : null">Not Connected</div>
+        </div>
+
       </div>
-      <h1 class="main-publish-title">PUBLISH WEBSITE</h1>
     </div>
 
-    <div class="rf-modal-body">
-      <!-- 1. Live Address -->
-      <div class="rf-section">
-        <label class="rf-label">Public Website Address</label>
-        <div class="rf-url-box">
-          <span class="rf-url-text" id="pubModalUrlText">https://runnerflo-ai.pages.dev</span>
-          <div style="display:flex;gap:6px;flex:none">
-            <button type="button" class="rf-pill-btn" id="btnCopyPubUrl" title="Copy link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span>Copy</span>
-            </button>
-            <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" class="rf-pill-btn" title="Open in new tab">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-              <span>Open</span>
-            </a>
-          </div>
-        </div>
-        <!-- Sandbox preview quick-access row (shown when not yet published to production) -->
-        <div id="pubModalSandboxRow" style="margin-top:8px;padding:8px 10px;background:var(--accent-soft);border-radius:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px" hidden>
-          <span style="color:var(--muted)">🧪 <b>Sandbox Preview</b> (working now):</span>
-          <a id="pubSandboxLink" href="#" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%">#</a>
-        </div>
+    <!-- ===== 3D elements popping out of the card ===== -->
+
+    <!-- floating browser window -->
+    <div style="position: absolute; left: 190px; top: 22px; width: 240px; height: 160px; animation: floaty 6s ease-in-out infinite; pointer-events: none">
+      <div style="position: absolute; left: 0; top: 0; width: 240px; height: 160px; border-radius: 16px; box-sizing: border-box; background: linear-gradient(145deg, #ffffff 0%, #e6eefc 55%, #c9dafa 100%); transform: perspective(900px) rotateY(-26deg) rotateX(12deg) rotateZ(-10deg); box-shadow: 1px 1px 0 #d2def5, 2px 2px 0 #cbd9f3, 3px 3px 0 #c4d3f0, 4px 4px 0 #bccdec, 5px 5px 0 #b5c7e9, 6px 6px 0 #aec1e6">
+        <div style="position: absolute; left: 16px; top: 16px; width: 9px; height: 9px; border-radius: 50%; background: #9fb6e3"></div>
+        <div style="position: absolute; left: 31px; top: 16px; width: 9px; height: 9px; border-radius: 50%; background: #9fb6e3"></div>
+        <div style="position: absolute; left: 46px; top: 16px; width: 9px; height: 9px; border-radius: 50%; background: #1f5bff"></div>
+        <div style="position: absolute; left: 16px; top: 40px; width: 208px; height: 1.5px; background: #c3d3f1"></div>
+        <div style="position: absolute; left: 22px; bottom: 44px; width: 96px; height: 9px; border-radius: 5px; background: #1f5bff"></div>
+        <div style="position: absolute; left: 22px; bottom: 26px; width: 150px; height: 9px; border-radius: 5px; background: #1f5bff"></div>
+        <div style="position: absolute; right: 0; top: 0; width: 100%; height: 100%; border-radius: 16px; background: linear-gradient(120deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 40%)"></div>
       </div>
-
-      <!-- 2. Publish Status & Execution -->
-      <div class="rf-section">
-        <div id="pubEngineNotice" class="rf-callout"></div>
-
-        <!-- Progress Steps -->
-        <div id="pubStepsList" class="deploy-steps-list" hidden>
-          <div class="deploy-step-item" id="pstep-1"><span class="deploy-step-icon">1</span><span>Verifying application layout &amp; responsive assets...</span></div>
-          <div class="deploy-step-item" id="pstep-2"><span class="deploy-step-icon">2</span><span>Configuring cloud runtime &amp; edge database...</span></div>
-          <div class="deploy-step-item" id="pstep-3"><span class="deploy-step-icon">3</span><span>Publishing live to global edge network...</span></div>
-        </div>
-
-        <div id="pubSuccessNotice" class="rf-callout success" hidden>
-          <b>🎉 Website Successfully Published Live!</b>
-          <p style="margin:4px 0 6px">Your application is now active and accessible globally:</p>
-          <a id="pubSuccessLink" href="#" target="_blank" rel="noopener" style="font-weight:700;color:var(--accent);text-decoration:underline;word-break:break-all"></a>
-        </div>
-
-        <button type="button" class="rf-action-btn" id="btnExecutePublish">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3M22 2l-7.5 7.5M9.5 14.5L14 10M17 7l2 2"/></svg>
-          <span id="pubActionBtnText">🚀 Publish to Production</span>
-        </button>
-      </div>
-
-      <!-- 3. Domain Management & Automated Registration -->
-      <div class="rf-section" style="border-top:1px solid var(--line);padding-top:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <label class="rf-label" style="margin:0">Custom Domain &amp; Automated Registration</label>
-          <span id="domainStatusBadge" class="rf-badge-muted">Not Connected</span>
-        </div>
-
-        <!-- Domain Tab Buttons -->
-        <div style="display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:8px;border:1px solid var(--line);margin-bottom:10px">
-          <button type="button" class="rf-tab-btn active" id="tabDomainBuy" onclick="window.switchDomainTab('buy')" style="flex:1;padding:5px 8px;font-size:11.5px;font-weight:600;border:none;border-radius:6px;background:var(--panel);color:var(--fg);cursor:pointer">🛒 Buy Domain (Auto-DNS)</button>
-          <button type="button" class="rf-tab-btn" id="tabDomainFree" onclick="window.switchDomainTab('free')" style="flex:1;padding:5px 8px;font-size:11.5px;font-weight:600;border:none;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer">⚡ Free Subdomain</button>
-          <button type="button" class="rf-tab-btn" id="tabDomainExternal" onclick="window.switchDomainTab('external')" style="flex:1;padding:5px 8px;font-size:11.5px;font-weight:600;border:none;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer">🔗 External Domain</button>
-        </div>
-
-        <!-- TAB 1: BUY DOMAIN (Zero manual DNS) -->
-        <div id="paneDomainBuy">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
-            Register your official branded domain directly. <b>Zero DNS configuration required</b> — DNS records, Cloudflare Edge routing, and SSL certificates are provisioned automatically.
-          </div>
-          <div style="display:flex;gap:6px">
-            <input type="text" id="domainSearchQuery" placeholder="Search domain name (e.g. vesperart, mybrand)" autocomplete="off" style="flex:1;font-size:12.5px" onkeydown="if(event.key==='Enter')window.searchDomains()">
-            <button type="button" class="rf-btn rf-btn-primary" id="btnSearchDomain" onclick="window.searchDomains()" style="flex:none">🔍 Search</button>
-          </div>
-          <div id="domainSearchResults" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
-        </div>
-
-        <!-- TAB 2: FREE CLOUD SUBDOMAIN -->
-        <div id="paneDomainFree" hidden>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
-            Use a free, permanent high-performance cloud subdomain hosted on Cloudflare Edge with global CDN and automated SSL.
-          </div>
-          <div style="padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <span style="font-family:var(--font-mono);font-size:12px;color:var(--fg);overflow:hidden;text-overflow:ellipsis" id="freeSubdomainPreview">app-project.runnerflo.app</span>
-            <button type="button" class="rf-pill-btn" onclick="window.applyFreeSubdomain()" style="flex:none;background:#10b981;color:#fff">✓ Active (Default)</button>
-          </div>
-        </div>
-
-        <!-- TAB 3: EXTERNAL EXISTING DOMAIN (Manual DNS) -->
-        <div id="paneDomainExternal" hidden>
-          <p style="margin:0 0 8px;font-size:12px;color:var(--muted)">Already own a domain at Namecheap, GoDaddy, or Niagahoster? Enter your hostname below.</p>
-          <div style="display:flex;gap:8px">
-            <input type="text" id="customDomainInput" placeholder="e.g. app.mycompany.com" autocomplete="off" style="flex:1">
-            <button type="button" class="rf-btn rf-btn-primary" id="btnSubmitDomain" style="flex:none">Connect</button>
-          </div>
-          <div id="domainDnsHelper" style="margin-top:10px;font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:none">
-            <b>DNS CNAME Setup:</b> In your DNS provider manager, point:
-            <div style="margin-top:4px">Type: <code>CNAME</code> &bull; Name: <code id="dnsSubName">app</code> &bull; Target: <code id="dnsTargetHost">app.runnerflo.app</code></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Advanced Settings (Collapsible) -->
-      <details class="rf-details" id="pubAdvancedDetails">
-        <summary class="rf-summary">⚙️ Advanced Settings (API Tokens &amp; Integrations)</summary>
-        <div style="padding-top:10px;display:flex;flex-direction:column;gap:12px">
-          <div class="rf-form-row">
-            <label for="inputTotalumKeyLocal" style="font-size:11px">Production Engine API Token (Browser Test):</label>
-            <div style="display:flex;gap:8px">
-              <input type="password" id="inputTotalumKeyLocal" placeholder="Paste API token to test connection">
-              <button type="button" class="rf-btn" id="btnTestTotalumConn" style="flex:none">Test Key</button>
-            </div>
-            <small style="color:var(--muted);font-size:11px">API credentials are automatically configured on Cloudflare Workers environment.</small>
-          </div>
-          <div class="rf-form-row">
-            <label style="font-size:11px">Third-Party Secrets (Optional: Stripe, WhatsApp, etc.):</label>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin:3px 0 6px">
-              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('OPENAI_API_KEY')">+ OpenAI</button>
-              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('REPLICATE_API_TOKEN')">+ Replicate</button>
-              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('ANTHROPIC_API_KEY')">+ Claude</button>
-              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('STRIPE_SECRET_KEY')">+ Stripe</button>
-              <button type="button" class="rf-chip-preset" onclick="window.fillSecretPreset('MAKE_WEBHOOK_URL')">+ Make.com</button>
-            </div>
-            <div style="display:flex;gap:6px">
-              <input type="text" id="inputSecretName" placeholder="NAME (e.g. STRIPE_KEY)" style="flex:1;text-transform:uppercase;font-size:12px">
-              <input type="password" id="inputSecretVal" placeholder="Token Value" style="flex:1.5;font-size:12px">
-              <button type="button" class="rf-btn" id="btnSaveSecret" style="flex:none">+ Save</button>
-            </div>
-            <div id="secretsEmpty" style="font-size:11px;color:var(--muted)">No custom secrets stored yet.</div>
-            <table class="rf-table" id="secretsTable" hidden style="margin-top:4px">
-              <thead><tr><th>Secret Name</th><th>Status</th><th>Action</th></tr></thead>
-              <tbody id="secretsTbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </details>
     </div>
 
-    <div class="rf-modal-foot">
-      <button type="button" class="rf-btn" id="btnCancelPublish">Close</button>
+    <!-- credit bubble -->
+    <div id="pubCreditBubble" style="position: absolute; left: 44px; top: 52px; animation: floaty2 5s ease-in-out infinite; pointer-events: none">
+      <div style="position: relative; width: 112px; height: 46px; border-radius: 14px; background: #ffffff; border: 1px solid #d4e0f6; box-sizing: border-box; transform: rotate(-6deg); display: flex; align-items: center; justify-content: center; gap: 8px">
+        <div id="creditBubbleIcon" style="width: 20px; height: 20px; border-radius: 50%; background: #f59e0b; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 13px; font-weight: 800">!</div>
+        <div id="creditBubbleVal" style="font-size: 15px; font-weight: 800; color: #b42318">-3.52</div>
+        <div style="position: absolute; left: 14px; bottom: -9px; width: 18px; height: 18px; background: #ffffff; border-right: 1px solid #d4e0f6; border-bottom: 1px solid #d4e0f6; box-sizing: border-box; transform: rotate(45deg); border-radius: 3px"></div>
+      </div>
     </div>
+
+    <!-- coin left -->
+    <div style="position: absolute; left: 100px; top: 124px; width: 62px; height: 62px; animation: floaty 7s ease-in-out infinite; pointer-events: none">
+      <div style="width: 62px; height: 62px; border-radius: 50%; box-sizing: border-box; background: radial-gradient(circle at 35% 30%, #ffffff 0%, #e8effc 60%, #cddcf7 100%); border: 5px solid #f4f8ff; transform: perspective(500px) rotateX(58deg) rotateZ(-10deg); box-shadow: 0 2px 0 #c3d3f1, 0 4px 0 #bccdec, 0 6px 0 #b5c7e9, 0 8px 0 #aec1e6"></div>
+    </div>
+
+    <!-- coin right -->
+    <div style="position: absolute; left: 424px; top: 92px; width: 56px; height: 56px; animation: floaty2 6.5s ease-in-out infinite; pointer-events: none">
+      <div style="width: 56px; height: 56px; border-radius: 50%; box-sizing: border-box; background: radial-gradient(circle at 35% 30%, #ffffff 0%, #e8effc 60%, #cddcf7 100%); border: 5px solid #f4f8ff; transform: perspective(500px) rotateX(55deg) rotateZ(10deg); box-shadow: 0 2px 0 #c3d3f1, 0 4px 0 #bccdec, 0 6px 0 #b5c7e9, 0 8px 0 #aec1e6"></div>
+    </div>
+
+    <!-- sparkles -->
+    <svg style="position: absolute; left: 62px; top: 150px; pointer-events: none" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
+    <svg style="position: absolute; left: 168px; top: 196px; pointer-events: none" width="16" height="16" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1.2" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
+    <svg style="position: absolute; left: 446px; top: 40px; pointer-events: none" width="18" height="18" viewBox="0 0 24 24" fill="#ffffff" stroke="#9fb6e3" stroke-width="1.1" aria-hidden="true"><path d="M12 1c.8 6 3.6 9.2 11 11-7.4 1.8-10.2 5-11 11-.8-6-3.6-9.2-11-11C8.4 10.2 11.2 7 12 1z"/></svg>
+
+    <!-- Publish to Production button -->
+    <button type="button" id="btnExecutePublish" onclick="window.executePublish && window.executePublish()" style="position: absolute; left: 140px; top: 646px; height: 48px; padding: 0 24px; border-radius: 999px; background: #1f5bff; border: none; display: flex; align-items: center; gap: 9px; color: #ffffff; font-size: 13.5px; font-weight: 800; letter-spacing: 0.01em; cursor: pointer; box-shadow: 0 8px 24px -4px rgba(31,91,255,0.45); z-index: 5">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15c-1.5 1.2-2 4-2 6 2 0 4.8-.5 6-2"/><path d="M12 15l-3-3a22 22 0 0 1 2-4 12 12 0 0 1 11-5c0 3-1 8-5 11a22 22 0 0 1-4 2z"/><circle cx="15.5" cy="8.5" r="1.2"/></svg>
+      <span id="pubActionBtnText">Publish to Production</span>
+    </button>
+
+    <!-- cursor pointing to button -->
+    <svg style="position: absolute; left: 382px; top: 668px; pointer-events: none; z-index: 6" width="54" height="54" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 5l32 14-13 4.5L22 36z" fill="#1f5bff" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/></svg>
+
+    <!-- close button on top-right -->
+    <button type="button" id="btnClosePublishModal" onclick="document.getElementById('modalPublish').hidden=true; document.getElementById('modalPublish').style.display='none'" style="position: absolute; right: 8px; top: 8px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid #cfdcf5; color: #3a4a73; font-size: 22px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.1)" aria-label="Close">&times;</button>
+
   </div>
 </div>
 
@@ -3652,7 +3610,11 @@ body.ws-stage-2-active .topbar {
     var localKeyInp = $('#inputTotalumKeyLocal');
     if (localKeyInp) localKeyInp.value = localStorage.getItem('rf_totalum_key') || '';
 
-    $('#modalPublish').hidden = false;
+    var mp = $('#modalPublish');
+    if (mp) {
+      mp.hidden = false;
+      mp.style.display = 'flex';
+    }
   }
   window.openPublishModal = openPublishModal;
   window.openDeployModal = openPublishModal;
@@ -5480,7 +5442,7 @@ body.ws-stage-2-active .topbar {
     if (c('#btnModeSim')) { setEngineMode('sim'); return; }
     if (c('#btnModeTotalum')) { setEngineMode('totalum'); return; }
     if (c('#btnPublish') || c('#btnDeployLive') || c('#wsBtnChromeDeploy')) { openPublishModal(); return; }
-    if (c('#btnClosePublishModal') || c('#btnCancelPublish') || t.id === 'modalPublish') { $('#modalPublish').hidden = true; return; }
+    if (c('#btnClosePublishModal') || c('#btnCancelPublish') || t.id === 'modalPublish') { var mp = $('#modalPublish'); if (mp) { mp.hidden = true; mp.style.display = 'none'; } return; }
     if (c('#btnCopyPubUrl')) {
       var urlTxt = $('#pubModalUrlText') ? $('#pubModalUrlText').textContent : '';
       if (urlTxt) {
