@@ -3316,6 +3316,18 @@ body.ws-stage-2-active .topbar {
       return { role: item.role, text: item.text };
     });
 
+    // Prepare all project files with actual source code (or blueprint defaults) so Claude can read and edit
+    var allFiles = (p.projectCodeFiles && p.projectCodeFiles.length) ? p.projectCodeFiles : getProjectCodeFiles(p);
+    var filesToSend = (allFiles || []).map(function(f) {
+      var filePath = f.path || f.name || (typeof f === 'string' ? f : 'file');
+      return {
+        path: filePath,
+        name: f.name || (filePath ? filePath.split('/').pop() : 'file'),
+        size: f.size || 2048,
+        customContent: f.customContent || (typeof codeFor === 'function' ? codeFor(filePath, p) : '')
+      };
+    });
+
     fetch('/api/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3324,7 +3336,7 @@ body.ws-stage-2-active .topbar {
         projectName: p.name || 'AI Cloud Project',
         stage: p.stage || 4,
         mode: state.mode || 'Auto',
-        projectFiles: p.projectCodeFiles || [],
+        projectFiles: filesToSend,
         history: history,
         reason: reason || 'manual'
       })
@@ -3372,27 +3384,21 @@ body.ws-stage-2-active .topbar {
           return /\.(html|htm)$/i.test(mf.path) || mf.path === 'index.html' || /preview/i.test(mf.path);
         });
         if (!htmlFile) {
-          // Fall back to the file with the most content
+          // If no explicit HTML file, check for React/Next page and wrap or use largest file
           htmlFile = data.modifiedFiles.reduce(function(best, mf) {
             return (!best || mf.code.length > best.code.length) ? mf : best;
           }, null);
         }
         if (htmlFile && htmlFile.code) {
           try {
+            p.claudePreviewHtml = htmlFile.code;
+            p.claudePreviewFile = htmlFile.path;
+            if (p.claudePreviewBlobUrl) {
+              try { URL.revokeObjectURL(p.claudePreviewBlobUrl); } catch(e){}
+            }
             var blob = new Blob([htmlFile.code], { type: 'text/html' });
             var blobUrl = URL.createObjectURL(blob);
             p.claudePreviewBlobUrl = blobUrl;
-            p.claudePreviewFile = htmlFile.path;
-            // Update the live preview frame (#wsLiveFrame)
-            var liveFrame = document.getElementById('wsLiveFrame');
-            if (liveFrame) {
-              liveFrame.style.transition = 'opacity 0.3s';
-              liveFrame.style.opacity = '0';
-              setTimeout(function() {
-                liveFrame.src = blobUrl;
-                liveFrame.style.opacity = '1';
-              }, 300);
-            }
           } catch(blobErr) { /* Blob API unavailable */ }
         }
       }
@@ -3751,21 +3757,16 @@ body.ws-stage-2-active .topbar {
   // Apply Claude-edited preview code into the live frame
   window.applyClaudePreview = function() {
     var p = cur(); if (!p) return;
+    if (p.claudePreviewHtml && !p.claudePreviewBlobUrl) {
+      try {
+        var b = new Blob([p.claudePreviewHtml], { type: 'text/html' });
+        p.claudePreviewBlobUrl = URL.createObjectURL(b);
+      } catch(e){}
+    }
     if (p.claudePreviewBlobUrl) {
-      var liveFrame = document.getElementById('wsLiveFrame');
-      if (liveFrame) {
-        liveFrame.style.transition = 'opacity 0.3s';
-        liveFrame.style.opacity = '0';
-        setTimeout(function() {
-          liveFrame.src = p.claudePreviewBlobUrl;
-          liveFrame.style.opacity = '1';
-        }, 300);
-        uiMode = 'live';
-        renderSide();
-        toast('✅ Preview diperbarui dengan kode Claude!');
-      } else {
-        toast('Frame preview tidak ditemukan. Buka tab Live terlebih dahulu.');
-      }
+      uiMode = 'live';
+      renderSide();
+      toast('✅ Preview diperbarui dengan kode Claude!');
     } else {
       toast('Belum ada perubahan kode dari Claude untuk ditampilkan.');
     }
@@ -4706,6 +4707,7 @@ body.ws-stage-2-active .topbar {
   }
 
   function codeFor(f, p) {
+    if (!f) return '';
     var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
 
     // AI Image Generation Studio source code
@@ -4734,6 +4736,7 @@ body.ws-stage-2-active .topbar {
 
     return '// File: ' + f + '\n// Compiled for ' + (p ? p.name : 'Runnerflo Workspace') + '\nexport default function Component() {\n  return <div>Component Loaded</div>;\n}';
   }
+  window.codeFor = codeFor;
 
   /* Global Actions for Code Viewer */
   window.selectCodeFile = function(filePath) {
@@ -5058,21 +5061,37 @@ body.ws-stage-2-active .topbar {
       var sandboxUrl = isTotalum ? (p.totalumPreviewUrl || '') : '';
       var prodUrl = isTotalum ? (p.totalumProductionUrl ? ('https://' + p.totalumProductionUrl.replace(/^https?:\/\//, '')) : '') : '';
 
-      var badgeHtml = isTotalum
-        ? (isPublished
-            ? '<span class="badge-mode badge-mode-totalum">PRODUCTION LIVE</span>'
-            : '<span class="badge-mode badge-mode-sandbox" style="background:#f59e0b;color:#1a0a00;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:.04em">DEV SANDBOX</span>')
-        : '<span class="badge-mode badge-mode-sim">LIVE DEMO</span>';
+      var claudeUrl = '';
+      if (p.claudePreviewHtml) {
+        if (!p.claudePreviewBlobUrl) {
+          try {
+            var b = new Blob([p.claudePreviewHtml], { type: 'text/html' });
+            p.claudePreviewBlobUrl = URL.createObjectURL(b);
+          } catch(e){}
+        }
+        claudeUrl = p.claudePreviewBlobUrl || '';
+      }
+
+      var isClaudeActive = Boolean(claudeUrl);
+      var badgeHtml = isClaudeActive
+        ? '<span class="badge-mode" style="background:#10b981;color:#fff;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:.04em">CLAUDE LIVE</span>'
+        : (isTotalum
+            ? (isPublished
+                ? '<span class="badge-mode badge-mode-totalum">PRODUCTION LIVE</span>'
+                : '<span class="badge-mode badge-mode-sandbox" style="background:#f59e0b;color:#1a0a00;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:.04em">DEV SANDBOX</span>')
+            : '<span class="badge-mode badge-mode-sim">LIVE DEMO</span>');
 
       // Always display sandbox URL in browser bar (the one that actually resolves)
-      var displayUrl = isTotalum
-        ? (sandboxUrl || prodUrl || 'https://' + (p.totalumProjectId || p.name) + '.totalum-project.com')
-        : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Demo)';
+      var displayUrl = isClaudeActive
+        ? ('https://preview.runnerflo.app/' + (p.claudePreviewFile || 'index.html') + ' (Claude Live Orchestration)')
+        : (isTotalum
+            ? (sandboxUrl || prodUrl || 'https://' + (p.totalumProjectId || p.name) + '.totalum-project.com')
+            : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Demo)');
 
-      // Always load the sandbox preview URL in the iframe (productionProjectUrl 404s until published)
-      var frameSrc = isTotalum
-        ? (sandboxUrl || 'loading-wave-3d.html')
-        : 'https://runnerflo-ai.pages.dev';
+      // Always load the preview URL in the iframe
+      var frameSrc = isClaudeActive
+        ? claudeUrl
+        : (isTotalum ? (sandboxUrl || 'loading-wave-3d.html') : 'https://runnerflo-ai.pages.dev');
 
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
         '<div class="chrome">' +
