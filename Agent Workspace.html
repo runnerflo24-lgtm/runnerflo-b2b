@@ -2660,9 +2660,21 @@ body.ws-stage-2-active .topbar {
     window.loadDatabaseSchema();
   };
 
+  function getProjectPromptText(p) {
+    if (!p) return '';
+    var parts = [p.name || ''];
+    if (Array.isArray(p.msgs)) {
+      for (var i = p.msgs.length - 1; i >= 0; i--) {
+        var m = p.msgs[i];
+        if (m && m.text) parts.push(m.text);
+      }
+    }
+    return parts.join(' ').toLowerCase();
+  }
+
   /* Helper to dynamically build domain-specific schema matching the actual project prompt */
   function getProjectSpecificSchema(p) {
-    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+    var promptText = getProjectPromptText(p);
     
     if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('art') || promptText.includes('vesper') || promptText.includes('studio')) {
       return [
@@ -3033,7 +3045,7 @@ body.ws-stage-2-active .topbar {
   function renderSimulatedDbAsk(p, q) {
     var answerBox = $('#dbAskAnswer');
     if (!answerBox) return;
-    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+    var promptText = getProjectPromptText(p);
 
     if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('vesper') || promptText.includes('studio')) {
       answerBox.innerHTML = '<div style="margin-bottom:6px;color:#10b981;font-weight:600">✓ AI Query Executed on ' + dbCurrentEnv.toUpperCase() + ' Database:</div>' +
@@ -3373,7 +3385,8 @@ body.ws-stage-2-active .topbar {
         previewUrl: p.totalumPreviewUrl || p.totalumLiveUrl || '',
         projectFiles: filesToSend,
         history: history,
-        reason: reason || 'manual'
+        reason: reason || 'manual',
+        isNewApp: /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text)
       })
     })
     .then(function(res) {
@@ -4527,6 +4540,19 @@ body.ws-stage-2-active .topbar {
   }
   function send(text) {
     var p = cur(); text = (text || '').trim(); if (!p || !text || p.busy) return;
+    var isNewBuild = /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text);
+    if (isNewBuild) {
+      p.claudePreviewHtml = null;
+      if (p.claudePreviewBlobUrl) {
+        try { URL.revokeObjectURL(p.claudePreviewBlobUrl); } catch(e){}
+      }
+      p.claudePreviewBlobUrl = null;
+      p.projectCodeFiles = [];
+      if (/^project-\d+$/i.test(p.name) || p.name === 'video-editing-agency' || p.name === 'app-project') {
+        var slug = text.slice(0, 32).toLowerCase().replace(/^(?:build|create|make|buat|buatkan)\s+(?:an?\s+)?/i, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        if (slug) p.name = slug;
+      }
+    }
     p.msgs.push({ role: 'user', text: text }); save();
     $('#msg').value = ''; fit(); updSend();
     runAgent(p, text);
@@ -4743,7 +4769,7 @@ body.ws-stage-2-active .topbar {
       return p.projectCodeFiles;
     }
 
-    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+    var promptText = getProjectPromptText(p);
 
     if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('art') || promptText.includes('vesper') || promptText.includes('studio')) {
       return [
@@ -4814,7 +4840,7 @@ body.ws-stage-2-active .topbar {
     if (!f) return '';
     var _s = '<' + 'script';
     var _e = '<' + '/script>';
-    var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
+    var promptText = getProjectPromptText(p);
 
     // Universal executable HTML document for the workspace
     if (f === 'index.html' || f.endsWith('/index.html') || f.endsWith('index.html')) {

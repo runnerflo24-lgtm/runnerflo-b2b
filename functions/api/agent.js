@@ -49,12 +49,24 @@ export async function onRequest(context) {
       if (key) fileIndex[key] = f.customContent || f.content || `// ${key} — content not yet available`;
     }
 
-    // CRITICAL: Fetch real HTML from previewUrl (e.g. Totalum live sandbox) if index.html is missing or generic
-    const previewUrl = (body.previewUrl || '').trim();
-    let isEditingExisting = Boolean(fileIndex['index.html'] && fileIndex['index.html'].length > 300);
+    // Check if user is asking to build a brand new application from scratch
+    const isNewAppRequest = /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(userText) ||
+      body.isNewApp === true ||
+      body.reason === 'new_project' ||
+      body.reason === 'from_scratch';
+
+    // Determine if we are editing an existing application (e.g. changing theme, fixing bug, adding feature)
+    let isEditingExisting = false;
     let previewFetchStatus = 'none';
 
-    if (previewUrl && previewUrl.startsWith('http')) {
+    if (!isNewAppRequest) {
+      if (body.reason === 'continue_edit' || body.reason === 'manual_edit' || /^\s*(?:ubah|ganti|edit|modify|change|fix|perbaiki|tambah|tambahkan|add|make it|buatkan agar|set)\b/i.test(userText)) {
+        isEditingExisting = true;
+      }
+    }
+
+    const previewUrl = (body.previewUrl || '').trim();
+    if (isEditingExisting && previewUrl && previewUrl.startsWith('http')) {
       try {
         const pRes = await fetch(previewUrl, {
           headers: { 'User-Agent': 'Mozilla/5.0 Runnerflo-Agent' }
@@ -63,7 +75,6 @@ export async function onRequest(context) {
           const liveHtml = await pRes.text();
           if (liveHtml && liveHtml.length > 200) {
             fileIndex['index.html'] = liveHtml;
-            isEditingExisting = true;
             previewFetchStatus = `Successfully fetched ${liveHtml.length} bytes from ${previewUrl}`;
           }
         }
@@ -563,13 +574,16 @@ async function connectApp(app) {
           // If no tool calls, check if Claude only responded with conversational text
           const toolUseBlocks = contentBlocks.filter(b => b.type === 'tool_use');
           if (toolUseBlocks.length === 0) {
-            // If Claude only chatted and hasn't edited any files yet in iteration 1, nudge Claude to edit code
-            if (iterations === 1 && modifiedFiles.length === 0) {
+            // If Claude only chatted/analyzed and hasn't written or patched any files yet, FORCE Claude to write the code!
+            if (modifiedFiles.length === 0 && iterations < MAX_ITER) {
               const assistantBlocks = contentBlocks.filter(b => b.type === 'text');
-              convMessages.push({ role: 'assistant', content: assistantBlocks.length ? assistantBlocks : [{ type: 'text', text: assistantText || 'Saya siap memperbarui kode.' }] });
+              convMessages.push({
+                role: 'assistant',
+                content: assistantBlocks.length ? assistantBlocks : [{ type: 'text', text: assistantText || 'Saya siap memperbarui kode.' }]
+              });
               convMessages.push({
                 role: 'user',
-                content: `PERINTAH SISTEM WAJIB: Anda hanya memberikan penjelasan rencana tanpa memanggil tool! Pengguna meminta perubahan: "${userText.replace(/"/g, "'")}". Anda WAJIB langsung memanggil tool "edit_code" SEKARANG untuk memperbarui "index.html" (dan file terkait) dengan kode HTML & styling Tailwind CSS lengkap sesuai permintaan pengguna. Panggil edit_code sekarang!`
+                content: `PERINTAH SISTEM WAJIB: Anda BELUM memperbarui kode apapun di workspace (modifiedFiles masih kosong)! Permintaan pengguna adalah: "${userText.replace(/"/g, "'")}". Anda WAJIB langsung memanggil "${isEditingExisting ? 'project_patch_file' : 'project_write_file'}" (atau "edit_code") SEKARANG untuk membuat/memperbarui "index.html" dengan kode HTML5 & Tailwind CSS lengkap dan interaktif. Panggil tool sekarang!`
               });
               currentResponse = await callClaude(convMessages, selectedModel);
               continue;
@@ -593,8 +607,8 @@ async function connectApp(app) {
           convMessages.push({ role: 'assistant', content: assistantBlocks });
           convMessages.push({ role: 'user', content: toolResults });
 
-          // If stop_reason was tool_use, or if Claude only read/searched files and hasn't edited code yet, continue
-          if (stopReason === 'tool_use' || (modifiedFiles.length === 0 && iterations < 3)) {
+          // If stop_reason was tool_use, or if Claude only read/searched files and hasn't modified code yet, continue loop
+          if (stopReason === 'tool_use' || (modifiedFiles.length === 0 && iterations < MAX_ITER)) {
             currentResponse = await callClaude(convMessages, selectedModel);
             continue;
           }
