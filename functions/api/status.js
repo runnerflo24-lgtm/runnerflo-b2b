@@ -24,11 +24,121 @@ export async function onRequest(context) {
   const hasReplicate = Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY));
   const hasWaveSpeed = Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY));
 
+  let managedAgentsStatus = 'not_tested';
+  const aKey = (env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY)) || '';
+  if (aKey) {
+    try {
+      // 1. Check existing agents or create one
+      const listRes = await fetch('https://api.anthropic.com/v1/agents?limit=1', {
+        headers: {
+          'x-api-key': aKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'managed-agents-2026-04-01'
+        }
+      });
+      const listData = await listRes.json();
+      let agentId = (listData && listData.data && listData.data[0] && listData.data[0].id) || null;
+
+      if (!agentId) {
+        const maRes = await fetch('https://api.anthropic.com/v1/agents', {
+          method: 'POST',
+          headers: {
+            'x-api-key': aKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-beta': 'managed-agents-2026-04-01',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'runnerflo-saas-architect',
+            model: 'claude-haiku-5-5',
+            system: 'You are the Autonomous SaaS Architect for Runnerflo.'
+          })
+        });
+        const created = await maRes.json();
+        agentId = created.id;
+      }
+
+      // 2. Check or create Environment
+      let envId = null;
+      let envError = null;
+      try {
+        const envListRes = await fetch('https://api.anthropic.com/v1/environments?limit=1', {
+          headers: {
+            'x-api-key': aKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-beta': 'managed-agents-2026-04-01'
+          }
+        });
+        const envListData = await envListRes.json();
+        envId = (envListData && envListData.data && envListData.data[0] && envListData.data[0].id) || null;
+
+        if (!envId) {
+          const createEnvRes = await fetch('https://api.anthropic.com/v1/environments', {
+            method: 'POST',
+            headers: {
+              'x-api-key': aKey,
+              'anthropic-version': '2023-06-01',
+              'anthropic-beta': 'managed-agents-2026-04-01',
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: 'runnerflo-sandbox-env',
+              config: {
+                type: 'cloud',
+                networking: { type: 'unrestricted' }
+              }
+            })
+          });
+          const createEnvData = await createEnvRes.json();
+          if (createEnvData && createEnvData.id) {
+            envId = createEnvData.id;
+          } else {
+            envError = JSON.stringify(createEnvData);
+          }
+        }
+      } catch (errEnv) {
+        envError = errEnv.message;
+      }
+
+      // 3. Test Session Creation
+      let sessStatus = 'skipped';
+      if (envId) {
+        const sessRes = await fetch('https://api.anthropic.com/v1/sessions', {
+          method: 'POST',
+          headers: {
+            'x-api-key': aKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-beta': 'managed-agents-2026-04-01',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            agent: agentId,
+            environment_id: envId,
+            title: 'runnerflo-diagnostic-session'
+          })
+        });
+        const sessData = await sessRes.text();
+        sessStatus = `HTTP ${sessRes.status}: ${sessData}`;
+      } else {
+        sessStatus = `No Env ID. EnvError: ${envError}`;
+      }
+
+      managedAgentsStatus = {
+        agentId,
+        envId,
+        sessionStatus: sessStatus
+      };
+    } catch (e) {
+      managedAgentsStatus = `Error: ${e.message}`;
+    }
+  }
+
   return new Response(JSON.stringify({
     project: 'runnerflo-b2b',
     totalum: hasTotalum,
     anthropic: hasAnthropic,
     anthropicPrefix: anthropicPrefix,
+    managedAgents: managedAgentsStatus,
     vertex: hasVertex,
     gemini: hasGemini,
     openai: hasOpenAI,
