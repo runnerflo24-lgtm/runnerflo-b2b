@@ -503,8 +503,9 @@ async function connectApp(app) {
     // ─── Model selection with fallback ────────────────────────────────────────
     const candidateModels = [
       'claude-3-5-sonnet-20241022',
+      'claude-3-5-sonnet-latest',
       'claude-3-7-sonnet-20250219',
-      'claude-3-5-haiku-20241022'
+      'claude-3-haiku-20240307'
     ];
 
     async function callClaude(msgs, model) {
@@ -515,24 +516,17 @@ async function connectApp(app) {
       };
       const payload = {
         model,
-        max_tokens: 8000,
+        max_tokens: 4096,
         system: systemPrompt,
         messages: msgs,
         tools
       };
-      let res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST', headers, body: JSON.stringify(payload)
       });
-      // Retry without extended options if 400
-      if (!res.ok && res.status === 400) {
-        const p2 = { ...payload, max_tokens: 4096 };
-        res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST', headers, body: JSON.stringify(p2)
-        });
-      }
       if (!res.ok) {
         const errText = await res.text();
-        throw new Error(`${model} HTTP ${res.status}: ${errText.slice(0, 200)}`);
+        throw new Error(`${model} HTTP ${res.status}: ${errText}`);
       }
       return res.json();
     }
@@ -541,6 +535,7 @@ async function connectApp(app) {
     const modifiedFiles = [];
     const triggeredJobs = [];
     const composioActions = [];
+    const modelAttempts = [];
     let selectedModel = null;
     let assistantText = '';
     let lastError = null;
@@ -617,6 +612,7 @@ async function connectApp(app) {
 
         break; // Successfully completed with this model
       } catch (err) {
+        modelAttempts.push({ model, error: err.message });
         lastError = err.message;
         selectedModel = null;
         continue;
@@ -627,6 +623,7 @@ async function connectApp(app) {
       return new Response(JSON.stringify({
         error: 'Claude Sonnet 5.5 tidak dapat dihubungi.',
         details: lastError,
+        modelAttempts,
         fallback: false
       }), { status: 502, headers: corsHeaders });
     }
