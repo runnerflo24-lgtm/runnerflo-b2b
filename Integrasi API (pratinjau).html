@@ -159,11 +159,11 @@ try {
   fetch('/api/status')
     .then(function(res){ return res.ok ? res.json() : null; })
     .then(function(data){
-      if(data && data.services){
-        if(data.services.openrouter && data.services.openrouter.configured) openrouterItem.status = "connected";
-        if(data.services.fal && data.services.fal.configured) falItem.status = "connected";
-        if(data.services.replicate && data.services.replicate.configured) replicateItem.status = "connected";
-        if(data.services.wavespeed && data.services.wavespeed.configured) wavespeedItem.status = "connected";
+      if(data){
+        if(data.openrouter || (data.services && data.services.openrouter && data.services.openrouter.configured)) openrouterItem.status = "connected";
+        if(data.fal || (data.services && data.services.fal && data.services.fal.configured)) falItem.status = "connected";
+        if(data.replicate || (data.services && data.services.replicate && data.services.replicate.configured)) replicateItem.status = "connected";
+        if(data.wavespeed || (data.services && data.services.wavespeed && data.services.wavespeed.configured)) wavespeedItem.status = "connected";
         draw();
       }
     })
