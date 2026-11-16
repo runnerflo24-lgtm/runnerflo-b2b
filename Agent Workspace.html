@@ -3556,12 +3556,28 @@ body.ws-stage-2-active .topbar {
           }
           if (htmlFile && htmlFile.code) {
             try {
-              p.claudePreviewHtml = htmlFile.code;
-              p.claudePreviewFile = htmlFile.path;
+              var isCompleteDoc = htmlFile.code.includes('<!DOCTYPE') || htmlFile.code.includes('<html') || htmlFile.code.includes('<body') || htmlFile.code.length > 400;
+              if (isCompleteDoc) {
+                p.claudePreviewHtml = htmlFile.code;
+                p.claudePreviewFile = htmlFile.path;
+              } else if (p.claudePreviewHtml) {
+                var snippet = htmlFile.code;
+                if (snippet.includes('<script') || snippet.includes('function') || snippet.includes('sfx') || snippet.includes('audio') || snippet.includes('score')) {
+                  var scriptTag = snippet.includes('<script') ? snippet : ('<script>\n' + snippet + '\n<' + '/script>');
+                  if (p.claudePreviewHtml.includes('</body>')) {
+                    p.claudePreviewHtml = p.claudePreviewHtml.replace('</body>', scriptTag + '\n</body>');
+                  } else {
+                    p.claudePreviewHtml += '\n' + scriptTag;
+                  }
+                }
+              } else {
+                p.claudePreviewHtml = htmlFile.code;
+                p.claudePreviewFile = htmlFile.path;
+              }
               if (p.claudePreviewBlobUrl) {
                 try { URL.revokeObjectURL(p.claudePreviewBlobUrl); } catch(e){}
               }
-              var blob = new Blob([htmlFile.code], { type: 'text/html' });
+              var blob = new Blob([p.claudePreviewHtml], { type: 'text/html' });
               var blobUrl = URL.createObjectURL(blob);
               p.claudePreviewBlobUrl = blobUrl;
               var liveFr = document.getElementById('wsLiveFrame');
@@ -3635,13 +3651,13 @@ body.ws-stage-2-active .topbar {
       if (data && data.status === 'running' && data.sessionId) {
         p.activeSessionId = data.sessionId;
         save();
-        updateWave(60, 'Claude Managed Agent: Harness & Container executing...', 'Session: ' + data.sessionId);
-        m.text = '⚡ **Claude Managed Agents (Hosted Anthropic Harness):** Active Session `' + data.sessionId + '`\nExecuting autonomous instructions inside Anthropic cloud sandbox container...';
+        updateWave(50, 'Claude Sonnet 5.5: Menghubungkan ke cloud sandbox...', 'Sesi: ' + data.sessionId);
+        m.text = '⚡ **Claude Managed Agents (Hosted Anthropic Harness — Sonnet 5.5):** Sesi Aktif `' + data.sessionId + '`\nSedang menjalankan perancangan dan sintesis aplikasi di cloud sandbox container...';
         renderIf(p);
         var pollAttempts = 0;
         var pollTimer = setInterval(function() {
           pollAttempts++;
-          // High-ceiling polling limit: 200 attempts (~320 seconds) for complex SaaS applications
+          // High-ceiling polling limit: 200 attempts (~320 seconds) for complex applications
           if (my !== runId || !p.busy || pollAttempts > 200) {
             clearInterval(pollTimer);
             if (pollAttempts > 200) {
@@ -3656,13 +3672,63 @@ body.ws-stage-2-active .topbar {
           fetch('/api/agent?session=' + encodeURIComponent(data.sessionId))
           .then(function(r) { return r.json(); })
           .then(function(pollRes) {
-            if (pollRes && (pollRes.status === 'done' || (pollRes.modifiedFiles && pollRes.modifiedFiles.length > 0))) {
+            if (!pollRes) return;
+
+            // 1. Calculate dynamic, non-stuck progress percentage (50% -> 96%)
+            var dynamicPct = Math.min(97, Math.round(50 + (pollAttempts / 100) * 46));
+            if (pollRes.progressEstimate && pollRes.progressEstimate > dynamicPct) {
+              dynamicPct = pollRes.progressEstimate;
+            }
+
+            // 2. Map status to human-friendly Indonesian label
+            var friendlyLabel = pollRes.friendlyStatus ||
+              (pollRes.latestEventType === 'agent.thinking' ? 'Claude Sonnet 5.5 sedang merancang logika game, sound & UI...' :
+              (pollRes.latestEventType === 'agent.message' ? 'Menulis kode HTML5, CSS & JavaScript interaktif...' :
+              'Memproses aplikasi di cloud sandbox...'));
+
+            updateWave(dynamicPct, friendlyLabel, 'Progress: ' + dynamicPct + '% • Cloud Sandbox Container Aktif (' + pollAttempts + 's)');
+
+            // 3. Live Code Streaming: update p.projectCodeFiles while session is generating
+            var partialList = pollRes.partialFiles || pollRes.modifiedFiles;
+            if (Array.isArray(partialList) && partialList.length > 0) {
+              if (!p.projectCodeFiles) p.projectCodeFiles = [];
+              partialList.forEach(function(pf) {
+                var found = false;
+                for (var i = 0; i < p.projectCodeFiles.length; i++) {
+                  if ((p.projectCodeFiles[i].path || p.projectCodeFiles[i].name) === pf.path) {
+                    p.projectCodeFiles[i].customContent = pf.code;
+                    p.projectCodeFiles[i].size = pf.code.length;
+                    found = true;
+                    break;
+                  }
+                }
+                if (!found) {
+                  p.projectCodeFiles.unshift({ path: pf.path, name: pf.path.split('/').pop(), size: pf.code.length, customContent: pf.code });
+                }
+              });
+
+              // If user is currently looking at Code tab, update the editor view live!
+              if (uiMode === 'code') {
+                var codeEl = $('pre.code');
+                if (codeEl && codeFile) {
+                  var currentF = p.projectCodeFiles.find(function(f) { return (f.path || f.name) === codeFile; });
+                  if (currentF && currentF.customContent) {
+                    codeEl.textContent = currentF.customContent;
+                    var syncPill = $('#codeSyncPill');
+                    if (syncPill) {
+                      syncPill.textContent = 'Generating Live (' + dynamicPct + '%)';
+                      syncPill.style.background = '#3b82f6';
+                    }
+                  }
+                }
+              }
+            }
+
+            // 4. Session completion: ONLY trigger when Claude has actually finished
+            if (pollRes.status === 'done') {
               clearInterval(pollTimer);
               p.activeSessionId = null;
               applyAgentResults(pollRes);
-            } else if (pollRes && pollRes.latestEventType) {
-              var evLabel = pollRes.latestEventType === 'agent.thinking' ? 'Claude Sonnet 5.5 is thinking & architecting...' : pollRes.latestEventType;
-              updateWave(75, 'Claude Managed Agent: ' + evLabel, 'Container running...');
             }
           })
           .catch(function() {});
@@ -4050,12 +4116,28 @@ body.ws-stage-2-active .topbar {
             }) || pollRes.modifiedFiles[0];
 
             if (htmlFile && htmlFile.code) {
-              p.claudePreviewHtml = htmlFile.code;
-              p.claudePreviewFile = htmlFile.path;
+              var isCompleteDoc = htmlFile.code.includes('<!DOCTYPE') || htmlFile.code.includes('<html') || htmlFile.code.includes('<body') || htmlFile.code.length > 400;
+              if (isCompleteDoc) {
+                p.claudePreviewHtml = htmlFile.code;
+                p.claudePreviewFile = htmlFile.path;
+              } else if (p.claudePreviewHtml) {
+                // Preserve existing complete game and inject audio/script patch into it
+                var snippet = htmlFile.code;
+                if (snippet.includes('<script') || snippet.includes('function') || snippet.includes('sfx') || snippet.includes('audio') || snippet.includes('score')) {
+                  var scriptTag = snippet.includes('<script') ? snippet : ('<script>\n' + snippet + '\n<' + '/script>');
+                  if (p.claudePreviewHtml.includes('</body>')) {
+                    p.claudePreviewHtml = p.claudePreviewHtml.replace('</body>', scriptTag + '\n</body>');
+                  } else {
+                    p.claudePreviewHtml += '\n' + scriptTag;
+                  }
+                }
+              } else {
+                p.claudePreviewHtml = htmlFile.code;
+              }
               try {
                 if (p.claudePreviewBlobUrl) URL.revokeObjectURL(p.claudePreviewBlobUrl);
               } catch(e){}
-              p.claudePreviewBlobUrl = URL.createObjectURL(new Blob([htmlFile.code], { type: 'text/html' }));
+              p.claudePreviewBlobUrl = URL.createObjectURL(new Blob([p.claudePreviewHtml], { type: 'text/html' }));
             }
           }
 

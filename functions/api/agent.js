@@ -35,7 +35,7 @@ function cleanExplanationText(rawText) {
   return cleaned || 'Aplikasi dan antarmuka kode telah berhasil disintesis oleh Claude Sonnet 5.5.';
 }
 
-function extractProjectFiles(text, projectName = 'Runnerflo App') {
+function extractProjectFiles(text, projectName = 'Runnerflo App', existingHtml = '') {
   if (!text) return [];
   const files = [];
   const seenPaths = new Set();
@@ -56,10 +56,16 @@ function extractProjectFiles(text, projectName = 'Runnerflo App') {
     }
 
     if (!filePath) {
-      if (lang === 'html' || content.includes('<!DOCTYPE') || content.includes('<html')) filePath = 'index.html';
-      else if (lang === 'css' || (content.includes('{') && content.includes('}') && (content.includes('margin') || content.includes('color')))) filePath = 'styles.css';
-      else if (lang === 'javascript' || lang === 'js') filePath = 'app.js';
-      else if (lang === 'json' && content.includes('"name"')) filePath = 'package.json';
+      const isCompleteHtml = content.includes('<!DOCTYPE') || content.includes('<html') || (content.includes('<body') && content.includes('</body>')) || (lang === 'html' && (content.includes('<header') || content.includes('<main') || content.includes('<div') || content.includes('<canvas') || content.includes('<section')) && content.length > 450);
+      if (isCompleteHtml) {
+        filePath = 'index.html';
+      } else if (lang === 'css' || (content.includes('{') && content.includes('}') && (content.includes('margin') || content.includes('color') || content.includes('background')))) {
+        filePath = 'styles.css';
+      } else if ((lang === 'javascript' || lang === 'js') && (content.includes('function') || content.includes('const') || content.includes('let') || content.includes('var') || content.includes('=>') || content.includes('sfx') || content.includes('audio') || content.includes('score'))) {
+        filePath = 'app.js';
+      } else if (lang === 'json' && content.includes('"name"')) {
+        filePath = 'package.json';
+      }
     }
 
     if (filePath && content.trim().length > 30 && !seenPaths.has(filePath)) {
@@ -71,10 +77,38 @@ function extractProjectFiles(text, projectName = 'Runnerflo App') {
   // 2. Fallback for index.html if not extracted yet
   if (!seenPaths.has('index.html')) {
     const htmlCode = extractHtmlCode(text);
-    if (htmlCode) {
+    if (htmlCode && (htmlCode.includes('<!DOCTYPE') || htmlCode.includes('<html') || htmlCode.includes('<body') || htmlCode.length > 450)) {
       seenPaths.add('index.html');
       files.unshift({ path: 'index.html', code: htmlCode, explanation: 'Main HTML5 entrypoint for Cloudflare Pages' });
     }
+  }
+
+  // 3. Resilience: If index.html is still missing or incomplete, preserve existingHtml!
+  if (!seenPaths.has('index.html') && existingHtml && existingHtml.length > 100) {
+    let patchedHtml = existingHtml;
+
+    // Check if Claude produced an app.js (like music/sfx/score patches) that should be linked into existingHtml
+    const appJsFile = files.find(f => f.path === 'app.js');
+    if (appJsFile && appJsFile.code && !patchedHtml.includes(appJsFile.code.slice(0, 40))) {
+      if (patchedHtml.includes('</body>')) {
+        patchedHtml = patchedHtml.replace('</body>', `<script>\n${appJsFile.code}\n</script>\n</body>`);
+      } else {
+        patchedHtml += `\n<script>\n${appJsFile.code}\n</script>`;
+      }
+    }
+
+    // Check if Claude produced a styles.css that should be linked
+    const stylesCssFile = files.find(f => f.path === 'styles.css');
+    if (stylesCssFile && stylesCssFile.code && !patchedHtml.includes(stylesCssFile.code.slice(0, 40))) {
+      if (patchedHtml.includes('</head>')) {
+        patchedHtml = patchedHtml.replace('</head>', `<style>\n${stylesCssFile.code}\n</style>\n</head>`);
+      } else {
+        patchedHtml = `<style>\n${stylesCssFile.code}\n</style>\n` + patchedHtml;
+      }
+    }
+
+    seenPaths.add('index.html');
+    files.unshift({ path: 'index.html', code: patchedHtml, explanation: 'Preserved working application updated with Claude Sonnet 5.5 additions' });
   }
 
   // 3. Companion files for Cloudflare Pages deployability
@@ -179,18 +213,52 @@ export async function onRequest(context) {
       const evData = await evRes.json();
       const events = evData.data || [];
       let text = '';
+      let initialPromptText = '';
+
       for (const ev of events) {
         if (ev.type === 'agent.message') {
           for (const blk of (ev.content || [])) {
             if (blk.type === 'text' && blk.text) text += blk.text + '\n';
           }
+        } else if (ev.type === 'user.message') {
+          for (const blk of (ev.content || [])) {
+            if (blk.type === 'text' && blk.text) initialPromptText += blk.text;
+          }
         }
       }
+
+      // Extract existing index.html from the initial prompt if present
+      let existingHtmlFromPrompt = '';
+      const matchExisting = initialPromptText.match(/CURRENT FULL index\.html[\s\S]*?```html\s*([\s\S]*?)```/i) ||
+                            initialPromptText.match(/CURRENT index\.html[\s\S]*?:\n([\s\S]*?)(?=\n\n(?:THEME|CRITICAL|MULTI-FILE|$))/i);
+      if (matchExisting && matchExisting[1]) {
+        existingHtmlFromPrompt = matchExisting[1].trim();
+      }
+
       const isIdle = events.some(e => e.type === 'session.status_idle');
-      const files = extractProjectFiles(text, 'Runnerflo Application');
+      const isCompleted = isIdle || events.some(e => e.type === 'turn.completed');
+      const hasFinishedCode = text.includes('</html>') || text.includes('</HTML>');
+      const files = extractProjectFiles(text, 'Runnerflo Application', existingHtmlFromPrompt);
       const cleanSummary = cleanExplanationText(text);
 
-      if (files.length > 0) {
+      const lastEv = events[events.length - 1];
+      const evType = lastEv?.type || 'pending';
+      const eventDescriptions = {
+        'span.model_request_start': 'Menghubungkan ke Claude Sonnet 5.5 di cloud sandbox...',
+        'span.model_request_end': 'Claude Sonnet 5.5 sedang menyusun struktur kode & antarmuka...',
+        'agent.thinking': 'Claude Sonnet 5.5 sedang merancang logika game, sound, musik & antarmuka...',
+        'agent.message': 'Menulis kode HTML5, CSS & JavaScript interaktif...',
+        'turn.started': 'Memulai generasi kode aplikasi...',
+        'turn.completed': 'Memfinalisasi file dan mempersiapkan live preview...',
+        'session.status_idle': 'Pekerjaan selesai! Mengemas aplikasi...'
+      };
+      const friendlyStatus = eventDescriptions[evType] ||
+        (evType.includes('thinking') ? 'Claude Sonnet 5.5 sedang merancang kode...' :
+        (evType.includes('message') ? 'Menulis kode aplikasi...' :
+        'Memproses kode di cloud container...'));
+
+      // ONLY mark as done when the session has actually finished (isIdle / isCompleted)
+      if ((isCompleted || hasFinishedCode) && files.length > 0) {
         return new Response(JSON.stringify({
           status: 'done',
           engine: 'claude-managed-agents',
@@ -209,8 +277,8 @@ export async function onRequest(context) {
       }
 
       if (isIdle) {
-        const fallbackCode = extractHtmlCode(text) || text.trim();
-        const fallbackFiles = extractProjectFiles(fallbackCode, 'Runnerflo Application');
+        const fallbackCode = extractHtmlCode(text) || existingHtmlFromPrompt || text.trim();
+        const fallbackFiles = extractProjectFiles(fallbackCode, 'Runnerflo Application', existingHtmlFromPrompt);
         return new Response(JSON.stringify({
           status: 'done',
           engine: 'claude-managed-agents',
@@ -228,7 +296,11 @@ export async function onRequest(context) {
         status: 'running',
         sessionId: pollSessionId,
         eventsCount: events.length,
-        latestEventType: events[events.length - 1]?.type || 'pending'
+        latestEventType: evType,
+        friendlyStatus: friendlyStatus,
+        progressEstimate: Math.min(97, Math.round(45 + (events.length * 2.2))),
+        partialFiles: files,
+        cleanSummary: cleanSummary
       }), { status: 200, headers: corsHeaders });
     } catch (pollErr) {
       return new Response(JSON.stringify({ error: pollErr.message }), { status: 500, headers: corsHeaders });
@@ -838,26 +910,45 @@ async function connectApp(app) {
 
       if (maAgentId && maEnvId) {
         // Build instruction prompt for Managed Agent session
+        const currentHtmlCode = fileIndex['index.html'] || '';
         const existingCodeSnippet = isNewAppRequest
-          ? 'PROJECT MODE: Brand new application requested from zero. DO NOT use, copy, or mimic any previous project layout, Vesper Atelier, or CineStudio. Design a 100% original, domain-specific UI.'
-          : `CURRENT index.html (${fileIndex['index.html'] ? fileIndex['index.html'].length : 0} bytes):\n${(fileIndex['index.html'] || '').slice(0, 14000)}`;
+          ? 'PROJECT MODE: Brand new application requested from scratch. DO NOT use, copy, or mimic any previous project layout, Vesper Atelier, or CineStudio. Design a 100% original, domain-specific UI.'
+          : `CURRENT FULL index.html (${currentHtmlCode.length} bytes — DO NOT TRUNCATE):\n\`\`\`html\n${currentHtmlCode}\n\`\`\``;
 
-        const maPrompt = `${systemPrompt}
+        const maPrompt = `You are Claude Sonnet 5.5 — Autonomous Lead Full-Stack Architect for the Runnerflo Cloud Platform (Year 2026).
+You are executing inside an Anthropic Managed Agents cloud container sandbox.
 
 PROJECT: "${projectName}"
 USER INSTRUCTION: "${userText}"
 ${existingCodeSnippet}
 
-THEME & COLOR DIRECTIVE:
-- DO NOT default or force dark mode (#0c0d10 or dark theme) unless the user explicitly requested a dark theme!
-- If the user asks for a light theme, clean theme, vibrant colors, game arcade, or SaaS, use modern high-contrast clean palettes (white, slate-50, or modern vivid accents).
-- Make the layout completely bespoke and unique to "${userText}". NEVER copy or resemble Vesper Atelier or CineStudio.
-- Always match the user's requested style or reference image.
+CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
+1. FULL FILE OUTPUT MANDATE:
+   - You MUST ALWAYS output the 100% COMPLETE, browser-executable HTML5 file in a single markdown code block:
+     \`\`\`html
+     <!DOCTYPE html>
+     <html lang="id">
+     ...
+     </html>
+     \`\`\`
+   - NEVER output diffs, partial snippets, or instructions asking the user to manually patch or edit code.
+   - You DO NOT have external local tools like "project_patch_file" in this cloud container sandbox. ALL changes MUST be delivered as the COMPLETE, self-contained updated file.
+   - When EDITING an existing application (e.g. adding music, sound effects, score boards, new quiz questions):
+     * Read the full CURRENT index.html provided above.
+     * PRESERVE 100% of all existing working features, game modes, questions, styles, and assets.
+     * Seamlessly integrate the user's new request (e.g. Web Audio API synthesized background music, sound effects, floating score badges, celebratory confetti).
+     * Output the ENTIRE updated index.html from <!DOCTYPE html> to </html>.
 
-MULTI-FILE DEPLOYABLE REQUIREMENT:
-Provide the COMPLETE, production-ready, browser-executable HTML5 file in \`\`\`html ... \`\`\` with Tailwind CSS and working interactive JavaScript.
-Also include companion CSS in \`\`\`css ... \`\`\` and JS logic in \`\`\`javascript ... \`\`\` if appropriate.
-In your text commentary, provide a clean, friendly summary. DO NOT dump raw code outside markdown code blocks.`;
+2. THEME & COLOR DIRECTIVE:
+   - DO NOT default or force dark mode (#0c0d10 or dark theme) unless the user explicitly requested a dark theme!
+   - For educational games, children's content, and SaaS, use vibrant, cheerful, clean, modern palettes.
+   - Make the layout completely bespoke and unique to "${userText}". NEVER copy or resemble Vesper Atelier or CineStudio.
+   - Always match the user's requested style or reference image.
+
+3. MULTI-FILE DEPLOYABLE REQUIREMENT:
+   - Provide the primary entrypoint in \`\`\`html ... \`\`\` with Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
+   - Also provide companion CSS in \`\`\`css ... \`\`\` and JS logic in \`\`\`javascript ... \`\`\` if appropriate.
+   - In your text commentary, provide a clean, friendly Indonesian summary. DO NOT dump raw code outside markdown code blocks.`;
 
         // Create Managed Agents Session with initial_events
         const maSessRes = await fetch('https://api.anthropic.com/v1/sessions', {
@@ -916,7 +1007,7 @@ In your text commentary, provide a clean, friendly summary. DO NOT dump raw code
           }
 
           // Extract multi-file deployable Cloudflare Pages project from Managed Agent output
-          const extractedFiles = extractProjectFiles(managedAgentText, projectName);
+          const extractedFiles = extractProjectFiles(managedAgentText, projectName, fileIndex['index.html'] || '');
           if (extractedFiles && extractedFiles.length > 0) {
             const primaryHtml = extractedFiles.find(f => f.path === 'index.html') || extractedFiles[0];
             fileIndex['index.html'] = primaryHtml.code;
