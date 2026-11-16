@@ -522,7 +522,7 @@ async function connectApp(app) {
       'claude-3-opus-20240229'
     ]).filter((v, i, a) => a.indexOf(v) === i);
 
-    async function callClaude(msgs, model) {
+    async function callClaude(msgs, model, forceToolUse = true) {
       const headers = {
         'x-api-key': anthropicKey,
         'anthropic-version': '2023-06-01',
@@ -530,11 +530,15 @@ async function connectApp(app) {
       };
       const payload = {
         model,
-        max_tokens: 4096,
+        max_tokens: 8192,
         system: systemPrompt,
         messages: msgs,
         tools
       };
+      // Force Claude to call a tool on the first call or when modifiedFiles is still empty
+      if (forceToolUse) {
+        payload.tool_choice = { type: 'any' };
+      }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST', headers, body: JSON.stringify(payload)
       });
@@ -557,7 +561,8 @@ async function connectApp(app) {
     // Pick model
     for (const model of candidateModels) {
       try {
-        const testRes = await callClaude(messages, model);
+        // First call: force tool use so Claude MUST call a tool immediately
+        const testRes = await callClaude(messages, model, true);
         selectedModel = model;
 
         // ── Multi-turn tool loop ──────────────────────────────────────────────
@@ -593,7 +598,8 @@ async function connectApp(app) {
                 role: 'user',
                 content: `PERINTAH SISTEM WAJIB: Anda BELUM memperbarui kode apapun di workspace (modifiedFiles masih kosong)! Permintaan pengguna adalah: "${userText.replace(/"/g, "'")}". Anda WAJIB langsung memanggil "${isEditingExisting ? 'project_patch_file' : 'project_write_file'}" (atau "edit_code") SEKARANG untuk membuat/memperbarui "index.html" dengan kode HTML5 & Tailwind CSS lengkap dan interaktif. Panggil tool sekarang!`
               });
-              currentResponse = await callClaude(convMessages, selectedModel);
+              // Force tool use again on the retry nudge
+              currentResponse = await callClaude(convMessages, selectedModel, true);
               continue;
             }
             break;
@@ -615,9 +621,11 @@ async function connectApp(app) {
           convMessages.push({ role: 'assistant', content: assistantBlocks });
           convMessages.push({ role: 'user', content: toolResults });
 
-          // If stop_reason was tool_use, or if Claude only read/searched files and hasn't modified code yet, continue loop
-          if (stopReason === 'tool_use' || (modifiedFiles.length === 0 && iterations < MAX_ITER)) {
-            currentResponse = await callClaude(convMessages, selectedModel);
+          // After tool_use: if Claude read a file but hasn't written code yet, force next call to use a write tool
+          const needsWrite = modifiedFiles.length === 0 && iterations < MAX_ITER;
+          if (stopReason === 'tool_use' || needsWrite) {
+            // After reading/searching files, still force a tool call if no files modified yet
+            currentResponse = await callClaude(convMessages, selectedModel, needsWrite);
             continue;
           }
 
