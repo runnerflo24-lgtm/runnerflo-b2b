@@ -324,29 +324,25 @@ function progressLogic() {
   }
   requestAnimationFrame(loop);
 
-  // Auto simulation fallback when standalone
+  // Smooth progress when waiting for parent build
   function auto() {
     if (external) return;
-    const steps = [15, 35, 55, 75, 90, 100];
+    const steps = [15, 35, 55, 75, 90, 95];
     let i = 0;
     const id = setInterval(() => {
       if (external) return clearInterval(id);
-      target = steps[i++];
-      if (target >= 100) {
+      if (i < steps.length) {
+        target = steps[i++];
+        if (target >= 90) {
+          label.textContent = 'Finalizing Application Engine';
+          if (sublabel) sublabel.textContent = 'Connecting edge endpoints & preparing live preview...';
+        }
+      } else {
         clearInterval(id);
-        label.textContent = 'Build Ready';
-        if (sublabel) sublabel.textContent = 'Connected to global edge network';
-        glowTarget = 1;
-        setTimeout(() => {
-          if (external) return;
-          glowTarget = 0;
-          label.textContent = 'Initializing AI Engine';
-          if (sublabel) sublabel.textContent = 'Configuring Next.js runtime & edge database...';
-          target = 0; current = 0;
-          auto();
-        }, 2200);
+        // Hold at 95% until parent sends done, never reset to 0%
+        target = 95;
       }
-    }, 900);
+    }, 1200);
   }
   auto();
 

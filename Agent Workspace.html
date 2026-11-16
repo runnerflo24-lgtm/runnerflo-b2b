@@ -3221,6 +3221,8 @@ body.ws-stage-2-active .topbar {
     if (bTot) bTot.classList.toggle('active', isTot);
   }
 
+  var progressTicker = null;
+
   function runTotalumAgent(p, text) {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
@@ -3271,13 +3273,14 @@ body.ws-stage-2-active .topbar {
       pollTotalumProgress(p, m, my);
     })
     .catch(function(err) {
+      if (typeof progressTicker !== 'undefined' && progressTicker) clearInterval(progressTicker);
       if (my !== runId) return;
       var errMsg = err.message || '';
       var isCredits = /credit|balance|VCaaS|402|quota|insufficient/i.test(errMsg);
-      if (isCredits) {
+      if (isCredits || p.totalumCreditsExhausted) {
         p.totalumCreditsExhausted = true;
         save();
-        // Fallback to Claude Sonnet 5.5 with Autonomous Code Tools & Trigger.dev Pipeline
+        // Fallback to Claude Sonnet 5.5 with Bolt.diy Precision Tools & Trigger.dev Pipeline
         runClaudeFallbackAgent(p, text, 'credits_exhausted', m, my);
         return;
       }
@@ -3345,6 +3348,20 @@ body.ws-stage-2-active .topbar {
       }
     }
 
+    var progressPct = 25;
+    var progressTicker = setInterval(function() {
+      if (my !== runId || !p.busy) {
+        clearInterval(progressTicker);
+        return;
+      }
+      if (progressPct < 92) {
+        progressPct += Math.floor(Math.random() * 8) + 4;
+        if (progressPct > 92) progressPct = 92;
+        var stepLabel = progressPct > 70 ? 'Synthesizing application components...' : 'Reasoning & constructing UI layout...';
+        updateWave(progressPct, 'Claude Sonnet 5.5: ' + stepLabel, 'Progress: ' + progressPct + '% • Autonomous code synthesis active');
+      }
+    }, 1800);
+
     fetch('/api/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3353,12 +3370,14 @@ body.ws-stage-2-active .topbar {
         projectName: p.name || 'AI Cloud Project',
         stage: p.stage || 4,
         mode: state.mode || 'Auto',
+        previewUrl: p.totalumPreviewUrl || p.totalumLiveUrl || '',
         projectFiles: filesToSend,
         history: history,
         reason: reason || 'manual'
       })
     })
     .then(function(res) {
+      clearInterval(progressTicker);
       return res.json().then(function(json) {
         if (!res.ok) throw new Error(json.error || json.details || ('HTTP ' + res.status));
         return json;
@@ -3471,6 +3490,7 @@ body.ws-stage-2-active .topbar {
       toast('⚡ Claude Sonnet 5.5 completed task successfully!');
     })
     .catch(function(err) {
+      clearInterval(progressTicker);
       if (my !== runId) return;
       p.busy = false;
       m.steps.forEach(function(s) { s.done = false; });
@@ -5468,10 +5488,18 @@ body.ws-stage-2-active .topbar {
             ? (sandboxUrl || prodUrl || 'https://' + (p.totalumProjectId || p.name) + '.totalum-project.com')
             : 'https://runnerflo-ai.pages.dev &mdash; EdTech LMS AI Platform (Demo)');
 
-      // Always load the preview URL in the iframe
+      // Load preview: active Claude blob, live sandbox URL, or default blueprint HTML
+      var defaultBlueprintHtml = (typeof codeFor === 'function' ? codeFor('index.html', p) : '');
+      var blueprintBlobUrl = '';
+      if (!isClaudeActive && !sandboxUrl && defaultBlueprintHtml) {
+        try {
+          var bb = new Blob([defaultBlueprintHtml], { type: 'text/html' });
+          blueprintBlobUrl = URL.createObjectURL(bb);
+        } catch(e){}
+      }
       var frameSrc = isClaudeActive
         ? claudeUrl
-        : (isTotalum ? (sandboxUrl || 'loading-wave-3d.html') : 'https://runnerflo-ai.pages.dev');
+        : (isTotalum ? (sandboxUrl || blueprintBlobUrl || 'about:blank') : 'https://runnerflo-ai.pages.dev');
 
       h = '<div class="browser" style="height:100%;min-height:600px;display:flex;flex-direction:column">' +
         '<div class="chrome">' +

@@ -49,6 +49,29 @@ export async function onRequest(context) {
       if (key) fileIndex[key] = f.customContent || f.content || `// ${key} — content not yet available`;
     }
 
+    // CRITICAL: Fetch real HTML from previewUrl (e.g. Totalum live sandbox) if index.html is missing or generic
+    const previewUrl = (body.previewUrl || '').trim();
+    let isEditingExisting = Boolean(fileIndex['index.html'] && fileIndex['index.html'].length > 300);
+    let previewFetchStatus = 'none';
+
+    if (previewUrl && previewUrl.startsWith('http')) {
+      try {
+        const pRes = await fetch(previewUrl, {
+          headers: { 'User-Agent': 'Mozilla/5.0 Runnerflo-Agent' }
+        });
+        if (pRes.ok) {
+          const liveHtml = await pRes.text();
+          if (liveHtml && liveHtml.length > 200) {
+            fileIndex['index.html'] = liveHtml;
+            isEditingExisting = true;
+            previewFetchStatus = `Successfully fetched ${liveHtml.length} bytes from ${previewUrl}`;
+          }
+        }
+      } catch (pErr) {
+        previewFetchStatus = `Failed to fetch previewUrl: ${pErr.message}`;
+      }
+    }
+
     // ─── System Prompt ────────────────────────────────────────────────────────
     const systemPrompt = `You are Claude Sonnet 5.5 — the Autonomous Lead Software Architect & Orchestrator for the Runnerflo Cloud Platform (Year 2026).
 
@@ -62,92 +85,156 @@ Runnerflo is a white-label SaaS generator platform designed for NON-TECHNICAL US
    - Injecting Composio multi-tenancy integrations into the SaaS so the SaaS's end-users can connect their own Gmail, Slack, Google Sheets, Notion, Stripe, GitHub, etc., with zero technical friction.
    - Creating immediate, live visual preview updates for the user.
 
-CRITICAL PRESERVATION & DESIGN INTEGRITY RULE (LOVABLE / EMERGENT / ANTIGRAVITY ENGINE):
-1. YOU ARE EDITING AN EXISTING HIGH-END APPLICATION, NOT CREATING A CHEAP GENERIC TEMPLATE.
-2. ALWAYS inspect "index.html" with read_file FIRST to see the project's exact brand, copywriting, headlines, and layout!
-3. WHEN THE USER ASKS FOR A REDESIGN OR THEME CHANGE (e.g. "ubah designnya jdi theme putih/terang", "buatkan agar webnya jadi putih"):
-   - PRESERVE 100% OF THE BRAND IDENTITY & COPYWRITING:
-     * If the website is "Vesper Atelier", it MUST REMAIN "Vesper Atelier"! NEVER rename it to "AI Studio" or replace it with generic text!
-     * KEEP the exact hero headline (e.g. "A sentence in. A finished image out.")!
-     * KEEP the exact description, navigation links, luxury aesthetic, and image showcases!
-   - ONLY modify the color palette, backgrounds, contrast, borders, and shadows to match the requested theme:
-     * Light Theme: replace dark backgrounds with pristine, luxury ivory/white (bg-white, #faf9f6, #ffffff), deep charcoal/slate typography (text-stone-900, text-zinc-900), subtle borders (border-stone-200), and elegant cards with subtle shadow (shadow-sm).
-     * Retain all high-end typography (e.g. Cinzel, Playfair Display, Plus Jakarta Sans).
-4. STANDALONE RUNNABLE HTML REQUIREMENT:
-   The workspace displays the project in a browser iframe.
-   EVERY time you call edit_code, you MUST update "index.html" with a COMPLETE, self-contained, browser-executable HTML5 file with Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
-   NEVER produce raw TypeScript/React snippets (like "import React from 'react'") without providing the complete executable "index.html". A raw TypeScript file cannot run directly in a browser iframe and will cause a broken black error screen!
-5. IF CREATING A NEW FEATURE OR APP FROM ZERO (e.g. "Build a custom AI Customer Support Chatbot with automated replies and CRM"):
-   - Create a COMPLETE, ultra-high-fidelity, production-grade application in "index.html" with working interactive buttons, clean state management, realistic mock data, and sleek modern styling.
-   - For a chatbot: render a full omnichannel support desk with channel toggles (Web, WhatsApp, Email), conversation thread, real working message input and send button, and a CRM customer details panel on the right!
+${isEditingExisting ? `CRITICAL DIRECTIVE: EDITING EXISTING PRODUCTION APPLICATION (BOLT.DIY MCP ENGINE)
+1. YOU ARE IN EDIT MODE for an EXISTING PRODUCTION APPLICATION.
+2. The current live application code is loaded in "index.html" (${fileIndex['index.html'] ? fileIndex['index.html'].length : 0} bytes).
+3. DO NOT BUILD A NEW GENERIC TEMPLATE FROM ZERO.
+4. PRESERVE 100% OF THE BRAND IDENTITY, LOGO & COPYWRITING:
+   - If the project is "Vesper Atelier", it MUST REMAIN "Vesper Atelier"! NEVER rename it to "AI Studio" or any generic name!
+   - Hero headlines (e.g. "A sentence in. A finished image out."), subtitles, navigation, luxury aesthetics, and image showcases MUST BE 100% PRESERVED!
+5. PREFERRED EDITING TOOL: "project_patch_file"
+   - First call "project_read_file({ path: 'index.html' })" to inspect the code.
+   - Use "project_patch_file({ path: 'index.html', oldText: '...', newText: '...' })" for targeted edits.
+   - When the user asks to change theme (e.g. "buatkan agar webnya jadi putih", "ubah jadi tema putih/terang"):
+     * Patch dark backgrounds: bg-[#0c0d10] → bg-white, bg-zinc-900 → bg-stone-50, bg-zinc-950 → bg-[#faf9f6].
+     * Patch text colors: text-zinc-100 / text-white → text-stone-900 / text-zinc-900, text-zinc-400 → text-stone-600.
+     * Patch borders: border-zinc-800 → border-stone-200.
+     * Keep all text copy, branding ("Vesper Atelier"), and layout untouched!
+6. If you use "project_write_file" or "edit_code", you MUST supply the COMPLETE revised file retaining all original copywriting and sections (never a stripped-down placeholder)!` : `CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO (BOLT.DIY MCP ENGINE)
+1. YOU ARE IN CREATION MODE. Build a brand new, production-grade application for: "${userText}".
+2. You MUST produce a COMPLETE, self-contained, browser-executable HTML5 file in "index.html".
+3. Use Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
+4. Render high-fidelity UI: clean navigation, interactive buttons, realistic mock data, and functional controls.
+5. Call "project_write_file({ path: 'index.html', content: '...', replacementReason: 'Initial build from user prompt' })" with the COMPLETE code!`}
 
-CRITICAL DIRECTIVE — MANDATORY ACTION OVER CHATTER:
-1. NEVER reply with only a conversational plan (e.g. "Saya mulai dengan memeriksa...", "I will look into..."). You are an AUTONOMOUS AGENT, not a chat assistant.
-2. Every prompt from the user asking for design, theme, color, feature, layout, or fix MUST immediately result in calling the "edit_code" tool.
-3. Whenever a user requests a theme change (e.g. "ubah designnya jdi theme putih/terang", "buatkan agar webnya jadi putih"):
-   - You MUST call edit_code for "index.html" with the COMPLETE HTML5 document styled with Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>).
-   - Also call edit_code for "src/app/page.tsx" with the React/TypeScript equivalent.
-4. If you need to inspect existing code first, you may call read_file or search_code, but you MUST follow up immediately by calling edit_code to apply the changes.
+CRITICAL PRESERVATION & DESIGN INTEGRITY RULES (BOLT.DIY ARCHITECTURE):
+1. ALWAYS inspect "index.html" with project_read_file before editing existing files.
+2. STANDALONE RUNNABLE HTML REQUIREMENT:
+   The workspace displays the project in a browser iframe.
+   "index.html" MUST be a COMPLETE, self-contained, browser-executable HTML5 file with Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
+3. NEVER leave tool content empty.
+4. MANDATORY ACTION OVER CHATTER:
+   Do not merely reply with a conversational explanation or plan without executing tool calls. You MUST call "project_patch_file", "project_write_file", or "edit_code" to actually implement the user's request.
 
 NON-TECHNICAL USER DESIGN PRINCIPLE:
-Users are non-technical ("orang awam"). NEVER tell them to configure complex technical settings, register webhooks, or write configs manually.
-Whenever a user asks for a feature:
-- Implement the UI, components, and logic directly.
-- If it needs background automation → use trigger_job AND inject the working UI/code into the project.
-- If it needs SaaS integrations → use composio_action AND inject the "Connect" buttons and handlers into the project.
-- Always provide a ready-to-use experience.
+Users are non-technical ("orang awam").
+- Implement UI, styling, and functionality directly.
+- If it needs background automation → use trigger_job AND inject working Trigger.dev client code into the app.
+- If it needs SaaS integrations → use composio_action AND inject OAuth connect buttons into the app.
 
 PROJECT CONTEXT:
+- Mode: ${isEditingExisting ? 'EDIT_EXISTING_APPLICATION (PRESERVE BRAND, LAYOUT & COPY)' : 'CREATE_NEW_APPLICATION_FROM_SCRATCH'}
 - Project Name: "${projectName}"
 - Current Stage: ${currentStage}/4
 - Execution Mode: ${mode}
-- Fallback/Orchestration Reason: ${reason === 'credits_exhausted' ? 'Totalum credits session completed — Claude 5.5 autonomous takeover' : 'Autonomous feature refinement and orchestration'}
+- Live Application Preview URL: "${previewUrl || 'none'}" (${previewFetchStatus})
 - Available files in workspace (${projectFiles.length}):
 ${projectFiles.length ? projectFiles.map(f => `  • ${f.path || f.name} (${f.size || 2048} bytes)`).slice(0, 30).join('\n') : '  (No files yet)'}
 
-TOOLS AVAILABLE:
-1. read_file(file): Inspect the exact content of any project file. Call this before editing existing files.
-2. search_code(query): Search patterns across all project files to locate components, styles, or logic.
-3. edit_code(file, code, explanation): Write or update a file. ALWAYS provide the complete file content.
-4. debug_code(file, issue): Diagnose errors in a file.
-5. trigger_job(taskId, description, payload, triggerCode): Inject Trigger.dev background automation into the SaaS.
-6. composio_action(app, action, userId, params, generateConnectUI): Inject Composio multi-tenancy SaaS integration into the SaaS.
+BOLT.DIY MCP TOOLS:
+1. project_read_file({ path }): Read the full content of a project file.
+2. project_patch_file({ path, oldText, newText }): Surgically replace oldText with newText. Keeps the rest of the file untouched!
+3. project_write_file({ path, content, replacementReason }): Full file creation or overwrite.
+4. project_list_paths({ path }): List files in the workspace.
+5. project_search_content({ query }): Search across all workspace files.
+6. trigger_job(taskId, description, payload, triggerCode): Inject Trigger.dev v3 background task pipeline.
+7. composio_action(app, action, userId, params, generateConnectUI): Inject Composio multi-tenancy SaaS OAuth/action.
+(Aliases: read_file, edit_code, search_code are also supported)
 
 Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in English. Always summarize what code changes were made.`;
 
-    // ─── Tool Definitions ─────────────────────────────────────────────────────
+    // ─── Tool Definitions (Bolt.diy MCP + Trigger.dev + Composio) ─────────────
     const tools = [
       {
-        name: 'read_file',
-        description: 'Read the content of a project file. Always call this before editing a file you have not seen yet.',
+        name: 'project_read_file',
+        description: 'Read the complete UTF-8 content of a project file. Always call this before modifying an existing file.',
         input_schema: {
           type: 'object',
           properties: {
-            file: { type: 'string', description: 'Relative file path, e.g. src/app/page.tsx or index.html' }
+            path: { type: 'string', description: 'Relative file path, e.g. "index.html" or "src/app/page.tsx"' }
+          },
+          required: ['path']
+        }
+      },
+      {
+        name: 'project_patch_file',
+        description: 'Replace one exact, unique text block (oldText) in a file with newText. Read the file first with project_read_file. Recommended for targeted changes, theme/color updates, component additions, and style adjustments without rewriting the entire file.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            path: { type: 'string', description: 'Relative file path, e.g. "index.html"' },
+            oldText: { type: 'string', description: 'The exact existing text to replace. Must match uniquely in the file.' },
+            newText: { type: 'string', description: 'The replacement text to insert in place of oldText.' }
+          },
+          required: ['path', 'oldText', 'newText']
+        }
+      },
+      {
+        name: 'project_write_file',
+        description: 'Create a new file or completely overwrite an existing file. For existing files prefer project_patch_file unless performing a complete rewrite from zero.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            path: { type: 'string', description: 'Relative file path, e.g. "index.html"' },
+            content: { type: 'string', description: 'The full source code content (never leave empty)' },
+            replacementReason: { type: 'string', description: 'Explanation for writing/replacing the file' }
+          },
+          required: ['path', 'content']
+        }
+      },
+      {
+        name: 'project_list_paths',
+        description: 'List all available files and directories in the active project.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            path: { type: 'string', description: 'Optional directory prefix, e.g. "src" or "."' }
+          }
+        }
+      },
+      {
+        name: 'project_search_content',
+        description: 'Search for text, class names, color codes, or function names across all project files.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'Text or keyword to search for' }
+          },
+          required: ['query']
+        }
+      },
+      // Aliases for backward compatibility
+      {
+        name: 'read_file',
+        description: 'Alias for project_read_file. Inspect the content of a project file.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'Relative file path, e.g. "index.html"' }
           },
           required: ['file']
         }
       },
       {
         name: 'search_code',
-        description: 'Search for a keyword, class name, color value, or function across all project files.',
+        description: 'Alias for project_search_content. Search across codebase.',
         input_schema: {
           type: 'object',
           properties: {
-            query: { type: 'string', description: 'Text to search for across the codebase' }
+            query: { type: 'string', description: 'Text to search for' }
           },
           required: ['query']
         }
       },
       {
         name: 'edit_code',
-        description: 'Write the complete revised content of a file. This directly updates the user\'s live preview. Always provide the FULL file content, not just the changed part.',
+        description: 'Alias for project_write_file. Write or update a file. Always provide complete code.',
         input_schema: {
           type: 'object',
           properties: {
-            file: { type: 'string', description: 'Relative file path, e.g. src/app/page.tsx or index.html' },
-            code: { type: 'string', description: 'The COMPLETE revised source code for this file' },
-            explanation: { type: 'string', description: 'Brief summary of what was changed' }
+            file: { type: 'string', description: 'Relative file path, e.g. "index.html"' },
+            code: { type: 'string', description: 'Complete source code content' },
+            explanation: { type: 'string', description: 'Reason for update' }
           },
           required: ['file', 'code']
         }
@@ -206,21 +293,81 @@ Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in E
       messages.push({ role: 'user', content: userText || 'Review the project and apply any needed improvements.' });
     }
 
-    // ─── Tool Executor ────────────────────────────────────────────────────────
+    // ─── Tool Executor (Bolt.diy Engine) ──────────────────────────────────────
     async function executeTool(toolName, toolInput) {
-      if (toolName === 'read_file') {
-        const filePath = toolInput.file || '';
-        // Look for exact match or partial match in fileIndex
+      // 1. project_patch_file: surgical precision edit (never hallucinate / never overwrite entire file)
+      if (toolName === 'project_patch_file') {
+        const filePath = toolInput.path || toolInput.file || 'index.html';
+        const currentContent = fileIndex[filePath];
+        if (typeof currentContent !== 'string') {
+          return { error: `File "${filePath}" does not exist in workspace. Available files: ${Object.keys(fileIndex).join(', ')}` };
+        }
+        const oldText = toolInput.oldText;
+        const newText = toolInput.newText !== undefined ? toolInput.newText : '';
+        if (!oldText) {
+          return { error: 'Parameter "oldText" is required for project_patch_file.' };
+        }
+        const first = currentContent.indexOf(oldText);
+        if (first < 0) {
+          return {
+            error: `Patch conflict: "oldText" was not found in ${filePath}. Please use project_read_file to verify current contents.`,
+            hint: `Searched for: ${oldText.slice(0, 80)}...`
+          };
+        }
+        if (currentContent.indexOf(oldText, first + oldText.length) >= 0) {
+          return {
+            error: `Patch conflict: "oldText" is ambiguous (matches multiple times in ${filePath}). Include more surrounding context in "oldText" so it matches uniquely.`
+          };
+        }
+        const updated = currentContent.slice(0, first) + newText + currentContent.slice(first + oldText.length);
+        fileIndex[filePath] = updated;
+
+        const existingIdx = modifiedFiles.findIndex(mf => mf.path === filePath);
+        if (existingIdx >= 0) {
+          modifiedFiles[existingIdx] = { path: filePath, code: updated, explanation: `Patched ${filePath}` };
+        } else {
+          modifiedFiles.push({ path: filePath, code: updated, explanation: `Patched ${filePath}` });
+        }
+        return { success: true, path: filePath, patched: true, bytes: updated.length, message: `Successfully patched ${filePath} (${updated.length} bytes).` };
+      }
+
+      // 2. project_write_file / edit_code: full write
+      if (toolName === 'project_write_file' || toolName === 'edit_code') {
+        const filePath = toolInput.path || toolInput.file || 'index.html';
+        const code = toolInput.content || toolInput.code || toolInput.html || toolInput.source || toolInput.file_content || toolInput.new_content || toolInput.body || '';
+        if (!code || code.trim().length === 0) {
+          return { error: 'Content cannot be empty. Please provide the complete source code.' };
+        }
+        fileIndex[filePath] = code;
+        const existingIdx = modifiedFiles.findIndex(mf => mf.path === filePath);
+        const explanation = toolInput.replacementReason || toolInput.explanation || `Updated ${filePath}`;
+        if (existingIdx >= 0) {
+          modifiedFiles[existingIdx] = { path: filePath, code, explanation };
+        } else {
+          modifiedFiles.push({ path: filePath, code, explanation });
+        }
+        return { success: true, path: filePath, written: true, bytes: code.length, message: `Successfully wrote ${filePath} (${code.length} bytes).` };
+      }
+
+      // 3. project_read_file / read_file: inspect file
+      if (toolName === 'project_read_file' || toolName === 'read_file') {
+        const filePath = toolInput.path || toolInput.file || 'index.html';
         const content = fileIndex[filePath]
           || Object.entries(fileIndex).find(([k]) => k.endsWith(filePath) || filePath.endsWith(k))?.[1]
           || null;
-        if (content) {
-          return { found: true, file: filePath, content, lines: content.split('\n').length };
+        if (content !== null && content !== undefined) {
+          return { path: filePath, content, bytes: content.length, lines: content.split('\n').length };
         }
-        return { found: false, file: filePath, message: `File "${filePath}" not in workspace yet. You can create it with edit_code.` };
+        return { error: `File "${filePath}" not found. Available files: ${Object.keys(fileIndex).join(', ')}` };
       }
 
-      if (toolName === 'search_code') {
+      // 4. project_list_paths: explorer
+      if (toolName === 'project_list_paths') {
+        return { paths: Object.keys(fileIndex) };
+      }
+
+      // 5. project_search_content / search_code: search
+      if (toolName === 'project_search_content' || toolName === 'search_code') {
         const query = (toolInput.query || '').toLowerCase();
         const results = [];
         for (const [filePath, content] of Object.entries(fileIndex)) {
@@ -235,30 +382,8 @@ Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in E
           query: toolInput.query,
           totalMatches: results.length,
           results: results.slice(0, 20),
-          message: results.length === 0 ? 'No matches found. The pattern may not exist yet — create it with edit_code.' : `Found ${results.length} match(es).`
+          message: results.length === 0 ? 'No matches found.' : `Found ${results.length} match(es).`
         };
-      }
-
-      if (toolName === 'edit_code') {
-        const filePath = toolInput.file || 'index.html';
-        const code = toolInput.code || '';
-        // Update fileIndex so subsequent read_file calls see the new content
-        fileIndex[filePath] = code;
-        const existingIdx = modifiedFiles.findIndex(mf => mf.path === filePath);
-        if (existingIdx >= 0) {
-          modifiedFiles[existingIdx] = {
-            path: filePath,
-            code,
-            explanation: toolInput.explanation || 'Updated by Claude Sonnet 5.5'
-          };
-        } else {
-          modifiedFiles.push({
-            path: filePath,
-            code,
-            explanation: toolInput.explanation || 'Updated by Claude Sonnet 5.5'
-          });
-        }
-        return { success: true, file: filePath, bytes: code.length, message: `File "${filePath}" updated successfully (${code.length} bytes). Live preview updated.` };
       }
 
       if (toolName === 'debug_code') {
