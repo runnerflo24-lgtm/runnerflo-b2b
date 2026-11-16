@@ -502,9 +502,8 @@ async function connectApp(app) {
 
     // ─── Model selection with fallback ────────────────────────────────────────
     const candidateModels = [
-      'claude-sonnet-5-5',
-      'claude-3-7-sonnet-20250219',
       'claude-3-5-sonnet-20241022',
+      'claude-3-7-sonnet-20250219',
       'claude-3-5-haiku-20241022'
     ];
 
