@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integrasi API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#fafafa;--fg:#0a0a0a;--mut:#666;--bd:#eaeaea;--bd2:#d4d4d4;--ok:#0f9d58;--wn:#b45309;--bad:#d92d3a;--ln:#0070f3;--pf:#0a0a0a;--pt:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--bg2:#0a0a0a;--fg:#ededed;--mut:#a1a1a1;--bd:#262626;--bd2:#3a3a3a;--ok:#3ecf8e;--wn:#f5a524;--bad:#ff6369;--ln:#52a8ff;--pf:#ededed;--pt:#0a0a0a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000;--bg2:#0a0a0a;--fg:#ededed;--mut:#a1a1a1;--bd:#262626;--bd2:#3a3a3a;--ok:#3ecf8e;--wn:#f5a524;--bad:#ff6369;--ln:#52a8ff;--pf:#ededed;--pt:#0a0a0a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.mono,code{font-family:"Geist Mono",ui-monospace,monospace}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--bd);position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:3}
+.brand{display:flex;align-items:center;gap:10px;color:var(--mut)}.brand b{color:var(--fg);font-weight:500}
+.mark{width:22px;height:22px;border-radius:6px;background:var(--fg);display:grid;place-items:center}.mark i{width:8px;height:8px;border-radius:2px;background:var(--bg)}
+main{max-width:1040px;margin:0 auto;padding:32px 24px 64px}
+h1{font-size:28px;font-weight:600;letter-spacing:-.02em;margin:0 0 4px}.sub{color:var(--mut);margin:0 0 28px}
+.btn{font:500 13px Geist,system-ui,sans-serif;height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--bd2);background:var(--bg);color:var(--fg);cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--bg2);border-color:var(--fg)}.btn.p{background:var(--pf);color:var(--pt);border-color:var(--pf)}.btn.p:hover{opacity:.85;background:var(--pf)}
+.btn:focus-visible,input:focus-visible,.tab:focus-visible,.row:focus-visible{outline:2px solid var(--ln);outline-offset:2px}
+.flow{display:grid;grid-template-columns:1fr 36px 1fr 36px 1fr;align-items:center;margin-bottom:12px}
+.node{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;background:var(--bg)}
+.node small{display:block;color:var(--mut);font-size:12px}.node b{font-weight:500}
+.node.hi{border-color:var(--fg)}
+.arr{height:1px;background:repeating-linear-gradient(90deg,var(--bd2) 0 4px,transparent 4px 8px);background-size:16px 1px;animation:mv 1s linear infinite;position:relative}
+.arr::after{content:"";position:absolute;right:-1px;top:-3px;width:6px;height:6px;border-top:1px solid var(--mut);border-right:1px solid var(--mut);transform:rotate(45deg)}
+@keyframes mv{to{background-position:16px 0}}
+.ep{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px 10px 16px;margin-bottom:24px;background:var(--bg2)}
+.ep span{color:var(--mut);font-size:12px}.ep code{font-size:13px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.stat{border:1px solid var(--bd);border-radius:10px;padding:14px 16px}.stat span{color:var(--mut);font-size:12px}.stat b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em}
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--bd);margin-bottom:0;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 0;margin-bottom:-1px;color:var(--mut);font:500 13px Geist,system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--fg);border-color:var(--fg)}.tab em{font-style:normal;color:var(--mut);margin-left:4px}
+.row{display:grid;grid-template-columns:minmax(150px,1.3fr) 170px minmax(160px,1.4fr) 110px;gap:12px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--bd);cursor:pointer}
+.row:hover{background:var(--bg2)}.row.h{cursor:default;color:var(--mut);font-size:12px;padding:10px 4px}.row.h:hover{background:none}
+.row b{font-weight:500}.row small{display:block;color:var(--mut);font-size:12px}
+.fade{animation:fd .35s both}@keyframes fd{from{opacity:0;transform:translateY(4px)}}
+.badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:500;border:1px solid var(--bd);border-radius:99px;padding:2px 10px;white-space:nowrap}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--mut)}
+.s-connected i{background:var(--ok)}.s-act i{background:var(--wn)}.s-rejected i{background:var(--bad)}.s-busy i{background:var(--ln);animation:pl 1.2s ease-in-out infinite}
+@keyframes pl{50%{opacity:.25}}
+.sec{font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.go{justify-self:end;color:var(--ln);font-weight:500;font-size:13px}
+.empty{padding:36px 0;text-align:center;color:var(--mut)}
+dialog{border:1px solid var(--bd2);border-radius:12px;padding:0;width:min(480px,94vw);background:var(--bg);color:var(--fg);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dh{padding:18px 20px 12px}.dh h2{margin:0;font-size:16px;font-weight:600}.dh p{margin:2px 0 0;color:var(--mut);font-size:13px}
+.db{padding:4px 20px 16px}.df{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid var(--bd);background:var(--bg2);border-radius:0 0 12px 12px}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:13px;margin:8px 0}.kv span{color:var(--mut)}
+input[type=text],input[type=password]{font:inherit;width:100%;height:36px;padding:0 12px;border:1px solid var(--bd2);border-radius:8px;background:var(--bg);color:var(--fg)}
+label.ck{display:flex;gap:8px;align-items:flex-start;margin:12px 0 4px;font-size:13px}
+.note{font-size:13px;color:var(--mut);margin:8px 0}.err{color:var(--bad)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bd2);border-top-color:var(--fg);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:8px}@keyframes sp{to{transform:rotate(360deg)}}
+.demo{font-size:12px;color:var(--mut);text-align:center;padding:8px;border-bottom:1px solid var(--bd);background:var(--bg2)}
+@media(max-width:760px){.flow{grid-template-columns:1fr;gap:8px}.arr{width:1px;height:20px;margin:0 auto;background:repeating-linear-gradient(180deg,var(--bd2) 0 4px,transparent 4px 8px)}.arr::after{display:none}
+.stats{grid-template-columns:1fr}.row{grid-template-columns:1fr auto}.row .sec,.row.h{display:none}.top{padding:12px 16px}main{padding:24px 16px 48px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="demo">Pratinjau dengan data simulasi</div>
+<header class="top">
+ <div class="brand"><span class="mark"><i></i></span><span>Platform</span><span>/</span><b>Integrasi API</b></div>
+ <button class="btn p" id="add">Tambah API</button>
+</header>
+<main>
+ <h1>Integrasi API</h1>
+ <p class="sub">API pilihan pelanggan terhubung ke satu endpoint yang sama.</p>
+
+ <div class="flow" aria-label="Alur koneksi">
+  <div class="node"><small>Pelanggan</small><b>SaaS AI di banyak domain</b></div><div class="arr"></div>
+  <div class="node hi"><small>Endpoint tunggal</small><b>runnerflo-b2b.pages.dev</b></div><div class="arr"></div>
+  <div class="node"><small>API pilihan</small><b id="nconn">0 terhubung</b></div>
+ </div>
+ <div class="ep"><div><span>Endpoint Gateway Tunggal</span><br><code id="url">https://runnerflo-b2b.pages.dev/api/gateway</code></div><button class="btn" id="copy">Salin</button></div>
+
+ <div class="stats">
+  <div class="stat"><span>Terhubung</span><b id="s1">0</b></div>
+  <div class="stat"><span>Perlu tindakan</span><b id="s2">0</b></div>
+  <div class="stat"><span>Permintaan hari ini (contoh)</span><b>1.240</b></div>
+ </div>
+
+ <div class="tabs" id="tabs" role="tablist"></div>
+ <div id="tbl"></div>
+</main>
+<dialog id="dlg"></dialog>
+
+<script>
+var ST={preparing:["Menyiapkan","s-busy"],review:["Perlu ditinjau","s-act"],signup:["Perlu pendaftaran","s-act"],key:["Perlu kunci","s-act"],testing:["Menguji","s-busy"],connected:["Terhubung","s-connected"],rejected:["Tidak didukung","s-rejected"]};
+var ACT={review:"Tinjau",signup:"Daftar",key:"Masukkan kunci"};
+var seq=1,tab="all",R=[],first=true;
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"api"}
+function sname(s,r){if(r&&r.secretKey)return r.secretKey;for(var i=0;i<R.length;i++){if(R[i].name===s&&R[i].secretKey)return R[i].secretKey}return "PROVIDER_"+slug(s).toUpperCase().replace(/-/g,"_")+"_API_KEY"}
+function cat(n,r){if(r&&r.category)return r.category;return /3d|tripo/i.test(n)?"3D":/image|stability|replicate|gambar/i.test(n)?"Gambar":/voice|eleven|suara/i.test(n)?"Suara":"LLM & AI"}
+function mk(name,status,x){var r={id:seq++,name:name,status:status,topup:10,note:""};for(var k in x||{})r[k]=x[k];R.push(r);return r}
+function setSt(r,s){r.status=s;draw();if(document.getElementById("dlg").open&&cur===r.id)dlg(r.id)}
+var cur=null;
+function prep(r){setTimeout(function(){
+  if(/oauth|drive|gmail/i.test(r.name)){r.note="Membutuhkan OAuth pengguna atau kontrak, di luar cakupan.";setSt(r,"rejected")}
+  else if(/langgan|monthly/i.test(r.name)){r.note="Ada biaya bulanan. Hanya API pay-as-you-go yang didukung.";setSt(r,"rejected")}
+  else setSt(r,"review")},3200)}
+function counts(){var c={all:R.length,act:0,connected:0,rejected:0};R.forEach(function(r){if(["review","signup","key"].indexOf(r.status)>=0)c.act++;if(r.status==="connected")c.connected++;if(r.status==="rejected")c.rejected++});return c}
+function put(id,h){var e=document.getElementById(id);if(e._h!==h){e.innerHTML=h;e._h=h}}
+function draw(){
+  var c=counts();
+  document.getElementById("s1").textContent=c.connected;document.getElementById("s2").textContent=c.act;
+  document.getElementById("nconn").textContent=c.connected+" terhubung";
+  var T=[["all","Semua"],["act","Perlu tindakan"],["connected","Terhubung"],["rejected","Ditolak"]];
+  put("tabs",T.map(function(t){return '<button class="tab'+(tab===t[0]?" on":"")+'" role="tab" data-tab="'+t[0]+'">'+t[1]+'<em>'+c[t[0]]+'</em></button>'}).join(""));
+  var rows=R.filter(function(r){return tab==="all"||(tab==="act"&&["review","signup","key"].indexOf(r.status)>=0)||(tab==="connected"&&r.status==="connected")||(tab==="rejected"&&r.status==="rejected")}).slice().reverse();
+  var h='<div class="row h"><span>API Aggregator</span><span>Status</span><span>Secret Cloudflare</span><span></span></div>';
+  h+=rows.length?rows.map(function(r,i){var s=ST[r.status];return '<div class="row'+(first?" fade":"")+'" style="'+(first?"animation-delay:"+i*50+"ms":"")+'" data-id="'+r.id+'" tabindex="0" role="button"><div><b>'+esc(r.name)+'</b><small>'+cat(r.name,r)+'</small></div><span class="badge '+s[1]+'"><i></i>'+s[0]+'</span><span class="sec mono">'+(["key","testing","connected"].indexOf(r.status)>=0?sname(r.name,r):"-")+'</span><span class="go">'+(ACT[r.status]||"Detail")+' &rarr;</span></div>'}).join(""):'<div class="empty">Belum ada API di kategori ini.</div>';
+  put("tbl",h);
+}
+function dlg(id){
+  var d=document.getElementById("dlg"),r=R.filter(function(x){return x.id===id})[0],h="";cur=id;
+  if(!r){cur=null;d.innerHTML='<div class="dh"><h2>Tambah API</h2><p>Sebutkan API yang diminta pelanggan. Hanya API pay-as-you-go tanpa biaya bulanan yang didukung.</p></div><div class="db"><input type="text" id="nm" maxlength="60" placeholder="Contoh: Tripo 3D" aria-label="Nama API"></div><div class="df"><button class="btn" data-a="close">Batal</button><button class="btn p" data-a="new">Tambah</button></div>';d.showModal();return}
+  var s=ST[r.status];
+  h='<div class="dh"><h2>'+esc(r.name)+'</h2><p><span class="badge '+s[1]+'"><i></i>'+s[0]+'</span></p></div><div class="db">';
+  var f='<button class="btn" data-a="close">Tutup</button>';
+  if(r.status==="preparing"){h+='<p class="note"><span class="spin"></span>Menyiapkan integrasi. Jendela ini diperbarui otomatis.</p>'}
+  if(r.status==="rejected"){h+='<p class="note err">'+esc(r.note)+'</p>'}
+  if(r.status==="review"){h+='<div class="kv"><span>Penagihan</span><b>Pay-as-you-go</b><span>Biaya bulanan</span><b>0</b><span>Domain penyedia</span><b class="mono">'+slug(r.name)+'.com</b><span>Tujuan kunci</span><b class="mono">api.'+slug(r.name)+'.com</b></div><label class="ck"><input type="checkbox" id="ck"> Domain dan harga sudah saya periksa di situs resmi penyedia.</label>';f+='<button class="btn p" data-a="ok">Lanjutkan</button>'}
+  if(r.status==="signup"){h+='<p class="note">Buat akun di situs penyedia, isi saldo minimum '+r.topup+' USD, dan pasang batas pengeluaran di sisi penyedia.</p>';f+='<button class="btn p" data-a="signed">Sudah mendaftar</button>'}
+  if(r.status==="key"){h+='<p class="note">Tempel kunci API dari akun penyedia. Kunci diuji, lalu disimpan sebagai secret dan tidak ditampilkan lagi.</p><input type="password" id="key" autocomplete="off" placeholder="Kunci API" aria-label="Kunci API"><p class="note mono">'+sname(r.name,r)+'</p>';f+='<button class="btn p" data-a="key">Uji dan hubungkan</button>'}
+  if(r.status==="testing"){h+='<p class="note"><span class="spin"></span>Menguji koneksi ke endpoint penyedia.</p>'}
+  if(r.status==="connected"){h+='<div class="kv"><span>Endpoint</span><b class="mono">/api/gateway</b><span>Rute</span><b class="mono">'+slug(r.name)+'</b><span>Secret</span><b class="mono">'+sname(r.name,r)+'</b></div><p class="note">Terhubung. Nilai kunci tersimpan aman di Cloudflare Pages Secrets.</p>'}
+  d.innerHTML=h+'</div><div class="df">'+f+'</div>';if(!d.open)d.showModal();
+}
+document.addEventListener("click",function(e){
+  var t=e.target,b;
+  if(t.id==="add"){dlg(0);return}
+  if(t.id==="copy"){var u=document.getElementById("url");try{navigator.clipboard.writeText(u.textContent).then(function(){t.textContent="Tersalin"},function(){t.textContent="Salin manual"})}catch(x){t.textContent="Salin manual"}var g=getSelection(),rg=document.createRange();rg.selectNodeContents(u);g.removeAllRanges();g.addRange(rg);setTimeout(function(){t.textContent="Salin"},1800);return}
+  if(b=t.closest("[data-tab]")){tab=b.dataset.tab;draw();return}
+  if(b=t.closest(".row[data-id]")){dlg(+b.dataset.id);return}
+  var a=t.dataset&&t.dataset.a;if(!a)return;var d=document.getElementById("dlg"),r=R.filter(function(x){return x.id===cur})[0];
+  if(a==="close"){d.close();return}
+  if(a==="new"){var v=document.getElementById("nm").value.trim();if(v.length<2)return;r=mk(v,"preparing");cur=r.id;draw();dlg(r.id);prep(r);return}
+  if(!r)return;
+  if(a==="ok"){if(!document.getElementById("ck").checked){document.getElementById("ck").focus();return}setSt(r,"signup")}
+  if(a==="signed")setSt(r,"key");
+  if(a==="key"){if(document.getElementById("key").value.length<8)return;setSt(r,"testing");setTimeout(function(){setSt(r,"connected")},1800)}
+});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"){var b=e.target.closest&&e.target.closest(".row[data-id]");if(b)b.click()}});
+var openrouterItem = mk("OpenRouter (LLM, Chat & Reasoning)", "key", { secretKey: "OPENROUTER_API_KEY", category: "LLM & Code", topup: 10, note: "Unified router untuk Claude 3.5/3.7, GPT-4o, DeepSeek R1/V3, Gemini 2.0, Llama 3.3" });
+var falItem = mk("fal.ai (Real-time Media & 3D)", "key", { secretKey: "FAL_KEY", category: "Media & 3D", topup: 10, note: "Generasi kilat Tripo3D mesh, FLUX.1 [dev], Kling Video, Recraft V3" });
+var replicateItem = mk("Replicate (Specialized & Audio)", "key", { secretKey: "REPLICATE_API_TOKEN", category: "Audio & Media", topup: 10, note: "Whisper Large v3, SDXL, MusicGen Stereo, TripoSR 3D" });
+var wavespeedItem = mk("WaveSpeed (Cinematic Video & Voice)", "key", { secretKey: "WAVESPEED_API_KEY", category: "Video & Voice", topup: 10, note: "PixVerse V5.5 Cinematic Video, Wan 2.1, MiniMax Speech 2.6 HD" });
+
+// Sync real status from Cloudflare Pages secrets
+try {
+  fetch('/api/status')
+    .then(function(res){ return res.ok ? res.json() : null; })
+    .then(function(data){
+      if(data && data.services){
+        if(data.services.openrouter && data.services.openrouter.configured) openrouterItem.status = "connected";
+        if(data.services.fal && data.services.fal.configured) falItem.status = "connected";
+        if(data.services.replicate && data.services.replicate.configured) replicateItem.status = "connected";
+        if(data.services.wavespeed && data.services.wavespeed.configured) wavespeedItem.status = "connected";
+        draw();
+      }
+    })
+    .catch(function(){});
+} catch(e){}
+
+draw();first=false;
+</script>
+</body>
+</html>

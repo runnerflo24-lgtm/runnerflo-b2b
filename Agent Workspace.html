@@ -3399,6 +3399,11 @@ body.ws-stage-2-active .topbar {
             var blob = new Blob([htmlFile.code], { type: 'text/html' });
             var blobUrl = URL.createObjectURL(blob);
             p.claudePreviewBlobUrl = blobUrl;
+            var liveFr = document.getElementById('wsLiveFrame');
+            if (liveFr) {
+              liveFr.src = blobUrl;
+              liveFr.style.opacity = '1';
+            }
           } catch(blobErr) { /* Blob API unavailable */ }
         }
       }

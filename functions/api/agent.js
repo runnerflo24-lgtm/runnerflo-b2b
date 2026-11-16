@@ -62,6 +62,20 @@ Runnerflo is a white-label SaaS generator platform designed for NON-TECHNICAL US
    - Injecting Composio multi-tenancy integrations into the SaaS so the SaaS's end-users can connect their own Gmail, Slack, Google Sheets, Notion, Stripe, GitHub, etc., with zero technical friction.
    - Creating immediate, live visual preview updates for the user.
 
+CRITICAL DIRECTIVE — MANDATORY ACTION OVER CHATTER:
+1. NEVER reply with only a conversational plan (e.g. "Saya mulai dengan memeriksa...", "I will look into..."). You are an AUTONOMOUS AGENT, not a chat assistant.
+2. Every prompt from the user asking for design, theme, color, feature, layout, or fix MUST immediately result in calling the "edit_code" tool.
+3. Whenever a user requests a theme change (e.g. "ubah designnya jdi theme putih/terang", "make it light theme"):
+   - You MUST call edit_code for "index.html" with the COMPLETE HTML5 document styled with Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>).
+   - Light theme styling:
+     * Backgrounds: clean white (bg-white, #ffffff) and soft zinc/slate (bg-slate-50, #f8fafc).
+     * Text: high contrast crisp dark typography (text-slate-900, text-neutral-900, font-semibold for headings).
+     * Cards & containers: white cards with subtle borders (border border-slate-200), soft shadows (shadow-sm, shadow-md), and clean rounded corners (rounded-2xl).
+     * Navigation bar: crisp white navbar with subtle border-b border-slate-200, dark logo, and clean action buttons.
+     * Buttons: primary button with modern gradient/indigo/slate-900 fill and white text; secondary buttons with border-slate-300.
+   - Also call edit_code for "src/app/page.tsx" with the React/TypeScript equivalent.
+4. If you need to inspect existing code first, you may call read_file or search_code, but you MUST follow up immediately by calling edit_code to apply the changes.
+
 NON-TECHNICAL USER DESIGN PRINCIPLE:
 Users are non-technical ("orang awam"). NEVER tell them to configure complex technical settings, register webhooks, or write configs manually.
 Whenever a user asks for a feature:
@@ -86,17 +100,7 @@ TOOLS AVAILABLE:
 5. trigger_job(taskId, description, payload, triggerCode): Inject Trigger.dev background automation into the SaaS.
 6. composio_action(app, action, userId, params, generateConnectUI): Inject Composio multi-tenancy SaaS integration into the SaaS.
 
-CRITICAL RULES:
-1. ALWAYS use read_file first when you need to see what code exists before modifying it.
-2. ALWAYS use edit_code for ANY change requested by the user (design, color, layout, feature, bug fix).
-3. CRITICAL LIVE PREVIEW RULE:
-   The workspace displays the project in a live iframe. Whenever you make visual or functional modifications (like changing theme from dark to light, adding buttons, changing copy, restructuring layout), you MUST update or create "index.html" with the COMPLETE, self-contained, high-fidelity HTML and Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>). This ensures the user's live preview iframe updates immediately without requiring a full rebuild! Also update the corresponding Next.js/React files (e.g. "src/app/page.tsx") to maintain codebase integrity.
-4. For theme changes (e.g. dark to light/white):
-   - Replace dark backgrounds (bg-slate-950, bg-neutral-950, bg-black, #0a0a0a) with clean, crisp light backgrounds (bg-white, bg-slate-50, #ffffff, #f8fafc).
-   - Replace light text (text-white, text-slate-100) with high-contrast dark text (text-slate-900, text-neutral-900, #0f172a).
-   - Update cards, borders, navigation, and form inputs to match the light aesthetic.
-5. Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in English.
-6. Explain clearly what changes you made in your response.`;
+Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in English. Always summarize what code changes were made.`;
 
     // ─── Tool Definitions ─────────────────────────────────────────────────────
     const tools = [
@@ -418,9 +422,22 @@ async function connectApp(app) {
             }
           }
 
-          // If no tool calls, we're done
+          // If no tool calls, check if Claude only responded with conversational text
           const toolUseBlocks = contentBlocks.filter(b => b.type === 'tool_use');
-          if (toolUseBlocks.length === 0 || stopReason === 'end_turn') break;
+          if (toolUseBlocks.length === 0) {
+            // If Claude only chatted and hasn't edited any files yet in iteration 1, nudge Claude to edit code
+            if (iterations === 1 && modifiedFiles.length === 0) {
+              const assistantBlocks = contentBlocks.filter(b => b.type === 'text');
+              convMessages.push({ role: 'assistant', content: assistantBlocks.length ? assistantBlocks : [{ type: 'text', text: assistantText || 'Saya siap memperbarui kode.' }] });
+              convMessages.push({
+                role: 'user',
+                content: `PERINTAH SISTEM WAJIB: Anda hanya memberikan penjelasan rencana tanpa memanggil tool! Pengguna meminta perubahan: "${userText.replace(/"/g, "'")}". Anda WAJIB langsung memanggil tool "edit_code" SEKARANG untuk memperbarui "index.html" (dan file terkait) dengan kode HTML & styling Tailwind CSS lengkap sesuai permintaan pengguna. Panggil edit_code sekarang!`
+              });
+              currentResponse = await callClaude(convMessages, selectedModel);
+              continue;
+            }
+            break;
+          }
 
           // Execute all tool calls in this response
           const toolResults = [];
@@ -438,11 +455,13 @@ async function connectApp(app) {
           convMessages.push({ role: 'assistant', content: assistantBlocks });
           convMessages.push({ role: 'user', content: toolResults });
 
-          // If stop_reason was tool_use, continue the loop
-          if (stopReason !== 'tool_use') break;
+          // If stop_reason was tool_use, or if Claude only read/searched files and hasn't edited code yet, continue
+          if (stopReason === 'tool_use' || (modifiedFiles.length === 0 && iterations < 3)) {
+            currentResponse = await callClaude(convMessages, selectedModel);
+            continue;
+          }
 
-          // Call Claude again with tool results
-          currentResponse = await callClaude(convMessages, selectedModel);
+          break;
         }
 
         break; // Successfully completed with this model

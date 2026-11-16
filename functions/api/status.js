@@ -16,6 +16,10 @@ export async function onRequest(context) {
   const hasOpenAI = Boolean(env && env.OPENAI_API_KEY);
   const hasTrigger = Boolean(env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY));
   const hasComposio = Boolean(env && (env.COMPOSIO_API_KEY || env.COMPOSIO_KEY));
+  const hasOpenRouter = Boolean(env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY));
+  const hasFal = Boolean(env && (env.FAL_KEY || env.FAL_API_KEY));
+  const hasReplicate = Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY));
+  const hasWaveSpeed = Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY));
 
   return new Response(JSON.stringify({
     project: 'runnerflo-b2b',
@@ -26,6 +30,11 @@ export async function onRequest(context) {
     openai: hasOpenAI,
     trigger: hasTrigger,
     composio: hasComposio,
+    // 4 Core Aggregators for PaaS Model Gateway
+    openrouter: hasOpenRouter,
+    fal: hasFal,
+    replicate: hasReplicate,
+    wavespeed: hasWaveSpeed,
     ready: hasTotalum || hasAnthropic || hasVertex || hasGemini || hasOpenAI,
     message: hasTotalum
       ? 'Totalum v2 Full-Stack Next.js Engine siap dan aktif.'
