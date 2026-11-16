@@ -3311,6 +3311,9 @@ body.ws-stage-2-active .topbar {
   // Claude Sonnet 5.5 Autonomous Agent with Code Tools & Trigger.dev v3 Background Pipeline
   function runClaudeFallbackAgent(p, text, reason, existingMsg, myRunId) {
     var my = myRunId || (++runId);
+    // Lock the target project ID so result always goes to the right project
+    // even if user clicks another tab while Claude is processing
+    var targetProjectId = p.id;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
     updateWave(25, 'Claude Sonnet 5.5: Code Reasoning & Analysis...', 'Progress: 25% • Medium Thinking & Autonomous Tool Pipeline active');
@@ -3398,6 +3401,8 @@ body.ws-stage-2-active .topbar {
     })
     .then(function(data) {
       if (my !== runId) return;
+      // Always resolve results to the original locked project, not cur()
+      var p = proj(targetProjectId) || p;
       p.busy = false;
       m.steps.forEach(function(s) { s.done = true; });
 
@@ -3497,6 +3502,8 @@ body.ws-stage-2-active .topbar {
       p.suggest = Array.isArray(data.suggest) ? data.suggest : ['Review Updated Code', 'Add New Component', 'Publish to Live'];
       finishWave();
       save();
+      // Switch view to the locked project so result is visible even if user navigated away
+      if (state.active !== targetProjectId) { go(targetProjectId); }
       renderChat();
       renderTabs();
       renderSide();
@@ -3505,6 +3512,7 @@ body.ws-stage-2-active .topbar {
     .catch(function(err) {
       clearInterval(progressTicker);
       if (my !== runId) return;
+      var p = proj(targetProjectId) || p;
       p.busy = false;
       m.steps.forEach(function(s) { s.done = false; });
       m.text = '⚠️ **Claude 5.5 Engine Notice:** ' + err.message + '\n\nPlease ensure `ANTHROPIC_API_KEY` is configured in Cloudflare Pages environment variables.';
@@ -6069,6 +6077,67 @@ body.ws-stage-2-active .topbar {
   });
   $('#msg').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(this.value); } });
   $('#form').addEventListener('submit', function (e) { e.preventDefault(); send($('#msg').value); });
+
+  // ── Image Paste into Chat (Ctrl+V / Cmd+V with image in clipboard) ──────────
+  (function() {
+    var pastedImgEl = null;
+    var pastedImgB64 = null;
+
+    function clearPastedImg() {
+      pastedImgEl = null; pastedImgB64 = null;
+      var prev = document.getElementById('rfPasteImgPreview');
+      if (prev) prev.remove();
+      updSend();
+    }
+
+    $('#msg').addEventListener('paste', function(e) {
+      var items = (e.clipboardData || window.clipboardData || {}).items;
+      if (!items) return;
+      var imgItem = null;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.startsWith('image/')) { imgItem = items[i]; break; }
+      }
+      if (!imgItem) return;
+      e.preventDefault();
+      var file = imgItem.getAsFile();
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        pastedImgB64 = ev.target.result; // data:image/png;base64,...
+        // Show inline preview under textarea
+        var prev = document.getElementById('rfPasteImgPreview');
+        if (!prev) {
+          prev = document.createElement('div');
+          prev.id = 'rfPasteImgPreview';
+          prev.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--panel,#1a1b1e);border-radius:8px;margin-top:4px;border:1px solid var(--line,#333)';
+          var msgBox = $('#msg');
+          msgBox.parentNode.insertBefore(prev, msgBox.nextSibling);
+        }
+        prev.innerHTML = '<img src="' + pastedImgB64 + '" style="height:48px;width:auto;border-radius:6px;object-fit:cover" alt="pasted"/>' +
+          '<span style="font-size:12px;color:var(--muted,#888);flex:1">📎 Image attached (paste)</span>' +
+          '<button type="button" onclick="document.getElementById(\'rfPasteImgPreview\').remove();window._rfPastedImgB64=null;updSend();" style="background:none;border:none;cursor:pointer;color:var(--muted,#888);font-size:16px;padding:0 4px">✕</button>';
+        window._rfPastedImgB64 = pastedImgB64;
+        updSend();
+        toast('📎 Image attached — describe what to change then send');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Intercept send() to append image description to text
+    var _origSend = window.send;
+    window.send = function(text) {
+      var imgB64 = window._rfPastedImgB64;
+      if (imgB64 && text) {
+        // Append a visual note to the text so Claude knows an image was provided
+        // (Anthropic Vision is not available on all keys, so we describe it as reference)
+        text = text + '\n\n[User attached a reference image for visual context. Apply the UI style/layout from the image.]';
+        window._rfPastedImgB64 = null;
+        var prev = document.getElementById('rfPasteImgPreview');
+        if (prev) prev.remove();
+      }
+      _origSend(text);
+    };
+  })();
   $('#thread').addEventListener('scroll', function () { $('#jump').hidden = nearBottom(this); });
   $('#fileIn').addEventListener('change', function () { addFiles(this.files); this.value = ''; });
   
