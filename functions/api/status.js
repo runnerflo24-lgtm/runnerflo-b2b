@@ -100,8 +100,9 @@ export async function onRequest(context) {
         envError = errEnv.message;
       }
 
-      // 3. Test Session Creation
+      // 3. Test Session Creation & Event Dispatch
       let sessStatus = 'skipped';
+      let eventStatus = 'none';
       if (envId) {
         const sessRes = await fetch('https://api.anthropic.com/v1/sessions', {
           method: 'POST',
@@ -114,11 +115,31 @@ export async function onRequest(context) {
           body: JSON.stringify({
             agent: agentId,
             environment_id: envId,
-            title: 'runnerflo-diagnostic-session'
+            title: 'runnerflo-diagnostic-session',
+            initial_events: [
+              {
+                type: 'user.message',
+                content: [{ type: 'text', text: 'Generate a landing page for PixelQuest with HTML5 and Tailwind CSS.' }]
+              }
+            ]
           })
         });
-        const sessData = await sessRes.text();
-        sessStatus = `HTTP ${sessRes.status}: ${sessData}`;
+        const sessJson = await sessRes.json();
+        const sessionId = sessJson && sessJson.id;
+        sessStatus = `HTTP ${sessRes.status}: ID=${sessionId}, status=${sessJson && sessJson.status}`;
+
+        if (sessionId) {
+          // Poll events
+          const evRes = await fetch(`https://api.anthropic.com/v1/sessions/${sessionId}/events?limit=10`, {
+            headers: {
+              'x-api-key': aKey,
+              'anthropic-version': '2023-06-01',
+              'anthropic-beta': 'managed-agents-2026-04-01'
+            }
+          });
+          const evData = await evRes.json();
+          eventStatus = `HTTP ${evRes.status}: count=${evData && evData.data ? evData.data.length : 0}, types=${(evData && evData.data ? evData.data.map(d => d.type).join(',') : '')}`;
+        }
       } else {
         sessStatus = `No Env ID. EnvError: ${envError}`;
       }
@@ -126,7 +147,8 @@ export async function onRequest(context) {
       managedAgentsStatus = {
         agentId,
         envId,
-        sessionStatus: sessStatus
+        sessionStatus: sessStatus,
+        eventStatus
       };
     } catch (e) {
       managedAgentsStatus = `Error: ${e.message}`;

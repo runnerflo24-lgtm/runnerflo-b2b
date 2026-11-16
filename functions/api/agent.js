@@ -551,15 +551,157 @@ async function connectApp(app) {
       }
     } catch (_) {}
 
-    const candidateModels = (discoveredModels.length > 0 ? discoveredModels : [
+    // Prioritize Flagship Sonnet models first (Sonnet 3.7, Sonnet 3.5), then Opus, Haiku as last resort
+    const candidateModels = [
+      'claude-3-7-sonnet-20250219',
       'claude-3-5-sonnet-20241022',
       'claude-3-5-sonnet-latest',
-      'claude-3-7-sonnet-20250219',
-      'claude-3-haiku-20240307',
-      'claude-3-opus-20240229'
-    ]).filter((v, i, a) => a.indexOf(v) === i);
+      ...discoveredModels.filter(m => /sonnet/i.test(m)),
+      ...discoveredModels.filter(m => !/sonnet/i.test(m) && !/haiku/i.test(m)),
+      'claude-haiku-5-5',
+      'claude-3-haiku-20240307'
+    ].filter((v, i, a) => a.indexOf(v) === i);
 
-    async function callClaude(msgs, model, forceToolUse = true) {
+    // ─── Claude Managed Agents Pipeline (anthropic-beta: managed-agents-2026-04-01) ───
+    let managedAgentSessionId = null;
+    let managedAgentSuccess = false;
+    let managedAgentText = '';
+
+    try {
+      // 1. Get or discover persistent agent and environment
+      const maAgentListRes = await fetch('https://api.anthropic.com/v1/agents?limit=1', {
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'managed-agents-2026-04-01'
+        }
+      });
+      const maAgentList = await maAgentListRes.json();
+      let maAgentId = (maAgentList && maAgentList.data && maAgentList.data[0] && maAgentList.data[0].id) || 'agent_0192aWiQDvMv9hcUw1kDLpUj';
+
+      const maEnvListRes = await fetch('https://api.anthropic.com/v1/environments?limit=1', {
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'managed-agents-2026-04-01'
+        }
+      });
+      const maEnvList = await maEnvListRes.json();
+      let maEnvId = (maEnvList && maEnvList.data && maEnvList.data[0] && maEnvList.data[0].id) || 'env_016Jaj8iCEwjmTVBmFfKTdq7';
+
+      if (maAgentId && maEnvId) {
+        // Build instruction prompt for Managed Agent session
+        const maPrompt = `${systemPrompt}
+
+PROJECT: "${projectName}"
+USER INSTRUCTION: "${userText}"
+CURRENT index.html (${fileIndex['index.html'] ? fileIndex['index.html'].length : 0} bytes):
+${(fileIndex['index.html'] || '').slice(0, 14000)}
+
+MANDATORY OUTPUT REQUIREMENT:
+Provide the COMPLETE, production-ready, browser-executable HTML5 file in \`\`\`html ... \`\`\` with Tailwind CSS and working interactive JavaScript.`;
+
+        // Create Managed Agents Session with initial_events
+        const maSessRes = await fetch('https://api.anthropic.com/v1/sessions', {
+          method: 'POST',
+          headers: {
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-beta': 'managed-agents-2026-04-01',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            agent: maAgentId,
+            environment_id: maEnvId,
+            title: `runnerflo-${projectName.slice(0, 20)}`,
+            initial_events: [
+              {
+                type: 'user.message',
+                content: [{ type: 'text', text: maPrompt }]
+              }
+            ]
+          })
+        });
+
+        if (maSessRes.ok) {
+          const sessData = await maSessRes.json();
+          managedAgentSessionId = sessData.id;
+
+          // Poll session events (up to 5 attempts, ~10s total)
+          for (let pIdx = 0; pIdx < 5; pIdx++) {
+            await new Promise(r => setTimeout(r, 2000));
+            const pollRes = await fetch(`https://api.anthropic.com/v1/sessions/${managedAgentSessionId}/events?limit=30`, {
+              headers: {
+                'x-api-key': anthropicKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-beta': 'managed-agents-2026-04-01'
+              }
+            });
+            if (pollRes.ok) {
+              const pollData = await pollRes.json();
+              const events = pollData.data || [];
+              const agentMsgs = events.filter(e => e.type === 'agent.message');
+              if (agentMsgs.length > 0) {
+                for (const am of agentMsgs) {
+                  for (const blk of (am.content || [])) {
+                    if (blk.type === 'text' && blk.text) {
+                      managedAgentText += blk.text + '\n';
+                    }
+                  }
+                }
+              }
+              const hasCode = managedAgentText.includes('<!DOCTYPE') || managedAgentText.includes('<html') || managedAgentText.includes('```html');
+              if (hasCode || events.some(e => e.type === 'session.status_idle')) {
+                break;
+              }
+            }
+          }
+
+          // Extract HTML code from Managed Agent output
+          const codeMatch = managedAgentText.match(/```(?:html|xml)?\s*([\s\S]*?<!DOCTYPE[\s\S]*?<\/html>[\s\S]*?)```/i)
+            || managedAgentText.match(/<!DOCTYPE\s+html[\s\S]*?<\/html>/i)
+            || managedAgentText.match(/```(?:html|xml)?\s*([\s\S]*?<div[\s\S]*?<\/div>[\s\S]*?)```/i);
+
+          if (codeMatch) {
+            const rawCode = (codeMatch[1] || codeMatch[0]).trim();
+            if (rawCode.length > 300) {
+              fileIndex['index.html'] = rawCode;
+              modifiedFiles.push({
+                path: 'index.html',
+                code: rawCode,
+                explanation: `Generated complete application layout via Claude Managed Agents (${managedAgentSessionId})`
+              });
+              managedAgentSuccess = true;
+            }
+          }
+        }
+      }
+    } catch (maErr) {
+      // Graceful fallback to direct Anthropic Messages API
+    }
+
+    // If Claude Managed Agents produced the complete code, return immediately!
+    if (managedAgentSuccess && modifiedFiles.length > 0) {
+      const steps = [
+        { label: '⚡ Claude Managed Agents (Hosted Anthropic Harness) Engaged', done: true },
+        { label: `Session active: ${managedAgentSessionId} (sandbox: cloud-unrestricted)`, done: true },
+        { label: `Updated index.html (${modifiedFiles[0].code.length} bytes) — preview live`, done: true }
+      ];
+      return new Response(JSON.stringify({
+        text: managedAgentText || 'Claude Managed Agents completed the build successfully.',
+        steps,
+        stage: Math.min(4, currentStage + 1),
+        suggest: ['Review Updated Code', 'Add Another Feature', 'Publish to Production'],
+        engine: 'claude-managed-agents',
+        model: `claude-managed-agents (${managedAgentSessionId})`,
+        modifiedFiles,
+        triggeredJobs,
+        composioActions,
+        toolCallsCount: modifiedFiles.length
+      }), { status: 200, headers: corsHeaders });
+    }
+
+    async function callClaude(msgs, model, forceToolUse = true, specificTool = null) {
       const headers = {
         'x-api-key': anthropicKey,
         'anthropic-version': '2023-06-01',
@@ -572,9 +714,17 @@ async function connectApp(app) {
         messages: msgs,
         tools
       };
-      // Force Claude to call a tool on the first call or when modifiedFiles is still empty
-      if (forceToolUse) {
-        payload.tool_choice = { type: 'any' };
+
+      // Force Claude to call a specific tool, or force project_write_file when code write is mandatory
+      if (specificTool) {
+        payload.tool_choice = { type: 'tool', name: specificTool };
+      } else if (forceToolUse) {
+        if (isVisualRedesignRequest || hasImage || modifiedFiles.length === 0) {
+          // STRICT ENFORCEMENT: Force project_write_file so Claude CANNOT escape or just read files
+          payload.tool_choice = { type: 'tool', name: 'project_write_file' };
+        } else {
+          payload.tool_choice = { type: 'any' };
+        }
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST', headers, body: JSON.stringify(payload)
@@ -699,6 +849,24 @@ async function connectApp(app) {
         modelAttempts,
         fallback: false
       }), { status: 502, headers: corsHeaders });
+    }
+
+    // ─── Safety Net: Extract executable code from assistantText if modifiedFiles is empty ───
+    if (modifiedFiles.length === 0 && assistantText) {
+      const codeMatch = assistantText.match(/```(?:html|xml)?\s*([\s\S]*?<!DOCTYPE[\s\S]*?<\/html>[\s\S]*?)```/i)
+        || assistantText.match(/<!DOCTYPE\s+html[\s\S]*?<\/html>/i)
+        || assistantText.match(/```(?:html|xml)?\s*([\s\S]*?<div[\s\S]*?<\/div>[\s\S]*?)```/i);
+      if (codeMatch) {
+        const rawCode = (codeMatch[1] || codeMatch[0]).trim();
+        if (rawCode.length > 250) {
+          fileIndex['index.html'] = rawCode;
+          modifiedFiles.push({
+            path: 'index.html',
+            code: rawCode,
+            explanation: 'Extracted complete HTML code from Claude response'
+          });
+        }
+      }
     }
 
     // ─── Build response steps ─────────────────────────────────────────────────
