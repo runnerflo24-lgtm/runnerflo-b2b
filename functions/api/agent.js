@@ -500,13 +500,27 @@ async function connectApp(app) {
       return { error: `Unknown tool: ${toolName}` };
     }
 
-    // ─── Model selection with fallback ────────────────────────────────────────
-    const candidateModels = [
+    // ─── Model selection with dynamic discovery ──────────────────────────────
+    let discoveredModels = [];
+    try {
+      const mListRes = await fetch('https://api.anthropic.com/v1/models?limit=20', {
+        headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' }
+      });
+      if (mListRes.ok) {
+        const mJson = await mListRes.json();
+        if (Array.isArray(mJson.data)) {
+          discoveredModels = mJson.data.map(m => m.id);
+        }
+      }
+    } catch (_) {}
+
+    const candidateModels = (discoveredModels.length > 0 ? discoveredModels : [
       'claude-3-5-sonnet-20241022',
       'claude-3-5-sonnet-latest',
       'claude-3-7-sonnet-20250219',
-      'claude-3-haiku-20240307'
-    ];
+      'claude-3-haiku-20240307',
+      'claude-3-opus-20240229'
+    ]).filter((v, i, a) => a.indexOf(v) === i);
 
     async function callClaude(msgs, model) {
       const headers = {
