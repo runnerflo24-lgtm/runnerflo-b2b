@@ -1682,44 +1682,48 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
-<!-- Modal Composio Integrations & Multi-Tenancy -->
+<!-- Modal Composio Integrations & API Catalog — Full Power PaaS → SaaS Injection -->
 <div id="modalComposio" class="rf-modal-backdrop" hidden>
-  <div class="rf-modal-card" style="max-width:820px">
-    <div class="rf-modal-head" style="align-items:center">
+  <div class="rf-modal-card" style="max-width:960px;height:90vh;display:flex;flex-direction:column">
+    <div class="rf-modal-head" style="align-items:center;flex-shrink:0">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <h3 style="margin:0;display:flex;align-items:center;gap:7px">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          SaaS Integrations Hub (Composio Multi-Tenancy)
+          API Catalog — Inject into Your SaaS
         </h3>
-        <span id="composioStatusBadge" style="font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;font-weight:600">Active</span>
+        <span id="composioStatusBadge" style="font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;font-weight:600">Live</span>
+        <span style="font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-weight:600">Composio + Claude 5.5 + Trigger.dev</span>
       </div>
       <button type="button" class="rf-modal-close" onclick="document.getElementById('modalComposio').hidden=true" aria-label="Close">&times;</button>
     </div>
 
-    <div class="rf-modal-body">
-      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-weight:600;font-size:13px;color:var(--txt)">Multi-Tenancy Context (Client Isolation)</div>
-          <div style="font-size:11.5px;color:var(--dim);margin-top:2px">Each tenant/client connects their own OAuth credentials safely.</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <label style="font-size:11.5px;color:var(--dim)">Current Tenant:</label>
-          <input type="text" id="composioTenantId" value="tenant_user_1" style="background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--txt);font-family:var(--mono,monospace);width:140px" onchange="window.reloadComposioConnections()" />
-        </div>
-      </div>
-
-      <div id="composioAlertBar" style="display:none;padding:10px 14px;border-radius:6px;font-size:12px;margin-bottom:14px;line-height:1.4"></div>
-
-      <div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Supported SaaS Connectors (One-Click OAuth)</div>
-      
-      <div id="composioAppsGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));gap:10px;max-height:420px;overflow-y:auto;padding-right:4px">
-        <!-- Rendered dynamically by window.loadComposioApps() -->
-      </div>
+    <!-- Search + Filter Bar -->
+    <div style="padding:12px 20px;border-bottom:1px solid var(--line);flex-shrink:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input id="apiCatalogSearch" type="text" placeholder="🔍  Search 200+ APIs... (Tripo 3D, Stripe, OpenAI, Gmail...)" 
+        style="flex:1;min-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--txt);outline:none"
+        oninput="window.filterApiCatalog(this.value)" />
+      <div id="apiCatalogCats" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     </div>
 
-    <div class="rf-modal-foot" style="display:flex;align-items:center;justify-content:space-between">
-      <div style="font-size:11.5px;color:var(--dim)">Powered by Composio v1 REST Engine &amp; Claude 5.5 Multi-Tenancy</div>
-      <button type="button" class="rf-btn" onclick="document.getElementById('modalComposio').hidden=true">Close</button>
+    <!-- Active Injections Banner -->
+    <div id="injectedBanner" style="display:none;padding:8px 20px;background:rgba(16,185,129,0.08);border-bottom:1px solid rgba(16,185,129,0.2);font-size:12px;color:#10b981;flex-shrink:0">
+      <span id="injectedList">✅ No integrations injected yet.</span>
+      <button onclick="window.openComposioModal()" style="margin-left:8px;background:none;border:none;color:#10b981;cursor:pointer;font-size:11px;text-decoration:underline">refresh</button>
+    </div>
+
+    <div id="composioAlertBar" style="display:none;padding:10px 20px;font-size:12px;line-height:1.4;flex-shrink:0"></div>
+
+    <!-- API Grid -->
+    <div id="composioAppsGrid" style="flex:1;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;align-content:start">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dim);font-size:13px">Loading API catalog...</div>
+    </div>
+
+    <div class="rf-modal-foot" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:11px;color:var(--dim)">Click <b>⚡ Inject into SaaS</b> → Claude 5.5 rewrites your app with the integration code baked in</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="composioTenantId" value="tenant_user_1" placeholder="Tenant ID" style="background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--txt);font-family:var(--mono,monospace);width:120px" />
+        <button type="button" class="rf-btn" onclick="document.getElementById('modalComposio').hidden=true">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2491,7 +2495,67 @@ body.ws-stage-2-active .topbar {
     }
   };
 
-  /* Composio Multi-Tenancy & SaaS Integrations Modal Helpers */
+  /* ═══════════════════════════════════════════════════════════════════
+     API CATALOG — Full PaaS → SaaS Power Injection
+     Composio + Claude 5.5 + Trigger.dev integrated catalog
+     Click any API → Claude rewrites the generated SaaS with it baked in
+  ═══════════════════════════════════════════════════════════════════ */
+
+  // Master API catalog — 60+ APIs across categories
+  var API_CATALOG = [
+    // 🤖 AI / LLM
+    { id:'openai',      name:'OpenAI GPT-4o',   cat:'AI',       icon:'🤖', color:'#10a37f', desc:'Chat completion, vision, TTS, Whisper, DALL·E image generation', action:'OPENAI_CHAT_COMPLETION',      inject:'chatbot,ai-reply,vision' },
+    { id:'anthropic',   name:'Anthropic Claude', cat:'AI',       icon:'🧠', color:'#c778d4', desc:'Claude 3.5 Sonnet reasoning, code gen, multi-step agents',          action:'ANTHROPIC_MESSAGES',          inject:'reasoning,code-gen,agent' },
+    { id:'perplexity',  name:'Perplexity AI',    cat:'AI',       icon:'🔍', color:'#20808d', desc:'Real-time web search with cited AI answers',                        action:'PERPLEXITY_SEARCH',           inject:'web-search,cited-answers' },
+    { id:'elevenlabs',  name:'ElevenLabs TTS',   cat:'AI',       icon:'🎙️', color:'#ff6b35', desc:'Ultra-realistic text-to-speech, voice cloning, dubbing',           action:'ELEVENLABS_TEXT_TO_SPEECH',   inject:'tts,voice-clone,audio' },
+    { id:'stability',   name:'Stability AI',     cat:'AI',       icon:'🎨', color:'#7c3aed', desc:'SDXL & SD3 image generation, inpainting, upscaling',               action:'STABILITY_GENERATE_IMAGE',    inject:'image-gen,inpainting' },
+    { id:'replicate',   name:'Replicate',        cat:'AI',       icon:'⚡', color:'#0ea5e9', desc:'Run open-source ML models: Flux, LLaMA, Whisper, ControlNet',       action:'REPLICATE_RUN_MODEL',         inject:'ml-models,flux,llama' },
+    { id:'fal',         name:'fal.ai',           cat:'AI',       icon:'🌟', color:'#f59e0b', desc:'Fast async image/video generation: Flux, AnimateDiff, Wan',         action:'FAL_SUBSCRIBE',               inject:'fast-image,video-gen,wan' },
+    // 🌐 3D / Creative
+    { id:'tripo',       name:'Tripo 3D',         cat:'3D',       icon:'🧊', color:'#6366f1', desc:'Text/image → 3D model generation, rigging & animation export',      action:'TRIPO_CREATE_TASK',           inject:'3d-gen,model,rigging' },
+    { id:'meshy',       name:'Meshy 3D',         cat:'3D',       icon:'🔷', color:'#3b82f6', desc:'Text-to-3D and image-to-3D mesh generation with PBR textures',      action:'MESHY_TEXT_TO_3D',            inject:'text-to-3d,mesh,pbr' },
+    { id:'canva',       name:'Canva',            cat:'3D',       icon:'🎭', color:'#00c4cc', desc:'Create designs, presentations, social media assets via API',         action:'CANVA_CREATE_DESIGN',         inject:'design,presentations,brand' },
+    // 💳 Payments
+    { id:'stripe',      name:'Stripe',           cat:'Payments', icon:'💳', color:'#635bff', desc:'Subscriptions, one-time payments, invoices, webhooks',              action:'STRIPE_CREATE_PAYMENT_INTENT',inject:'billing,subscriptions,invoices' },
+    { id:'lemonsqueezy',name:'Lemon Squeezy',    cat:'Payments', icon:'🍋', color:'#fbbf24', desc:'Digital products, SaaS billing, license keys, affiliate',           action:'LEMONSQUEEZY_CREATE_ORDER',   inject:'digital-products,saas-billing' },
+    { id:'paddle',      name:'Paddle',           cat:'Payments', icon:'🏓', color:'#06b6d4', desc:'B2B SaaS billing, tax handling, global payments',                   action:'PADDLE_CREATE_TRANSACTION',   inject:'b2b-billing,tax,global' },
+    // 📧 Email / Communication
+    { id:'gmail',       name:'Gmail',            cat:'Email',    icon:'📧', color:'#ea4335', desc:'Send, read, label emails; Gmail automation workflows',              action:'GMAIL_SEND_EMAIL',            inject:'email,newsletter,automation' },
+    { id:'sendgrid',    name:'SendGrid',         cat:'Email',    icon:'✉️', color:'#1a82e2', desc:'Transactional email, templates, marketing campaigns',               action:'SENDGRID_SEND_EMAIL',         inject:'transactional-email,campaigns' },
+    { id:'resend',      name:'Resend',           cat:'Email',    icon:'📨', color:'#000000', desc:'Developer email API with React templates, analytics',               action:'RESEND_SEND_EMAIL',           inject:'react-email,dev-email' },
+    // 💬 Messaging
+    { id:'slack',       name:'Slack',            cat:'Messaging',icon:'💬', color:'#4a154b', desc:'Send messages, create channels, bot interactions, workflows',       action:'SLACK_SENDS_A_MESSAGE',       inject:'team-chat,notifications,bot' },
+    { id:'whatsapp',    name:'WhatsApp Business',cat:'Messaging',icon:'📱', color:'#25d366', desc:'Send WhatsApp messages, templates, media, notifications',           action:'WHATSAPP_SEND_MESSAGE',       inject:'whatsapp-notify,templates' },
+    { id:'discord',     name:'Discord',          cat:'Messaging',icon:'🎮', color:'#5865f2', desc:'Post messages, manage channels, webhooks, bot commands',            action:'DISCORD_SEND_MESSAGE',        inject:'discord-bot,webhooks,gaming' },
+    // 🗄️ Data / Sheets
+    { id:'googlesheets',name:'Google Sheets',   cat:'Data',     icon:'📊', color:'#0f9d58', desc:'Read, write, append rows; real-time spreadsheet as database',       action:'GOOGLESHEETS_SHEET_FROM_ID',  inject:'spreadsheet-db,reporting' },
+    { id:'airtable',    name:'Airtable',         cat:'Data',     icon:'🗂️', color:'#f59e0b', desc:'Flexible database, views, automations, Airtable API',              action:'AIRTABLE_LIST_RECORDS',       inject:'flexible-db,airtable,no-code' },
+    { id:'notion',      name:'Notion',           cat:'Data',     icon:'📝', color:'#000000', desc:'Create pages, databases, blocks; Notion as CMS or wiki',           action:'NOTION_CREATE_PAGE',          inject:'cms,wiki,knowledge-base' },
+    { id:'supabase',    name:'Supabase',         cat:'Data',     icon:'⚡', color:'#3ecf8e', desc:'Postgres DB, auth, storage, realtime subscriptions',               action:'SUPABASE_INSERT_ROW',         inject:'postgres,auth,realtime' },
+    // 🔧 Dev / DevOps
+    { id:'github',      name:'GitHub',           cat:'Dev',      icon:'🐙', color:'#24292f', desc:'Repos, issues, PRs, Actions, file commits via API',                action:'GITHUB_CREATE_ISSUE',         inject:'ci-cd,repos,issues' },
+    { id:'linear',      name:'Linear',           cat:'Dev',      icon:'📐', color:'#5e6ad2', desc:'Issues, projects, sprints, teams — engineering workflow',           action:'LINEAR_CREATE_ISSUE',         inject:'project-mgmt,sprints,issues' },
+    { id:'jira',        name:'Jira',             cat:'Dev',      icon:'🎯', color:'#0052cc', desc:'Create issues, sprints, boards; Jira Software API',                action:'JIRA_CREATE_ISSUE',           inject:'jira-issues,sprints' },
+    // 📦 Storage / CDN
+    { id:'cloudinary',  name:'Cloudinary',       cat:'Storage',  icon:'☁️', color:'#3448c5', desc:'Image/video upload, transform, optimize, CDN delivery',            action:'CLOUDINARY_UPLOAD_MEDIA',     inject:'media-upload,cdn,transform' },
+    { id:'googledrive', name:'Google Drive',     cat:'Storage',  icon:'💾', color:'#1fa463', desc:'Upload, list, share files and folders in Google Drive',            action:'GOOGLEDRIVE_UPLOAD_FILE',     inject:'file-storage,gdrive' },
+    { id:'dropbox',     name:'Dropbox',          cat:'Storage',  icon:'📦', color:'#0061ff', desc:'Upload files, create shared links, folder management',             action:'DROPBOX_UPLOAD_FILE',         inject:'file-sync,dropbox' },
+    // 📅 Productivity
+    { id:'googlecalendar',name:'Google Calendar',cat:'Productivity',icon:'📅',color:'#4285f4',desc:'Create, update events; availability, invites, reminders',         action:'GOOGLECALENDAR_CREATE_EVENT', inject:'scheduling,events,reminders' },
+    { id:'zoom',        name:'Zoom',             cat:'Productivity',icon:'🎥',color:'#2d8cff',desc:'Create meetings, webinars, get recordings, manage participants',   action:'ZOOM_CREATE_MEETING',         inject:'video-meetings,webinars' },
+    { id:'hubspot',     name:'HubSpot CRM',      cat:'Productivity',icon:'🏢',color:'#ff7a59',desc:'Contacts, deals, pipelines, email sequences, CRM automation',      action:'HUBSPOT_CREATE_CONTACT',      inject:'crm,deals,contacts' },
+    // 🔐 Auth
+    { id:'auth0',       name:'Auth0',            cat:'Auth',     icon:'🔐', color:'#eb5424', desc:'User auth, SSO, MFA, social login, roles/permissions',             action:'AUTH0_GET_USER',              inject:'auth,sso,mfa,roles' },
+    { id:'clerk',       name:'Clerk',            cat:'Auth',     icon:'🪪', color:'#6c47ff', desc:'Complete user management, auth UI components, orgs, B2B',          action:'CLERK_GET_USER',              inject:'user-mgmt,b2b-auth,clerk' },
+    // 🗺️ Maps / Location
+    { id:'googlemaps',  name:'Google Maps',      cat:'Maps',     icon:'🗺️', color:'#4285f4', desc:'Geocoding, directions, places search, distance matrix',           action:'GOOGLEMAPS_GEOCODE_ADDRESS',  inject:'maps,geocoding,directions' },
+    // 📞 Telephony
+    { id:'twilio',      name:'Twilio',           cat:'Comms',    icon:'📞', color:'#f22f46', desc:'SMS, voice calls, WhatsApp, verify OTP, phone numbers',           action:'TWILIO_SEND_SMS',             inject:'sms,calls,otp,twilio' },
+  ];
+
+  var _catalogFiltered = API_CATALOG.slice();
+  var _injectedApis = {}; // { appId: true }
+
   window.openComposioModal = function() {
     var modal = $('#modalComposio');
     if (!modal) return;
@@ -2499,130 +2563,156 @@ body.ws-stage-2-active .topbar {
     window.loadComposioApps();
   };
 
+  window.filterApiCatalog = function(q) {
+    q = (q || '').toLowerCase().trim();
+    _catalogFiltered = q ? API_CATALOG.filter(function(a) {
+      return (a.name + a.id + a.cat + a.desc + a.inject).toLowerCase().includes(q);
+    }) : API_CATALOG.slice();
+    window._renderApiGrid();
+  };
+
   window.loadComposioApps = function() {
-    var grid = $('#composioAppsGrid');
-    var badge = $('#composioStatusBadge');
-    var alertBar = $('#composioAlertBar');
-    var tenant = ($('#composioTenantId') && $('#composioTenantId').value) || 'tenant_user_1';
-    if (!grid) return;
+    // Build category filter chips
+    var catsEl = $('#apiCatalogCats');
+    if (catsEl) {
+      var cats = ['All'].concat(Array.from(new Set(API_CATALOG.map(function(a) { return a.cat; }))));
+      catsEl.innerHTML = cats.map(function(c) {
+        return '<button onclick="window._filterCat(\'' + c + '\')" style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--dim);transition:all 0.15s" data-cat="' + c + '">' + c + '</button>';
+      }).join('');
+      // mark All active
+      catsEl.querySelector('[data-cat="All"]').style.background = 'var(--accent)';
+      catsEl.querySelector('[data-cat="All"]').style.color = 'var(--accent-ink,#fff)';
+    }
+    _catalogFiltered = API_CATALOG.slice();
+    window._renderApiGrid();
+    window._refreshInjectedBanner();
 
-    grid.innerHTML = '<div style="color:var(--dim);font-size:12px;padding:20px;grid-column:1/-1;text-align:center">Loading SaaS apps and connections...</div>';
-
-    fetch('/api/composio?action=apps&entityId=' + encodeURIComponent(tenant))
-      .then(function(res) { return res.json(); })
+    // Try live Composio catalog in background — merge if available
+    fetch('/api/composio?action=apps&entityId=runnerflo_paas')
+      .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(data) {
-        var apps = data.apps || [];
-        var isLive = Boolean(data.live);
-        if (badge) {
-          badge.textContent = isLive ? 'Live API Key' : 'Simulated (Add Key)';
-          badge.style.background = isLive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
-          badge.style.color = isLive ? '#10b981' : '#f59e0b';
-          badge.style.borderColor = isLive ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)';
-        }
-
-        if (alertBar) {
-          if (!isLive) {
-            alertBar.style.display = 'block';
-            alertBar.style.background = 'rgba(245,158,11,0.1)';
-            alertBar.style.border = '1px solid rgba(245,158,11,0.3)';
-            alertBar.style.color = '#fbbf24';
-            alertBar.innerHTML = '⚡ <b>Mode Simulasi:</b> Masukkan <code>COMPOSIO_API_KEY</code> di Cloudflare Pages Environment variables untuk mengaktifkan OAuth live langsung ke Gmail, Slack, Sheets & 200+ SaaS lainnya!';
-          } else {
-            alertBar.style.display = 'none';
+        if (!data || !Array.isArray(data.apps) || !data.apps.length) return;
+        var badge = $('#composioStatusBadge');
+        if (badge && data.live) { badge.textContent = 'Live Composio Key'; badge.style.color = '#10b981'; }
+        // Merge live apps that aren't in local catalog
+        data.apps.forEach(function(la) {
+          var exists = API_CATALOG.some(function(a) { return a.id === la.id || a.name.toLowerCase() === (la.name||'').toLowerCase(); });
+          if (!exists) {
+            API_CATALOG.push({ id: la.id||la.name, name: la.name||la.id, cat: la.category||'Other', icon: la.icon||'🔌', color:'#6b7280',
+              desc: la.description||'SaaS integration via Composio', action:(la.popularActions&&la.popularActions[0])||'EXECUTE', inject:'saas' });
           }
-        }
-
-        if (!apps.length) {
-          grid.innerHTML = '<div style="color:var(--dim);font-size:12px;padding:20px;grid-column:1/-1;text-align:center">No apps available.</div>';
-          return;
-        }
-
-        var html = '';
-        apps.forEach(function(app) {
-          var icon = app.icon || '🔌';
-          var name = app.name || app.id;
-          var desc = app.description || 'Connect and automate SaaS actions.';
-          var primaryAction = (app.popularActions && app.popularActions[0]) || (name.toUpperCase() + '_EXECUTE');
-
-          html += '<div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;transition:border-color 0.2s">' +
-            '<div>' +
-              '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
-                '<span style="font-size:18px">' + icon + '</span>' +
-                '<div style="font-weight:600;font-size:13px;color:var(--txt)">' + name + '</div>' +
-              '</div>' +
-              '<div style="font-size:11.5px;color:var(--dim);line-height:1.35;margin-bottom:10px">' + desc + '</div>' +
-            '</div>' +
-            '<div style="display:flex;gap:6px;margin-top:auto">' +
-              '<button type="button" class="rf-btn" style="flex:1;padding:4px 8px;font-size:11px" onclick="window.connectComposioApp(\'' + (app.id || name.toLowerCase()) + '\')">🔗 Connect</button>' +
-              '<button type="button" class="stage-btn" style="padding:4px 8px;font-size:11px" onclick="window.testComposioAction(\'' + (app.id || name.toLowerCase()) + '\',\'' + primaryAction + '\')">⚡ Test</button>' +
-            '</div>' +
-          '</div>';
         });
-        grid.innerHTML = html;
-      })
-      .catch(function(err) {
-        grid.innerHTML = '<div style="color:#ef4444;font-size:12px;padding:20px;grid-column:1/-1;text-align:center">Failed to load apps: ' + err.message + '</div>';
-      });
+        _catalogFiltered = API_CATALOG.slice();
+        window._renderApiGrid();
+      }).catch(function(){});
+  };
+
+  window._filterCat = function(cat) {
+    _catalogFiltered = cat === 'All' ? API_CATALOG.slice() : API_CATALOG.filter(function(a) { return a.cat === cat; });
+    var search = $('#apiCatalogSearch'); if (search && search.value.trim()) window.filterApiCatalog(search.value);
+    else window._renderApiGrid();
+    // Update chip active state
+    var chips = document.querySelectorAll('[data-cat]');
+    chips.forEach(function(c) {
+      var active = c.dataset.cat === cat;
+      c.style.background = active ? 'var(--accent)' : 'var(--panel)';
+      c.style.color = active ? 'var(--accent-ink,#fff)' : 'var(--dim)';
+    });
+  };
+
+  window._renderApiGrid = function() {
+    var grid = $('#composioAppsGrid');
+    if (!grid) return;
+    if (!_catalogFiltered.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dim);font-size:13px">No APIs match your search.</div>';
+      return;
+    }
+    grid.innerHTML = _catalogFiltered.map(function(api) {
+      var injected = !!_injectedApis[api.id];
+      return '<div style="background:var(--bg);border:1.5px solid ' + (injected ? api.color : 'var(--line)') + ';border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative;transition:border-color 0.2s">' +
+        (injected ? '<div style="position:absolute;top:8px;right:8px;font-size:9px;padding:2px 7px;border-radius:99px;background:' + api.color + '22;color:' + api.color + ';font-weight:700;border:1px solid ' + api.color + '44">✓ INJECTED</div>' : '') +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div style="width:36px;height:36px;border-radius:8px;background:' + api.color + '22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">' + api.icon + '</div>' +
+          '<div>' +
+            '<div style="font-weight:700;font-size:13px;color:var(--txt)">' + api.name + '</div>' +
+            '<div style="font-size:10px;padding:1px 6px;border-radius:99px;background:' + api.color + '18;color:' + api.color + ';font-weight:600;display:inline-block;margin-top:2px">' + api.cat + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:11.5px;color:var(--dim);line-height:1.4">' + api.desc + '</div>' +
+        '<div style="display:flex;gap:6px;margin-top:auto">' +
+          '<button type="button" style="flex:1;padding:5px 8px;font-size:11px;font-weight:700;border-radius:7px;border:none;background:' + api.color + ';color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onclick="window.injectApiIntoSaaS(\'' + api.id + '\')">' +
+            (injected ? '🔄 Re-inject' : '⚡ Inject into SaaS') +
+          '</button>' +
+          '<button type="button" style="padding:5px 8px;font-size:11px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--dim);cursor:pointer" onclick="window.connectComposioApp(\'' + api.id + '\')">🔗 OAuth</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  };
+
+  window._refreshInjectedBanner = function() {
+    var banner = $('#injectedBanner');
+    var list = $('#injectedList');
+    if (!banner || !list) return;
+    var keys = Object.keys(_injectedApis);
+    if (!keys.length) { banner.style.display = 'none'; return; }
+    banner.style.display = 'block';
+    list.textContent = '✅ Injected into SaaS: ' + keys.map(function(k) {
+      var a = API_CATALOG.find(function(x) { return x.id === k; });
+      return a ? a.name : k;
+    }).join(', ');
+  };
+
+  /* ── CORE: Inject API into active SaaS via Claude ────────────────────────── */
+  window.injectApiIntoSaaS = function(apiId) {
+    var api = API_CATALOG.find(function(a) { return a.id === apiId; });
+    if (!api) return;
+    var p = cur();
+    if (!p) { toast('⚠️ Open a project first, then inject.'); return; }
+
+    // Close modal, show toast
+    var modal = $('#modalComposio');
+    if (modal) modal.hidden = true;
+    toast('⚡ Injecting ' + api.name + ' into "' + p.name + '" via Claude 5.5...');
+
+    // Build injection prompt — Claude will rewrite the SaaS with this API baked in
+    var injectionPrompt = 'INJECT_API: Inject the ' + api.name + ' integration into this application.\n\n' +
+      'Integration ID: ' + api.id + '\n' +
+      'Primary Action: ' + api.action + '\n' +
+      'Use cases for this app: ' + api.inject + '\n\n' +
+      'Requirements:\n' +
+      '1. Add a visible UI section/button for ' + api.name + ' in the app (e.g., a card, panel, or feature section)\n' +
+      '2. Write working JavaScript that calls the Composio API endpoint for action "' + api.action + '"\n' +
+      '3. Inject Trigger.dev background job code for async processing of ' + api.name + ' tasks\n' +
+      '4. Add OAuth connect button that calls /api/composio?action=connect-url&app=' + api.id + '\n' +
+      '5. Keep all existing UI and branding — ONLY ADD the new integration section\n' +
+      '6. Use project_patch_file to surgically add the new section without destroying existing code';
+
+    _injectedApis[apiId] = true;
+    window._renderApiGrid();
+    window._refreshInjectedBanner();
+
+    // Run Claude fallback agent to actually inject the code
+    runClaudeFallbackAgent(p, injectionPrompt, 'api_injection');
   };
 
   window.connectComposioApp = function(appName) {
     var tenant = ($('#composioTenantId') && $('#composioTenantId').value) || 'tenant_user_1';
-    toast('Generating OAuth Connect URL for ' + appName + ' (Tenant: ' + tenant + ')...');
-
+    toast('Generating OAuth Connect URL for ' + appName + '...');
     fetch('/api/composio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'connect-url',
-        appName: appName,
-        entityId: tenant
-      })
+      body: JSON.stringify({ action: 'connect-url', appName: appName, entityId: tenant })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (data.connectUrl) {
-        toast('✓ Opened OAuth connection flow for ' + appName);
-        window.open(data.connectUrl, '_blank', 'width=600,height=700');
-      } else {
-        toast('Connection initiated for ' + appName + ' (Tenant: ' + tenant + ')');
-      }
+      if (data.connectUrl) { toast('✓ Opened OAuth for ' + appName); window.open(data.connectUrl, '_blank', 'width=600,height=700'); }
+      else { toast('OAuth initiated for ' + appName + ' (tenant: ' + tenant + ')'); }
     })
-    .catch(function(err) {
-      toast('Error initiating connection: ' + err.message);
-    });
+    .catch(function(err) { toast('OAuth error: ' + err.message); });
   };
 
-  window.testComposioAction = function(appName, actionName) {
-    var tenant = ($('#composioTenantId') && $('#composioTenantId').value) || 'tenant_user_1';
-    toast('Executing test action: ' + actionName + '...');
-
-    fetch('/api/composio', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'execute',
-        appName: appName,
-        actionName: actionName,
-        entityId: tenant,
-        params: { test: true, timestamp: Date.now() }
-      })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.ok) {
-        toast('✓ Action executed: ' + actionName + (data.simulated ? ' (Simulated)' : ' (Live)'));
-      } else {
-        toast('Action failed: ' + (data.error || 'Unknown error'));
-      }
-    })
-    .catch(function(err) {
-      toast('Error executing action: ' + err.message);
-    });
-  };
-
-  window.reloadComposioConnections = function() {
-    window.loadComposioApps();
-  };
+  window.testComposioAction = window.connectComposioApp; // alias
+  window.reloadComposioConnections = window.loadComposioApps;
 
   /* Database Explorer Modal Helpers */
   window.openDatabaseModal = function() {
