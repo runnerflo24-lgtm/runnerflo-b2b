@@ -4694,25 +4694,27 @@ body.ws-stage-2-active .topbar {
       .replace(/type\s+[A-Za-z0-9_]+\s*=\s*[\s\S]*?;/g, '')
       .replace(/interface\s+[A-Za-z0-9_]+[\s\S]*?\}/g, '');
 
+    var _s = '<' + 'script';
+    var _e = '<' + '/script>';
     return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
       '  <meta charset="utf-8">\n' +
       '  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
       '  <title>' + (title || 'App Preview') + '</title>\n' +
-      '  <script src="https://cdn.tailwindcss.com"></script>\n' +
-      '  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>\n' +
-      '  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>\n' +
-      '  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>\n' +
+      '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
+      '  ' + _s + ' src="https://unpkg.com/react@18/umd/react.production.min.js">' + _e + '\n' +
+      '  ' + _s + ' src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js">' + _e + '\n' +
+      '  ' + _s + ' src="https://unpkg.com/@babel/standalone/babel.min.js">' + _e + '\n' +
       '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
       '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
       '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100">\n' +
       '  <div id="root"></div>\n' +
-      '  <script type="text/babel">\n' +
+      '  ' + _s + ' type="text/babel">\n' +
       '    const { useState, useEffect, useRef } = React;\n' +
       cleanCode + '\n' +
       '    if (typeof App !== "undefined") {\n' +
       '      ReactDOM.createRoot(document.getElementById("root")).render(<App />);\n' +
       '    }\n' +
-      '  </script>\n' +
+      '  ' + _e + '\n' +
       '</body>\n</html>';
   }
 
@@ -4742,6 +4744,16 @@ body.ws-stage-2-active .topbar {
         { path: 'src/components/KnowledgeBase.tsx', size: 3910 },
         { path: 'src/lib/whatsapp-webhook.ts', size: 3340 },
         { path: 'src/lib/d1-schema.ts', size: 2280 },
+        { path: 'package.json', size: 1040 }
+      ];
+    } else if (promptText.includes('video') || promptText.includes('film') || promptText.includes('cinema') || promptText.includes('reel') || promptText.includes('clip')) {
+      return [
+        { path: 'index.html', size: 6200 },
+        { path: 'src/app/page.tsx', size: 3200 },
+        { path: 'src/components/VideoStudio.tsx', size: 5100 },
+        { path: 'src/components/SceneTimeline.tsx', size: 3800 },
+        { path: 'src/lib/video-generator.ts', size: 3100 },
+        { path: 'src/lib/d1-schema.ts', size: 2300 },
         { path: 'package.json', size: 1040 }
       ];
     } else if (promptText.includes('invoice') || promptText.includes('ocr') || promptText.includes('doc')) {
@@ -4780,6 +4792,8 @@ body.ws-stage-2-active .topbar {
 
   function codeFor(f, p) {
     if (!f) return '';
+    var _s = '<' + 'script';
+    var _e = '<' + '/script>';
     var promptText = ((p ? p.name : '') + ' ' + (p && p.msgs && p.msgs[0] ? p.msgs[0].text : '')).toLowerCase();
 
     // Universal executable HTML document for the workspace
@@ -4788,7 +4802,7 @@ body.ws-stage-2-active .topbar {
         return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
           '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
           '  <title>Vesper Atelier — High-Fidelity Editorial AI Photography</title>\n' +
-          '  <script src="https://cdn.tailwindcss.com"><\/script>\n' +
+          '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
           '  <link rel="preconnect" href="https://fonts.googleapis.com">\n' +
           '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
           '  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
@@ -4856,7 +4870,7 @@ body.ws-stage-2-active .topbar {
           '      </div>\n' +
           '    </div>\n' +
           '  </main>\n' +
-          '  <script>\n' +
+          '  ' + _s + '>\n' +
           '    function generatePreview() {\n' +
           '      const btn = document.getElementById("btnGenerate");\n' +
           '      const img = document.getElementById("mainImage");\n' +
@@ -4868,7 +4882,72 @@ body.ws-stage-2-active .topbar {
           '        btn.style.opacity = "1";\n' +
           '      }, 1200);\n' +
           '    }\n' +
-          '  <\/script>\n' +
+          '  ' + _e + '\n' +
+          '</body>\n</html>';
+      }
+
+      if (promptText.includes('video') || promptText.includes('film') || promptText.includes('cinema') || promptText.includes('reel') || promptText.includes('clip')) {
+        return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
+          '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+          '  <title>CineStudio AI — AI Script-to-Video Engine</title>\n' +
+          '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
+          '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
+          '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
+          '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-violet-500/30">\n' +
+          '  <header class="border-b border-slate-800/80 bg-slate-900/90 px-8 py-5 flex items-center justify-between sticky top-0 backdrop-blur-md z-30">\n' +
+          '    <div class="flex items-center gap-3">\n' +
+          '      <span class="w-8 h-8 rounded-lg bg-violet-600 text-white flex items-center justify-center font-bold">🎬</span>\n' +
+          '      <span class="text-xl font-bold tracking-tight text-white">CineStudio AI</span>\n' +
+          '    </div>\n' +
+          '    <div class="flex items-center gap-3">\n' +
+          '      <span class="text-xs px-3 py-1 rounded-full border border-violet-500/30 text-violet-300 bg-violet-500/10 font-medium">Runway Gen-3 / Sora</span>\n' +
+          '      <button class="bg-violet-600 hover:bg-violet-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">Export 4K</button>\n' +
+          '    </div>\n' +
+          '  </header>\n' +
+          '  <main class="max-w-6xl mx-auto px-6 py-12 w-full space-y-8 flex-1">\n' +
+          '    <div class="text-center max-w-2xl mx-auto space-y-3">\n' +
+          '      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Turn Scripts into Cinematic Video</h1>\n' +
+          '      <p class="text-slate-400 text-sm md:text-base">Autonomous AI video platform converting text prompts and scripts into 60fps high-definition scenes.</p>\n' +
+          '    </div>\n' +
+          '    <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur-xl space-y-6">\n' +
+          '      <div class="space-y-3">\n' +
+          '        <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Script / Scene Prompt</label>\n' +
+          '        <textarea id="videoPrompt" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-violet-500 transition">A breathtaking slow-motion drone flyover of emerald alpine peaks at sunset, cinematic lighting, 4K resolution.</textarea>\n' +
+          '      </div>\n' +
+          '      <div class="flex flex-wrap items-center justify-between gap-4">\n' +
+          '        <div class="flex items-center gap-2 text-xs">\n' +
+          '          <span class="text-slate-500">Aspect Ratio:</span>\n' +
+          '          <span class="px-3 py-1 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/30 font-medium">16:9 Cinema</span>\n' +
+          '          <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-400">9:16 Reels</span>\n' +
+          '          <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-400">1:1 Square</span>\n' +
+          '        </div>\n' +
+          '        <button id="btnGenerateVideo" onclick="generateVideo()" class="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl text-sm font-semibold transition flex items-center gap-2">\n' +
+          '          <span>⚡ Render Video Scene</span>\n' +
+          '        </button>\n' +
+          '      </div>\n' +
+          '      <div class="mt-6 aspect-video rounded-2xl border border-slate-800 bg-black overflow-hidden relative flex items-center justify-center group">\n' +
+          '        <img id="videoPreview" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80" alt="Video Preview" class="w-full h-full object-cover">\n' +
+          '        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">\n' +
+          '          <div class="w-16 h-16 rounded-full bg-violet-600/90 text-white flex items-center justify-center text-2xl shadow-xl shadow-violet-600/50 cursor-pointer group-hover:scale-110 transition">▶</div>\n' +
+          '        </div>\n' +
+          '        <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white/80 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl">\n' +
+          '          <span>Scene 1: Alpine Sunrise (00:00 / 00:05)</span>\n' +
+          '          <span class="text-emerald-400 font-semibold">1080p 60fps</span>\n' +
+          '        </div>\n' +
+          '      </div>\n' +
+          '    </div>\n' +
+          '  </main>\n' +
+          '  ' + _s + '>\n' +
+          '    function generateVideo() {\n' +
+          '      const btn = document.getElementById("btnGenerateVideo");\n' +
+          '      btn.innerHTML = "<span>Rendering 60fps...</span>";\n' +
+          '      btn.style.opacity = "0.7";\n' +
+          '      setTimeout(() => {\n' +
+          '        btn.innerHTML = "<span>⚡ Render Video Scene</span>";\n' +
+          '        btn.style.opacity = "1";\n' +
+          '      }, 1500);\n' +
+          '    }\n' +
+          '  ' + _e + '\n' +
           '</body>\n</html>';
       }
 
@@ -4876,7 +4955,7 @@ body.ws-stage-2-active .topbar {
         return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
           '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
           '  <title>OmniReply AI — Customer Support Chatbot & CRM</title>\n' +
-          '  <script src="https://cdn.tailwindcss.com"><\/script>\n' +
+          '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
           '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
           '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
           '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col">\n' +
@@ -4954,7 +5033,7 @@ body.ws-stage-2-active .topbar {
           '      </div>\n' +
           '    </div>\n' +
           '  </div>\n' +
-          '  <script>\n' +
+          '  ' + _s + '>\n' +
           '    function handleSendMessage(e) {\n' +
           '      e.preventDefault();\n' +
           '      const input = document.getElementById("chatInput");\n' +
@@ -4975,7 +5054,7 @@ body.ws-stage-2-active .topbar {
           '        container.scrollTop = container.scrollHeight;\n' +
           '      }, 700);\n' +
           '    }\n' +
-          '  <\/script>\n' +
+          '  ' + _e + '\n' +
           '</body>\n</html>';
       }
 
@@ -4983,7 +5062,7 @@ body.ws-stage-2-active .topbar {
       return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
         '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
         '  <title>' + (p ? p.name : 'AI Platform') + '</title>\n' +
-        '  <script src="https://cdn.tailwindcss.com"><\/script>\n' +
+        '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
         '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
         '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
         '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">\n' +
