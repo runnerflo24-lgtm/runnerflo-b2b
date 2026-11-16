@@ -1462,7 +1462,9 @@ if(!RM){new IntersectionObserver(e=>{vis=e[0].isIntersecting}).observe(hero);req
 })();
 
 /* ===== Connect Chat AI & Chips to Agent Workspace ===== */
+let _homePendingImage = null;
 function goToWorkspace(val){
+  if (_homePendingImage) { try { sessionStorage.setItem('runnerflo_transfer_image', JSON.stringify(_homePendingImage)); } catch(e){} }
   const ta = document.getElementById("q");
   const text = (typeof val === "string" ? val : (ta ? ta.value : "")).trim();
   let dest = "Agent%20Workspace.html";
@@ -1476,6 +1478,25 @@ if(ta){
   ta.addEventListener("input", ()=>{
     ta.style.height = "auto";
     ta.style.height = Math.min(ta.scrollHeight, 140) + "px";
+  });
+  ta.addEventListener("paste", e => {
+    const items = (e.clipboardData || window.clipboardData || {}).items;
+    if(!items) return;
+    for(let i=0; i<items.length; i++){
+      if(items[i].type && items[i].type.startsWith("image/")){
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        if(file){
+          const reader = new FileReader();
+          reader.onload = ev => {
+            _homePendingImage = { data: ev.target.result, mimeType: file.type || "image/png", name: file.name || "reference.png" };
+            ta.placeholder = "📎 Image attached! Type prompt and press Enter to launch in Workspace...";
+          };
+          reader.readAsDataURL(file);
+        }
+        return;
+      }
+    }
   });
   ta.addEventListener("keydown", e => {
     if(e.key === "Enter" && !e.shiftKey && !e.isComposing){

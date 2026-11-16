@@ -42,6 +42,11 @@ export async function onRequest(context) {
     const history = Array.isArray(body.history) ? body.history : [];
     const reason = body.reason || 'manual';
 
+    // ─── Extract Image / Vision Reference ──────────────────────────────────────
+    const imagePayload = body.image || body.attachedImage || (Array.isArray(body.images) && body.images[0]) || null;
+    const hasImage = Boolean(imagePayload && (typeof imagePayload === 'string' ? imagePayload.length > 50 : (imagePayload.data || imagePayload.base64)));
+    const isVisualRedesignRequest = hasImage || /(?:gambar|foto|photo|image|screenshot|tampilan|ui|mirip|desain|design|mockup|referensi|reference)\b/i.test(userText);
+
     // Build a file index from projectFiles for read_file / search_code tools
     const fileIndex = {};
     for (const f of projectFiles) {
@@ -55,12 +60,12 @@ export async function onRequest(context) {
       body.reason === 'new_project' ||
       body.reason === 'from_scratch';
 
-    // Determine if we are editing an existing application (e.g. changing theme, fixing bug, adding feature)
+    // Determine if we are editing an existing application
     let isEditingExisting = false;
     let previewFetchStatus = 'none';
 
     if (!isNewAppRequest) {
-      if (body.reason === 'continue_edit' || body.reason === 'manual_edit' || /^\s*(?:ubah|ganti|edit|modify|change|fix|perbaiki|tambah|tambahkan|add|make it|buatkan agar|set)\b/i.test(userText)) {
+      if (body.reason === 'continue_edit' || body.reason === 'manual_edit' || body.reason === 'image_redesign' || /^\s*(?:ubah|ganti|edit|modify|change|fix|perbaiki|tambah|tambahkan|add|make it|buatkan agar|set)\b/i.test(userText)) {
         isEditingExisting = true;
       }
     }
@@ -96,27 +101,31 @@ Runnerflo is a white-label SaaS generator platform designed for NON-TECHNICAL US
    - Injecting Composio multi-tenancy integrations into the SaaS so the SaaS's end-users can connect their own Gmail, Slack, Google Sheets, Notion, Stripe, GitHub, etc., with zero technical friction.
    - Creating immediate, live visual preview updates for the user.
 
-${isEditingExisting ? `CRITICAL DIRECTIVE: EDITING EXISTING PRODUCTION APPLICATION (BOLT.DIY MCP ENGINE)
-1. YOU ARE IN EDIT MODE for an EXISTING PRODUCTION APPLICATION.
+${hasImage || isVisualRedesignRequest ? `CRITICAL DIRECTIVE: VISUAL REDESIGN BASED ON USER ATTACHED REFERENCE IMAGE
+1. THE USER HAS PROVIDED A REFERENCE IMAGE (or visual mockup) and requested: "${userText}".
+2. CAREFULLY EXAMINE THE REFERENCE IMAGE / VISUAL SPECIFICATION:
+   - Identify the exact visual layout, color palette (dark vs light, gradients, background tones, card borders).
+   - Look closely at the header, navigation items, buttons, badges, typography, and hero section.
+   - Observe how content cards, games, features, or dashboards are arranged in the image.
+3. MANDATORY: REWRITE "index.html" COMPLETELY USING "project_write_file":
+   - You MUST call "project_write_file({ path: 'index.html', content: '...', replacementReason: 'Redesigned UI to match user reference image' })" with the COMPLETE new code!
+   - DO NOT USE "project_patch_file" for visual redesigns, as full redesigns require rebuilding the DOM structure.
+   - Produce a COMPLETE, self-contained HTML5 file with Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
+   - Replicate the visual style, cards, buttons, color scheme, and aesthetic shown in the reference image.
+   - Retain the project identity for "${projectName}" while modernizing and restyling it to look like the reference image.
+4. MANDATORY ACTION: Execute the "project_write_file" tool call immediately in this turn!` :
+(isEditingExisting ? `CRITICAL DIRECTIVE: EDITING EXISTING PRODUCTION APPLICATION (BOLT.DIY MCP ENGINE)
+1. YOU ARE IN EDIT MODE for an EXISTING PRODUCTION APPLICATION: "${projectName}".
 2. The current live application code is loaded in "index.html" (${fileIndex['index.html'] ? fileIndex['index.html'].length : 0} bytes).
-3. DO NOT BUILD A NEW GENERIC TEMPLATE FROM ZERO.
-4. PRESERVE 100% OF THE BRAND IDENTITY, LOGO & COPYWRITING:
-   - If the project is "Vesper Atelier", it MUST REMAIN "Vesper Atelier"! NEVER rename it to "AI Studio" or any generic name!
-   - Hero headlines (e.g. "A sentence in. A finished image out."), subtitles, navigation, luxury aesthetics, and image showcases MUST BE 100% PRESERVED!
-5. PREFERRED EDITING TOOL: "project_patch_file"
-   - First call "project_read_file({ path: 'index.html' })" to inspect the code.
-   - Use "project_patch_file({ path: 'index.html', oldText: '...', newText: '...' })" for targeted edits.
-   - When the user asks to change theme (e.g. "buatkan agar webnya jadi putih", "ubah jadi tema putih/terang"):
-     * Patch dark backgrounds: bg-[#0c0d10] → bg-white, bg-zinc-900 → bg-stone-50, bg-zinc-950 → bg-[#faf9f6].
-     * Patch text colors: text-zinc-100 / text-white → text-stone-900 / text-zinc-900, text-zinc-400 → text-stone-600.
-     * Patch borders: border-zinc-800 → border-stone-200.
-     * Keep all text copy, branding ("Vesper Atelier"), and layout untouched!
-6. If you use "project_write_file" or "edit_code", you MUST supply the COMPLETE revised file retaining all original copywriting and sections (never a stripped-down placeholder)!` : `CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO (BOLT.DIY MCP ENGINE)
+3. If making targeted style or text edits, use "project_patch_file" or "project_write_file".
+4. If "project_patch_file" encounters any conflict, immediately switch to "project_write_file" with the complete updated code!
+5. PRESERVE 100% OF THE BRAND IDENTITY & FUNCTIONALITY unless the user explicitly requested a redesign.` :
+`CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO (BOLT.DIY MCP ENGINE)
 1. YOU ARE IN CREATION MODE. Build a brand new, production-grade application for: "${userText}".
 2. You MUST produce a COMPLETE, self-contained, browser-executable HTML5 file in "index.html".
 3. Use Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
 4. Render high-fidelity UI: clean navigation, interactive buttons, realistic mock data, and functional controls.
-5. Call "project_write_file({ path: 'index.html', content: '...', replacementReason: 'Initial build from user prompt' })" with the COMPLETE code!`}
+5. Call "project_write_file({ path: 'index.html', content: '...', replacementReason: 'Initial build from user prompt' })" with the COMPLETE code!`)}
 
 CRITICAL PRESERVATION & DESIGN INTEGRITY RULES (BOLT.DIY ARCHITECTURE):
 1. ALWAYS inspect "index.html" with project_read_file before editing existing files.
@@ -294,14 +303,42 @@ Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in E
       }
     ];
 
-    // ─── Build initial message history ───────────────────────────────────────
+    // ─── Build initial message history (with Anthropic Vision Support) ──────
+    let userTurnContent = userText;
+    if (hasImage) {
+      let b64 = typeof imagePayload === 'string' ? imagePayload : (imagePayload.data || imagePayload.base64 || imagePayload.url || '');
+      let mime = (typeof imagePayload === 'object' && (imagePayload.mimeType || imagePayload.type)) || 'image/jpeg';
+      if (b64.startsWith('data:')) {
+        const parts = b64.split(',');
+        const m = parts[0].match(/data:([^;]+);base64/);
+        if (m) mime = m[1];
+        b64 = parts[1];
+      }
+      if (b64 && b64.length > 50) {
+        userTurnContent = [
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: mime,
+              data: b64
+            }
+          },
+          {
+            type: 'text',
+            text: userText || 'Tolong ubah dan sesuaikan tampilan UI aplikasi di index.html agar persis seperti gambar referensi yang saya lampirkan ini.'
+          }
+        ];
+      }
+    }
+
     const messages = [];
     for (const h of history) {
       if (h.role === 'user' && h.text) messages.push({ role: 'user', content: h.text });
       else if (h.role === 'agent' && h.text) messages.push({ role: 'assistant', content: h.text });
     }
     if (messages.length === 0 || messages[messages.length - 1].role !== 'user') {
-      messages.push({ role: 'user', content: userText || 'Review the project and apply any needed improvements.' });
+      messages.push({ role: 'user', content: userTurnContent || 'Review the project and apply any needed improvements.' });
     }
 
     // ─── Tool Executor (Bolt.diy Engine) ──────────────────────────────────────
@@ -321,7 +358,7 @@ Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in E
         const first = currentContent.indexOf(oldText);
         if (first < 0) {
           return {
-            error: `Patch conflict: "oldText" was not found in ${filePath}. Please use project_read_file to verify current contents.`,
+            error: `Patch conflict: "oldText" was not found in ${filePath}. To ensure the user gets their requested changes immediately, please call "project_write_file" with the complete updated ${filePath} instead of patching.`,
             hint: `Searched for: ${oldText.slice(0, 80)}...`
           };
         }
@@ -544,6 +581,20 @@ async function connectApp(app) {
       });
       if (!res.ok) {
         const errText = await res.text();
+        // If image block was rejected by this model/endpoint, gracefully fall back to text description
+        if ((errText.includes('image') || errText.includes('source') || errText.includes('media_type')) && msgs.some(m => Array.isArray(m.content))) {
+          const fallbackMsgs = msgs.map(m => {
+            if (Array.isArray(m.content)) {
+              const textParts = m.content.filter(c => c.type === 'text').map(c => c.text).join('\n');
+              return { role: m.role, content: `[User attached a reference image for the UI layout/design of ${projectName}]\n` + textParts };
+            }
+            return m;
+          });
+          const retryRes = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST', headers, body: JSON.stringify({ ...payload, messages: fallbackMsgs })
+          });
+          if (retryRes.ok) return retryRes.json();
+        }
         throw new Error(`${model} HTTP ${res.status}: ${errText}`);
       }
       return res.json();
@@ -596,7 +647,7 @@ async function connectApp(app) {
               });
               convMessages.push({
                 role: 'user',
-                content: `PERINTAH SISTEM WAJIB: Anda BELUM memperbarui kode apapun di workspace (modifiedFiles masih kosong)! Permintaan pengguna adalah: "${userText.replace(/"/g, "'")}". Anda WAJIB langsung memanggil "${isEditingExisting ? 'project_patch_file' : 'project_write_file'}" (atau "edit_code") SEKARANG untuk membuat/memperbarui "index.html" dengan kode HTML5 & Tailwind CSS lengkap dan interaktif. Panggil tool sekarang!`
+                content: `PERINTAH SISTEM WAJIB: Anda BELUM memperbarui kode apapun di workspace (modifiedFiles masih kosong)! Permintaan pengguna adalah: "${userText.replace(/"/g, "'")}". Anda WAJIB langsung memanggil "${(hasImage || isVisualRedesignRequest) ? 'project_write_file' : (isEditingExisting ? 'project_patch_file' : 'project_write_file')}" (path: "index.html") SEKARANG untuk membuat/memperbarui "index.html" dengan kode HTML5 & Tailwind CSS lengkap dan interaktif. Panggil tool sekarang!`
               });
               // Force tool use again on the retry nudge
               currentResponse = await callClaude(convMessages, selectedModel, true);

@@ -1350,6 +1350,17 @@ body.ws-stage-2-active .topbar {
         <form class="box" id="form">
           <label for="msg" style="position:absolute;left:-9999px">Message for agent</label>
           <textarea id="msg" rows="2" placeholder="Describe what application or business platform you want to build... (e.g., Build an online course platform with video lessons, quizzes, and automated checkout)"></textarea>
+          <div id="chatAttachmentPreview" style="display:none;padding:6px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:8px;margin:4px 0 8px;align-items:center;gap:10px">
+            <img id="chatAttachThumb" src="" alt="Attached preview" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--line)" />
+            <div style="flex:1;min-width:0">
+              <div id="chatAttachName" style="font-size:11.5px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">reference-image.png</div>
+              <div style="font-size:10px;color:#10b981;font-weight:600;display:flex;align-items:center;gap:4px">
+                <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981"></span>
+                <span>Reference Image Attached (Vision Enabled)</span>
+              </div>
+            </div>
+            <button type="button" onclick="window.clearChatAttachment()" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:4px;border-radius:4px" title="Remove image">&times;</button>
+          </div>
           <div class="tools">
             <button class="t" type="button" id="attach" aria-label="Attach files"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11l-9 9a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.3-8.3"/></svg></button>
             <input type="file" id="fileIn" multiple hidden>
@@ -3399,14 +3410,14 @@ body.ws-stage-2-active .topbar {
   }
 
   // Claude Sonnet 5.5 Autonomous Agent with Code Tools & Trigger.dev v3 Background Pipeline
-  function runClaudeFallbackAgent(p, text, reason, existingMsg, myRunId) {
+  function runClaudeFallbackAgent(p, text, reason, existingMsg, myRunId, attachedImg) {
     var my = myRunId || (++runId);
     // Lock the target project ID so result always goes to the right project
     // even if user clicks another tab while Claude is processing
     var targetProjectId = p.id;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
-    updateWave(25, 'Claude Sonnet 5.5: Code Reasoning & Analysis...', 'Progress: 25% • Medium Thinking & Autonomous Tool Pipeline active');
+    updateWave(25, (attachedImg ? 'Claude Sonnet 5.5 Vision: Inspecting Reference Image...' : 'Claude Sonnet 5.5: Code Reasoning & Analysis...'), 'Progress: 25% • Medium Thinking & Vision Pipeline active');
 
     var m = existingMsg || { role: 'agent', text: '', steps: [], actionHtml: '' };
     if (!existingMsg) {
@@ -3414,10 +3425,10 @@ body.ws-stage-2-active .topbar {
     }
 
     m.steps = [
-      { label: (reason === 'credits_exhausted' ? '⚡ Totalum credits exhausted → Claude Sonnet 5.5 Fallback Activated' : '🛠️ Claude Sonnet 5.5 Autonomous Engine Engaged'), done: true },
-      { label: 'Analyzing project codebase with Claude Sonnet 5.5 (Medium Thinking)...', done: false }
+      { label: (attachedImg ? '🖼️ Analyzing Reference Image with Claude Sonnet 5.5 Vision' : (reason === 'credits_exhausted' ? '⚡ Totalum credits exhausted → Claude Sonnet 5.5 Fallback Activated' : '🛠️ Claude Sonnet 5.5 Autonomous Engine Engaged')), done: true },
+      { label: (attachedImg ? 'Synthesizing application UI layout to match image reference...' : 'Analyzing project codebase with Claude Sonnet 5.5 (Medium Thinking)...'), done: false }
     ];
-    m.text = (reason === 'credits_exhausted' ? '⚡ **Totalum credits depleted (-3.5193). Seamlessly activated Claude Sonnet 5.5 Fallback!**\nEquipped with code editing tools, file inspection, syntax debugging, and Trigger.dev v3 background pipeline.\n\n' : '') + '🤖 **Claude Sonnet 5.5 is reasoning and updating code...**';
+    m.text = (attachedImg ? '🎨 **Analyzing your reference image with Claude Sonnet 5.5 Vision...**\nSynthesizing Tailwind CSS layout, components, and interactive JavaScript to match your design.\n\n' : (reason === 'credits_exhausted' ? '⚡ **Totalum credits depleted (-3.5193). Seamlessly activated Claude Sonnet 5.5 Fallback!**\nEquipped with code editing tools, file inspection, syntax debugging, and Trigger.dev v3 background pipeline.\n\n' : '')) + '🤖 **Claude Sonnet 5.5 is reasoning and updating code...**';
     renderIf(p);
 
     var history = (p.msgs || []).slice(-6).map(function(item) {
@@ -3479,6 +3490,7 @@ body.ws-stage-2-active .topbar {
         projectFiles: filesToSend,
         history: history,
         reason: reason || 'manual',
+        image: attachedImg ? { data: attachedImg.data, mimeType: attachedImg.mimeType } : null,
         isNewApp: /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text)
       })
     })
@@ -4507,20 +4519,30 @@ body.ws-stage-2-active .topbar {
     });
   }
 
-  function runAgent(p, text) {
+  function runAgent(p, text, attachedImg) {
     if (state.engineMode === 'totalum') {
-      // Dual-purpose Fallback to Claude Sonnet 5.5:
-      // 1. When Totalum credits are depleted
-      // 2. When Totalum has finished the initial build and remaining edits/continuations are handled by Claude + Trigger.dev
-      if (p.totalumCreditsExhausted) {
-        runClaudeFallbackAgent(p, text, 'credits_exhausted');
+      // 1. If user provided a reference image OR prompt asks for visual redesign from image:
+      // ROUTE DIRECTLY TO CLAUDE SONNET 5.5 VISION!
+      if (attachedImg || /(?:gambar|foto|photo|image|screenshot|ui|mirip|desain|design)\b/i.test(text)) {
+        runClaudeFallbackAgent(p, text, 'image_redesign', null, null, attachedImg);
         return;
       }
+      // 2. Dual-purpose Fallback to Claude Sonnet 5.5:
+      // When Totalum credits are depleted
+      if (p.totalumCreditsExhausted) {
+        runClaudeFallbackAgent(p, text, 'credits_exhausted', null, null, attachedImg);
+        return;
+      }
+      // When Totalum has finished the initial build and remaining edits/continuations are handled by Claude + Trigger.dev
       if (p.totalumProjectId && p.stage >= 4 && p.msgs.length > 2) {
-        runClaudeFallbackAgent(p, text, 'continue_edit');
+        runClaudeFallbackAgent(p, text, 'continue_edit', null, null, attachedImg);
         return;
       }
       runTotalumAgent(p, text);
+      return;
+    }
+    if (attachedImg) {
+      runClaudeFallbackAgent(p, text, 'image_redesign', null, null, attachedImg);
       return;
     }
     var my = ++runId;
@@ -4637,7 +4659,12 @@ body.ws-stage-2-active .topbar {
     save(); renderChat(); renderTabs(); renderSide();
   }
   function send(text) {
-    var p = cur(); text = (text || '').trim(); if (!p || !text || p.busy) return;
+    var p = cur(); text = (text || '').trim();
+    var attachedImg = window._pendingChatImage || null;
+    if (!text && attachedImg) {
+      text = 'Ubah dan sesuaikan tampilan UI aplikasi di index.html agar persis seperti gambar referensi yang saya lampirkan.';
+    }
+    if (!p || !text || p.busy) return;
     var isNewBuild = /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text);
     if (isNewBuild) {
       p.claudePreviewHtml = null;
@@ -4651,9 +4678,15 @@ body.ws-stage-2-active .topbar {
         if (slug) p.name = slug;
       }
     }
-    p.msgs.push({ role: 'user', text: text }); save();
+    var userMsg = { role: 'user', text: text };
+    if (attachedImg) {
+      userMsg.image = attachedImg.data;
+      userMsg.imageMime = attachedImg.mimeType;
+      window.clearChatAttachment();
+    }
+    p.msgs.push(userMsg); save();
     $('#msg').value = ''; fit(); updSend();
-    runAgent(p, text);
+    runAgent(p, text, attachedImg);
   }
 
   /* ---------- Render: tabs & home ---------- */
@@ -4706,9 +4739,22 @@ body.ws-stage-2-active .topbar {
     var last = p.msgs[p.msgs.length - 1];
     if (p.busy && (!last || last.role === 'user')) h += '<div class="msg agent"><span class="bot">' + I.bot + '</span><div class="body"><span class="typing"><i></i><i></i><i></i></span></div></div>';
     th.innerHTML = h;
-    // Fill user bubble text
+    // Fill user bubble text & attached images
     var bubbles = th.querySelectorAll('.msg.me .bubble'), k = 0;
-    p.msgs.forEach(function (m) { if (m.role === 'user') bubbles[k++].textContent = m.text; });
+    p.msgs.forEach(function (m) {
+      if (m.role === 'user') {
+        var b = bubbles[k++];
+        if (b) {
+          b.textContent = m.text;
+          if (m.image) {
+            var imgDiv = document.createElement('div');
+            imgDiv.style.cssText = 'margin-top:8px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);max-width:260px';
+            imgDiv.innerHTML = '<img src="' + m.image + '" style="width:100%;max-height:180px;object-fit:cover;display:block" alt="Reference image"/>';
+            b.appendChild(imgDiv);
+          }
+        }
+      }
+    });
     // Show edit bar on hover
     Array.prototype.forEach.call(th.querySelectorAll('.msg.me'), function(el) {
       var bar = el.querySelector('.msg-edit-bar');
@@ -6168,68 +6214,119 @@ body.ws-stage-2-active .topbar {
   $('#msg').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(this.value); } });
   $('#form').addEventListener('submit', function (e) { e.preventDefault(); send($('#msg').value); });
 
-  // ── Image Paste into Chat (Ctrl+V / Cmd+V with image in clipboard) ──────────
-  (function() {
-    var pastedImgEl = null;
-    var pastedImgB64 = null;
+  // ── Universal Image Attachment & Clipboard Paste System ──────────────────────
+  window._pendingChatImage = null;
 
-    function clearPastedImg() {
-      pastedImgEl = null; pastedImgB64 = null;
-      var prev = document.getElementById('rfPasteImgPreview');
-      if (prev) prev.remove();
-      updSend();
+  window.attachChatImage = function(file) {
+    if (!file || !file.type || !file.type.startsWith('image/')) {
+      toast('⚠️ Please select an image file (PNG, JPG, WebP)');
+      return;
     }
-
-    $('#msg').addEventListener('paste', function(e) {
-      var items = (e.clipboardData || window.clipboardData || {}).items;
-      if (!items) return;
-      var imgItem = null;
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].type && items[i].type.startsWith('image/')) { imgItem = items[i]; break; }
-      }
-      if (!imgItem) return;
-      e.preventDefault();
-      var file = imgItem.getAsFile();
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        pastedImgB64 = ev.target.result; // data:image/png;base64,...
-        // Show inline preview under textarea
-        var prev = document.getElementById('rfPasteImgPreview');
-        if (!prev) {
-          prev = document.createElement('div');
-          prev.id = 'rfPasteImgPreview';
-          prev.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--panel,#1a1b1e);border-radius:8px;margin-top:4px;border:1px solid var(--line,#333)';
-          var msgBox = $('#msg');
-          msgBox.parentNode.insertBefore(prev, msgBox.nextSibling);
-        }
-        prev.innerHTML = '<img src="' + pastedImgB64 + '" style="height:48px;width:auto;border-radius:6px;object-fit:cover" alt="pasted"/>' +
-          '<span style="font-size:12px;color:var(--muted,#888);flex:1">📎 Image attached (paste)</span>' +
-          '<button type="button" onclick="document.getElementById(\'rfPasteImgPreview\').remove();window._rfPastedImgB64=null;updSend();" style="background:none;border:none;cursor:pointer;color:var(--muted,#888);font-size:16px;padding:0 4px">✕</button>';
-        window._rfPastedImgB64 = pastedImgB64;
-        updSend();
-        toast('📎 Image attached — describe what to change then send');
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      window._pendingChatImage = {
+        data: ev.target.result,
+        mimeType: file.type || 'image/png',
+        name: file.name || 'reference.png'
       };
-      reader.readAsDataURL(file);
-    });
-
-    // Intercept send() to append image description to text
-    var _origSend = window.send;
-    window.send = function(text) {
-      var imgB64 = window._rfPastedImgB64;
-      if (imgB64 && text) {
-        // Append a visual note to the text so Claude knows an image was provided
-        // (Anthropic Vision is not available on all keys, so we describe it as reference)
-        text = text + '\n\n[User attached a reference image for visual context. Apply the UI style/layout from the image.]';
-        window._rfPastedImgB64 = null;
-        var prev = document.getElementById('rfPasteImgPreview');
-        if (prev) prev.remove();
+      var preview = document.getElementById('chatAttachmentPreview');
+      var thumb = document.getElementById('chatAttachThumb');
+      var name = document.getElementById('chatAttachName');
+      if (preview && thumb && name) {
+        thumb.src = ev.target.result;
+        name.textContent = file.name || 'reference-image.png';
+        preview.style.display = 'flex';
       }
-      _origSend(text);
+      updSend();
+      toast('📎 Image attached! Send with prompt to rebuild UI.');
     };
-  })();
+    reader.readAsDataURL(file);
+  };
+
+  window.clearChatAttachment = function() {
+    window._pendingChatImage = null;
+    var preview = document.getElementById('chatAttachmentPreview');
+    if (preview) preview.style.display = 'none';
+    var thumb = document.getElementById('chatAttachThumb');
+    if (thumb) thumb.src = '';
+    updSend();
+  };
+
+  // Paste image handler (Ctrl+V / Cmd+V)
+  function handlePasteImage(e) {
+    var items = (e.clipboardData || window.clipboardData || {}).items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.startsWith('image/')) {
+        e.preventDefault();
+        var file = items[i].getAsFile();
+        if (file) window.attachChatImage(file);
+        return;
+      }
+    }
+  }
+
+  $('#msg').addEventListener('paste', handlePasteImage);
+  window.addEventListener('paste', function(e) {
+    // Only capture if user is not in another input or textarea
+    if (e.target && (e.target.id === 'msg' || e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA')) {
+      handlePasteImage(e);
+    }
+  });
+
+  // Drag & drop image onto chat form
+  var chatBox = $('#form');
+  if (chatBox) {
+    chatBox.addEventListener('dragover', function(e) { e.preventDefault(); chatBox.style.borderColor = 'var(--accent,#6366f1)'; });
+    chatBox.addEventListener('dragleave', function() { chatBox.style.borderColor = ''; });
+    chatBox.addEventListener('drop', function(e) {
+      e.preventDefault();
+      chatBox.style.borderColor = '';
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+        var f = e.dataTransfer.files[0];
+        if (f.type && f.type.startsWith('image/')) {
+          window.attachChatImage(f);
+        }
+      }
+    });
+  }
+
+  // Check transferred image from Homepage (sessionStorage)
+  try {
+    var storedTransfer = sessionStorage.getItem('runnerflo_transfer_image');
+    if (storedTransfer) {
+      var tObj = JSON.parse(storedTransfer);
+      if (tObj && tObj.data) {
+        window._pendingChatImage = tObj;
+        setTimeout(function() {
+          var preview = document.getElementById('chatAttachmentPreview');
+          var thumb = document.getElementById('chatAttachThumb');
+          var name = document.getElementById('chatAttachName');
+          if (preview && thumb && name) {
+            thumb.src = tObj.data;
+            name.textContent = tObj.name || 'reference-from-home.png';
+            preview.style.display = 'flex';
+          }
+          updSend();
+          toast('📎 Reference image loaded from homepage!');
+        }, 300);
+      }
+      sessionStorage.removeItem('runnerflo_transfer_image');
+    }
+  } catch(e){}
+
   $('#thread').addEventListener('scroll', function () { $('#jump').hidden = nearBottom(this); });
-  $('#fileIn').addEventListener('change', function () { addFiles(this.files); this.value = ''; });
+  $('#fileIn').addEventListener('change', function () {
+    if (this.files && this.files.length) {
+      var firstFile = this.files[0];
+      if (firstFile.type && firstFile.type.startsWith('image/')) {
+        window.attachChatImage(firstFile);
+      } else {
+        addFiles(this.files);
+      }
+    }
+    this.value = '';
+  });
   
   document.addEventListener('dragover', function (e) { var d = e.target.closest && e.target.closest('#drop'); if (d) { e.preventDefault(); d.classList.add('over'); } });
   document.addEventListener('dragleave', function (e) { var d = e.target.closest && e.target.closest('#drop'); if (d) d.classList.remove('over'); });
