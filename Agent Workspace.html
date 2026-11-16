@@ -3573,11 +3573,31 @@ body.ws-stage-2-active .topbar {
           }
         }
 
-        var modelBadge = resData.model || 'Claude Managed Agents';
-        m.text = '✨ **' + modelBadge + ' — Response:**\n\n' + (resData.text || '');
+        function stripRawCodeFromChat(rawText) {
+          if (!rawText) return '';
+          var cleaned = rawText
+            .replace(/```(?:html|xml)[\s\S]*?```/gi, '')
+            .replace(/```(?:css|javascript|js|json|tsx|jsx)[\s\S]*?```/gi, '')
+            .replace(/<!DOCTYPE\s+html[\s\S]*?<\/html>/gi, '')
+            .trim();
+          cleaned = cleaned.replace(/```\w*\s*$/g, '').trim();
+          return cleaned;
+        }
+
+        var cleanText = stripRawCodeFromChat(resData.text || resData.summary || '');
+        if (!cleanText || cleanText.length < 15) {
+          cleanText = 'Aplikasi dan struktur file telah berhasil dibuat dan diperbarui sesuai instruksi Anda.';
+        }
+        var modelBadge = resData.model || 'Claude Sonnet 5.5 Managed Agent';
+        m.text = '✨ **' + modelBadge + ' — Build Complete:**\n\n' + cleanText;
 
         if (Array.isArray(resData.modifiedFiles) && resData.modifiedFiles.length > 0) {
-          m.text += '\n\n> 💡 **' + resData.modifiedFiles.length + ' file(s) updated** oleh Claude Managed Agent. Preview di kanan sudah diperbarui secara langsung.';
+          var filesSummary = resData.modifiedFiles.map(function(f) {
+            var szKb = Math.round((f.code ? f.code.length : (f.size || 0)) / 102.4) / 10;
+            return '`' + (f.path || f.name) + '` (' + szKb + ' KB)';
+          }).join(', ');
+          m.text += '\n\n> 📦 **' + resData.modifiedFiles.length + ' file Cloudflare Pages deployable:**\n> ' + filesSummary +
+                    '\n\n> 👁️ **Live preview** di panel kanan sudah otomatis diperbarui. Buka tab **`</> Code`** untuk meninjau seluruh file sumber.';
         } else {
           m.text += '\n\n> ⚠️ Claude menyelesaikan analisis tapi tidak ada kode yang diubah. Coba deskripsikan perubahan yang lebih spesifik.';
         }
@@ -5021,6 +5041,22 @@ body.ws-stage-2-active .topbar {
 
   function codeFor(f, p) {
     if (!f) return '';
+    // 1. Check if project has custom generated content in p.projectCodeFiles
+    if (p && Array.isArray(p.projectCodeFiles)) {
+      var match = p.projectCodeFiles.find(function(item) {
+        var itemPath = item.path || item.name || '';
+        return itemPath === f || itemPath.endsWith('/' + f) || f.endsWith('/' + itemPath);
+      });
+      if (match && (match.customContent || match.content || match.code)) {
+        return match.customContent || match.content || match.code;
+      }
+    }
+
+    // 2. Check if index.html has claudePreviewHtml
+    if ((f === 'index.html' || f.endsWith('/index.html') || f.endsWith('index.html')) && p && p.claudePreviewHtml) {
+      return p.claudePreviewHtml;
+    }
+
     var _s = '<' + 'script';
     var _e = '<' + '/script>';
     var promptText = getProjectPromptText(p);
@@ -5356,15 +5392,36 @@ body.ws-stage-2-active .topbar {
     var syncPill = $('#codeSyncPill');
     if (pathLabel) pathLabel.textContent = filePath;
 
-    if (codeEl) {
-      codeEl.textContent = '// Loading ' + filePath + ' from edge...';
-    }
-
     var buttons = document.querySelectorAll('#codeFileList button, .ftree button');
     buttons.forEach(function(b) {
       var isCurrent = (b.dataset.f === filePath);
       b.setAttribute('aria-current', String(isCurrent));
     });
+
+    // 1. Instant resolution: Check local p.projectCodeFiles or p.claudePreviewHtml FIRST!
+    var localContent = null;
+    if (p && Array.isArray(p.projectCodeFiles)) {
+      var match = p.projectCodeFiles.find(function(item) {
+        var itemPath = item.path || item.name || '';
+        return itemPath === filePath || itemPath.endsWith('/' + filePath) || filePath.endsWith('/' + itemPath);
+      });
+      if (match && (match.customContent || match.content || match.code)) {
+        localContent = match.customContent || match.content || match.code;
+      }
+    }
+    if (!localContent && (filePath === 'index.html' || filePath.endsWith('/index.html')) && p && p.claudePreviewHtml) {
+      localContent = p.claudePreviewHtml;
+    }
+
+    if (localContent) {
+      if (codeEl) codeEl.textContent = localContent;
+      if (syncPill) { syncPill.textContent = 'Claude Live'; syncPill.style.background = '#10b981'; }
+      return;
+    }
+
+    if (codeEl) {
+      codeEl.textContent = '// Loading ' + filePath + ' from edge...';
+    }
 
     var projSlug = (p && (p.totalumProjectId || p.name)) ? (p.totalumProjectId || p.name) : '';
     if (state.engineMode === 'totalum' && projSlug) {

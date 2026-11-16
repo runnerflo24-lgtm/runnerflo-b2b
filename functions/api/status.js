@@ -42,8 +42,8 @@ export async function onRequest(context) {
         }
       } catch (_) {}
 
-      // 1. Check existing agents or create one
-      const listRes = await fetch('https://api.anthropic.com/v1/agents?limit=5', {
+      // 1. Check existing agents or create Claude Sonnet 5.5 agent
+      const listRes = await fetch('https://api.anthropic.com/v1/agents?limit=10', {
         headers: {
           'x-api-key': aKey,
           'anthropic-version': '2023-06-01',
@@ -52,9 +52,16 @@ export async function onRequest(context) {
       });
       const listData = await listRes.json();
       const allAgents = listData.data || [];
-      let agentId = (allAgents[0] && allAgents[0].id) || null;
+      
+      // Specifically identify or create a Claude Sonnet 5.5 agent!
+      let sonnetAgent = allAgents.find(a => {
+        const m = typeof a.model === 'string' ? a.model : (a.model?.id || '');
+        return m.includes('sonnet-5-5') || m.includes('sonnet-5') || a.name.includes('sonnet');
+      });
+      let agentId = sonnetAgent ? sonnetAgent.id : null;
+      let agentCreationLog = null;
 
-      if (!agentId) {
+      if (!agentId || url.searchParams.get('recreate_agent') === 'true') {
         const maRes = await fetch('https://api.anthropic.com/v1/agents', {
           method: 'POST',
           headers: {
@@ -64,13 +71,17 @@ export async function onRequest(context) {
             'content-type': 'application/json'
           },
           body: JSON.stringify({
-            name: 'runnerflo-saas-architect',
+            name: 'runnerflo-sonnet-5-5-architect',
             model: 'claude-sonnet-5-5',
-            system: 'You are the Autonomous SaaS Architect for Runnerflo. Always generate complete HTML5 code with Tailwind CSS and working interactive JavaScript.'
+            system: 'You are Claude Sonnet 5.5 — Autonomous Lead Full-Stack Architect for Runnerflo. You design modern, responsive, visually stunning, multi-file web applications deployable to Cloudflare Pages. Never force dark theme unless user specifically requests dark theme. Always adapt theme, palette, and typography to user instructions.'
           })
         });
         const created = await maRes.json();
-        agentId = created.id;
+        agentCreationLog = created;
+        if (created && created.id) {
+          agentId = created.id;
+          allAgents.unshift(created);
+        }
       }
 
       // 2. Check or create Environment
@@ -146,6 +157,8 @@ export async function onRequest(context) {
 
       managedAgentsStatus = {
         agentId,
+        sonnetAgentFound: Boolean(sonnetAgent),
+        agentCreationLog,
         allAgents: allAgents.map(a => ({ id: a.id, name: a.name, model: a.model })),
         envId,
         sessionStatus: sessStatus,
