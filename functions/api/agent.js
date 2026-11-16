@@ -902,7 +902,15 @@ Provide the COMPLETE, production-ready, browser-executable HTML5 file in \`\`\`h
       modifiedFiles,
       triggeredJobs,
       composioActions,
-      toolCallsCount: modifiedFiles.length + triggeredJobs.length + composioActions.length
+      toolCallsCount: modifiedFiles.length + triggeredJobs.length + composioActions.length,
+      debugInfo: {
+        selectedModel,
+        assistantTextLength: assistantText.length,
+        assistantTextSnippet: assistantText.slice(0, 300),
+        modifiedFilesCount: modifiedFiles.length,
+        candidateModels,
+        modelAttempts
+      }
     }), { status: 200, headers: corsHeaders });
 
   } catch (err) {
