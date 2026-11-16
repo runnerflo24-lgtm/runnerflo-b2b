@@ -1,6 +1,8 @@
 // Cloudflare Pages Function: /api/status (Diagnostic status for Runnerflo B2B)
 export async function onRequest(context) {
-  const { env } = context;
+  const { env, request } = context;
+  const url = new URL(request.url);
+  const inspectSessionId = url.searchParams.get('session');
 
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -24,12 +26,24 @@ export async function onRequest(context) {
   const hasReplicate = Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY));
   const hasWaveSpeed = Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY));
 
+  let modelsList = [];
   let managedAgentsStatus = 'not_tested';
   const aKey = (env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY)) || '';
   if (aKey) {
     try {
+      // 0. Get available models
+      try {
+        const mRes = await fetch('https://api.anthropic.com/v1/models?limit=20', {
+          headers: { 'x-api-key': aKey, 'anthropic-version': '2023-06-01' }
+        });
+        if (mRes.ok) {
+          const mData = await mRes.json();
+          modelsList = (mData.data || []).map(m => m.id);
+        }
+      } catch (_) {}
+
       // 1. Check existing agents or create one
-      const listRes = await fetch('https://api.anthropic.com/v1/agents?limit=1', {
+      const listRes = await fetch('https://api.anthropic.com/v1/agents?limit=5', {
         headers: {
           'x-api-key': aKey,
           'anthropic-version': '2023-06-01',
@@ -37,7 +51,8 @@ export async function onRequest(context) {
         }
       });
       const listData = await listRes.json();
-      let agentId = (listData && listData.data && listData.data[0] && listData.data[0].id) || null;
+      const allAgents = listData.data || [];
+      let agentId = (allAgents[0] && allAgents[0].id) || null;
 
       if (!agentId) {
         const maRes = await fetch('https://api.anthropic.com/v1/agents', {
@@ -50,8 +65,8 @@ export async function onRequest(context) {
           },
           body: JSON.stringify({
             name: 'runnerflo-saas-architect',
-            model: 'claude-haiku-5-5',
-            system: 'You are the Autonomous SaaS Architect for Runnerflo.'
+            model: 'claude-sonnet-5-5',
+            system: 'You are the Autonomous SaaS Architect for Runnerflo. Always generate complete HTML5 code with Tailwind CSS and working interactive JavaScript.'
           })
         });
         const created = await maRes.json();
@@ -103,49 +118,35 @@ export async function onRequest(context) {
       // 3. Test Session Creation & Event Dispatch
       let sessStatus = 'skipped';
       let eventStatus = 'none';
-      if (envId) {
-        const sessRes = await fetch('https://api.anthropic.com/v1/sessions', {
-          method: 'POST',
+      const targetSessId = inspectSessionId || null;
+
+      if (inspectSessionId) {
+        // Poll existing session events
+        const evRes = await fetch(`https://api.anthropic.com/v1/sessions/${inspectSessionId}/events?limit=30`, {
           headers: {
             'x-api-key': aKey,
             'anthropic-version': '2023-06-01',
-            'anthropic-beta': 'managed-agents-2026-04-01',
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            agent: agentId,
-            environment_id: envId,
-            title: 'runnerflo-diagnostic-session',
-            initial_events: [
-              {
-                type: 'user.message',
-                content: [{ type: 'text', text: 'Generate a landing page for PixelQuest with HTML5 and Tailwind CSS.' }]
-              }
-            ]
-          })
+            'anthropic-beta': 'managed-agents-2026-04-01'
+          }
         });
-        const sessJson = await sessRes.json();
-        const sessionId = sessJson && sessJson.id;
-        sessStatus = `HTTP ${sessRes.status}: ID=${sessionId}, status=${sessJson && sessJson.status}`;
-
-        if (sessionId) {
-          // Poll events
-          const evRes = await fetch(`https://api.anthropic.com/v1/sessions/${sessionId}/events?limit=10`, {
-            headers: {
-              'x-api-key': aKey,
-              'anthropic-version': '2023-06-01',
-              'anthropic-beta': 'managed-agents-2026-04-01'
-            }
-          });
-          const evData = await evRes.json();
-          eventStatus = `HTTP ${evRes.status}: count=${evData && evData.data ? evData.data.length : 0}, types=${(evData && evData.data ? evData.data.map(d => d.type).join(',') : '')}`;
-        }
-      } else {
-        sessStatus = `No Env ID. EnvError: ${envError}`;
+        const evData = await evRes.json();
+        eventStatus = {
+          session: inspectSessionId,
+          status: evRes.status,
+          count: evData && evData.data ? evData.data.length : 0,
+          events: (evData && evData.data ? evData.data.map(d => ({
+            type: d.type,
+            text: (d.content && d.content[0] && d.content[0].text) ? d.content[0].text.slice(0, 150) : null
+          })) : [])
+        };
+        sessStatus = `Inspected ${inspectSessionId}`;
+      } else if (envId) {
+        sessStatus = 'Ready. Use ?session=<session_id> to inspect live session.';
       }
 
       managedAgentsStatus = {
         agentId,
+        allAgents: allAgents.map(a => ({ id: a.id, name: a.name, model: a.model })),
         envId,
         sessionStatus: sessStatus,
         eventStatus
@@ -160,6 +161,7 @@ export async function onRequest(context) {
     totalum: hasTotalum,
     anthropic: hasAnthropic,
     anthropicPrefix: anthropicPrefix,
+    anthropicModels: modelsList,
     managedAgents: managedAgentsStatus,
     vertex: hasVertex,
     gemini: hasGemini,

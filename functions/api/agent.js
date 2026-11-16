@@ -1,7 +1,27 @@
 // Cloudflare Pages Function: /api/agent
-// Claude Sonnet 5.5 — Autonomous Orchestrator with Agentic Loop
-// Proper multi-turn tool use: read_file → edit_code → trigger_job → composio_action
+// Claude Managed Agents & Claude Sonnet 5.5 — Autonomous Orchestrator
+// Fully integrated with Anthropic Managed Agents API (anthropic-beta: managed-agents-2026-04-01)
 // Injects Trigger.dev + Composio capabilities INTO generated SaaS code
+
+function extractHtmlCode(text) {
+  if (!text) return null;
+  // 1. Markdown code block with DOCTYPE
+  let m = text.match(/```(?:html|xml)?\s*([\s\S]*?<!DOCTYPE[\s\S]*?<\/html>[\s\S]*?)```/i);
+  if (m && m[1]) return m[1].trim();
+  // 2. Bare DOCTYPE to </html>
+  m = text.match(/<!DOCTYPE\s+html[\s\S]*?<\/html>/i);
+  if (m && m[0]) return m[0].trim();
+  // 3. Any code block with <html
+  m = text.match(/```(?:html|xml)?\s*([\s\S]*?<html[\s\S]*?<\/html>[\s\S]*?)```/i);
+  if (m && m[1]) return m[1].trim();
+  // 4. Any code block with <body
+  m = text.match(/```(?:html|xml)?\s*([\s\S]*?<body[\s\S]*?<\/body>[\s\S]*?)```/i);
+  if (m && m[1]) return m[1].trim();
+  // 5. Any code block with rich HTML elements
+  m = text.match(/```(?:html)?\s*([\s\S]*?)```/i);
+  if (m && m[1] && (m[1].includes('<div') || m[1].includes('<section') || m[1].includes('<header'))) return m[1].trim();
+  return null;
+}
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -14,9 +34,6 @@ export async function onRequest(context) {
   };
 
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders });
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: corsHeaders });
-  }
 
   const anthropicKey = (env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY)) || '';
   if (!anthropicKey) {
@@ -25,6 +42,80 @@ export async function onRequest(context) {
       code: 'MISSING_ANTHROPIC_KEY',
       fallback: true
     }), { status: 503, headers: corsHeaders });
+  }
+
+  // ─── GET /api/agent?session=<sessionId> : Async Session Polling ─────────────
+  const url = new URL(request.url);
+  const pollSessionId = url.searchParams.get('session');
+  if (request.method === 'GET' && pollSessionId) {
+    try {
+      const evRes = await fetch(`https://api.anthropic.com/v1/sessions/${pollSessionId}/events?limit=40`, {
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'managed-agents-2026-04-01'
+        }
+      });
+      if (!evRes.ok) {
+        return new Response(JSON.stringify({ error: `Failed to poll session: HTTP ${evRes.status}` }), { status: evRes.status, headers: corsHeaders });
+      }
+      const evData = await evRes.json();
+      const events = evData.data || [];
+      let text = '';
+      for (const ev of events) {
+        if (ev.type === 'agent.message') {
+          for (const blk of (ev.content || [])) {
+            if (blk.type === 'text' && blk.text) text += blk.text + '\n';
+          }
+        }
+      }
+      const isIdle = events.some(e => e.type === 'session.status_idle');
+      const code = extractHtmlCode(text);
+
+      if (code && code.length > 250) {
+        return new Response(JSON.stringify({
+          status: 'done',
+          engine: 'claude-managed-agents',
+          model: `claude-managed-agents (${pollSessionId})`,
+          text: text || 'Claude Managed Agents completed the build.',
+          modifiedFiles: [{ path: 'index.html', code, explanation: 'Generated complete application layout via Claude Managed Agents' }],
+          toolCallsCount: 1,
+          steps: [
+            { label: '⚡ Claude Managed Agents (Hosted Anthropic Harness) Engaged', done: true },
+            { label: `Session finished: ${pollSessionId} (cloud container sandbox)`, done: true },
+            { label: `Generated index.html (${code.length} bytes) — preview live`, done: true }
+          ]
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      if (isIdle) {
+        if (text.includes('<html') || text.includes('<!DOCTYPE') || text.includes('<div')) {
+          const rawCode = extractHtmlCode(text) || text.trim();
+          return new Response(JSON.stringify({
+            status: 'done',
+            engine: 'claude-managed-agents',
+            model: `claude-managed-agents (${pollSessionId})`,
+            text,
+            modifiedFiles: [{ path: 'index.html', code: rawCode, explanation: 'Generated via Claude Managed Agents' }],
+            toolCallsCount: 1,
+            steps: [{ label: `Session finished: ${pollSessionId}`, done: true }]
+          }), { status: 200, headers: corsHeaders });
+        }
+      }
+
+      return new Response(JSON.stringify({
+        status: 'running',
+        sessionId: pollSessionId,
+        eventsCount: events.length,
+        latestEventType: events[events.length - 1]?.type || 'pending'
+      }), { status: 200, headers: corsHeaders });
+    } catch (pollErr) {
+      return new Response(JSON.stringify({ error: pollErr.message }), { status: 500, headers: corsHeaders });
+    }
+  }
+
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: corsHeaders });
   }
 
   const triggerKey = (env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY)) || '';
@@ -551,15 +642,15 @@ async function connectApp(app) {
       }
     } catch (_) {}
 
-    // Prioritize Flagship Sonnet models first (Sonnet 3.7, Sonnet 3.5), then Opus, Haiku as last resort
+    // Target verified Generation 5 models available on this Anthropic key
     const candidateModels = [
-      'claude-3-7-sonnet-20250219',
-      'claude-3-5-sonnet-20241022',
-      'claude-3-5-sonnet-latest',
-      ...discoveredModels.filter(m => /sonnet/i.test(m)),
-      ...discoveredModels.filter(m => !/sonnet/i.test(m) && !/haiku/i.test(m)),
+      'claude-sonnet-5-5',
+      'claude-sonnet-5',
+      'claude-opus-5-5',
+      'claude-sonnet-4-6',
       'claude-haiku-5-5',
-      'claude-3-haiku-20240307'
+      ...discoveredModels.filter(m => /sonnet/i.test(m)),
+      ...discoveredModels
     ].filter((v, i, a) => a.indexOf(v) === i);
 
     // ─── Claude Managed Agents Pipeline (anthropic-beta: managed-agents-2026-04-01) ───
@@ -627,9 +718,9 @@ Provide the COMPLETE, production-ready, browser-executable HTML5 file in \`\`\`h
           const sessData = await maSessRes.json();
           managedAgentSessionId = sessData.id;
 
-          // Poll session events (up to 5 attempts, ~10s total)
-          for (let pIdx = 0; pIdx < 5; pIdx++) {
-            await new Promise(r => setTimeout(r, 2000));
+          // Quick initial poll (up to 3 attempts, ~3.6s total)
+          for (let pIdx = 0; pIdx < 3; pIdx++) {
+            await new Promise(r => setTimeout(r, 1200));
             const pollRes = await fetch(`https://api.anthropic.com/v1/sessions/${managedAgentSessionId}/events?limit=30`, {
               headers: {
                 'x-api-key': anthropicKey,
@@ -658,21 +749,28 @@ Provide the COMPLETE, production-ready, browser-executable HTML5 file in \`\`\`h
           }
 
           // Extract HTML code from Managed Agent output
-          const codeMatch = managedAgentText.match(/```(?:html|xml)?\s*([\s\S]*?<!DOCTYPE[\s\S]*?<\/html>[\s\S]*?)```/i)
-            || managedAgentText.match(/<!DOCTYPE\s+html[\s\S]*?<\/html>/i)
-            || managedAgentText.match(/```(?:html|xml)?\s*([\s\S]*?<div[\s\S]*?<\/div>[\s\S]*?)```/i);
-
-          if (codeMatch) {
-            const rawCode = (codeMatch[1] || codeMatch[0]).trim();
-            if (rawCode.length > 300) {
-              fileIndex['index.html'] = rawCode;
-              modifiedFiles.push({
-                path: 'index.html',
-                code: rawCode,
-                explanation: `Generated complete application layout via Claude Managed Agents (${managedAgentSessionId})`
-              });
-              managedAgentSuccess = true;
-            }
+          const extractedCode = extractHtmlCode(managedAgentText);
+          if (extractedCode && extractedCode.length > 250) {
+            fileIndex['index.html'] = extractedCode;
+            modifiedFiles.push({
+              path: 'index.html',
+              code: extractedCode,
+              explanation: `Generated complete application layout via Claude Managed Agents (${managedAgentSessionId})`
+            });
+            managedAgentSuccess = true;
+          } else if (managedAgentSessionId) {
+            // Session is actively executing in Anthropic sandbox — hand off to async client polling
+            return new Response(JSON.stringify({
+              status: 'running',
+              sessionId: managedAgentSessionId,
+              engine: 'claude-managed-agents',
+              model: `claude-managed-agents (${managedAgentSessionId})`,
+              steps: [
+                { label: '⚡ Claude Managed Agents (Hosted Anthropic Harness) Engaged', done: true },
+                { label: `Session active: ${managedAgentSessionId} (cloud sandbox)`, done: false },
+                { label: 'Synthesizing application components & UI in Anthropic container...', done: false }
+              ]
+            }), { status: 200, headers: corsHeaders });
           }
         }
       }
