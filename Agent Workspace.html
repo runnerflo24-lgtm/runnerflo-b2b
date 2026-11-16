@@ -3633,16 +3633,20 @@ body.ws-stage-2-active .topbar {
 
       // Handle async polling for Claude Managed Agents session
       if (data && data.status === 'running' && data.sessionId) {
+        p.activeSessionId = data.sessionId;
+        save();
         updateWave(60, 'Claude Managed Agent: Harness & Container executing...', 'Session: ' + data.sessionId);
         m.text = '⚡ **Claude Managed Agents (Hosted Anthropic Harness):** Active Session `' + data.sessionId + '`\nExecuting autonomous instructions inside Anthropic cloud sandbox container...';
         renderIf(p);
         var pollAttempts = 0;
         var pollTimer = setInterval(function() {
           pollAttempts++;
-          if (my !== runId || !p.busy || pollAttempts > 60) {
+          // High-ceiling polling limit: 200 attempts (~320 seconds) for complex SaaS applications
+          if (my !== runId || !p.busy || pollAttempts > 200) {
             clearInterval(pollTimer);
-            if (pollAttempts > 60) {
-              m.text += '\n\n⚠️ Sesi pembuatan sedang berlangsung di cloud sandbox. Silakan klik tab atau periksa lagi sebentar.';
+            if (pollAttempts > 200) {
+              m.text += '\n\n⚠️ Sesi pembuatan masih berlangsung di cloud sandbox.';
+              m.actionHtml = '<div style="margin-top:12px"><button type="button" class="rf-btn rf-btn-primary" onclick="window.checkAgentSessionStatus(\'' + data.sessionId + '\')">🔄 Periksa & Muat Hasil Selesai</button></div>';
               p.busy = false;
               finishWave();
               renderChat();
@@ -3654,9 +3658,11 @@ body.ws-stage-2-active .topbar {
           .then(function(pollRes) {
             if (pollRes && (pollRes.status === 'done' || (pollRes.modifiedFiles && pollRes.modifiedFiles.length > 0))) {
               clearInterval(pollTimer);
+              p.activeSessionId = null;
               applyAgentResults(pollRes);
             } else if (pollRes && pollRes.latestEventType) {
-              updateWave(75, 'Claude Managed Agent: ' + pollRes.latestEventType, 'Container running...');
+              var evLabel = pollRes.latestEventType === 'agent.thinking' ? 'Claude Sonnet 5.5 is thinking & architecting...' : pollRes.latestEventType;
+              updateWave(75, 'Claude Managed Agent: ' + evLabel, 'Container running...');
             }
           })
           .catch(function() {});
@@ -3998,6 +4004,97 @@ body.ws-stage-2-active .topbar {
     } else {
       toast('Belum ada perubahan kode dari Claude untuk ditampilkan.');
     }
+  };
+
+  // Inspect Claude Managed Agent session status from Anthropic Cloud harness
+  window.checkAgentSessionStatus = function(sessionId, targetProjectId) {
+    if (!sessionId) return;
+    var pid = targetProjectId || (state && state.active);
+    var p = (typeof proj === 'function') ? proj(pid) : cur();
+    if (!p) return;
+
+    toast('🔄 Memeriksa status sesi Claude Managed Agent (' + sessionId.slice(0, 14) + '...)...');
+
+    fetch('/api/agent?session=' + encodeURIComponent(sessionId))
+      .then(function(r) { return r.json(); })
+      .then(function(pollRes) {
+        if (!pollRes) {
+          toast('⚠️ Tidak ada respons dari endpoint sesi.');
+          return;
+        }
+
+        if (pollRes.status === 'done' || (Array.isArray(pollRes.modifiedFiles) && pollRes.modifiedFiles.length > 0)) {
+          p.busy = false;
+          p.activeSessionId = null;
+
+          if (Array.isArray(pollRes.modifiedFiles) && pollRes.modifiedFiles.length > 0) {
+            if (!p.projectCodeFiles) p.projectCodeFiles = [];
+            pollRes.modifiedFiles.forEach(function(mf) {
+              var found = false;
+              for (var i = 0; i < p.projectCodeFiles.length; i++) {
+                var f = p.projectCodeFiles[i];
+                if ((f.path || f.name) === mf.path) {
+                  f.customContent = mf.code;
+                  f.size = mf.code.length;
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                p.projectCodeFiles.unshift({ path: mf.path, name: mf.path.split('/').pop(), size: mf.code.length, customContent: mf.code });
+              }
+            });
+
+            var htmlFile = pollRes.modifiedFiles.find(function(mf) {
+              return /\.(html|htm)$/i.test(mf.path) || mf.path === 'index.html';
+            }) || pollRes.modifiedFiles[0];
+
+            if (htmlFile && htmlFile.code) {
+              p.claudePreviewHtml = htmlFile.code;
+              p.claudePreviewFile = htmlFile.path;
+              try {
+                if (p.claudePreviewBlobUrl) URL.revokeObjectURL(p.claudePreviewBlobUrl);
+              } catch(e){}
+              p.claudePreviewBlobUrl = URL.createObjectURL(new Blob([htmlFile.code], { type: 'text/html' }));
+            }
+          }
+
+          if (Array.isArray(p.msgs) && p.msgs.length > 0) {
+            var lastMsg = p.msgs[p.msgs.length - 1];
+            if (lastMsg && lastMsg.role === 'agent') {
+              var cleanText = (pollRes.text || pollRes.summary || '')
+                .replace(/```(?:html|xml|css|javascript|js|json|tsx|jsx)[\s\S]*?```/gi, '')
+                .replace(/<!DOCTYPE\s+html[\s\S]*?<\/html>/gi, '')
+                .trim();
+              if (!cleanText || cleanText.length < 15) cleanText = 'Aplikasi dan struktur file berhasil dibuat oleh Claude Sonnet 5.5 Managed Agent.';
+              lastMsg.text = '✨ **Claude Sonnet 5.5 — Sesi Berhasil Diselesaikan:**\n\n' + cleanText;
+              if (pollRes.modifiedFiles && pollRes.modifiedFiles.length > 0) {
+                var flist = pollRes.modifiedFiles.map(function(f){ return '`' + (f.path || f.name) + '`'; }).join(', ');
+                lastMsg.text += '\n\n> 📦 **' + pollRes.modifiedFiles.length + ' file Cloudflare Pages deployable:** ' + flist +
+                  '\n\n> 👁️ **Live preview** dan tab **`</> Code`** sudah siap ditinjau.';
+              }
+              lastMsg.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+                '<button type="button" class="rf-btn rf-btn-primary" onclick="window.applyClaudePreview && window.applyClaudePreview()" style="background:#10b981;border-color:#10b981;color:#fff">👁️ Lihat Preview Perubahan</button>' +
+                '<button type="button" class="rf-btn" onclick="uiMode=\'code\';renderSide();">💻 View Code Changes</button>' +
+                '<button type="button" class="rf-btn" onclick="window.openPublishModal()">🚀 Re-Deploy</button>' +
+                '</div>';
+            }
+          }
+
+          save();
+          renderTabs();
+          renderChat();
+          renderSide();
+          toast('✅ Selesai! Kode dan preview Claude Sonnet 5.5 berhasil dimuat.');
+        } else if (pollRes.status === 'running') {
+          toast('⏳ Claude Sonnet 5.5 masih memproses instruksi di sandbox cloud (' + (pollRes.latestEventType || 'running') + '). Klik lagi sebentar.');
+        } else {
+          toast('⚠️ Status sesi: ' + (pollRes.status || 'unknown') + (pollRes.error ? ' (' + pollRes.error + ')' : ''));
+        }
+      })
+      .catch(function(err) {
+        toast('❌ Gagal memeriksa sesi: ' + (err.message || 'Network error'));
+      });
   };
   window.copyActiveLiveUrl = function() {
     var p = cur(); if (!p) return;
@@ -4764,6 +4861,13 @@ body.ws-stage-2-active .topbar {
     state.active = id;
     if (state.open.indexOf(id) < 0) state.open.push(id);
     save(); render();
+    var p = cur();
+    if (p && !p.claudePreviewHtml) {
+      var match = JSON.stringify(p.msgs || []).match(/sesn_[a-zA-Z0-9_-]+/);
+      if (match) {
+        window.checkAgentSessionStatus(match[0], p.id);
+      }
+    }
   }
   /* ---------- Render: chat ---------- */
   function fit() { var t = $('#msg'); t.style.height = 'auto'; t.style.height = Math.min(160, t.scrollHeight) + 'px'; }
@@ -5063,291 +5167,19 @@ body.ws-stage-2-active .topbar {
 
     // Universal executable HTML document for the workspace
     if (f === 'index.html' || f.endsWith('/index.html') || f.endsWith('index.html')) {
-      if (promptText.includes('image') || promptText.includes('photo') || promptText.includes('art') || promptText.includes('vesper') || promptText.includes('studio')) {
-        return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
-          '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-          '  <title>Vesper Atelier — High-Fidelity Editorial AI Photography</title>\n' +
-          '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
-          '  <link rel="preconnect" href="https://fonts.googleapis.com">\n' +
-          '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
-          '  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
-          '  <style>\n' +
-          '    body { font-family: "Plus Jakarta Sans", sans-serif; background-color: #0c0d10; color: #f4f4f5; }\n' +
-          '    .serif-title { font-family: "Cinzel", serif; letter-spacing: -0.02em; }\n' +
-          '  </style>\n' +
-          '</head>\n<body class="min-h-screen bg-[#0c0d10] text-zinc-100 selection:bg-amber-500/30">\n' +
-          '  <header class="border-b border-zinc-800/80 px-8 py-5 flex items-center justify-between sticky top-0 bg-[#0c0d10]/90 backdrop-blur-md z-30">\n' +
-          '    <div class="flex items-center gap-3">\n' +
-          '      <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold serif-title">V</span>\n' +
-          '      <span class="text-xl font-bold tracking-wider serif-title">Vesper Atelier</span>\n' +
-          '    </div>\n' +
-          '    <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-400">\n' +
-          '      <a href="#showcase" class="hover:text-zinc-100 transition">Showcase</a>\n' +
-          '      <a href="#models" class="hover:text-zinc-100 transition">Engine</a>\n' +
-          '      <a href="#pricing" class="hover:text-zinc-100 transition">Atelier Pass</a>\n' +
-          '    </nav>\n' +
-          '    <div class="flex items-center gap-4">\n' +
-          '      <span class="text-xs px-3 py-1 rounded-full border border-amber-500/30 text-amber-300/90 bg-amber-500/10">FLUX.1 Ultra 4K</span>\n' +
-          '      <button class="bg-zinc-100 text-zinc-950 px-5 py-2 rounded-xl text-sm font-semibold hover:bg-zinc-200 transition shadow-lg shadow-white/5">Start Synthesizing</button>\n' +
-          '    </div>\n' +
-          '  </header>\n' +
-          '  <main class="max-w-6xl mx-auto px-6 py-16">\n' +
-          '    <div class="text-center max-w-3xl mx-auto space-y-5">\n' +
-          '      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/60 text-xs text-amber-400 tracking-widest uppercase">\n' +
-          '        <span>✦</span> Photograph-Grade AI Synthesis\n' +
-          '      </div>\n' +
-          '      <h1 class="text-5xl md:text-6xl font-normal leading-[1.15] serif-title text-zinc-50">\n' +
-          '        A sentence in.<br><span class="italic font-light text-amber-200/90">A finished image out.</span>\n' +
-          '      </h1>\n' +
-          '      <p class="text-zinc-400 text-lg leading-relaxed font-light">\n' +
-          '        Vesper Atelier turns a written description into a photograph-grade picture, in the frame you choose, ready to download in high resolution.\n' +
-          '      </p>\n' +
-          '    </div>\n' +
-          '    <div class="mt-12 bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl">\n' +
-          '      <div class="space-y-4">\n' +
-          '        <label class="block text-xs uppercase tracking-wider text-zinc-400 font-semibold">Prompt Description</label>\n' +
-          '        <div class="relative">\n' +
-          '          <textarea id="promptInput" rows="3" class="w-full bg-[#07080a] border border-zinc-800 rounded-2xl p-5 text-sm md:text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/60 transition resize-none leading-relaxed">Ethereal morning mist rising through ancient mossy stone cliffs, towering evergreen canopy, hyper-detailed natural texture, Hasselblad 80mm f/2.8 medium format photograph, volumetric light rays.</textarea>\n' +
-          '        </div>\n' +
-          '        <div class="flex flex-wrap items-center justify-between gap-4 pt-2">\n' +
-          '          <div class="flex items-center gap-2 text-xs text-zinc-400">\n' +
-          '            <span class="font-medium text-zinc-500">Aspect Ratio:</span>\n' +
-          '            <button type="button" class="px-3 py-1.5 rounded-lg border border-amber-500/50 bg-amber-500/10 text-amber-300 font-medium">16:9 Cinematic</button>\n' +
-          '            <button type="button" class="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition">1:1 Square</button>\n' +
-          '            <button type="button" class="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition">9:16 Portrait</button>\n' +
-          '          </div>\n' +
-          '          <button id="btnGenerate" onclick="generatePreview()" class="bg-gradient-to-r from-amber-400 to-amber-500 text-zinc-950 font-bold px-7 py-3 rounded-xl hover:opacity-95 transition shadow-lg shadow-amber-500/20 flex items-center gap-2">\n' +
-          '            <span>⚡ Synthesize Photograph</span>\n' +
-          '          </button>\n' +
-          '        </div>\n' +
-          '      </div>\n' +
-          '      <div class="mt-8 relative rounded-2xl overflow-hidden border border-zinc-800 bg-black aspect-[16/9] group">\n' +
-          '        <img id="mainImage" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80" alt="Vesper Atelier Masterpiece" class="w-full h-full object-cover transition duration-700 group-hover:scale-[1.02]">\n' +
-          '        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 justify-between">\n' +
-          '          <div>\n' +
-          '            <span class="text-xs uppercase tracking-widest text-amber-300 font-semibold">Render #2049 — 4K TIFF</span>\n' +
-          '            <p class="text-sm text-zinc-200 font-light mt-0.5">Atmospheric Pacific Northwest Ravine • 300 DPI</p>\n' +
-          '          </div>\n' +
-          '          <button class="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-4 py-2 rounded-xl text-xs font-medium border border-white/15 transition flex items-center gap-2">\n' +
-          '            <span>Download 4K</span>\n' +
-          '          </button>\n' +
-          '        </div>\n' +
-          '      </div>\n' +
-          '    </div>\n' +
-          '  </main>\n' +
-          '  ' + _s + '>\n' +
-          '    function generatePreview() {\n' +
-          '      const btn = document.getElementById("btnGenerate");\n' +
-          '      const img = document.getElementById("mainImage");\n' +
-          '      btn.innerHTML = "<span>Synthesizing...</span>";\n' +
-          '      btn.style.opacity = "0.7";\n' +
-          '      setTimeout(() => {\n' +
-          '        img.src = "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1600&q=80";\n' +
-          '        btn.innerHTML = "<span>⚡ Synthesize Photograph</span>";\n' +
-          '        btn.style.opacity = "1";\n' +
-          '      }, 1200);\n' +
-          '    }\n' +
-          '  ' + _e + '\n' +
-          '</body>\n</html>';
-      }
-
-      if (promptText.includes('video') || promptText.includes('film') || promptText.includes('cinema') || promptText.includes('reel') || promptText.includes('clip')) {
-        return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
-          '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-          '  <title>CineStudio AI — AI Script-to-Video Engine</title>\n' +
-          '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
-          '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
-          '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
-          '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-violet-500/30">\n' +
-          '  <header class="border-b border-slate-800/80 bg-slate-900/90 px-8 py-5 flex items-center justify-between sticky top-0 backdrop-blur-md z-30">\n' +
-          '    <div class="flex items-center gap-3">\n' +
-          '      <span class="w-8 h-8 rounded-lg bg-violet-600 text-white flex items-center justify-center font-bold">🎬</span>\n' +
-          '      <span class="text-xl font-bold tracking-tight text-white">CineStudio AI</span>\n' +
-          '    </div>\n' +
-          '    <div class="flex items-center gap-3">\n' +
-          '      <span class="text-xs px-3 py-1 rounded-full border border-violet-500/30 text-violet-300 bg-violet-500/10 font-medium">Runway Gen-3 / Sora</span>\n' +
-          '      <button class="bg-violet-600 hover:bg-violet-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">Export 4K</button>\n' +
-          '    </div>\n' +
-          '  </header>\n' +
-          '  <main class="max-w-6xl mx-auto px-6 py-12 w-full space-y-8 flex-1">\n' +
-          '    <div class="text-center max-w-2xl mx-auto space-y-3">\n' +
-          '      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Turn Scripts into Cinematic Video</h1>\n' +
-          '      <p class="text-slate-400 text-sm md:text-base">Autonomous AI video platform converting text prompts and scripts into 60fps high-definition scenes.</p>\n' +
-          '    </div>\n' +
-          '    <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur-xl space-y-6">\n' +
-          '      <div class="space-y-3">\n' +
-          '        <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Script / Scene Prompt</label>\n' +
-          '        <textarea id="videoPrompt" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-violet-500 transition">A breathtaking slow-motion drone flyover of emerald alpine peaks at sunset, cinematic lighting, 4K resolution.</textarea>\n' +
-          '      </div>\n' +
-          '      <div class="flex flex-wrap items-center justify-between gap-4">\n' +
-          '        <div class="flex items-center gap-2 text-xs">\n' +
-          '          <span class="text-slate-500">Aspect Ratio:</span>\n' +
-          '          <span class="px-3 py-1 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/30 font-medium">16:9 Cinema</span>\n' +
-          '          <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-400">9:16 Reels</span>\n' +
-          '          <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-400">1:1 Square</span>\n' +
-          '        </div>\n' +
-          '        <button id="btnGenerateVideo" onclick="generateVideo()" class="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl text-sm font-semibold transition flex items-center gap-2">\n' +
-          '          <span>⚡ Render Video Scene</span>\n' +
-          '        </button>\n' +
-          '      </div>\n' +
-          '      <div class="mt-6 aspect-video rounded-2xl border border-slate-800 bg-black overflow-hidden relative flex items-center justify-center group">\n' +
-          '        <img id="videoPreview" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80" alt="Video Preview" class="w-full h-full object-cover">\n' +
-          '        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">\n' +
-          '          <div class="w-16 h-16 rounded-full bg-violet-600/90 text-white flex items-center justify-center text-2xl shadow-xl shadow-violet-600/50 cursor-pointer group-hover:scale-110 transition">▶</div>\n' +
-          '        </div>\n' +
-          '        <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white/80 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl">\n' +
-          '          <span>Scene 1: Alpine Sunrise (00:00 / 00:05)</span>\n' +
-          '          <span class="text-emerald-400 font-semibold">1080p 60fps</span>\n' +
-          '        </div>\n' +
-          '      </div>\n' +
-          '    </div>\n' +
-          '  </main>\n' +
-          '  ' + _s + '>\n' +
-          '    function generateVideo() {\n' +
-          '      const btn = document.getElementById("btnGenerateVideo");\n' +
-          '      btn.innerHTML = "<span>Rendering 60fps...</span>";\n' +
-          '      btn.style.opacity = "0.7";\n' +
-          '      setTimeout(() => {\n' +
-          '        btn.innerHTML = "<span>⚡ Render Video Scene</span>";\n' +
-          '        btn.style.opacity = "1";\n' +
-          '      }, 1500);\n' +
-          '    }\n' +
-          '  ' + _e + '\n' +
-          '</body>\n</html>';
-      }
-
-      if (promptText.includes('chat') || promptText.includes('bot') || promptText.includes('support') || promptText.includes('whatsapp') || promptText.includes('crm')) {
-        return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
-          '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-          '  <title>OmniReply AI — Customer Support Chatbot & CRM</title>\n' +
-          '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
-          '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
-          '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
-          '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col">\n' +
-          '  <header class="border-b border-slate-800 bg-slate-900/90 px-6 py-4 flex items-center justify-between">\n' +
-          '    <div class="flex items-center gap-3">\n' +
-          '      <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">🤖</div>\n' +
-          '      <div>\n' +
-          '        <h1 class="text-base font-bold">OmniReply AI Support</h1>\n' +
-          '        <p class="text-xs text-slate-400">Omnichannel Customer Desk & CRM</p>\n' +
-          '      </div>\n' +
-          '    </div>\n' +
-          '    <div class="flex items-center gap-3">\n' +
-          '      <span class="flex items-center gap-1.5 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full font-medium">\n' +
-          '        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> AI Agent Active\n' +
-          '      </span>\n' +
-          '      <button class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Sync CRM</button>\n' +
-          '    </div>\n' +
-          '  </header>\n' +
-          '  <div class="flex-1 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 overflow-hidden">\n' +
-          '    <div class="border-r border-slate-800 bg-slate-900/40 p-4 space-y-4 col-span-1 hidden md:block">\n' +
-          '      <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Active Channels</div>\n' +
-          '      <div class="space-y-1">\n' +
-          '        <button class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 text-sm font-medium">\n' +
-          '          <span>🌐 Website Chat</span><span class="text-xs bg-indigo-500/30 px-2 py-0.5 rounded-full">3</span>\n' +
-          '        </button>\n' +
-          '        <button class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-400 text-sm">\n' +
-          '          <span>💬 WhatsApp</span><span class="text-xs bg-slate-800 px-2 py-0.5 rounded-full">1</span>\n' +
-          '        </button>\n' +
-          '        <button class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-400 text-sm">\n' +
-          '          <span>✉️ Email Desk</span><span class="text-xs bg-slate-800 px-2 py-0.5 rounded-full">4</span>\n' +
-          '        </button>\n' +
-          '      </div>\n' +
-          '      <div class="pt-4 border-t border-slate-800 text-xs uppercase tracking-wider text-slate-400 font-semibold">Inbox</div>\n' +
-          '      <div class="space-y-2">\n' +
-          '        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60 cursor-pointer">\n' +
-          '          <div class="flex items-center justify-between text-xs">\n' +
-          '            <b class="text-slate-200">Sarah Jenkins</b><span class="text-slate-500">2m ago</span>\n' +
-          '          </div>\n' +
-          '          <p class="text-xs text-slate-400 truncate mt-1">Can I change my delivery address?</p>\n' +
-          '        </div>\n' +
-          '      </div>\n' +
-          '    </div>\n' +
-          '    <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col bg-slate-950 p-6">\n' +
-          '      <div id="chatMessages" class="flex-1 overflow-y-auto space-y-4 pr-2">\n' +
-          '        <div class="flex items-start gap-3">\n' +
-          '          <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs">SJ</div>\n' +
-          '          <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-sm max-w-md">\n' +
-          '            <p>Hi! I ordered the Pro Tier annual license 10 minutes ago, but need to update my corporate tax invoice ID. Can this be done?</p>\n' +
-          '            <span class="text-[10px] text-slate-500 mt-2 block">10:42 AM via Web Chat</span>\n' +
-          '          </div>\n' +
-          '        </div>\n' +
-          '        <div class="flex items-start gap-3 justify-end">\n' +
-          '          <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-sm p-4 text-sm max-w-md shadow-lg shadow-indigo-600/20">\n' +
-          '            <p>Hello Sarah! Yes, absolutely. I checked your order #49201 in our CRM. You can input your VAT/Tax ID directly in Settings → Billing, or provide it here and I will update your invoice immediately.</p>\n' +
-          '            <span class="text-[10px] text-indigo-200 mt-2 block flex items-center gap-1">\n' +
-          '              <span>✦ OmniReply AI Assistant</span> • <span>Knowledge Base Verified</span>\n' +
-          '            </span>\n' +
-          '          </div>\n' +
-          '          <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs">🤖</div>\n' +
-          '        </div>\n' +
-          '      </div>\n' +
-          '      <form onsubmit="handleSendMessage(event)" class="mt-4 flex gap-2">\n' +
-          '        <input id="chatInput" type="text" placeholder="Type customer reply or let AI answer automatically..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500">\n' +
-          '        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-3 rounded-xl text-sm transition">Send</button>\n' +
-          '      </form>\n' +
-          '    </div>\n' +
-          '    <div class="border-l border-slate-800 bg-slate-900/40 p-5 space-y-5 col-span-1 hidden lg:block">\n' +
-          '      <div>\n' +
-          '        <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">Customer Profile</h3>\n' +
-          '        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2 text-xs">\n' +
-          '          <div class="flex justify-between"><span class="text-slate-500">Name</span><b class="text-slate-200">Sarah Jenkins</b></div>\n' +
-          '          <div class="flex justify-between"><span class="text-slate-500">Company</span><b class="text-slate-200">Apex Growth Media</b></div>\n' +
-          '          <div class="flex justify-between"><span class="text-slate-500">Plan</span><span class="text-indigo-400 font-semibold">Pro Annual ($240/yr)</span></div>\n' +
-          '        </div>\n' +
-          '      </div>\n' +
-          '    </div>\n' +
-          '  </div>\n' +
-          '  ' + _s + '>\n' +
-          '    function handleSendMessage(e) {\n' +
-          '      e.preventDefault();\n' +
-          '      const input = document.getElementById("chatInput");\n' +
-          '      const text = input.value.trim();\n' +
-          '      if (!text) return;\n' +
-          '      const container = document.getElementById("chatMessages");\n' +
-          '      const userDiv = document.createElement("div");\n' +
-          '      userDiv.className = "flex items-start gap-3 justify-end";\n' +
-          '      userDiv.innerHTML = "<div class=\\"bg-indigo-600 text-white rounded-2xl rounded-tr-sm p-4 text-sm max-w-md\\"><p>" + text + "</p><span class=\\"text-[10px] text-indigo-200 mt-2 block\\">Just now</span></div><div class=\\"w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs\\">🤖</div>";\n' +
-          '      container.appendChild(userDiv);\n' +
-          '      input.value = "";\n' +
-          '      container.scrollTop = container.scrollHeight;\n' +
-          '      setTimeout(() => {\n' +
-          '        const botDiv = document.createElement("div");\n' +
-          '        botDiv.className = "flex items-start gap-3 justify-end";\n' +
-          '        botDiv.innerHTML = "<div class=\\"bg-indigo-600 text-white rounded-2xl rounded-tr-sm p-4 text-sm max-w-md\\"><p>Thank you! Our automated omnichannel assistant has logged your query to CRM and notified the support team.</p><span class=\\"text-[10px] text-indigo-200 mt-2 block\\">✦ Automated CRM Dispatch</span></div><div class=\\"w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs\\">🤖</div>";\n' +
-          '        container.appendChild(botDiv);\n' +
-          '        container.scrollTop = container.scrollHeight;\n' +
-          '      }, 700);\n' +
-          '    }\n' +
-          '  ' + _e + '\n' +
-          '</body>\n</html>';
-      }
-
-      // Default high-end SaaS template
-      return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
+      var projTitle = (p && p.name) ? p.name : 'AI Application';
+      return '<!DOCTYPE html>\n<html lang="id">\n<head>\n' +
         '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-        '  <title>' + (p ? p.name : 'AI Platform') + '</title>\n' +
+        '  <title>' + projTitle + '</title>\n' +
         '  ' + _s + ' src="https://cdn.tailwindcss.com">' + _e + '\n' +
-        '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">\n' +
+        '  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
         '  <style>body { font-family: "Plus Jakarta Sans", sans-serif; }</style>\n' +
-        '</head>\n<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">\n' +
-        '  <header class="border-b border-slate-800 px-8 py-5 flex items-center justify-between">\n' +
-        '    <div class="flex items-center gap-3">\n' +
-        '      <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">✦</span>\n' +
-        '      <span class="text-xl font-bold">' + (p ? p.name : 'AI SaaS Studio') + '</span>\n' +
-        '    </div>\n' +
-        '    <div class="flex items-center gap-3">\n' +
-        '      <span class="px-3 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Edge Ready</span>\n' +
-        '      <button class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-500 transition">Get Started</button>\n' +
-        '    </div>\n' +
-        '  </header>\n' +
-        '  <main class="max-w-4xl mx-auto px-6 py-16 text-center space-y-6">\n' +
-        '    <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">' + (p ? p.name : 'Welcome to Your Platform') + '</h1>\n' +
-        '    <p class="text-slate-400 text-lg max-w-2xl mx-auto">Full-stack autonomous AI cloud application with Edge D1 persistence, Trigger.dev background pipelines, and Composio multi-tenancy.</p>\n' +
-        '  </main>\n' +
-        '  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">\n' +
-        '    &copy; 2026 ' + (p ? p.name : 'Runnerflo') + ' &bull; Powered by Claude Sonnet 5.5\n' +
-        '  </footer>\n' +
+        '</head>\n<body class="min-h-screen bg-slate-50 text-slate-800 flex items-center justify-center p-6">\n' +
+        '  <div class="max-w-md w-full bg-white rounded-2xl shadow-lg border border-slate-200/80 p-8 text-center space-y-4">\n' +
+        '    <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold">⚡</div>\n' +
+        '    <h2 class="text-xl font-bold text-slate-900">' + projTitle + '</h2>\n' +
+        '    <p class="text-sm text-slate-500">Ketik instruksi di chat untuk mulai membuat aplikasi Anda dengan Claude Sonnet 5.5 Managed Agent.</p>\n' +
+        '  </div>\n' +
         '</body>\n</html>';
     }
 
@@ -6498,6 +6330,15 @@ body.ws-stage-2-active .topbar {
   render();
   updateWsStageUI();
 
+  // Auto-check active session if current project has a session pending
+  var cp = cur();
+  if (cp && !cp.claudePreviewHtml) {
+    var sm = JSON.stringify(cp.msgs || []).match(/sesn_[a-zA-Z0-9_-]+/);
+    if (sm) {
+      window.checkAgentSessionStatus(sm[0], cp.id);
+    }
+  }
+
   // Auto-start project if prompt passed from landing page (?q=...)
   try {
     var up = new URLSearchParams(window.location.search);
@@ -6512,7 +6353,7 @@ body.ws-stage-2-active .topbar {
       uiMode = 'live';
       save();
       render();
-  updateWsStageUI();
+      updateWsStageUI();
       setTimeout(function () {
         send(initialQuery);
       }, 450);

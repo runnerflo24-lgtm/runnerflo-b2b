@@ -267,10 +267,13 @@ export async function onRequest(context) {
     }
 
     // Check if user is asking to build a brand new application from scratch
-    const isNewAppRequest = /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(userText) ||
+    const isNewAppRequest = /^\s*(?:build|create|make|buat|buatkan|bikin|bikinkan|generate|rancang|desain)\b/i.test(userText) ||
+      /(?:buatkan|bikinkan|bikin)\s+(?:saas|web|aplikasi|game|landing|app|platform)\b/i.test(userText) ||
       body.isNewApp === true ||
       body.reason === 'new_project' ||
-      body.reason === 'from_scratch';
+      body.reason === 'from_scratch' ||
+      !fileIndex['index.html'] ||
+      (fileIndex['index.html'] && (fileIndex['index.html'].includes('Vesper Atelier') || fileIndex['index.html'].includes('CineStudio')));
 
     // Determine if we are editing an existing application
     let isEditingExisting = false;
@@ -835,16 +838,20 @@ async function connectApp(app) {
 
       if (maAgentId && maEnvId) {
         // Build instruction prompt for Managed Agent session
+        const existingCodeSnippet = isNewAppRequest
+          ? 'PROJECT MODE: Brand new application requested from zero. DO NOT use, copy, or mimic any previous project layout, Vesper Atelier, or CineStudio. Design a 100% original, domain-specific UI.'
+          : `CURRENT index.html (${fileIndex['index.html'] ? fileIndex['index.html'].length : 0} bytes):\n${(fileIndex['index.html'] || '').slice(0, 14000)}`;
+
         const maPrompt = `${systemPrompt}
 
 PROJECT: "${projectName}"
 USER INSTRUCTION: "${userText}"
-CURRENT index.html (${fileIndex['index.html'] ? fileIndex['index.html'].length : 0} bytes):
-${(fileIndex['index.html'] || '').slice(0, 14000)}
+${existingCodeSnippet}
 
 THEME & COLOR DIRECTIVE:
 - DO NOT default or force dark mode (#0c0d10 or dark theme) unless the user explicitly requested a dark theme!
 - If the user asks for a light theme, clean theme, vibrant colors, game arcade, or SaaS, use modern high-contrast clean palettes (white, slate-50, or modern vivid accents).
+- Make the layout completely bespoke and unique to "${userText}". NEVER copy or resemble Vesper Atelier or CineStudio.
 - Always match the user's requested style or reference image.
 
 MULTI-FILE DEPLOYABLE REQUIREMENT:
