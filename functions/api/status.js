@@ -11,6 +11,9 @@ export async function onRequest(context) {
 
   const hasTotalum = Boolean(env && (env.TOTALUM_API_KEY || env.TOTALUM_KEY || env.TLM_API_KEY));
   const hasAnthropic = Boolean(env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY));
+  const anthropicPrefix = (env && (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY))
+    ? (env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY || env.ANTHROPIC_KEY).slice(0, 12) + '...'
+    : 'none';
   const hasVertex = Boolean(env && (env.VERTEX_PROJECT_ID || env.VERTEX_API_KEY || env.GOOGLE_ACCESS_TOKEN));
   const hasGemini = Boolean(env && (env.GEMINI_API_KEY || env.GOOGLE_API_KEY || env.GEMINI_KEY));
   const hasOpenAI = Boolean(env && env.OPENAI_API_KEY);
@@ -25,6 +28,7 @@ export async function onRequest(context) {
     project: 'runnerflo-b2b',
     totalum: hasTotalum,
     anthropic: hasAnthropic,
+    anthropicPrefix: anthropicPrefix,
     vertex: hasVertex,
     gemini: hasGemini,
     openai: hasOpenAI,
