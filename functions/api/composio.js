@@ -42,6 +42,14 @@ export async function onRequest(context) {
   // Pre-configured popular SaaS catalog for instant zero-latency UI rendering
   const POPULAR_APPS = [
     {
+      id: 'google',
+      name: 'Google Workspace & Sign-In',
+      category: 'Authentication & SSO',
+      icon: '🌐',
+      description: 'Zero-config Google OAuth sign-in, account authentication, and Google Workspace connection via Composio Managed Apps.',
+      popularActions: ['GOOGLE_SIGN_IN', 'GOOGLE_GET_PROFILE', 'GOOGLE_VERIFY_TOKEN']
+    },
+    {
       id: 'gmail',
       name: 'Gmail',
       category: 'Email & Communication',
@@ -170,7 +178,10 @@ export async function onRequest(context) {
 
     // 3. Initiate Connection (Generate OAuth Connect URL for specific tenant)
     if (action === 'connect-url' || action === 'initiate') {
-      const targetApp = (appName || body.appName || 'slack').toLowerCase();
+      let targetApp = (appName || body.appName || 'google').toLowerCase();
+      if (targetApp.includes('google') && !targetApp.includes('sheets') && !targetApp.includes('drive')) {
+        targetApp = 'google';
+      }
       const redirectUri = body.redirectUri || url.searchParams.get('redirectUri') || 'https://runnerflo-b2b.pages.dev/Agent%20Workspace?composio_connected=1';
 
       if (composioKey) {

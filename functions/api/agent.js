@@ -402,12 +402,35 @@ THE 4 UNIVERSAL ENGINES (COVERS >95% OF ALL SAAS APIS):
 4. Engine 4: fal.ai (State-of-the-art fast diffusion: Kling, Wan2.1, Flux, Hunyuan Video, fast 3D)
    Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'fal', model: 'fal-ai/...', input: { ... } }) })
 
-LANGSMITH MANAGED DEEP AGENT & COMPOSIO INTEGRATION:
+LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
 - LangSmith Deep Agent Engine: For multi-step autonomous agent runs, state persistence, and tenant thread isolation:
   Call: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) })
-- Composio Multi-Tenant OAuth: For connecting end-client accounts (Google, Slack, Notion, GitHub, Stripe):
-  Call: fetch('/api/composio', { method: 'POST', body: JSON.stringify({ entityId: '${projectName}', action: 'execute', ... }) })
-- Tenant Database & Isolation: Leverage Cloudflare OAuth / Access headers and tenant slugs ("/app/${projectName}").
+
+- COMPOSIO MANAGED APPS GOOGLE OAUTH (MANDATORY PATTERN FOR ALL GENERATED PAAS):
+  Every generated PaaS that needs user login, authentication, or workspace integrations MUST use Composio Managed Auth.
+  DO NOT ask end-users for Google Cloud Client IDs or Secrets! Composio Managed Apps handles Google OAuth automatically.
+  Inject this exact client-side code into the generated application for Google Sign-In & Workspace connection:
+  \`\`\`javascript
+  // 1. Initiate Google OAuth via Composio Managed Apps:
+  async function loginWithGoogle() {
+    const tenantId = window.TENANT_ID || '${projectName}';
+    const redirectUri = window.location.href;
+    const res = await fetch('/api/composio?action=connect-url&app=google&entityId=' + encodeURIComponent(tenantId) + '&redirectUri=' + encodeURIComponent(redirectUri));
+    const data = await res.json();
+    if (data.connectUrl) { window.location.href = data.connectUrl; }
+  }
+
+  // 2. Check if tenant already has an active Google connection:
+  async function checkGoogleConnection() {
+    const tenantId = window.TENANT_ID || '${projectName}';
+    const res = await fetch('/api/composio?action=connections&entityId=' + encodeURIComponent(tenantId));
+    const data = await res.json();
+    return Boolean(data.connections && data.connections.some(c => c.appName.toLowerCase().includes('google') || c.status === 'ACTIVE'));
+  }
+  \`\`\`
+  In the UI, render a high-converting "Continue with Google" button (<button onclick="loginWithGoogle()">Continue with Google</button>) alongside other features.
+
+- Tenant Database & Isolation: Leverage Cloudflare OAuth / Access headers, tenant IDs, and tenant slugs ("/app/${projectName}").
 
 ABSOLUTE NO-BYOK (BRING YOUR OWN KEY) MANDATE:
 - NEVER output UI forms asking end-users to input API keys (e.g. <input placeholder="Enter API Key">). That is strictly prohibited!
@@ -1100,7 +1123,12 @@ NEVER make direct calls to external APIs, and NEVER output forms asking end-user
 2. Replicate (AI Video, Multimodal): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'replicate', model: '...', input: { ... } }) })
 3. WaveSpeed (Real-time edge video & avatar): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'wavespeed', model: '...', input: { ... } }) })
 4. fal.ai (Kling, Wan2.1, Flux diffusion, 3D): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'fal', model: '...', input: { ... } }) })
-5. LangSmith Managed Deep Agent & Composio: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) }) and Composio OAuth at "/api/composio". Tenant isolation is enforced via Cloudflare OAuth and tenant IDs.
+5. LangSmith Managed Deep Agent & Composio Managed Google OAuth:
+   - Deep Agent Runs: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) })
+   - Composio Managed Google OAuth: When the generated PaaS needs user sign-in or Google Workspace integration, use Composio Managed Auth (DO NOT ask users for Google Cloud credentials). Inject:
+     \`async function loginWithGoogle() { const res = await fetch('/api/composio?action=connect-url&app=google&entityId=${projectName}&redirectUri=' + encodeURIComponent(window.location.href)); const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl; }\`
+     And render a "Continue with Google" button in the PaaS navigation / auth modal.
+   - Tenant isolation is enforced via Cloudflare OAuth and tenant IDs.
 
 PROJECT: "${projectName}"
 USER INSTRUCTION: "${userText}"
