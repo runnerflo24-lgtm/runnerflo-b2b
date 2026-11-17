@@ -22,16 +22,20 @@ export async function onRequest(context) {
       openrouter: Boolean(env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY)),
       fal: Boolean(env && (env.FAL_KEY || env.FAL_API_KEY)),
       replicate: Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY)),
-      wavespeed: Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY))
+      wavespeed: Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY)),
+      langsmith: Boolean(env && (env.LANGSMITH_API_KEY || env.LANGCHAIN_API_KEY || env.LANGSMITH_KEY)),
+      composio: Boolean(env && (env.COMPOSIO_API_KEY || env.COMPOSIO_KEY))
     };
 
     return new Response(JSON.stringify({
       ok: true,
-      service: 'Runnerflo Central AI API Gateway',
-      version: '2026.1',
+      service: 'Runnerflo Meta-PaaS Central AI & Agent Gateway',
+      version: '2026.2',
       activeProviders: keys,
-      allReady: keys.openrouter && keys.fal && keys.replicate && keys.wavespeed,
-      message: 'Gateway active. Forwarding inference calls to OpenRouter, fal.ai, Replicate, and WaveSpeed.'
+      core4Ready: keys.openrouter && keys.fal && keys.replicate && keys.wavespeed,
+      langsmithReady: keys.langsmith,
+      composioReady: keys.composio,
+      message: 'Meta-PaaS Central Gateway active. All child PaaS platforms route exclusively to Runnerflo.'
     }, null, 2), { status: 200, headers: corsHeaders });
   }
 

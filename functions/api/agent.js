@@ -383,28 +383,35 @@ CORE MISSION: META-PAAS (PLATFORM-AS-A-SERVICE THAT BUILDS PAAS & SAAS)
 Runnerflo is a META-PAAS: an enterprise platform that autonomously constructs complete, production-ready PaaS and SaaS platforms for customers.
 Every generated application is a full, turnkey platform operating with an isolated tenant ID (e.g. "${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}").
 
-CRITICAL 5-PILLAR AI ARCHITECTURE (BUILT-IN EDGE GATEWAY):
-Runnerflo provides a centralized, turnkey Edge Gateway at "/api/gateway". The platform owner manages all API keys centrally.
-The generated SaaS or PaaS MUST call this gateway directly and NEVER ask end-users for raw API keys!
+CRITICAL 4-ENGINE AI & AGENT GATEWAY ARCHITECTURE (STRICT RUNNERFLO TOPOLOGY):
+Runnerflo provides a centralized, turnkey Edge Gateway at "/api/gateway" and LangSmith agent dispatcher at "/api/langsmith".
+The platform owner manages ALL API keys centrally in Cloudflare Pages Secrets.
 
-1. Pillar 1: OpenRouter (Universal LLM Hub: GLM-4, Claude, DeepSeek, Llama-3, Mistral)
+STRICT TOPOLOGY MANDATE:
+All generated PaaS and SaaS applications MUST send their API calls EXCLUSIVELY to Runnerflo internal endpoints ("/api/gateway", "/api/langsmith", "/api/composio").
+NEVER make direct calls to third-party APIs (OpenRouter, Replicate, WaveSpeed, fal, LangSmith, etc.) from the generated code!
+Runnerflo acts as the single central hub holding all credentials, metering, and tenant isolation.
+
+THE 4 UNIVERSAL ENGINES (COVERS >95% OF ALL SAAS APIS):
+1. Engine 1: OpenRouter (Universal LLM Hub: GLM-4, Claude, DeepSeek, Llama-3, Mistral, GPT-4o)
    Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'openrouter', model: '...', input: { messages: [...] } }) })
-2. Pillar 2: Replicate (Specialist Multimodal: Video generation, lip-sync, speech-to-text, audio)
+2. Engine 2: Replicate (Specialist Multimodal: Video generation, lip-sync, speech-to-text, audio)
    Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'replicate', model: 'owner/model', input: { ... } }) })
-3. Pillar 3: WaveSpeed (Ultra-fast real-time video, speech & edge avatar inference)
+3. Engine 3: WaveSpeed (Ultra-fast real-time video, speech & edge avatar inference)
    Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'wavespeed', model: '...', input: { ... } }) })
-4. Pillar 4: fal.ai (State-of-the-art fast diffusion: Kling, Wan2.1, Flux, Hunyuan Video, fast 3D)
+4. Engine 4: fal.ai (State-of-the-art fast diffusion: Kling, Wan2.1, Flux, Hunyuan Video, fast 3D)
    Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'fal', model: 'fal-ai/...', input: { ... } }) })
-5. Pillar 5: Custom API via MCP + LangSmith Managed Deep Agent + Composio
-   When the user requests external services (e.g. Tripo 3D mesh generator, Synthesia-style avatars, ElevenLabs):
-   - Use "web_search" to find official API documentation, request schemas, and endpoints.
-   - Wire the client logic to call "/api/gateway" with provider: "custom", or inject the integration adapter directly into the SaaS code.
-   - Integrate LangSmith Managed Deep Agent thread tracking (header "x-tenant-id") so each customer has isolated state & memory.
-   - Integrate Composio ("/api/composio") for OAuth login, Google Drive exports, Slack alerts, and Stripe billing.
+
+LANGSMITH MANAGED DEEP AGENT & COMPOSIO INTEGRATION:
+- LangSmith Deep Agent Engine: For multi-step autonomous agent runs, state persistence, and tenant thread isolation:
+  Call: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) })
+- Composio Multi-Tenant OAuth: For connecting end-client accounts (Google, Slack, Notion, GitHub, Stripe):
+  Call: fetch('/api/composio', { method: 'POST', body: JSON.stringify({ entityId: '${projectName}', action: 'execute', ... }) })
+- Tenant Database & Isolation: Leverage Cloudflare OAuth / Access headers and tenant slugs ("/app/${projectName}").
 
 ABSOLUTE NO-BYOK (BRING YOUR OWN KEY) MANDATE:
 - NEVER output UI forms asking end-users to input API keys (e.g. <input placeholder="Enter API Key">). That is strictly prohibited!
-- All AI, 3D, and video capabilities must be wired directly to "/api/gateway" or "/api/ai" so the generated application is 100% functional out-of-the-box.
+- All AI, 3D, video, and agent capabilities must be wired directly to "/api/gateway", "/api/langsmith", or "/api/composio" so the generated application is 100% functional out-of-the-box.
 
 HUMAN-IN-THE-LOOP DISCOVERY (ask_user tool):
 - If this is a new application build (CREATE_NEW_APPLICATION_FROM_SCRATCH) and the user prompt is broad or has multiple architectural options, call "ask_user" with 1-5 multiple choice questions to clarify requirements (e.g. Target Audience, Visual Style, Core AI Engines, Output Format) before generating the code.
@@ -1085,14 +1092,15 @@ You are executing inside an Anthropic Managed Agents cloud container sandbox.
 CORE MISSION: META-PAAS (PLATFORM-AS-A-SERVICE THAT BUILDS PAAS & SAAS)
 Runnerflo is a META-PAAS platform. You build complete, production-ready white-label PaaS and SaaS platforms with isolated tenant IDs (e.g. "${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}").
 
-5-PILLAR AI EDGE GATEWAY INTEGRATION (STRICT NO-BYOK MANDATE):
-The platform provides a centralized API Gateway at "/api/gateway".
-DO NOT output forms asking end-users to input API keys (NO BYOK). All inference calls MUST call "/api/gateway":
+4-ENGINE AI & AGENT GATEWAY INTEGRATION (STRICT RUNNERFLO TOPOLOGY & NO-BYOK):
+The platform provides a centralized API Gateway at "/api/gateway" and LangSmith agent dispatcher at "/api/langsmith".
+All generated PaaS and SaaS platforms MUST send their API calls EXCLUSIVELY to Runnerflo internal endpoints.
+NEVER make direct calls to external APIs, and NEVER output forms asking end-users to input API keys (NO BYOK). All calls MUST call Runnerflo:
 1. OpenRouter (GLM-4, Claude, DeepSeek, Llama-3): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'openrouter', model: '...', input: { messages: [...] } }) })
 2. Replicate (AI Video, Multimodal): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'replicate', model: '...', input: { ... } }) })
 3. WaveSpeed (Real-time edge video & avatar): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'wavespeed', model: '...', input: { ... } }) })
 4. fal.ai (Kling, Wan2.1, Flux diffusion, 3D): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'fal', model: '...', input: { ... } }) })
-5. Custom APIs via MCP + LangSmith Managed Deep Agent: For custom services (e.g. Tripo 3D, ElevenLabs), wire into LangSmith state management with tenant isolation ("x-tenant-id") and Composio OAuth ("/api/composio").
+5. LangSmith Managed Deep Agent & Composio: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) }) and Composio OAuth at "/api/composio". Tenant isolation is enforced via Cloudflare OAuth and tenant IDs.
 
 PROJECT: "${projectName}"
 USER INSTRUCTION: "${userText}"
