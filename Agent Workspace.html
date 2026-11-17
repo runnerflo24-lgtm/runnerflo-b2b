@@ -1316,14 +1316,6 @@ body.ws-stage-2-active .topbar {
     <a href="index.html" class="brand" title="Return to Home" style="text-decoration:none;color:inherit"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8L10 3Zm8 9l.9 2.6 2.6.9-2.6.9L18 19l-.9-2.6-2.6-.9 2.6-.9L18 12Z"/></svg></i><span>Runnerflo Workspace</span></a>
     <div class="tabs" id="tabs" role="tablist" aria-label="Open projects"></div>
     <button class="newtab" type="button" id="newTab" aria-label="New project"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button type="button" id="btnHistory" class="btn-topbar-history" onclick="window.openHistoryModal()" title="Project History &amp; Switcher">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>History</span>
-    </button>
-    <button type="button" class="btn-topbar-history" onclick="window.openSnapshotModal()" title="Rollback to previous version" style="margin-left:4px">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      <span>Rollback</span>
-    </button>
     <span class="spacer"></span>
     <span class="plan" id="topPlanBadge">Pro Workspace</span>
     <span class="me-av" aria-hidden="true">NW</span>
@@ -5171,6 +5163,32 @@ body.ws-stage-2-active .topbar {
   function fit() { var t = $('#msg'); t.style.height = 'auto'; t.style.height = Math.min(160, t.scrollHeight) + 'px'; }
   function updSend() { var p = cur(); $('#send').classList.toggle('ready', $('#msg').value.trim().length > 0 && !(p && p.busy)); }
   function nearBottom(el) { return el.scrollHeight - el.scrollTop - el.clientHeight < 40; }
+  function formatChatInline(s) {
+    if (!s) return '';
+    var out = esc(s);
+    // Bold **text**
+    out = out.replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--fg);font-weight:600">$1</strong>');
+    // Italic *text*
+    out = out.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+    // Inline code `code`
+    out = out.replace(/`([^`]+)`/g, '<code style="background:rgba(99,102,241,0.08);color:#4f46e5;padding:1px 5px;border-radius:4px;font-size:12px;font-family:monospace">$1</code>');
+    return out;
+  }
+
+  function formatChatMessage(text) {
+    if (!text) return '';
+    return text.split('\n\n').map(function (para) {
+      var p = para.trim();
+      if (!p) return '';
+      // Blockquotes with "> "
+      if (p.indexOf('&gt;') === 0 || p.indexOf('>') === 0) {
+        var cleanQuote = p.replace(/^(&gt;|>)\s*/gm, '');
+        return '<blockquote style="border-left:3px solid var(--accent);margin:6px 0;padding:5px 12px;background:rgba(99,102,241,0.05);border-radius:0 8px 8px 0;font-size:12.5px;color:var(--fg)">' + formatChatInline(cleanQuote) + '</blockquote>';
+      }
+      return '<p style="margin:4px 0">' + formatChatInline(p).replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+  }
+
   function renderThread() {
     var p = cur(), th = $('#thread'); if (!p) return;
     var stick = nearBottom(th), h = '';
@@ -5189,7 +5207,7 @@ body.ws-stage-2-active .topbar {
            + '</div>';
         return;
       }
-      var body = m.text.split('\n\n').map(function (x) { return '<p>' + esc(x).replace(/\n/g, '<br>') + '</p>'; }).join('');
+      var body = formatChatMessage(m.text);
       if (m.progressHtml) body += m.progressHtml;
       if (m.steps && m.steps.length) body += '<ul class="steps">' + m.steps.map(function (s) { return '<li class="' + (s.done ? 'done' : '') + '"><span class="ck">' + (s.done ? I.check : '') + '</span>' + esc(s.label) + '</li>'; }).join('') + '</ul>';
       if (m.actionHtml) body += m.actionHtml;

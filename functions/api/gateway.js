@@ -258,8 +258,58 @@ export async function onRequest(context) {
       }), { status: wsRes.ok ? 200 : wsRes.status, headers: corsHeaders });
     }
 
+    // ─── 5. Custom API Proxy / LangSmith Deep Agent Dispatcher ──────────────
+    if (provider === 'custom' || provider === 'tripo3d' || provider === 'langsmith') {
+      const endpoint = body.endpoint || body.url || '';
+      const method = (body.method || 'POST').toUpperCase();
+      const customHeaders = body.headers || {};
+      const customPayload = body.payload || input;
+      const tenantId = body.tenantId || request.headers.get('x-tenant-id') || 'default-tenant';
+
+      // LangSmith tracing & state headers
+      const langsmithKey = env && (env.LANGSMITH_API_KEY || env.LANGCHAIN_API_KEY);
+      if (langsmithKey) {
+        customHeaders['x-api-key'] = langsmithKey;
+      }
+
+      // Tripo 3D integration
+      if (endpoint.includes('tripo3d') || provider === 'tripo3d' || model.includes('tripo')) {
+        const tripoKey = env && (env.TRIPO3D_API_KEY || env.TRIPO_KEY || env.TRIPO_API_KEY);
+        if (tripoKey) {
+          customHeaders['Authorization'] = `Bearer ${tripoKey}`;
+        }
+      }
+
+      if (endpoint && endpoint.startsWith('http')) {
+        const customRes = await fetch(endpoint, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'x-tenant-id': tenantId,
+            ...customHeaders
+          },
+          body: method !== 'GET' ? JSON.stringify(customPayload) : undefined
+        });
+        const customData = await customRes.json().catch(() => ({ status: customRes.status }));
+        return new Response(JSON.stringify({
+          ok: customRes.ok,
+          provider: provider || 'custom',
+          tenantId,
+          result: customData
+        }), { status: customRes.ok ? 200 : customRes.status, headers: corsHeaders });
+      }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        provider: provider || 'custom',
+        tenantId,
+        message: 'Custom Meta-PaaS API gateway routed successfully.',
+        data: customPayload
+      }), { status: 200, headers: corsHeaders });
+    }
+
     return new Response(JSON.stringify({
-      error: `Unknown provider: "${provider}". Supported: openrouter, fal, replicate, wavespeed.`
+      error: `Unknown provider: "${provider}". Supported: openrouter, fal, replicate, wavespeed, custom, tripo3d, langsmith.`
     }), { status: 400, headers: corsHeaders });
 
   } catch (err) {
