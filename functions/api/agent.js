@@ -870,9 +870,6 @@ async function connectApp(app) {
         };
       }
 
-      return { error: `Unknown tool: ${toolName}` };
-    }
-
       // web_search: DuckDuckGo instant answers
       if (toolName === 'web_search') {
         const query = toolInput.query || '';
@@ -907,6 +904,9 @@ async function connectApp(app) {
       if (toolName === 'ask_user') {
         return { __ask_user__: true, questions: toolInput.questions || [], intro: toolInput.intro || 'Before I start, a few quick questions to make sure I build exactly what you need:' };
       }
+
+      return { error: `Unknown tool: ${toolName}` };
+    }
 
     // ─── Model selection with dynamic discovery ──────────────────────────────
     let discoveredModels = [];
