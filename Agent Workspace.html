@@ -1320,6 +1320,10 @@ body.ws-stage-2-active .topbar {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>History</span>
     </button>
+    <button type="button" class="btn-topbar-history" onclick="window.openSnapshotModal()" title="Rollback to previous version" style="margin-left:4px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      <span>Rollback</span>
+    </button>
     <span class="spacer"></span>
     <span class="plan" id="topPlanBadge">Pro Workspace</span>
     <span class="me-av" aria-hidden="true">NW</span>
@@ -1771,6 +1775,20 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
+<!-- Snapshot / Rollback Modal -->
+<div id="modalSnapshot" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;width:520px;max-width:95vw;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e2e8f0">
+      <div style="font-weight:700;font-size:16px;color:#1e293b">↩ Rollback — Version Snapshots</div>
+      <button type="button" onclick="document.getElementById('modalSnapshot').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;line-height:1">&times;</button>
+    </div>
+    <div id="snapshotList" style="flex:1;overflow-y:auto;padding:12px 20px"></div>
+    <div style="padding:12px 20px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end">
+      <button type="button" onclick="document.getElementById('modalSnapshot').style.display='none'" style="padding:7px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#374151;cursor:pointer;font-size:13px">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -1856,7 +1874,9 @@ body.ws-stage-2-active .topbar {
       totalumLiveUrl: '',
       totalumPublished: false,
       totalumCreditsSpent: 0,
-      customDomain: ''
+      customDomain: '',
+      codeSnapshots: [],
+      activeSessionId: null
     };
   }
   function seed() {
@@ -3491,7 +3511,8 @@ body.ws-stage-2-active .topbar {
         history: history,
         reason: reason || 'manual',
         image: attachedImg ? { data: attachedImg.data, mimeType: attachedImg.mimeType } : null,
-        isNewApp: /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text)
+        isNewApp: /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text),
+        activeSessionId: p.activeSessionId || null
       })
     })
     .then(function(res) {
@@ -3510,6 +3531,20 @@ body.ws-stage-2-active .topbar {
         var p = proj(targetProjectId) || p;
         p.busy = false;
         m.steps.forEach(function(s) { s.done = true; });
+
+        // AUTO-SNAPSHOT: Save current code before overwriting so user can always rollback
+        if (p.claudePreviewHtml && p.claudePreviewHtml.length > 100) {
+          if (!p.codeSnapshots) p.codeSnapshots = [];
+          p.codeSnapshots.push({
+            version: p.codeSnapshots.length + 1,
+            html: p.claudePreviewHtml,
+            files: JSON.parse(JSON.stringify(p.projectCodeFiles || [])),
+            ts: Date.now(),
+            label: 'v' + (p.codeSnapshots.length + 1) + ' — before: ' + (text || 'edit').slice(0, 40)
+          });
+          // Keep only last 10 snapshots
+          if (p.codeSnapshots.length > 10) p.codeSnapshots = p.codeSnapshots.slice(-10);
+        }
 
         if (Array.isArray(resData.steps)) {
           resData.steps.forEach(function(st) {
@@ -3647,12 +3682,41 @@ body.ws-stage-2-active .topbar {
         toast('⚡ Claude Managed Agent completed task successfully!');
       }
 
+      // Handle clarification questions from Claude (ask_user tool)
+      if (data && data.status === 'needs_clarification') {
+        clearInterval(progressTicker);
+        p.busy = false;
+        finishWave();
+        var intro = data.intro || 'Before generating, I have a few quick questions:';
+        var qHtml = '<div class="rf-clarify-box" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px;margin-top:8px">' +
+          '<div style="font-weight:600;margin-bottom:12px;color:#1e293b">🤔 ' + intro + '</div>';
+        (data.questions || []).forEach(function(q, qi) {
+          qHtml += '<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:500;color:#374151;margin-bottom:6px">' + (qi+1) + '. ' + q.question + '</div>';
+          qHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+          (q.options || []).forEach(function(opt) {
+            qHtml += '<button type="button" onclick="window.selectClarification(' + qi + ',this,\'' + opt.replace(/'/g,"&#39;") + '\')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #cbd5e1;background:#fff;font-size:12px;cursor:pointer;transition:all 0.15s" class="rf-clar-opt">' + opt + '</button>';
+          });
+          qHtml += '</div></div>';
+        });
+        qHtml += '<div style="display:flex;gap:8px;margin-top:14px">' +
+          '<button type="button" onclick="window.submitClarification()" style="padding:7px 16px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">✅ Submit Answers</button>' +
+          '<button type="button" onclick="window.skipClarification()" style="padding:7px 16px;background:#f1f5f9;color:#374151;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;cursor:pointer">⚡ Skip & Generate Now</button>' +
+          '</div></div>';
+        m.text = '**Claude wants to clarify a few things before building:**';
+        m.actionHtml = qHtml;
+        // Store original text and p.id for when user submits
+        window._clarifyCtx = { text: text, projectId: targetProjectId, reason: reason, attachedImg: attachedImg };
+        window._clarifyAnswers = {};
+        save(); renderChat(); renderTabs();
+        return;
+      }
+
       // Handle async polling for Claude Managed Agents session
       if (data && data.status === 'running' && data.sessionId) {
         p.activeSessionId = data.sessionId;
         save();
-        updateWave(50, 'Claude Sonnet 5.5: Menghubungkan ke cloud sandbox...', 'Sesi: ' + data.sessionId);
-        m.text = '⚡ **Claude Managed Agents (Hosted Anthropic Harness — Sonnet 5.5):** Sesi Aktif `' + data.sessionId + '`\nSedang menjalankan perancangan dan sintesis aplikasi di cloud sandbox container...';
+        updateWave(50, 'Claude Sonnet 5.5: Connecting to cloud sandbox...', 'Session: ' + data.sessionId);
+        m.text = '⚡ **Claude Managed Agents (Hosted Anthropic Harness — Sonnet 5.5):** Active Session `' + data.sessionId + '`\nRunning application design & synthesis in cloud sandbox container...' + (data.sessionWasReused ? '\n\n♻️ *Session continuity active — Claude remembers your full project history.*' : '');
         renderIf(p);
         var pollAttempts = 0;
         var pollTimer = setInterval(function() {
@@ -3661,8 +3725,8 @@ body.ws-stage-2-active .topbar {
           if (my !== runId || !p.busy || pollAttempts > 200) {
             clearInterval(pollTimer);
             if (pollAttempts > 200) {
-              m.text += '\n\n⚠️ Sesi pembuatan masih berlangsung di cloud sandbox.';
-              m.actionHtml = '<div style="margin-top:12px"><button type="button" class="rf-btn rf-btn-primary" onclick="window.checkAgentSessionStatus(\'' + data.sessionId + '\')">🔄 Periksa & Muat Hasil Selesai</button></div>';
+              m.text += '\n\n⚠️ Session is still running in cloud sandbox.';
+              m.actionHtml = '<div style="margin-top:12px"><button type="button" class="rf-btn rf-btn-primary" onclick="window.checkAgentSessionStatus(\'' + data.sessionId + '\')">🔄 Check & Load Completed Result</button></div>';
               p.busy = false;
               finishWave();
               renderChat();
@@ -3680,13 +3744,13 @@ body.ws-stage-2-active .topbar {
               dynamicPct = pollRes.progressEstimate;
             }
 
-            // 2. Map status to human-friendly Indonesian label
+            // 2. Map status to human-friendly label
             var friendlyLabel = pollRes.friendlyStatus ||
-              (pollRes.latestEventType === 'agent.thinking' ? 'Claude Sonnet 5.5 sedang merancang logika game, sound & UI...' :
-              (pollRes.latestEventType === 'agent.message' ? 'Menulis kode HTML5, CSS & JavaScript interaktif...' :
-              'Memproses aplikasi di cloud sandbox...'));
+              (pollRes.latestEventType === 'agent.thinking' ? 'Claude Sonnet 5.5 designing logic, sound & UI...' :
+              (pollRes.latestEventType === 'agent.message' ? 'Writing HTML5, CSS & interactive JavaScript...' :
+              'Processing application in cloud sandbox...'));
 
-            updateWave(dynamicPct, friendlyLabel, 'Progress: ' + dynamicPct + '% • Cloud Sandbox Container Aktif (' + pollAttempts + 's)');
+            updateWave(dynamicPct, friendlyLabel, 'Progress: ' + dynamicPct + '% • Cloud Sandbox Active (' + pollAttempts + 's)');
 
             // 3. Live Code Streaming: update p.projectCodeFiles while session is generating
             var partialList = pollRes.partialFiles || pollRes.modifiedFiles;
@@ -3727,7 +3791,7 @@ body.ws-stage-2-active .topbar {
             // 4. Session completion: ONLY trigger when Claude has actually finished
             if (pollRes.status === 'done') {
               clearInterval(pollTimer);
-              p.activeSessionId = null;
+              // Keep activeSessionId so follow-up messages reuse the same session
               applyAgentResults(pollRes);
             }
           })
@@ -3754,6 +3818,127 @@ body.ws-stage-2-active .topbar {
     });
   }
   window.runClaudeFallbackAgent = runClaudeFallbackAgent;
+
+  // ─── Snapshot / Rollback ────────────────────────────────────────────────────
+  window.openSnapshotModal = function() {
+    var p = cur(); if (!p) return;
+    var snaps = p.codeSnapshots || [];
+    var el = document.getElementById('modalSnapshot');
+    if (!el) return;
+    var html = snaps.length === 0
+      ? '<p style="color:#64748b;text-align:center;padding:24px">No snapshots yet. Snapshots are auto-saved before each Claude edit.</p>'
+      : snaps.slice().reverse().map(function(s) {
+          var d = new Date(s.ts).toLocaleString();
+          var kb = Math.round(s.html.length / 1024 * 10) / 10;
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f1f5f9">' +
+            '<div><div style="font-weight:600;color:#1e293b">' + s.label + '</div>' +
+            '<div style="font-size:11px;color:#94a3b8">' + d + ' · ' + kb + ' KB</div></div>' +
+            '<button type="button" onclick="window.restoreSnapshot(' + s.version + ')" style="padding:5px 14px;background:#6366f1;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">↩ Restore</button>' +
+            '</div>';
+        }).join('');
+    el.querySelector('#snapshotList').innerHTML = html;
+    el.style.display = 'flex';
+  };
+
+  window.restoreSnapshot = function(versionNum) {
+    var p = cur(); if (!p) return;
+    var snap = (p.codeSnapshots || []).find(function(s) { return s.version === versionNum; });
+    if (!snap) { toast('Snapshot not found.'); return; }
+    // Auto-backup current state before restoring
+    if (!p.codeSnapshots) p.codeSnapshots = [];
+    p.codeSnapshots.push({
+      version: p.codeSnapshots.length + 1,
+      html: p.claudePreviewHtml || '',
+      files: JSON.parse(JSON.stringify(p.projectCodeFiles || [])),
+      ts: Date.now(),
+      label: 'Auto-backup before restore v' + versionNum
+    });
+    p.claudePreviewHtml = snap.html;
+    p.projectCodeFiles = JSON.parse(JSON.stringify(snap.files));
+    // Update iframe
+    if (snap.html) {
+      try {
+        if (p.claudePreviewBlobUrl) { try { URL.revokeObjectURL(p.claudePreviewBlobUrl); } catch(e){} }
+        var blob = new Blob([snap.html], { type: 'text/html' });
+        var blobUrl = URL.createObjectURL(blob);
+        p.claudePreviewBlobUrl = blobUrl;
+        var fr = document.getElementById('wsLiveFrame');
+        if (fr) { fr.src = blobUrl; fr.style.opacity = '1'; }
+      } catch(e) {}
+    }
+    var el = document.getElementById('modalSnapshot');
+    if (el) el.style.display = 'none';
+    save(); renderChat(); renderTabs(); renderSide();
+    toast('✅ Restored to: ' + snap.label);
+    var p2 = cur();
+    if (p2) {
+      p2.msgs.push({ role: 'agent', text: '↩ **Rollback Complete!** Restored to: **' + snap.label + '**\n\nThe preview has been reverted. Your previous code is live in the preview panel.', steps: [{ label: 'Snapshot restored: ' + snap.label, done: true }], actionHtml: '' });
+      save(); renderChat();
+    }
+  };
+
+  // ─── Clarification question handlers ────────────────────────────────────────
+  window.selectClarification = function(qIdx, btn, option) {
+    if (!window._clarifyAnswers) window._clarifyAnswers = {};
+    window._clarifyAnswers[qIdx] = option;
+    // Visual feedback
+    var parent = btn.closest ? btn.closest('div') : btn.parentNode;
+    if (parent) {
+      var allBtns = parent.querySelectorAll('button');
+      allBtns.forEach(function(b) {
+        b.style.background = '#fff';
+        b.style.borderColor = '#cbd5e1';
+        b.style.color = '#374151';
+      });
+    }
+    btn.style.background = '#6366f1';
+    btn.style.borderColor = '#6366f1';
+    btn.style.color = '#fff';
+  };
+
+  window.submitClarification = function() {
+    if (!window._clarifyCtx) return;
+    var ctx = window._clarifyCtx;
+    var answers = window._clarifyAnswers || {};
+    var answersText = Object.keys(answers).map(function(k) {
+      return 'Q' + (parseInt(k)+1) + ': ' + answers[k];
+    }).join('; ');
+    var fullText = ctx.text + (answersText ? '\n\n[User answers: ' + answersText + ']' : '');
+    var p = proj(ctx.projectId);
+    if (p) runClaudeFallbackAgent(p, fullText, ctx.reason, null, null, ctx.attachedImg);
+  };
+
+  window.skipClarification = function() {
+    if (!window._clarifyCtx) return;
+    var ctx = window._clarifyCtx;
+    var p = proj(ctx.projectId);
+    if (p) runClaudeFallbackAgent(p, ctx.text, ctx.reason, null, null, ctx.attachedImg);
+  };
+
+  window.checkAgentSessionStatus = function(sessionId) {
+    if (!sessionId) return;
+    var p = cur(); if (!p) return;
+    toast('Checking session status...');
+    fetch('/api/agent?session=' + encodeURIComponent(sessionId))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data && data.status === 'done') {
+        p.activeSessionId = null;
+        // Find last agent message and update it
+        var lastMsg = (p.msgs || []).slice().reverse().find(function(m) { return m.role === 'agent'; });
+        if (lastMsg) {
+          var m = lastMsg;
+          var applyFn = window._lastApplyAgentResults;
+          if (applyFn) { applyFn(data); } else {
+            p.busy = false; finishWave(); save(); renderChat(); renderTabs(); renderSide();
+            toast('✅ Session completed! Code updated.');
+          }
+        }
+      } else {
+        toast('Session still running. Try again in a moment.');
+      }
+    }).catch(function() { toast('Could not check session status.'); });
+  };
 
   function pollTotalumProgress(p, m, my) {
     var projSlug = p.totalumProjectId || p.name;
@@ -4902,8 +5087,39 @@ body.ws-stage-2-active .topbar {
       text = 'Ubah dan sesuaikan tampilan UI aplikasi di index.html agar persis seperti gambar referensi yang saya lampirkan.';
     }
     if (!p || !text || p.busy) return;
+    // Rollback intent detection
+    if (/kembalikan|rollback|revert|undo|balik ke|restore ke|pulihkan|kembali ke versi|previous version/i.test(text)) {
+      var snaps = p.codeSnapshots || [];
+      if (snaps.length > 0) {
+        p.msgs.push({ role: 'user', text: text });
+        var snapList = snaps.slice().reverse().map(function(s) {
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9">' +
+            '<span style="font-size:13px;color:#374151">' + s.label + '</span>' +
+            '<button type="button" onclick="window.restoreSnapshot(' + s.version + ')" style="padding:4px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer">↩ Restore</button>' +
+            '</div>';
+        }).join('');
+        p.msgs.push({
+          role: 'agent',
+          text: '↩ **Rollback — Choose a Version to Restore:**\n\nI found ' + snaps.length + ' saved snapshot(s). Click Restore to revert:',
+          actionHtml: '<div style="margin-top:8px">' + snapList + '</div>',
+          steps: [{ label: snaps.length + ' snapshots available', done: true }]
+        });
+        save(); renderChat(); renderTabs();
+        $('#msg').value = ''; fit(); updSend();
+        return;
+      } else {
+        p.msgs.push({ role: 'user', text: text });
+        p.msgs.push({ role: 'agent', text: '↩ **No snapshots found yet.**\nSnapshots are automatically saved before each Claude edit. Make a build first, then edits will be snapshotable.', steps: [], actionHtml: '' });
+        save(); renderChat();
+        $('#msg').value = ''; fit(); updSend();
+        return;
+      }
+    }
     var isNewBuild = /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text);
     if (isNewBuild) {
+      // Reset session on new build
+      p.activeSessionId = null;
+      p.codeSnapshots = [];
       p.claudePreviewHtml = null;
       if (p.claudePreviewBlobUrl) {
         try { URL.revokeObjectURL(p.claudePreviewBlobUrl); } catch(e){}

@@ -325,6 +325,7 @@ export async function onRequest(context) {
     const projectFiles = Array.isArray(body.projectFiles) ? body.projectFiles : [];
     const history = Array.isArray(body.history) ? body.history : [];
     const reason = body.reason || 'manual';
+    const activeSessionId = body.activeSessionId || null;
 
     // ─── Extract Image / Vision Reference ──────────────────────────────────────
     const imagePayload = body.image || body.attachedImage || (Array.isArray(body.images) && body.images[0]) || null;
@@ -591,6 +592,50 @@ Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in E
           },
           required: ['app', 'action']
         }
+      },
+      {
+        name: 'web_search',
+        description: 'Search the web for current information, design inspiration, API documentation, or libraries. Use when you need up-to-date info.',
+        input_schema: {
+          type: 'object',
+          properties: { query: { type: 'string', description: 'Search query' } },
+          required: ['query']
+        }
+      },
+      {
+        name: 'get_datetime',
+        description: 'Get the current date and time in UTC.',
+        input_schema: { type: 'object', properties: {} }
+      },
+      {
+        name: 'save_snapshot',
+        description: 'Signal that a code snapshot should be saved before making major changes. The platform will auto-save the current state for rollback.',
+        input_schema: {
+          type: 'object',
+          properties: { label: { type: 'string', description: 'Short label for this snapshot, e.g. "Before adding music"' } },
+          required: ['label']
+        }
+      },
+      {
+        name: 'ask_user',
+        description: 'Ask the user clarifying questions BEFORE generating code when the request is ambiguous. Use this ONCE at the start of a session. Max 5 questions with multiple choice options.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            intro: { type: 'string', description: 'Brief intro message shown before questions' },
+            questions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  question: { type: 'string' },
+                  options: { type: 'array', items: { type: 'string' } }
+                }
+              }
+            }
+          },
+          required: ['questions']
+        }
       }
     ];
 
@@ -828,6 +873,41 @@ async function connectApp(app) {
       return { error: `Unknown tool: ${toolName}` };
     }
 
+      // web_search: DuckDuckGo instant answers
+      if (toolName === 'web_search') {
+        const query = toolInput.query || '';
+        try {
+          const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`, {
+            headers: { 'User-Agent': 'Runnerflo-Agent/1.0' }
+          });
+          if (ddgRes.ok) {
+            const ddgData = await ddgRes.json();
+            const results = [];
+            if (ddgData.AbstractText) results.push({ title: ddgData.Heading || query, snippet: ddgData.AbstractText, url: ddgData.AbstractURL });
+            (ddgData.RelatedTopics || []).slice(0, 4).forEach(t => {
+              if (t.Text) results.push({ title: t.Text.split(' - ')[0] || '', snippet: t.Text, url: t.FirstURL || '' });
+            });
+            return { query, results: results.slice(0, 5), source: 'DuckDuckGo', message: results.length ? `Found ${results.length} results.` : 'No results found.' };
+          }
+        } catch (_) {}
+        return { query, results: [], message: 'Search unavailable, proceeding with existing knowledge.' };
+      }
+
+      // get_datetime
+      if (toolName === 'get_datetime') {
+        return { datetime: new Date().toISOString(), timezone: 'UTC', unix: Date.now() };
+      }
+
+      // save_snapshot — signals the frontend to auto-save
+      if (toolName === 'save_snapshot') {
+        return { saved: true, label: toolInput.label || 'Snapshot', message: `Snapshot "${toolInput.label}" will be saved by the platform before applying changes.` };
+      }
+
+      // ask_user — returns special status so the frontend shows clarification UI
+      if (toolName === 'ask_user') {
+        return { __ask_user__: true, questions: toolInput.questions || [], intro: toolInput.intro || 'Before I start, a few quick questions to make sure I build exactly what you need:' };
+      }
+
     // ─── Model selection with dynamic discovery ──────────────────────────────
     let discoveredModels = [];
     try {
@@ -857,8 +937,72 @@ async function connectApp(app) {
     let managedAgentSessionId = null;
     let managedAgentSuccess = false;
     let managedAgentText = '';
+    // Declared here (top-level) so session continuity AND agentic loop both share these arrays
+    const modifiedFiles = [];
+    const triggeredJobs = [];
+    const composioActions = [];
 
     try {
+      // ── SESSION CONTINUITY: If client already has an active session, POST to it ──
+      if (activeSessionId) {
+        const continueRes = await fetch(`https://api.anthropic.com/v1/sessions/${activeSessionId}/events`, {
+          method: 'POST',
+          headers: {
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-beta': 'managed-agents-2026-04-01',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            type: 'user.message',
+            content: [{ type: 'text', text: userText }]
+          })
+        });
+        if (continueRes.ok) {
+          managedAgentSessionId = activeSessionId;
+          // Quick initial poll attempts
+          for (let pIdx = 0; pIdx < 3; pIdx++) {
+            await new Promise(r => setTimeout(r, 1200));
+            const pollRes = await fetch(`https://api.anthropic.com/v1/sessions/${managedAgentSessionId}/events?limit=40`, {
+              headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'managed-agents-2026-04-01' }
+            });
+            if (pollRes.ok) {
+              const pollData = await pollRes.json();
+              const events = pollData.data || [];
+              const agentMsgs = events.filter(e => e.type === 'agent.message');
+              for (const am of agentMsgs) {
+                for (const blk of (am.content || [])) {
+                  if (blk.type === 'text' && blk.text) managedAgentText += blk.text + '\n';
+                }
+              }
+              const hasCode = managedAgentText.includes('<!DOCTYPE') || managedAgentText.includes('<html') || managedAgentText.includes('```html');
+              if (hasCode || events.some(e => e.type === 'session.status_idle')) break;
+            }
+          }
+          const extractedFiles = extractProjectFiles(managedAgentText, projectName, fileIndex['index.html'] || '');
+          if (extractedFiles && extractedFiles.length > 0) {
+            const primaryHtml = extractedFiles.find(f => f.path === 'index.html') || extractedFiles[0];
+            fileIndex['index.html'] = primaryHtml.code;
+            modifiedFiles.push(...extractedFiles);
+            managedAgentSuccess = true;
+          } else {
+            // Still running — hand off to async polling
+            return new Response(JSON.stringify({
+              status: 'running',
+              sessionId: managedAgentSessionId,
+              sessionWasReused: true,
+              engine: 'claude-managed-agents',
+              model: `claude-managed-agents (${managedAgentSessionId})`,
+              steps: [
+                { label: '♻️ Resumed existing Claude session — session continuity active', done: true },
+                { label: `Session: ${managedAgentSessionId} (cloud sandbox)`, done: false },
+                { label: 'Processing your follow-up request...', done: false }
+              ]
+            }), { status: 200, headers: corsHeaders });
+          }
+        }
+        // If session expired/failed, fall through to create a new session below
+      }
       // 1. Get or discover persistent agent and environment
       const maAgentListRes = await fetch('https://api.anthropic.com/v1/agents?limit=10', {
         headers: {
@@ -1107,9 +1251,6 @@ CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
     }
 
     // ─── Agentic Loop ─────────────────────────────────────────────────────────
-    const modifiedFiles = [];
-    const triggeredJobs = [];
-    const composioActions = [];
     const modelAttempts = [];
     let selectedModel = null;
     let assistantText = '';
@@ -1166,6 +1307,15 @@ CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
           const toolResults = [];
           for (const block of toolUseBlocks) {
             const toolResult = await executeTool(block.name, block.input || {});
+            // If Claude called ask_user, return immediately so frontend shows clarification UI
+            if (toolResult && toolResult.__ask_user__) {
+              return new Response(JSON.stringify({
+                status: 'needs_clarification',
+                questions: toolResult.questions,
+                intro: toolResult.intro,
+                sessionId: managedAgentSessionId
+              }), { status: 200, headers: corsHeaders });
+            }
             toolResults.push({
               type: 'tool_result',
               tool_use_id: block.id,
