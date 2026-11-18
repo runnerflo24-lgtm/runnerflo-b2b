@@ -16,8 +16,17 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
+  // Detect key type: ak_... = Project REST API key, ck_... = MCP consumer key
   const composioKey = (env && (env.COMPOSIO_API_KEY || env.COMPOSIO_KEY)) || '';
-  const composioBase = 'https://backend.composio.dev/api/v1';
+  const isProjectKey = composioKey.startsWith('ak_');
+  const isConsumerKey = composioKey.startsWith('ck_');
+  // Build auth headers based on key type
+  const composioAuthHeaders = isProjectKey
+    ? { 'x-api-key': composioKey }
+    : isConsumerKey
+      ? { 'x-consumer-api-key': composioKey }
+      : composioKey ? { 'x-api-key': composioKey } : {};
+  const composioBase = 'https://backend.composio.dev/api/v3.1';
 
   // Parse parameters from GET query or POST body
   const url = new URL(request.url);
@@ -176,6 +185,9 @@ export async function onRequest(context) {
       }
       return new Response(JSON.stringify({ ok: false, error: 'COMPOSIO_API_KEY missing' }), { status: 400, headers: corsHeaders });
     }
+
+    // 1b. Inspect Auth Configs (multi-header diagnostic)
+    if (action === 'auth-configs') {
       if (composioKey) {
         const tests = {};
 
