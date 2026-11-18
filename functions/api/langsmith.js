@@ -27,20 +27,30 @@ export async function onRequest(context) {
   // GET: Health & Status check or Diagnostic
   if (request.method === 'GET') {
     if (action === 'diagnostic') {
-      let workspaceInfo = null;
-      let sessionsList = null;
+      const testTenant = url.searchParams.get('tenantHeader') || (env && env.LANGSMITH_WORKSPACE_ID) || 'd2acb410-5fff-4807-9fd8-19010de0fa1f';
+      let results = {};
       let error = null;
       if (langsmithKey) {
         try {
-          const wsRes = await fetch('https://api.smith.langchain.com/api/v1/workspaces/current', {
+          // 1. Test sessions without tenant header
+          const s1 = await fetch('https://api.smith.langchain.com/api/v1/sessions?limit=5', {
             headers: { 'x-api-key': langsmithKey }
           });
-          workspaceInfo = { status: wsRes.status, data: await wsRes.json().catch(() => ({})) };
+          results['sessions_no_tenant'] = { status: s1.status, data: await s1.json().catch(() => ({})) };
 
-          const sessRes = await fetch('https://api.smith.langchain.com/api/v1/sessions?limit=10', {
-            headers: { 'x-api-key': langsmithKey }
-          });
-          sessionsList = { status: sessRes.status, data: await sessRes.json().catch(() => ({})) };
+          // 2. Test sessions with X-Tenant-ID
+          if (testTenant) {
+            const s2 = await fetch('https://api.smith.langchain.com/api/v1/sessions?limit=5', {
+              headers: { 'x-api-key': langsmithKey, 'X-Tenant-ID': testTenant }
+            });
+            results[`sessions_with_tenant_${testTenant}`] = { status: s2.status, data: await s2.json().catch(() => ({})) };
+
+            // 3. Test sessions with X-Organization-Id
+            const s3 = await fetch('https://api.smith.langchain.com/api/v1/sessions?limit=5', {
+              headers: { 'x-api-key': langsmithKey, 'X-Organization-Id': testTenant }
+            });
+            results[`sessions_with_org_${testTenant}`] = { status: s3.status, data: await s3.json().catch(() => ({})) };
+          }
         } catch (e) {
           error = e.message;
         }
@@ -48,8 +58,7 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({
         ok: true,
         configured: Boolean(langsmithKey),
-        workspace: workspaceInfo,
-        sessions: sessionsList,
+        results,
         error
       }, null, 2), { status: 200, headers: corsHeaders });
     }
