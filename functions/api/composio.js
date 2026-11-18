@@ -157,8 +157,25 @@ export async function onRequest(context) {
       }, null, 2), { status: 200, headers: corsHeaders });
     }
 
-    // 1b. Inspect Auth Configs in Composio Project (Multi-Header Diagnostic)
-    if (action === 'auth-configs') {
+    // 1c. List official Composio toolkits
+    if (action === 'toolkits') {
+      if (composioKey) {
+        const tkRes = await fetch('https://backend.composio.dev/api/v3/toolkits?limit=100', {
+          headers: { 'x-api-key': composioKey }
+        }).catch(() => null);
+        if (tkRes) {
+          const tkData = await tkRes.json().catch(() => ({}));
+          const list = (tkData.items || tkData.data || tkData.toolkits || []).map(t => ({ slug: t.slug, name: t.name }));
+          return new Response(JSON.stringify({
+            ok: tkRes.ok,
+            count: list.length,
+            googleRelated: list.filter(t => t.slug && (t.slug.includes('goog') || t.slug.includes('mail') || t.slug.includes('drive') || t.slug.includes('sheet'))),
+            toolkits: list
+          }, null, 2), { status: 200, headers: corsHeaders });
+        }
+      }
+      return new Response(JSON.stringify({ ok: false, error: 'COMPOSIO_API_KEY missing' }), { status: 400, headers: corsHeaders });
+    }
       if (composioKey) {
         const tests = {};
 
