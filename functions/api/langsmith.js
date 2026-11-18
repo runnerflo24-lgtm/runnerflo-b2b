@@ -27,6 +27,26 @@ export async function onRequest(context) {
 
   // GET: Health & Status check or Diagnostic
   if (request.method === 'GET') {
+    // Diagnostic: List Google AI Studio models
+    if (action === 'gemini-models') {
+      const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+      if (!googleKey) {
+        return new Response(JSON.stringify({ ok: false, error: 'GOOGLE_AI_API_KEY missing' }), { status: 400, headers: corsHeaders });
+      }
+      const mRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${googleKey}`);
+      const mData = await mRes.json().catch(() => ({}));
+      const models = (mData.models || []).map(m => ({
+        name: m.name,
+        displayName: m.displayName,
+        supportedGenerationMethods: m.supportedGenerationMethods
+      }));
+      return new Response(JSON.stringify({
+        ok: mRes.ok,
+        count: models.length,
+        models
+      }, null, 2), { status: mRes.status, headers: corsHeaders });
+    }
+
     if (action === 'diagnostic') {
       const testTenant = url.searchParams.get('tenantHeader') || (env && env.LANGSMITH_WORKSPACE_ID) || 'd2acb410-5fff-4807-9fd8-19010de0fa1f';
       let results = {};
