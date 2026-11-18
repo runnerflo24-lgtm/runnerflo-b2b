@@ -24,8 +24,36 @@ export async function onRequest(context) {
   const action = url.searchParams.get('action') || '';
   const requestedProject = url.searchParams.get('project') || '';
 
-  // GET: Health & Status check
+  // GET: Health & Status check or Diagnostic
   if (request.method === 'GET') {
+    if (action === 'diagnostic') {
+      let workspaceInfo = null;
+      let sessionsList = null;
+      let error = null;
+      if (langsmithKey) {
+        try {
+          const wsRes = await fetch('https://api.smith.langchain.com/api/v1/workspaces/current', {
+            headers: { 'x-api-key': langsmithKey }
+          });
+          workspaceInfo = { status: wsRes.status, data: await wsRes.json().catch(() => ({})) };
+
+          const sessRes = await fetch('https://api.smith.langchain.com/api/v1/sessions?limit=10', {
+            headers: { 'x-api-key': langsmithKey }
+          });
+          sessionsList = { status: sessRes.status, data: await sessRes.json().catch(() => ({})) };
+        } catch (e) {
+          error = e.message;
+        }
+      }
+      return new Response(JSON.stringify({
+        ok: true,
+        configured: Boolean(langsmithKey),
+        workspace: workspaceInfo,
+        sessions: sessionsList,
+        error
+      }, null, 2), { status: 200, headers: corsHeaders });
+    }
+
     return new Response(JSON.stringify({
       ok: true,
       service: 'LangSmith Managed Deep Agent Gateway',
