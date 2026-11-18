@@ -66,13 +66,16 @@ export async function onRequest(context) {
     }
 
     // Common headers for LangSmith REST API v1
+    // Personal Access Token (lsv2_pt_...) does NOT need X-Tenant-ID.
+    // Service Key (lsv2_sk_...) paired with workspace needs it.
     const commonHeaders = {
       'x-api-key': langsmithKey,
       'Content-Type': 'application/json'
     };
 
-    // If explicit LangSmith Workspace ID is configured, pass it as X-Tenant-ID
-    if (env && env.LANGSMITH_WORKSPACE_ID) {
+    // X-Tenant-ID only for Service Keys paired with a workspace
+    // Personal PAT keys must NOT send X-Tenant-ID or they get 403
+    if (env && env.LANGSMITH_WORKSPACE_ID && langsmithKey.startsWith('lsv2_sk_')) {
       commonHeaders['X-Tenant-ID'] = env.LANGSMITH_WORKSPACE_ID;
     }
 
