@@ -157,20 +157,56 @@ export async function onRequest(context) {
       }, null, 2), { status: 200, headers: corsHeaders });
     }
 
-    // 1b. Inspect Auth Configs in Composio Project
+    // 1b. Inspect Auth Configs in Composio Project (Multi-Header Diagnostic)
     if (action === 'auth-configs') {
       if (composioKey) {
-        const confRes = await fetch('https://backend.composio.dev/api/v3.1/auth_configs', {
-          headers: { 'x-api-key': composioKey }
-        }).catch(() => null);
-        if (confRes) {
-          const confData = await confRes.json().catch(() => ({}));
-          return new Response(JSON.stringify({
-            ok: confRes.ok,
-            status: confRes.status,
-            data: confData
-          }, null, 2), { status: confRes.ok ? 200 : confRes.status, headers: corsHeaders });
-        }
+        const tests = {};
+
+        // Test 1: x-api-key on v3.1/auth_configs
+        try {
+          const r1 = await fetch('https://backend.composio.dev/api/v3.1/auth_configs', {
+            headers: { 'x-api-key': composioKey }
+          });
+          tests['x_api_key_v31'] = { status: r1.status, data: await r1.json().catch(() => ({})) };
+        } catch (e) { tests['x_api_key_v31'] = { error: e.message }; }
+
+        // Test 2: Bearer on v3.1/auth_configs
+        try {
+          const r2 = await fetch('https://backend.composio.dev/api/v3.1/auth_configs', {
+            headers: { 'Authorization': `Bearer ${composioKey}` }
+          });
+          tests['bearer_v31'] = { status: r2.status, data: await r2.json().catch(() => ({})) };
+        } catch (e) { tests['bearer_v31'] = { error: e.message }; }
+
+        // Test 3: x-org-api-key on v3.1/auth_configs
+        try {
+          const r3 = await fetch('https://backend.composio.dev/api/v3.1/auth_configs', {
+            headers: { 'x-org-api-key': composioKey }
+          });
+          tests['x_org_api_key_v31'] = { status: r3.status, data: await r3.json().catch(() => ({})) };
+        } catch (e) { tests['x_org_api_key_v31'] = { error: e.message }; }
+
+        // Test 4: x-api-key on v1/apps
+        try {
+          const r4 = await fetch('https://backend.composio.dev/api/v1/apps', {
+            headers: { 'x-api-key': composioKey }
+          });
+          tests['x_api_key_v1_apps'] = { status: r4.status, data: await r4.json().catch(() => ({})) };
+        } catch (e) { tests['x_api_key_v1_apps'] = { error: e.message }; }
+
+        // Test 5: Bearer on v1/apps
+        try {
+          const r5 = await fetch('https://backend.composio.dev/api/v1/apps', {
+            headers: { 'Authorization': `Bearer ${composioKey}` }
+          });
+          tests['bearer_v1_apps'] = { status: r5.status, data: await r5.json().catch(() => ({})) };
+        } catch (e) { tests['bearer_v1_apps'] = { error: e.message }; }
+
+        return new Response(JSON.stringify({
+          ok: true,
+          keyPrefix: composioKey.substring(0, 5) + '...',
+          tests
+        }, null, 2), { status: 200, headers: corsHeaders });
       }
       return new Response(JSON.stringify({ ok: false, error: 'COMPOSIO_API_KEY missing' }), { status: 400, headers: corsHeaders });
     }
