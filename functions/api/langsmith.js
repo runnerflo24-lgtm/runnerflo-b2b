@@ -18,6 +18,7 @@ export async function onRequest(context) {
 
   const langsmithKey = (env && (env.LANGSMITH_API_KEY || env.LANGCHAIN_API_KEY || env.LANGSMITH_KEY)) || '';
   const defaultProject = (env && (env.LANGCHAIN_PROJECT || env.LANGSMITH_PROJECT)) || 'default';
+  const langsmithWorkspaceId = (env && (env.LANGSMITH_WORKSPACE_ID || env.LANGCHAIN_WORKSPACE_ID || env.LANGSMITH_TENANT_ID)) || 'd2acb410-5fff-4807-9fd8-19010de0fa1f';
   const langgraphBase = (env && env.LANGGRAPH_API_URL) || '';
 
   const url = new URL(request.url);
@@ -112,19 +113,12 @@ export async function onRequest(context) {
       }), { status: 200, headers: corsHeaders });
     }
 
-    // Common headers for LangSmith REST API v1
-    // Personal Access Token (lsv2_pt_...) does NOT need X-Tenant-ID.
-    // Service Key (lsv2_sk_...) paired with workspace needs it.
+    // Common headers for LangSmith REST API v1 with workspace header
     const commonHeaders = {
       'x-api-key': langsmithKey,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': langsmithWorkspaceId
     };
-
-    // X-Tenant-ID only for Service Keys paired with a workspace
-    // Personal PAT keys must NOT send X-Tenant-ID or they get 403
-    if (env && env.LANGSMITH_WORKSPACE_ID && langsmithKey.startsWith('lsv2_sk_')) {
-      commonHeaders['X-Tenant-ID'] = env.LANGSMITH_WORKSPACE_ID;
-    }
 
     // ─── 1. Thread Management (Isolated per Composite Tenant) ───────────────
     if (subAction === 'thread' || subAction === 'threads') {
