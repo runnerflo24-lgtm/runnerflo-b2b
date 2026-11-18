@@ -152,7 +152,33 @@ export async function onRequest(context) {
         }
       };
 
-      // 1. Post Run to LangSmith REST API v1
+      // 1. Auto-ensure LangSmith project exists first (PAT 403 on unknown project)
+      let projectCheckNote = '';
+      try {
+        const projectRes = await fetch(`https://api.smith.langchain.com/api/v1/sessions?name=${encodeURIComponent(langsmithProject)}`, {
+          method: 'GET',
+          headers: commonHeaders
+        });
+        if (projectRes.ok) {
+          const projectData = await projectRes.json();
+          const existing = projectData.find ? projectData.find(p => p.name === langsmithProject) : null;
+          if (!existing) {
+            // Create the project/session automatically
+            await fetch('https://api.smith.langchain.com/api/v1/sessions', {
+              method: 'POST',
+              headers: commonHeaders,
+              body: JSON.stringify({ name: langsmithProject })
+            }).catch(() => null);
+            projectCheckNote = 'auto-created project';
+          } else {
+            projectCheckNote = 'project-exists';
+          }
+        }
+      } catch (e) {
+        projectCheckNote = `project-check-error: ${e.message}`;
+      }
+
+      // 2. Post Run to LangSmith REST API v1
       const traceRes = await fetch('https://api.smith.langchain.com/api/v1/runs', {
         method: 'POST',
         headers: commonHeaders,
@@ -169,7 +195,9 @@ export async function onRequest(context) {
           tenantId: compositeId,
           paasId,
           endUserId,
+          projectNote: projectCheckNote,
           error: traceData.detail || traceData.error || `LangSmith HTTP ${traceRes.status}`,
+          hint: traceRes.status === 403 ? `Create project "${langsmithProject}" in LangSmith dashboard at smith.langchain.com/settings then retry.` : undefined,
           raw: traceData
         }), { status: traceRes.status, headers: corsHeaders });
       }
