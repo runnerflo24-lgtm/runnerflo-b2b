@@ -1908,7 +1908,30 @@ body.ws-stage-2-active .topbar {
       return s;
     } catch (e) { return null; }
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var _lastR2Save = 0;
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    // Asynchronous background sync to Cloudflare R2 bucket (runnerflo-projects) per tenant
+    try {
+      var now = Date.now();
+      var p = cur();
+      if (p && p.claudePreviewHtml && (now - _lastR2Save > 8000)) {
+        _lastR2Save = now;
+        var tSlug = (p.totalumProjectId || p.name || p.id).toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+        fetch('/api/storage?action=save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paasId: tSlug,
+            projectName: p.name || tSlug,
+            file: 'index.html',
+            content: p.claudePreviewHtml,
+            totalumProjectId: p.totalumProjectId || null
+          })
+        }).catch(function(){});
+      }
+    } catch(e){}
+  }
   function proj(id) { for (var i = 0; i < state.projects.length; i++) if (state.projects[i].id === id) return state.projects[i]; return null; }
   function cur() { return proj(state.active) || (state.projects.length ? state.projects[0] : null); }
   function ago(t) { var m = Math.round((Date.now() - t) / 60000); if (m < 1) return 'just now'; if (m < 60) return m + 'm ago'; var h = Math.round(m / 60); if (h < 24) return h + 'h ago'; return Math.round(h / 24) + 'd ago'; }
@@ -3501,7 +3524,25 @@ body.ws-stage-2-active .topbar {
             }
           } catch(blobErr) {}
 
-          updateWave(60, 'UI/UX Complete • Handing off to Totalum Cloud...', 'Progress: 60% • Hosting, D1 Database, Domain & Stripe Setup');
+          updateWave(60, 'UI/UX Complete • Handing off to Totalum Cloud & Syncing R2...', 'Progress: 60% • Hosting, D1 Database, Domain & R2 Bucket');
+
+          // Auto-persist generated code to Cloudflare R2 bucket per tenant ID
+          fetch('/api/storage?action=save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paasId: projSlug,
+              projectName: p.name || projSlug,
+              file: 'index.html',
+              content: geminiRes.htmlCode,
+              userModel: userLlmModel
+            })
+          }).then(function(r){ return r.json(); }).then(function(r2Data){
+            if (r2Data && r2Data.savedToR2) {
+              m.steps.push({ label: '☁️ Synced to Cloudflare R2 (tenants/' + projSlug + '/index.html)', done: true });
+              renderIf(p);
+            }
+          }).catch(function(){});
 
           // Now pass the generated UI/UX to Totalum for infrastructure
           launchTotalumInfrastructure(geminiRes.htmlCode);
@@ -3774,6 +3815,20 @@ body.ws-stage-2-active .topbar {
         p.suggest = Array.isArray(resData.suggest) ? resData.suggest : ['Review Updated Code', 'Add New Component', 'Publish to Live'];
         finishWave();
         save();
+        if (p.claudePreviewHtml) {
+          var tSlug = (p.totalumProjectId || p.name || p.id).toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+          fetch('/api/storage?action=save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paasId: tSlug,
+              projectName: p.name || tSlug,
+              file: 'index.html',
+              content: p.claudePreviewHtml,
+              totalumProjectId: p.totalumProjectId || null
+            })
+          }).catch(function(){});
+        }
         if (state.active !== targetProjectId) { go(targetProjectId); }
         renderChat();
         renderTabs();

@@ -3,6 +3,12 @@
   "name": "runnerflo-b2b",
   "pages_build_output_dir": ".",
   "compatibility_date": "2026-10-23",
+  "r2_buckets": [
+    {
+      "binding": "PROJECTS_BUCKET",
+      "bucket_name": "runnerflo-projects"
+    }
+  ],
   "observability": {
     "enabled": true
   }
