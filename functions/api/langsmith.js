@@ -448,11 +448,12 @@ PROJECT CONTEXT:
 
 Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.`;
 
-      // Gemini model fallback chain
+      // Gemini model fallback chain (exact sequence requested by user)
       const GEMINI_MODELS = [
-        'gemini-2.5-flash-preview-05-20',
-        'gemini-2.0-flash-lite',
-        'gemini-1.5-flash'
+        'gemini-3.8-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-3-flash-preview',
+        'gemini-2.5-flash'
       ];
       const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
