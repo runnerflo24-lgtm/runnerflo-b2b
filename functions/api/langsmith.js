@@ -308,8 +308,224 @@ export async function onRequest(context) {
       }), { status: 200, headers: corsHeaders });
     }
 
+    // ─── 3. Gemini UI/UX Generator (LangSmith Deep Agent — Google AI Studio) ──
+    // Orkestrasi: LangSmith trace → Gemini generate UI/UX → inject capabilities
+    // Fallback chain: gemini-2.5-flash → gemini-2.0-flash-lite → gemini-1.5-flash
+    if (subAction === 'generate-ui') {
+      const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+
+      if (!googleKey) {
+        return new Response(JSON.stringify({
+          ok: false,
+          error: 'GOOGLE_AI_API_KEY belum disetel di Cloudflare Pages. Tambahkan via Settings > Environment Variables.',
+          fallback: 'claude'
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      const userPrompt = typeof input === 'string'
+        ? input
+        : (input.prompt || input.text || 'Build a modern SaaS application');
+      const projectName = body.projectName || paasId.replace(/[^a-z0-9-]+/g, '-') || 'runnerflo-app';
+      const userLlmModel = body.userModel || 'openai/gpt-4o-mini';
+      const userLlmProvider = body.userProvider || 'openrouter';
+
+      // LangSmith: open trace run BEFORE inference
+      const runId = crypto.randomUUID();
+      const startTime = new Date().toISOString();
+      await fetch('https://api.smith.langchain.com/api/v1/runs', {
+        method: 'POST',
+        headers: commonHeaders,
+        body: JSON.stringify({
+          id: runId,
+          name: `gemini-ui-generator-${paasId}`,
+          run_type: 'llm',
+          inputs: { prompt: userPrompt, projectName },
+          start_time: startTime,
+          session_name: langsmithProject,
+          extra: { metadata: { paas_id: paasId, end_user_id: endUserId, composite_tenant_id: compositeId, engine: 'gemini-ui-generator' } }
+        })
+      }).catch(() => null);
+
+      // ── System Prompt: SAMA PERSIS dengan Claude Managed Agent ──────────────
+      const geminiSystemPrompt = `You are an Autonomous Lead Software Architect & Orchestrator for the Runnerflo Cloud Platform (Year 2026).
+
+CORE MISSION: META-PAAS (PLATFORM-AS-A-SERVICE THAT BUILDS PAAS & SAAS)
+Runnerflo is a META-PAAS: an enterprise platform that autonomously constructs complete, production-ready PaaS and SaaS platforms for customers.
+Every generated application is a full, turnkey platform operating with an isolated tenant ID (e.g. "${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}").
+
+CRITICAL 4-ENGINE AI & AGENT GATEWAY ARCHITECTURE (STRICT RUNNERFLO TOPOLOGY):
+Runnerflo provides a centralized, turnkey Edge Gateway at "/api/gateway" and LangSmith agent dispatcher at "/api/langsmith".
+The platform owner manages ALL API keys centrally in Cloudflare Pages Secrets.
+
+TENANT DUAL-IDENTITY STANDARD (paas_id + end_user_id):
+Every generated child PaaS operates with two distinct identities that must never be mixed up:
+1. paasId: The unique identifier of the generated child PaaS (e.g. "${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}").
+2. endUserId: The specific end-user using the child PaaS (persisted in client localStorage or session).
+Composite Tenant Identity format: "${projectName}:{endUserId}".
+In every client script, initialize tenant identity:
+\`\`\`javascript
+const PAAS_ID = window.PAAS_ID || '${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}';
+let END_USER_ID = localStorage.getItem('rf_end_user_id');
+if (!END_USER_ID) {
+  END_USER_ID = 'usr_' + Math.random().toString(36).substring(2, 10);
+  localStorage.setItem('rf_end_user_id', END_USER_ID);
+}
+const COMPOSITE_TENANT_ID = PAAS_ID + ':' + END_USER_ID;
+\`\`\`
+
+STRICT TOPOLOGY MANDATE:
+All generated PaaS and SaaS applications MUST send their API calls EXCLUSIVELY to Runnerflo internal endpoints ("/api/gateway", "/api/langsmith", "/api/composio").
+NEVER make direct calls to third-party APIs from the generated code!
+Runnerflo acts as the single central hub holding all credentials, metering, and tenant isolation.
+
+THE 4 UNIVERSAL ENGINES:
+1. Engine 1 — LLM (User's chosen model: ${userLlmModel} via ${userLlmProvider}):
+   Call: fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: '${userLlmProvider}', model: '${userLlmModel}', input: { messages: [...] } }) })
+2. Engine 2 — Replicate (Video, audio, speech-to-text):
+   Call: fetch('/api/gateway', {..., body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'replicate', model: 'owner/model', input: {...} }) })
+3. Engine 3 — WaveSpeed (Real-time video & avatar):
+   Call: fetch('/api/gateway', {..., body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'wavespeed', model: '...', input: {...} }) })
+4. Engine 4 — fal.ai (Fast diffusion: Flux, Kling, Wan2.1):
+   Call: fetch('/api/gateway', {..., body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'fal', model: 'fal-ai/...', input: {...} }) })
+
+LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
+- LangSmith Deep Agent (user's chosen AI model: ${userLlmModel}):
+  Call: fetch('/api/langsmith', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, action: 'run', model: '${userLlmModel}', provider: '${userLlmProvider}', input: { prompt: '...' } }) })
+
+- COMPOSIO MANAGED APPS GOOGLE OAUTH (MANDATORY PATTERN):
+  Every generated PaaS that needs user login MUST use Composio Managed Auth.
+  DO NOT ask end-users for Google Cloud Client IDs or Secrets!
+  \`\`\`javascript
+  async function loginWithGoogle() {
+    const redirectUri = window.location.href;
+    const res = await fetch('/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
+    const data = await res.json();
+    if (data.connectUrl) { window.location.href = data.connectUrl; }
+  }
+  async function checkGoogleConnection() {
+    const res = await fetch('/api/composio?action=connections&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID));
+    const data = await res.json();
+    return Boolean(data.connections && data.connections.some(c => c.appName.toLowerCase().includes('google') || c.status === 'ACTIVE'));
+  }
+  \`\`\`
+
+ABSOLUTE NO-BYOK (BRING YOUR OWN KEY) MANDATE:
+- NEVER output UI forms asking end-users to input API keys. That is strictly prohibited!
+- All AI, 3D, video, and agent capabilities must be wired directly to "/api/gateway", "/api/langsmith", or "/api/composio".
+
+CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO
+1. YOU ARE IN CREATION MODE. Build a brand new, production-grade application for: "${userPrompt}".
+2. You MUST produce a COMPLETE, self-contained, browser-executable HTML5 file as "index.html".
+3. Use Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
+4. Render high-fidelity UI: clean navigation, interactive buttons, realistic mock data, and functional controls.
+5. DO NOT default to dark theme unless explicitly requested. Use crisp light backgrounds (bg-white, bg-slate-50).
+6. Output ONLY the complete HTML code inside a single markdown code block: \`\`\`html ... \`\`\`
+
+PROJECT CONTEXT:
+- Project Name: "${projectName}"
+- Tenant ID: "${paasId}"
+- User's LLM Choice: ${userLlmModel} (${userLlmProvider})
+
+Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.`;
+
+      // Gemini model fallback chain
+      const GEMINI_MODELS = [
+        'gemini-2.5-flash-preview-05-20',
+        'gemini-2.0-flash-lite',
+        'gemini-1.5-flash'
+      ];
+      const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+      let geminiResult = null;
+      let usedModel = '';
+      let geminiError = '';
+
+      for (let i = 0; i < GEMINI_MODELS.length; i++) {
+        const mdl = GEMINI_MODELS[i];
+        try {
+          const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: geminiSystemPrompt }] },
+              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 65536 }
+            })
+          });
+          if (gRes.ok) {
+            const gData = await gRes.json();
+            const text = gData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (text && text.length > 100) {
+              geminiResult = text;
+              usedModel = mdl;
+              break;
+            }
+          } else {
+            const errBody = await gRes.text().catch(() => '');
+            geminiError = `${mdl}: HTTP ${gRes.status} — ${errBody.slice(0, 200)}`;
+          }
+        } catch (e) {
+          geminiError = `${mdl}: ${e.message}`;
+        }
+      }
+
+      // If all Gemini models failed → signal frontend to fall back to Claude
+      if (!geminiResult) {
+        await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
+          method: 'PATCH', headers: commonHeaders,
+          body: JSON.stringify({ outputs: { error: geminiError }, end_time: new Date().toISOString(), error: geminiError })
+        }).catch(() => null);
+
+        return new Response(JSON.stringify({
+          ok: false,
+          fallback: 'claude',
+          runId,
+          tenantId: compositeId,
+          paasId,
+          endUserId,
+          error: geminiError || 'All Gemini models failed',
+          hint: 'Frontend should activate Claude Managed Agent fallback.'
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      // Extract HTML from Gemini output
+      let htmlCode = '';
+      const htmlMatch = geminiResult.match(/```(?:html|xml)?\s*([\s\S]*?```)/i);
+      if (htmlMatch && htmlMatch[1]) {
+        htmlCode = htmlMatch[1].replace(/```\s*$/, '').trim();
+      } else if (geminiResult.includes('<!DOCTYPE') || geminiResult.includes('<html')) {
+        const bare = geminiResult.match(/<!DOCTYPE[\s\S]*?<\/html>/i);
+        htmlCode = bare ? bare[0].trim() : geminiResult.trim();
+      } else {
+        htmlCode = geminiResult.trim();
+      }
+
+      // PATCH LangSmith run with output
+      await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
+        method: 'PATCH', headers: commonHeaders,
+        body: JSON.stringify({
+          outputs: { htmlLength: htmlCode.length, model: usedModel, projectName },
+          end_time: new Date().toISOString()
+        })
+      }).catch(() => null);
+
+      return new Response(JSON.stringify({
+        ok: true,
+        source: 'gemini_ui_generator',
+        runId,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
+        model: usedModel,
+        htmlCode,
+        projectName,
+        userLlmModel,
+        userLlmProvider
+      }), { status: 200, headers: corsHeaders });
+    }
+
     return new Response(JSON.stringify({
-      error: `Unknown action: "${subAction}". Supported: run, thread, dispatch.`
+      error: `Unknown action: "${subAction}". Supported: run, thread, dispatch, generate-ui.`
     }), { status: 400, headers: corsHeaders });
 
   } catch (err) {
