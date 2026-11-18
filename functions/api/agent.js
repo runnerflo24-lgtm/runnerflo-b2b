@@ -387,6 +387,22 @@ CRITICAL 4-ENGINE AI & AGENT GATEWAY ARCHITECTURE (STRICT RUNNERFLO TOPOLOGY):
 Runnerflo provides a centralized, turnkey Edge Gateway at "/api/gateway" and LangSmith agent dispatcher at "/api/langsmith".
 The platform owner manages ALL API keys centrally in Cloudflare Pages Secrets.
 
+TENANT DUAL-IDENTITY STANDARD (paas_id + end_user_id):
+Every generated child PaaS operates with two distinct identities that must never be mixed up:
+1. paasId: The unique identifier of the generated child PaaS (e.g. "${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}").
+2. endUserId: The specific end-user using the child PaaS (persisted in client localStorage or session).
+Composite Tenant Identity format: "${projectName}:{endUserId}".
+In every client script, initialize tenant identity:
+\`\`\`javascript
+const PAAS_ID = window.PAAS_ID || '${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}';
+let END_USER_ID = localStorage.getItem('rf_end_user_id');
+if (!END_USER_ID) {
+  END_USER_ID = 'usr_' + Math.random().toString(36).substring(2, 10);
+  localStorage.setItem('rf_end_user_id', END_USER_ID);
+}
+const COMPOSITE_TENANT_ID = PAAS_ID + ':' + END_USER_ID;
+\`\`\`
+
 STRICT TOPOLOGY MANDATE:
 All generated PaaS and SaaS applications MUST send their API calls EXCLUSIVELY to Runnerflo internal endpoints ("/api/gateway", "/api/langsmith", "/api/composio").
 NEVER make direct calls to third-party APIs (OpenRouter, Replicate, WaveSpeed, fal, LangSmith, etc.) from the generated code!
@@ -394,17 +410,17 @@ Runnerflo acts as the single central hub holding all credentials, metering, and 
 
 THE 4 UNIVERSAL ENGINES (COVERS >95% OF ALL SAAS APIS):
 1. Engine 1: OpenRouter (Universal LLM Hub: GLM-4, Claude, DeepSeek, Llama-3, Mistral, GPT-4o)
-   Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'openrouter', model: '...', input: { messages: [...] } }) })
+   Call: fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'openrouter', model: '...', input: { messages: [...] } }) })
 2. Engine 2: Replicate (Specialist Multimodal: Video generation, lip-sync, speech-to-text, audio)
-   Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'replicate', model: 'owner/model', input: { ... } }) })
+   Call: fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'replicate', model: 'owner/model', input: { ... } }) })
 3. Engine 3: WaveSpeed (Ultra-fast real-time video, speech & edge avatar inference)
-   Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'wavespeed', model: '...', input: { ... } }) })
+   Call: fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'wavespeed', model: '...', input: { ... } }) })
 4. Engine 4: fal.ai (State-of-the-art fast diffusion: Kling, Wan2.1, Flux, Hunyuan Video, fast 3D)
-   Call: fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'fal', model: 'fal-ai/...', input: { ... } }) })
+   Call: fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'fal', model: 'fal-ai/...', input: { ... } }) })
 
 LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
 - LangSmith Deep Agent Engine: For multi-step autonomous agent runs, state persistence, and tenant thread isolation:
-  Call: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) })
+  Call: fetch('/api/langsmith', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, action: 'run', input: { prompt: '...' } }) })
 
 - COMPOSIO MANAGED APPS GOOGLE OAUTH (MANDATORY PATTERN FOR ALL GENERATED PAAS):
   Every generated PaaS that needs user login, authentication, or workspace integrations MUST use Composio Managed Auth.
@@ -413,17 +429,15 @@ LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
   \`\`\`javascript
   // 1. Initiate Google OAuth via Composio Managed Apps:
   async function loginWithGoogle() {
-    const tenantId = window.TENANT_ID || '${projectName}';
     const redirectUri = window.location.href;
-    const res = await fetch('/api/composio?action=connect-url&app=google&entityId=' + encodeURIComponent(tenantId) + '&redirectUri=' + encodeURIComponent(redirectUri));
+    const res = await fetch('/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
     const data = await res.json();
     if (data.connectUrl) { window.location.href = data.connectUrl; }
   }
 
-  // 2. Check if tenant already has an active Google connection:
+  // 2. Check if this end-user already has an active Google connection:
   async function checkGoogleConnection() {
-    const tenantId = window.TENANT_ID || '${projectName}';
-    const res = await fetch('/api/composio?action=connections&entityId=' + encodeURIComponent(tenantId));
+    const res = await fetch('/api/composio?action=connections&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID));
     const data = await res.json();
     return Boolean(data.connections && data.connections.some(c => c.appName.toLowerCase().includes('google') || c.status === 'ACTIVE'));
   }
@@ -1118,15 +1132,21 @@ Runnerflo is a META-PAAS platform. You build complete, production-ready white-la
 4-ENGINE AI & AGENT GATEWAY INTEGRATION (STRICT RUNNERFLO TOPOLOGY & NO-BYOK):
 The platform provides a centralized API Gateway at "/api/gateway" and LangSmith agent dispatcher at "/api/langsmith".
 All generated PaaS and SaaS platforms MUST send their API calls EXCLUSIVELY to Runnerflo internal endpoints.
-NEVER make direct calls to external APIs, and NEVER output forms asking end-users to input API keys (NO BYOK). All calls MUST call Runnerflo:
-1. OpenRouter (GLM-4, Claude, DeepSeek, Llama-3): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'openrouter', model: '...', input: { messages: [...] } }) })
-2. Replicate (AI Video, Multimodal): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'replicate', model: '...', input: { ... } }) })
-3. WaveSpeed (Real-time edge video & avatar): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'wavespeed', model: '...', input: { ... } }) })
-4. fal.ai (Kling, Wan2.1, Flux diffusion, 3D): fetch('/api/gateway', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', provider: 'fal', model: '...', input: { ... } }) })
+NEVER make direct calls to external APIs, and NEVER output forms asking end-users to input API keys (NO BYOK).
+
+TENANT DUAL-IDENTITY STANDARD (paas_id + end_user_id):
+Every generated child PaaS has two distinct IDs:
+1. paasId: '${projectName.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}'
+2. endUserId: client localStorage 'rf_end_user_id'
+All internal endpoint calls MUST pass paasId and endUserId:
+1. OpenRouter (GLM-4, Claude, DeepSeek, Llama-3): fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: '${projectName}', endUserId: window.END_USER_ID, provider: 'openrouter', model: '...', input: { messages: [...] } }) })
+2. Replicate (AI Video, Multimodal): fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: '${projectName}', endUserId: window.END_USER_ID, provider: 'replicate', model: '...', input: { ... } }) })
+3. WaveSpeed (Real-time edge video & avatar): fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: '${projectName}', endUserId: window.END_USER_ID, provider: 'wavespeed', model: '...', input: { ... } }) })
+4. fal.ai (Kling, Wan2.1, Flux diffusion, 3D): fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: '${projectName}', endUserId: window.END_USER_ID, provider: 'fal', model: '...', input: { ... } }) })
 5. LangSmith Managed Deep Agent & Composio Managed Google OAuth:
-   - Deep Agent Runs: fetch('/api/langsmith', { method: 'POST', body: JSON.stringify({ tenantId: '${projectName}', action: 'run', input: { ... } }) })
+   - Deep Agent Runs: fetch('/api/langsmith', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: '${projectName}', endUserId: window.END_USER_ID, action: 'run', input: { ... } }) })
    - Composio Managed Google OAuth: When the generated PaaS needs user sign-in or Google Workspace integration, use Composio Managed Auth (DO NOT ask users for Google Cloud credentials). Inject:
-     \`async function loginWithGoogle() { const res = await fetch('/api/composio?action=connect-url&app=google&entityId=${projectName}&redirectUri=' + encodeURIComponent(window.location.href)); const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl; }\`
+     \`async function loginWithGoogle() { const res = await fetch('/api/composio?action=connect-url&app=google&paasId=${projectName}&endUserId=' + encodeURIComponent(window.END_USER_ID) + '&redirectUri=' + encodeURIComponent(window.location.href)); const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl; }\`
      And render a "Continue with Google" button in the PaaS navigation / auth modal.
    - Tenant isolation is enforced via Cloudflare OAuth and tenant IDs.
 

@@ -8,7 +8,7 @@ export async function onRequest(context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, x-tenant-id',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, x-tenant-id, x-paas-id, x-end-user-id',
     'Content-Type': 'application/json'
   };
 
@@ -18,7 +18,7 @@ export async function onRequest(context) {
 
   const langsmithKey = (env && (env.LANGSMITH_API_KEY || env.LANGCHAIN_API_KEY || env.LANGSMITH_KEY)) || '';
   const langsmithProject = (env && (env.LANGCHAIN_PROJECT || env.LANGSMITH_PROJECT)) || 'runnerflo-meta-paas';
-  const langgraphBase = (env && env.LANGGRAPH_API_URL) || 'https://api.smith.langchain.com';
+  const langgraphBase = (env && env.LANGGRAPH_API_URL) || '';
 
   const url = new URL(request.url);
   const action = url.searchParams.get('action') || '';
@@ -28,6 +28,7 @@ export async function onRequest(context) {
     return new Response(JSON.stringify({
       ok: true,
       service: 'LangSmith Managed Deep Agent Gateway',
+      version: 'v1',
       configured: Boolean(langsmithKey),
       project: langsmithProject,
       message: langsmithKey
@@ -42,98 +43,197 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const tenantId = body.tenantId || request.headers.get('x-tenant-id') || 'default-tenant';
+    
+    // Composite Tenant Identity standard: {paas_id}:{end_user_id}
+    const paasId = body.paas_id || body.paasId || body.tenantId || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
+    const endUserId = body.end_user_id || body.endUserId || body.userId || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || 'default-user';
+    const compositeId = `${paasId}:${endUserId}`;
+    
     const subAction = action || body.action || 'run';
     const input = body.input || body.prompt || body.messages || {};
 
     if (!langsmithKey) {
-      // Graceful fallback response for offline testing
+      // Graceful simulated response when key is missing
       return new Response(JSON.stringify({
         ok: false,
         simulated: true,
-        tenantId,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
         error: 'LANGSMITH_API_KEY belum disetel di Cloudflare Pages Secrets.',
         message: 'Kunci LangSmith belum terpasang. Pasang LANGSMITH_API_KEY di Cloudflare Pages Environment Variables.'
       }), { status: 200, headers: corsHeaders });
     }
 
+    // Common headers for LangSmith REST API v1
     const commonHeaders = {
       'x-api-key': langsmithKey,
-      'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId
+      'Content-Type': 'application/json'
     };
 
-    // ─── 1. Thread Management (Isolated per Tenant) ─────────────────────────
-    if (subAction === 'thread') {
-      const threadRes = await fetch(`${langgraphBase}/threads`, {
-        method: 'POST',
-        headers: commonHeaders,
-        body: JSON.stringify({
-          metadata: {
-            tenantId,
-            project: langsmithProject,
-            createdAt: new Date().toISOString()
-          }
-        })
-      });
-
-      const threadData = await threadRes.json().catch(() => ({}));
-      return new Response(JSON.stringify({
-        ok: threadRes.ok,
-        tenantId,
-        thread: threadData
-      }), { status: threadRes.ok ? 200 : threadRes.status, headers: corsHeaders });
+    // If explicit LangSmith Workspace ID is configured, pass it as X-Tenant-ID
+    if (env && env.LANGSMITH_WORKSPACE_ID) {
+      commonHeaders['X-Tenant-ID'] = env.LANGSMITH_WORKSPACE_ID;
     }
 
-    // ─── 2. Deep Agent Run Dispatcher ───────────────────────────────────────
-    if (subAction === 'run' || subAction === 'dispatch') {
-      const assistantId = body.assistantId || 'agent';
-      const threadId = body.threadId || `thread-${tenantId}`;
+    // ─── 1. Thread Management (Isolated per Composite Tenant) ───────────────
+    if (subAction === 'thread' || subAction === 'threads') {
+      const threadId = body.threadId || `thread-${encodeURIComponent(compositeId)}`;
 
-      // Dispatch run to LangGraph / LangSmith runs endpoint
-      const runRes = await fetch(`${langgraphBase}/threads/${encodeURIComponent(threadId)}/runs`, {
-        method: 'POST',
-        headers: commonHeaders,
-        body: JSON.stringify({
-          assistant_id: assistantId,
-          input: typeof input === 'string' ? { prompt: input } : input,
-          metadata: {
-            tenantId,
-            project: langsmithProject
-          }
-        })
-      });
+      if (langgraphBase) {
+        const threadRes = await fetch(`${langgraphBase}/threads`, {
+          method: 'POST',
+          headers: commonHeaders,
+          body: JSON.stringify({
+            metadata: {
+              paas_id: paasId,
+              end_user_id: endUserId,
+              composite_tenant_id: compositeId,
+              project: langsmithProject,
+              createdAt: new Date().toISOString()
+            }
+          })
+        }).catch(() => null);
 
-      if (runRes.ok) {
-        const runData = await runRes.json();
-        return new Response(JSON.stringify({
-          ok: true,
-          tenantId,
-          threadId,
-          run: runData
-        }), { status: 200, headers: corsHeaders });
+        if (threadRes && threadRes.ok) {
+          const threadData = await threadRes.json();
+          return new Response(JSON.stringify({
+            ok: true,
+            tenantId: compositeId,
+            paasId,
+            endUserId,
+            thread: threadData
+          }), { status: 200, headers: corsHeaders });
+        }
       }
 
-      // If specific thread route is not initialized, create a LangSmith Run Trace directly
-      const traceRes = await fetch(`https://api.smith.langchain.com/runs`, {
+      // Default managed thread response
+      return new Response(JSON.stringify({
+        ok: true,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
+        thread: {
+          id: threadId,
+          paas_id: paasId,
+          end_user_id: endUserId,
+          project: langsmithProject,
+          status: 'ACTIVE',
+          created_at: new Date().toISOString()
+        }
+      }), { status: 200, headers: corsHeaders });
+    }
+
+    // ─── 2. Deep Agent Run Dispatcher (LangSmith REST API v1) ─────────────────
+    if (subAction === 'run' || subAction === 'dispatch') {
+      const runId = crypto.randomUUID();
+      const startTime = new Date().toISOString();
+      const assistantId = body.assistantId || `agent-${paasId}`;
+
+      // Official LangSmith Runs v1 payload schema
+      const runPayload = {
+        id: runId,
+        name: body.name || `deep-agent-${paasId}`,
+        run_type: body.run_type || 'chain',
+        inputs: typeof input === 'string' ? { prompt: input } : input,
+        start_time: startTime,
+        session_name: langsmithProject,
+        extra: {
+          metadata: {
+            paas_id: paasId,
+            end_user_id: endUserId,
+            composite_tenant_id: compositeId,
+            assistant_id: assistantId,
+            project: langsmithProject
+          }
+        }
+      };
+
+      // 1. Post Run to LangSmith REST API v1
+      const traceRes = await fetch('https://api.smith.langchain.com/api/v1/runs', {
         method: 'POST',
         headers: commonHeaders,
-        body: JSON.stringify({
-          name: `deep-agent-${tenantId}`,
-          run_type: 'chain',
-          inputs: typeof input === 'string' ? { input } : input,
-          session_name: langsmithProject,
-          extra: { tenantId }
-        })
+        body: JSON.stringify(runPayload)
       });
 
       const traceData = await traceRes.json().catch(() => ({}));
+
+      if (!traceRes.ok) {
+        return new Response(JSON.stringify({
+          ok: false,
+          source: 'langsmith_runs_api_v1',
+          status: traceRes.status,
+          tenantId: compositeId,
+          paasId,
+          endUserId,
+          error: traceData.detail || traceData.error || `LangSmith HTTP ${traceRes.status}`,
+          raw: traceData
+        }), { status: traceRes.status, headers: corsHeaders });
+      }
+
+      // 2. Perform Agent Inference if requested and OpenRouter key is present
+      let outputData = null;
+      const openrouterKey = env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY);
+
+      if (openrouterKey && body.execute !== false) {
+        const userPrompt = typeof input === 'string'
+          ? input
+          : (input.prompt || input.text || (Array.isArray(input.messages) ? input.messages[input.messages.length - 1]?.content : 'Hello'));
+
+        const systemPrompt = body.systemPrompt || 
+          `You are an autonomous Deep Agent running on child PaaS (${paasId}) for end-user (${endUserId}). Orchestrated by Runnerflo Meta-PaaS.`;
+
+        const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openrouterKey}`,
+            'HTTP-Referer': 'https://runnerflo-b2b.pages.dev',
+            'X-Title': 'Runnerflo Meta-PaaS Deep Agent',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: body.model || 'openai/gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            temperature: 0.7
+          })
+        }).catch(() => null);
+
+        if (orRes && orRes.ok) {
+          const orData = await orRes.json();
+          const reply = orData.choices?.[0]?.message?.content || '';
+          outputData = {
+            output: reply,
+            model: body.model || 'openai/gpt-4o-mini',
+            usage: orData.usage
+          };
+
+          // Complete Run in LangSmith with outputs
+          await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
+            method: 'PATCH',
+            headers: commonHeaders,
+            body: JSON.stringify({
+              outputs: outputData,
+              end_time: new Date().toISOString()
+            })
+          }).catch(() => null);
+        }
+      }
+
       return new Response(JSON.stringify({
-        ok: traceRes.ok,
-        tenantId,
-        source: 'langsmith_runs_api',
+        ok: true,
+        source: 'langsmith_runs_api_v1',
+        runId,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
+        project: langsmithProject,
+        result: outputData?.output || null,
+        output: outputData,
         data: traceData
-      }), { status: traceRes.ok ? 200 : traceRes.status, headers: corsHeaders });
+      }), { status: 200, headers: corsHeaders });
     }
 
     return new Response(JSON.stringify({

@@ -8,7 +8,7 @@ export async function onRequest(context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-project-id, x-tenant-id',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-project-id, x-tenant-id, x-paas-id, x-end-user-id',
     'Content-Type': 'application/json'
   };
 
@@ -45,6 +45,12 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json().catch(() => ({}));
+    
+    // Composite Tenant Identity standard: {paas_id}:{end_user_id}
+    const paasId = body.paas_id || body.paasId || body.tenantId || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
+    const endUserId = body.end_user_id || body.endUserId || body.userId || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || 'default-user';
+    const compositeId = `${paasId}:${endUserId}`;
+
     let provider = (body.provider || '').toLowerCase();
     const model = body.model || body.modelId || '';
     const input = body.input || body.params || body.payload || {};
@@ -119,6 +125,9 @@ export async function onRequest(context) {
       const replyText = orData.choices?.[0]?.message?.content || '';
       return new Response(JSON.stringify({
         ok: true,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
         provider: 'openrouter',
         model,
         result: replyText,
@@ -168,6 +177,9 @@ export async function onRequest(context) {
 
       return new Response(JSON.stringify({
         ok: true,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
         provider: 'fal',
         model,
         result: falData
@@ -222,6 +234,9 @@ export async function onRequest(context) {
 
       return new Response(JSON.stringify({
         ok: true,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
         provider: 'replicate',
         model,
         result: repData.output || repData
@@ -256,6 +271,9 @@ export async function onRequest(context) {
       const wsData = await wsRes.json();
       return new Response(JSON.stringify({
         ok: wsRes.ok,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
         provider: 'wavespeed',
         model,
         result: wsData

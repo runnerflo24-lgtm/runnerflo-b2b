@@ -8,7 +8,7 @@ export async function onRequest(context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, x-tenant-id, x-paas-id, x-end-user-id',
     'Content-Type': 'application/json'
   };
 
@@ -22,14 +22,17 @@ export async function onRequest(context) {
   // Parse parameters from GET query or POST body
   const url = new URL(request.url);
   let action = url.searchParams.get('action') || '';
-  let entityId = url.searchParams.get('entityId') || url.searchParams.get('userId') || 'default';
+  let entityId = url.searchParams.get('entityId') || url.searchParams.get('userId') || '';
   let appName = url.searchParams.get('appName') || url.searchParams.get('app') || '';
   let actionName = url.searchParams.get('actionName') || '';
 
   let body = {};
   if (request.method === 'POST') {
     try {
-      body = await request.json();
+      const text = await request.text();
+      if (text && text.trim().startsWith('{')) {
+        body = JSON.parse(text);
+      }
       action = body.action || action;
       entityId = body.entityId || body.userId || entityId;
       appName = body.appName || body.app || appName;
@@ -38,6 +41,12 @@ export async function onRequest(context) {
       body = {};
     }
   }
+
+  // Composite Tenant Identity standard: {paas_id}:{end_user_id}
+  const paasId = body.paas_id || body.paasId || body.tenantId || url.searchParams.get('paas_id') || url.searchParams.get('paasId') || url.searchParams.get('tenantId') || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
+  const endUserId = body.end_user_id || body.endUserId || body.userId || body.entityId || url.searchParams.get('end_user_id') || url.searchParams.get('userId') || url.searchParams.get('entityId') || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || (entityId && entityId !== 'default' ? entityId : 'default-user');
+  const compositeId = (entityId && entityId.includes(':')) ? entityId : `${paasId}:${endUserId}`;
+  entityId = compositeId;
 
   // Pre-configured popular SaaS catalog for instant zero-latency UI rendering
   const POPULAR_APPS = [
@@ -133,17 +142,37 @@ export async function onRequest(context) {
 
   try {
     // 1. Status / Diagnostic check
-    if (action === 'status' || !action) {
+    if (action === 'status' || (!action && request.method === 'GET')) {
       return new Response(JSON.stringify({
         ok: true,
         service: 'Runnerflo Composio Multi-Tenancy Hub',
         hasKey: Boolean(composioKey),
         activeTenant: entityId,
+        paasId,
+        endUserId,
         availableAppsCount: POPULAR_APPS.length,
         message: composioKey
           ? 'Composio API Key aktif dan siap untuk OAuth multi-tenancy.'
           : 'COMPOSIO_API_KEY belum disetel di Cloudflare Pages. Berjalan dalam mode simulasi.'
       }, null, 2), { status: 200, headers: corsHeaders });
+    }
+
+    // 1b. Inspect Auth Configs in Composio Project
+    if (action === 'auth-configs') {
+      if (composioKey) {
+        const confRes = await fetch('https://backend.composio.dev/api/v3.1/auth_configs', {
+          headers: { 'x-api-key': composioKey }
+        }).catch(() => null);
+        if (confRes) {
+          const confData = await confRes.json().catch(() => ({}));
+          return new Response(JSON.stringify({
+            ok: confRes.ok,
+            status: confRes.status,
+            data: confData
+          }, null, 2), { status: confRes.ok ? 200 : confRes.status, headers: corsHeaders });
+        }
+      }
+      return new Response(JSON.stringify({ ok: false, error: 'COMPOSIO_API_KEY missing' }), { status: 400, headers: corsHeaders });
     }
 
     // 2. List available apps (catalog)
@@ -185,27 +214,60 @@ export async function onRequest(context) {
       const redirectUri = body.redirectUri || url.searchParams.get('redirectUri') || 'https://runnerflo-b2b.pages.dev/Agent%20Workspace?composio_connected=1';
 
       if (composioKey) {
-        try {
-          // Composio v3.1 Auth Link Session (supports Composio Managed Apps)
-          let connectUrl = '';
-          let connectionId = '';
+        let authConfigId = '';
+        let upstreamDetail = null;
 
-          // 1. Look up auth_config_id for this toolkit
+        // 1. Check existing auth configs for this toolkit
+        try {
           const authConfRes = await fetch(`https://backend.composio.dev/api/v3.1/auth_configs?toolkit_slug=${encodeURIComponent(targetApp)}`, {
             headers: { 'x-api-key': composioKey }
-          }).catch(() => null);
-
-          let authConfigId = '';
-          if (authConfRes && authConfRes.ok) {
-            const authConfData = await authConfRes.json().catch(() => ({}));
+          });
+          if (authConfRes.ok) {
+            const authConfData = await authConfRes.json();
             const configs = authConfData.items || authConfData.auth_configs || authConfData.data || [];
             if (configs.length > 0) {
               authConfigId = configs[0].id || configs[0].auth_config_id || '';
             }
           }
+        } catch (e) {
+          upstreamDetail = { searchError: e.message };
+        }
 
-          // 2. Request connection link via v3.1 /link
-          if (authConfigId) {
+        // 2. If no auth config exists yet, create one using Composio managed auth
+        if (!authConfigId) {
+          try {
+            const createConfRes = await fetch('https://backend.composio.dev/api/v3.1/auth_configs', {
+              method: 'POST',
+              headers: {
+                'x-api-key': composioKey,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                toolkit: { slug: targetApp },
+                auth_config: {
+                  type: 'use_composio_managed_auth'
+                }
+              })
+            });
+            if (createConfRes.ok) {
+              const created = await createConfRes.json();
+              authConfigId = created.id || created.auth_config_id || (created.data && created.data.id) || '';
+            } else {
+              const errTxt = await createConfRes.text().catch(() => '');
+              upstreamDetail = { createConfigStatus: createConfRes.status, createConfigError: errTxt };
+            }
+          } catch (e) {
+            upstreamDetail = { createConfigException: e.message };
+          }
+        }
+
+        // 3. Request real connect link session via POST /api/v3.1/connected_accounts/link
+        let connectUrl = '';
+        let connectionId = '';
+        let isComposioLive = false;
+
+        if (authConfigId) {
+          try {
             const linkRes = await fetch('https://backend.composio.dev/api/v3.1/connected_accounts/link', {
               method: 'POST',
               headers: {
@@ -217,42 +279,39 @@ export async function onRequest(context) {
                 user_id: entityId,
                 callback_url: redirectUri
               })
-            }).catch(() => null);
-
-            if (linkRes && linkRes.ok) {
-              const linkData = await linkRes.json().catch(() => ({}));
+            });
+            if (linkRes.ok) {
+              const linkData = await linkRes.json();
               connectUrl = linkData.redirect_url || linkData.url || linkData.link || linkData.connection_url || '';
               connectionId = linkData.id || linkData.connected_account_id || '';
+              isComposioLive = Boolean(connectUrl);
+            } else {
+              const errTxt = await linkRes.text().catch(() => '');
+              upstreamDetail = { ...upstreamDetail, linkStatus: linkRes.status, linkError: errTxt };
             }
+          } catch (e) {
+            upstreamDetail = { ...upstreamDetail, linkException: e.message };
           }
-
-          // 3. Fallback: Direct Composio Managed Connect URL
-          if (!connectUrl) {
-            connectUrl = `https://app.composio.dev/connect/${encodeURIComponent(targetApp)}?entityId=${encodeURIComponent(entityId)}&redirectUri=${encodeURIComponent(redirectUri)}`;
-          }
-
-          return new Response(JSON.stringify({
-            ok: true,
-            live: true,
-            entityId,
-            appName: targetApp,
-            authConfigId: authConfigId || 'managed',
-            connectionId: connectionId || `conn-${entityId}`,
-            connectUrl
-          }), { status: 200, headers: corsHeaders });
-
-        } catch (err) {
-          // Graceful fallback to hosted connect URL
-          const fallbackUrl = `https://app.composio.dev/connect/${encodeURIComponent(targetApp)}?entityId=${encodeURIComponent(entityId)}&redirectUri=${encodeURIComponent(redirectUri)}`;
-          return new Response(JSON.stringify({
-            ok: true,
-            live: true,
-            entityId,
-            appName: targetApp,
-            connectUrl: fallbackUrl,
-            notice: 'Routed via Composio Managed App Link fallback'
-          }), { status: 200, headers: corsHeaders });
         }
+
+        // 4. Fallback if upstream link creation couldn't complete
+        if (!connectUrl) {
+          connectUrl = `https://app.composio.dev/connect/${encodeURIComponent(targetApp)}?entityId=${encodeURIComponent(entityId)}&redirectUri=${encodeURIComponent(redirectUri)}`;
+        }
+
+        return new Response(JSON.stringify({
+          ok: true,
+          live: true,
+          isComposioDirect: isComposioLive,
+          entityId,
+          paasId,
+          endUserId,
+          appName: targetApp,
+          authConfigId: authConfigId || 'managed',
+          connectionId: connectionId || `conn-${entityId}`,
+          connectUrl,
+          upstream: upstreamDetail
+        }), { status: 200, headers: corsHeaders });
       }
 
       // Simulated connect URL when API key not yet entered
@@ -261,6 +320,8 @@ export async function onRequest(context) {
         live: false,
         simulated: true,
         entityId,
+        paasId,
+        endUserId,
         appName: targetApp,
         connectUrl: `https://app.composio.dev/connect/${targetApp}?entityId=${encodeURIComponent(entityId)}`,
         note: 'Simulated OAuth connect URL. Add COMPOSIO_API_KEY in Cloudflare Pages for live automatic OAuth handshake.'
@@ -284,6 +345,8 @@ export async function onRequest(context) {
               ok: true,
               live: true,
               entityId,
+              paasId,
+              endUserId,
               connections: items
             }), { status: 200, headers: corsHeaders });
           }
@@ -299,6 +362,8 @@ export async function onRequest(context) {
         ok: true,
         live: false,
         entityId,
+        paasId,
+        endUserId,
         connections: [
           {
             id: 'mock_slack_conn',
@@ -342,6 +407,8 @@ export async function onRequest(context) {
               live: true,
               action: act,
               entityId,
+              paasId,
+              endUserId,
               result: execData
             }), { status: 200, headers: corsHeaders });
           } else {
@@ -367,6 +434,8 @@ export async function onRequest(context) {
         simulated: true,
         action: act,
         entityId,
+        paasId,
+        endUserId,
         input: inputPayload,
         result: {
           status: 'SUCCESS',
@@ -378,7 +447,7 @@ export async function onRequest(context) {
     // Unknown action
     return new Response(JSON.stringify({
       error: `Unknown action: "${action}"`,
-      supportedActions: ['status', 'apps', 'connect-url', 'connections', 'execute']
+      supportedActions: ['status', 'auth-configs', 'apps', 'connect-url', 'connections', 'execute']
     }), { status: 400, headers: corsHeaders });
 
   } catch (err) {
