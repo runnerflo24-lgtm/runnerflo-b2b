@@ -53,7 +53,7 @@ export async function onRequest(context) {
 
   // Composite Tenant Identity standard: {paas_id}:{end_user_id}
   const paasId = body.paas_id || body.paasId || body.tenantId || url.searchParams.get('paas_id') || url.searchParams.get('paasId') || url.searchParams.get('tenantId') || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
-  const endUserId = body.end_user_id || body.endUserId || body.userId || body.entityId || url.searchParams.get('end_user_id') || url.searchParams.get('userId') || url.searchParams.get('entityId') || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || (entityId && entityId !== 'default' ? entityId : 'default-user');
+  const endUserId = body.end_user_id || body.endUserId || body.userId || url.searchParams.get('end_user_id') || url.searchParams.get('endUserId') || url.searchParams.get('userId') || (entityId && entityId !== 'default' && !entityId.includes(':') ? entityId : '') || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || 'default-user';
   const compositeId = (entityId && entityId.includes(':')) ? entityId : `${paasId}:${endUserId}`;
   entityId = compositeId;
 
@@ -244,19 +244,30 @@ export async function onRequest(context) {
     if (action === 'apps') {
       if (composioKey) {
         try {
-          const compRes = await fetch(`${composioBase}/apps`, {
+          const compRes = await fetch('https://backend.composio.dev/api/v3/toolkits?limit=100', {
             headers: {
-              'X-API-Key': composioKey,
-              'Content-Type': 'application/json'
+              'x-api-key': composioKey
             }
           });
           if (compRes.ok) {
             const compData = await compRes.json();
-            return new Response(JSON.stringify({
-              ok: true,
-              live: true,
-              apps: compData.items || compData.apps || POPULAR_APPS
-            }), { status: 200, headers: corsHeaders });
+            const list = compData.items || compData.toolkits || compData.data || [];
+            if (list.length > 0) {
+              const mapped = list.map(t => ({
+                id: t.slug,
+                name: t.name,
+                category: t.category || 'SaaS Integration',
+                icon: t.logo || '⚡',
+                description: t.description || `Integrasi resmi ${t.name} via Composio Managed Auth.`,
+                popularActions: []
+              }));
+              return new Response(JSON.stringify({
+                ok: true,
+                live: true,
+                count: mapped.length,
+                apps: mapped
+              }), { status: 200, headers: corsHeaders });
+            }
           }
         } catch {
           // Fall back to POPULAR_APPS if upstream fetch times out
@@ -266,16 +277,29 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({
         ok: true,
         live: Boolean(composioKey),
+        count: POPULAR_APPS.length,
         apps: POPULAR_APPS
       }), { status: 200, headers: corsHeaders });
     }
 
     // 3. Initiate Connection (Generate OAuth Connect URL for specific tenant)
     if (action === 'connect-url' || action === 'initiate') {
-      let targetApp = (appName || body.appName || 'google').toLowerCase();
-      if (targetApp.includes('google') && !targetApp.includes('sheets') && !targetApp.includes('drive')) {
-        targetApp = 'google';
-      }
+      const TOOLKIT_SLUG_MAP = {
+        'google': 'gmail',
+        'google-workspace': 'gmail',
+        'google-sign-in': 'gmail',
+        'google_sign_in': 'gmail',
+        'sheets': 'googlesheets',
+        'google-sheets': 'googlesheets',
+        'drive': 'googledrive',
+        'google-drive': 'googledrive',
+        'calendar': 'googlecalendar',
+        'google-calendar': 'googlecalendar',
+        'docs': 'googledocs',
+        'google-docs': 'googledocs'
+      };
+      const rawApp = (appName || body.appName || 'gmail').toLowerCase().trim();
+      const targetApp = TOOLKIT_SLUG_MAP[rawApp] || rawApp;
       const redirectUri = body.redirectUri || url.searchParams.get('redirectUri') || 'https://runnerflo-b2b.pages.dev/Agent%20Workspace?composio_connected=1';
 
       if (composioKey) {
@@ -445,7 +469,7 @@ export async function onRequest(context) {
     // 5. Execute Action (Trigger SaaS operation on behalf of tenant)
     if (action === 'execute') {
       const act = (actionName || body.actionName || '').toUpperCase();
-      const inputPayload = body.input || body.params || {};
+      const inputPayload = body.input || body.params || body.arguments || {};
 
       if (!act) {
         return new Response(JSON.stringify({ error: 'Missing actionName for execution' }), { status: 400, headers: corsHeaders });
@@ -453,15 +477,15 @@ export async function onRequest(context) {
 
       if (composioKey) {
         try {
-          const execRes = await fetch(`${composioBase}/actions/${encodeURIComponent(act)}/execute`, {
+          const execRes = await fetch(`https://backend.composio.dev/api/v3.1/tools/execute/${encodeURIComponent(act)}`, {
             method: 'POST',
             headers: {
-              'X-API-Key': composioKey,
+              'x-api-key': composioKey,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              entityId,
-              input: inputPayload
+              user_id: entityId,
+              arguments: inputPayload
             })
           });
 
