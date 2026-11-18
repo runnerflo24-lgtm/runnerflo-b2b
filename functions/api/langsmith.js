@@ -17,11 +17,12 @@ export async function onRequest(context) {
   }
 
   const langsmithKey = (env && (env.LANGSMITH_API_KEY || env.LANGCHAIN_API_KEY || env.LANGSMITH_KEY)) || '';
-  const langsmithProject = (env && (env.LANGCHAIN_PROJECT || env.LANGSMITH_PROJECT)) || 'runnerflo-meta-paas';
+  const defaultProject = (env && (env.LANGCHAIN_PROJECT || env.LANGSMITH_PROJECT)) || 'default';
   const langgraphBase = (env && env.LANGGRAPH_API_URL) || '';
 
   const url = new URL(request.url);
   const action = url.searchParams.get('action') || '';
+  const requestedProject = url.searchParams.get('project') || '';
 
   // GET: Health & Status check
   if (request.method === 'GET') {
@@ -30,7 +31,7 @@ export async function onRequest(context) {
       service: 'LangSmith Managed Deep Agent Gateway',
       version: 'v1',
       configured: Boolean(langsmithKey),
-      project: langsmithProject,
+      project: defaultProject,
       message: langsmithKey
         ? 'LangSmith API Key aktif dan siap mengorkestrasikan deep agent per tenant.'
         : 'LANGSMITH_API_KEY belum disetel di Cloudflare Pages Secrets.'
@@ -42,14 +43,23 @@ export async function onRequest(context) {
   }
 
   try {
-    const body = await request.json().catch(() => ({}));
+    let body = {};
+    try {
+      const rawText = await request.text();
+      if (rawText && rawText.trim().startsWith('{')) {
+        body = JSON.parse(rawText);
+      }
+    } catch {
+      body = {};
+    }
     
     // Composite Tenant Identity standard: {paas_id}:{end_user_id}
-    const paasId = body.paas_id || body.paasId || body.tenantId || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
-    const endUserId = body.end_user_id || body.endUserId || body.userId || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || 'default-user';
+    const paasId = body.paas_id || body.paasId || body.tenantId || url.searchParams.get('paas_id') || url.searchParams.get('paasId') || url.searchParams.get('tenantId') || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
+    const endUserId = body.end_user_id || body.endUserId || body.userId || url.searchParams.get('end_user_id') || url.searchParams.get('endUserId') || url.searchParams.get('userId') || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || 'default-user';
     const compositeId = `${paasId}:${endUserId}`;
     
     const subAction = action || body.action || 'run';
+    const langsmithProject = body.project || requestedProject || defaultProject;
     const input = body.input || body.prompt || body.messages || {};
 
     if (!langsmithKey) {
