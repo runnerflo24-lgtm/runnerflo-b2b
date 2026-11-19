@@ -3719,9 +3719,162 @@ body.ws-stage-2-active .topbar {
       return;
     }
 
-    // Existing project follow-up prompt
-    launchTotalumInfrastructure(null);
-  }
+    // ── If EXISTING project: Edit via LangSmith Deep Agent (Gemini) — NO Totalum credits needed ───
+    if (!isNew) {
+      m.steps.push({ label: 'LangSmith Deep Agent: Routing edit request to Gemini (Google AI Studio)...', done: false });
+      renderIf(p);
+      updateWave(20, 'LangSmith Deep Agent: Analyzing existing code with Gemini...', 'Progress: 20% • Zero-credit edit via /api/langsmith');
+
+      // Build current code context
+      var editFiles = (p.projectCodeFiles && p.projectCodeFiles.length) ? p.projectCodeFiles : [];
+      var currentHtml = p.claudePreviewHtml || '';
+      if (!editFiles.some(function(f) { return f.path === 'index.html'; }) && currentHtml) {
+        editFiles = [{ path: 'index.html', name: 'index.html', customContent: currentHtml }].concat(editFiles);
+      } else if (currentHtml) {
+        editFiles = editFiles.map(function(f) {
+          if (f.path === 'index.html') return Object.assign({}, f, { customContent: currentHtml });
+          return f;
+        });
+      }
+
+      var editHistory = (p.msgs || []).slice(-6).map(function(item) { return { role: item.role, text: item.text }; });
+
+      fetch('/api/langsmith?action=edit-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'edit-code',
+          input: { prompt: text },
+          projectName: p.name || projSlug,
+          paasId: projSlug,
+          endUserId: localStorage.getItem('rf_end_user_id') || 'usr_dev',
+          userModel: userLlmModel,
+          userProvider: userLlmProvider,
+          history: editHistory,
+          currentFiles: editFiles.slice(0, 5).map(function(f) {
+            return { path: f.path || f.name, content: (f.customContent || '').slice(0, 60000) };
+          })
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(editRes) {
+        if (my !== runId) return;
+
+        if (editRes && editRes.ok && (editRes.htmlCode || editRes.code)) {
+          var newCode = editRes.htmlCode || editRes.code;
+          m.steps[0].done = true;
+          m.steps[0].label = '✨ Edit Applied by Gemini LangSmith Agent (' + (editRes.model || 'Google AI Studio') + ')';
+          if (editRes.audit) {
+            m.steps.push({ label: editRes.audit.summary || '🛡️ Zero-BYOK Audit: 0 violations', done: true });
+          }
+
+          // AUTO-SNAPSHOT before overwrite
+          if (p.claudePreviewHtml && p.claudePreviewHtml.length > 100) {
+            if (!p.codeSnapshots) p.codeSnapshots = [];
+            p.codeSnapshots.push({ version: p.codeSnapshots.length + 1, html: p.claudePreviewHtml, files: JSON.parse(JSON.stringify(p.projectCodeFiles || [])), ts: Date.now(), label: 'v' + (p.codeSnapshots.length + 1) + ' — before: ' + (text || 'edit').slice(0, 40) });
+            if (p.codeSnapshots.length > 10) p.codeSnapshots = p.codeSnapshots.slice(-10);
+          }
+
+          // Apply new code
+          p.claudePreviewHtml = newCode;
+          p.claudePreviewFile = 'index.html';
+          if (!p.projectCodeFiles) p.projectCodeFiles = [];
+          var idxF = p.projectCodeFiles.find(function(f) { return f.path === 'index.html'; });
+          if (idxF) { idxF.customContent = newCode; idxF.size = newCode.length; }
+          else { p.projectCodeFiles.unshift({ path: 'index.html', name: 'index.html', customContent: newCode, size: newCode.length }); }
+
+          // Show live preview immediately
+          try {
+            if (p.claudePreviewBlobUrl) { try { URL.revokeObjectURL(p.claudePreviewBlobUrl); } catch(e){} }
+            var blob = new Blob([newCode], { type: 'text/html' });
+            var blobUrl = URL.createObjectURL(blob);
+            p.claudePreviewBlobUrl = blobUrl;
+            var liveFr = document.getElementById('wsLiveFrame');
+            if (liveFr) { liveFr.src = blobUrl; liveFr.style.opacity = '1'; }
+          } catch(blobErr) {}
+
+          p.busy = false;
+          m.text = '✨ **Edit Berhasil Diterapkan oleh Gemini LangSmith Deep Agent!**\n\n'
+            + (editRes.summary ? '**Perubahan:** ' + editRes.summary + '\n\n' : '')
+            + '> 🛡️ Zero-BYOK Verified\n> ⚡ Live preview diperbarui';
+          m.actionHtml = renderHostingerDeployCard({
+            title: 'Kode Diperbarui oleh Gemini LangSmith Agent',
+            subtitle: (editRes.summary || 'Edit diterapkan ke preview live') + ' • Zero-BYOK Verified',
+            statusText: 'EDIT SELESAI',
+            primaryBtnText: '🚀 Deploy ke Production',
+            primaryOnClick: 'window.openPublishModal()',
+            secondaryBtnText: '👁️ Preview Live',
+            secondaryOnClick: 'window.applyClaudePreview && window.applyClaudePreview()',
+            extraBtnText: '💻 Lihat Kode',
+            extraOnClick: 'uiMode=\'code\';renderSide();'
+          });
+
+          // Auto-persist to R2
+          fetch('/api/storage?action=save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: projSlug, projectName: p.name || projSlug, file: 'index.html', content: newCode, totalumProjectId: p.totalumProjectId || null }) }).catch(function(){});
+
+          finishWave();
+          save();
+          renderChat();
+          renderTabs();
+          renderSide();
+          toast('✨ Gemini mengedit kode berhasil!');
+          return;
+        }
+
+        // If LangSmith returned error/fallback, still use Gemini generate-ui as re-generate
+        console.warn('LangSmith edit returned fallback:', editRes);
+        m.steps[0].label = '⚡ LangSmith edit fallback → Re-generate via Gemini...';
+        renderIf(p);
+        // Try re-generate approach
+        fetch('/api/langsmith?action=generate-ui', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'generate-ui', input: { prompt: (p.name ? 'Update the existing app "' + p.name + '": ' : '') + text }, projectName: p.name || projSlug, paasId: projSlug, endUserId: localStorage.getItem('rf_end_user_id') || 'usr_dev', userModel: userLlmModel, userProvider: userLlmProvider })
+        })
+        .then(function(r2) { return r2.json(); })
+        .then(function(genRes) {
+          if (my !== runId) return;
+          if (genRes && genRes.ok && genRes.htmlCode) {
+            var newCode = genRes.htmlCode;
+            m.steps[0].done = true;
+            m.steps[0].label = '✨ Re-generated by Gemini (' + (genRes.model || 'Google AI Studio') + ')';
+            p.claudePreviewHtml = newCode;
+            if (!p.projectCodeFiles) p.projectCodeFiles = [];
+            var idxF = p.projectCodeFiles.find(function(f) { return f.path === 'index.html'; });
+            if (idxF) { idxF.customContent = newCode; } else { p.projectCodeFiles.unshift({ path: 'index.html', name: 'index.html', customContent: newCode, size: newCode.length }); }
+            try { var blob2 = new Blob([newCode], { type: 'text/html' }); var url2 = URL.createObjectURL(blob2); p.claudePreviewBlobUrl = url2; var fr = document.getElementById('wsLiveFrame'); if (fr) { fr.src = url2; } } catch(e){}
+            p.busy = false;
+            m.text = '✨ **Re-generated by Gemini LangSmith Agent!**\nPreview live diperbarui.';
+            m.actionHtml = renderHostingerDeployCard({ title: 'Kode Diperbarui oleh Gemini', subtitle: 'Preview live siap. Deploy ke custom domain dengan 1 klik.', statusText: 'SIAP DIDEPLOY', primaryBtnText: '🚀 Deploy & Kelola Domain', primaryOnClick: 'window.openPublishModal()', secondaryBtnText: '💻 Lihat Kode', secondaryOnClick: 'uiMode=\'code\';renderSide();' });
+            finishWave(); save(); renderChat(); renderTabs(); renderSide();
+            toast('✨ Re-generate berhasil!');
+          } else {
+            // Last resort: show error but don't call Claude/Totalum
+            p.busy = false;
+            m.steps[0].done = false;
+            m.text = '⚠️ **Gemini LangSmith Agent tidak dapat memproses permintaan ini.**\n\nCoba ulangi atau tulis ulang instruksi edit dengan lebih spesifik.';
+            m.actionHtml = renderHostingerDeployCard({ title: 'Gagal — Coba Ulangi', subtitle: 'Tulis instruksi edit yang lebih spesifik atau gunakan Demo Mode.', statusText: 'ERROR', primaryBtnText: '🔄 Coba Lagi', primaryOnClick: 'window.setEngineMode(\'sim\')', secondaryBtnText: '', secondaryOnClick: '' });
+            finishWave(); save(); renderChat(); renderTabs(); renderSide();
+          }
+        })
+        .catch(function(err2) {
+          if (my !== runId) return;
+          p.busy = false;
+          m.text = '⚠️ **Edit gagal:** ' + (err2.message || 'Network error') + '\n\nCoba ulangi instruksi edit.';
+          finishWave(); save(); renderChat(); renderTabs(); renderSide();
+        });
+      })
+      .catch(function(editErr) {
+        if (my !== runId) return;
+        console.warn('LangSmith edit-code error:', editErr);
+        p.busy = false;
+        m.steps[0].done = false;
+        m.text = '⚠️ **LangSmith Agent error:** ' + (editErr.message || 'Network error') + '\n\nCoba ulangi instruksi edit.';
+        finishWave(); save(); renderChat(); renderTabs(); renderSide();
+        toast('⚠️ Edit gagal, coba lagi.');
+      });
+      return;
+    }
 
   // Claude Sonnet 5.5 Autonomous Agent with Code Tools & Trigger.dev v3 Background Pipeline
   function runClaudeFallbackAgent(p, text, reason, existingMsg, myRunId, attachedImg) {

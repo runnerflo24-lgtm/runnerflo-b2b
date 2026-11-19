@@ -1,84 +1,324 @@
 // Cloudflare Pages Function: /api/langsmith
-// LangSmith Managed Deep Agent Engine & Tenant Thread Isolator
-// Central orchestration for Runnerflo Meta-PaaS
+// LangSmith Managed Deep Agent Engine — Full Tool Suite
+// Runnerflo Meta-PaaS: ReAct Loop, Web Search, Read/Edit Code, Human-in-the-Loop, MCP, Composio, Totalum, R2
 
-// ─── Universal Deep Agent Tools (Composio SaaS, Totalum DB, Cloudflare R2) ──
+// ─── FULL LangSmith Deep Agent Tools — Setara Claude Managed Agent ─────────
 const DEEP_AGENT_TOOLS = [
+  // ── 1. WEB SEARCH (Tavily-compatible via /api/gateway) ──────────────────────
+  {
+    type: "function",
+    function: {
+      name: "web_search",
+      description: "Search the web for real-time information, documentation, news, pricing, APIs, tutorials, or any factual data. Use this whenever you need up-to-date info not in your training data.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "The search query. Be specific and use English for best results." },
+          num_results: { type: "integer", description: "Number of results to return (1-5, default 3)" }
+        },
+        required: ["query"]
+      }
+    }
+  },
+  // ── 2. READ CODE / FILE ─────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "read_code_file",
+      description: "Read the full source code of a file in the current project. Use before editing to understand existing structure, logic, and styling.",
+      parameters: {
+        type: "object",
+        properties: {
+          path: { type: "string", description: "File path to read (e.g. 'index.html', 'app.js', 'styles.css')" }
+        },
+        required: ["path"]
+      }
+    }
+  },
+  // ── 3. EDIT / WRITE CODE ────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "edit_code_file",
+      description: "Create or overwrite a code file with new content. ALWAYS call read_code_file first on the target file, then apply targeted changes. Outputs complete valid HTML/JS/CSS.",
+      parameters: {
+        type: "object",
+        properties: {
+          path: { type: "string", description: "File path (e.g. 'index.html')" },
+          content: { type: "string", description: "Full new content of the file" },
+          summary: { type: "string", description: "One-line summary of what was changed" }
+        },
+        required: ["path", "content"]
+      }
+    }
+  },
+  // ── 4. HUMAN-IN-THE-LOOP ───────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "ask_human",
+      description: "Ask the human user for clarification, approval, or additional context before proceeding. Use when the task is ambiguous or requires a decision from the user. The agent will pause and wait for human input.",
+      parameters: {
+        type: "object",
+        properties: {
+          question: { type: "string", description: "The question to ask the human user" },
+          options: {
+            type: "array",
+            items: { type: "string" },
+            description: "Optional list of suggested choices the user can pick from"
+          }
+        },
+        required: ["question"]
+      }
+    }
+  },
+  // ── 5. EXECUTE JAVASCRIPT SANDBOX ──────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "execute_code",
+      description: "Execute a JavaScript expression or utility logic (data transformation, regex, calculation, JSON processing) and get the result. The sandbox has access to Math, JSON, Array, String, Date but NOT external APIs.",
+      parameters: {
+        type: "object",
+        properties: {
+          code: { type: "string", description: "JavaScript expression or multi-line function body to evaluate" },
+          description: { type: "string", description: "What this code does" }
+        },
+        required: ["code"]
+      }
+    }
+  },
+  // ── 6. MCP — FETCH URL / BROWSER ───────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "fetch_url",
+      description: "Fetch and read the content of any URL (documentation page, API endpoint, JSON data, HTML page). Returns text content. Useful for reading API docs, checking live endpoints, or reading reference pages.",
+      parameters: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "The URL to fetch" },
+          method: { type: "string", description: "HTTP method: GET or POST (default: GET)" },
+          body: { type: "string", description: "Optional JSON body for POST requests" }
+        },
+        required: ["url"]
+      }
+    }
+  },
+  // ── 7. COMPOSIO — EXECUTE SAAS ACTION ──────────────────────────────────────
   {
     type: "function",
     function: {
       name: "composio_execute_action",
-      description: "Execute a SaaS action on behalf of this tenant (e.g. send an email via Gmail, post a Slack message, append to Google Sheets, create Notion page).",
+      description: "Execute a SaaS action on behalf of this tenant (send Gmail, post Slack message, update Google Sheets, create Notion page, push to GitHub, create Calendar event, etc.).",
       parameters: {
         type: "object",
         properties: {
-          actionName: { type: "string", description: "The action slug in SCREAMING_SNAKE_CASE, e.g. GMAIL_SEND_EMAIL, SLACK_SENDS_A_MESSAGE, GOOGLESHEETS_BATCH_UPDATE" },
+          actionName: { type: "string", description: "Action slug in SCREAMING_SNAKE_CASE: GMAIL_SEND_EMAIL, SLACK_SENDS_A_MESSAGE, GOOGLESHEETS_BATCH_UPDATE, NOTION_CREATE_PAGE, GITHUB_CREATE_OR_UPDATE_FILE, GOOGLECALENDAR_CREATE_EVENT" },
           params: { type: "object", description: "Parameters for the SaaS action" }
         },
         required: ["actionName"]
       }
     }
   },
+  // ── 8. COMPOSIO — OAUTH CONNECT ────────────────────────────────────────────
   {
     type: "function",
     function: {
       name: "composio_get_connect_url",
-      description: "Generate an OAuth connect URL for an end-user to link their SaaS account (e.g. Google, Gmail, Slack, Notion, GitHub).",
+      description: "Generate a zero-config OAuth connect URL so the end-user can link their Google, Gmail, Slack, Notion, or GitHub account. No Client ID needed.",
       parameters: {
         type: "object",
         properties: {
-          appName: { type: "string", description: "The app to connect: gmail, googlecalendar, googlesheets, slack, notion, github" }
+          appName: { type: "string", description: "App to connect: gmail, googlecalendar, googlesheets, slack, notion, github, twitter, linkedin" }
         },
         required: ["appName"]
       }
     }
   },
+  // ── 9. COMPOSIO — CHECK CONNECTIONS ────────────────────────────────────────
   {
     type: "function",
     function: {
       name: "composio_check_connections",
-      description: "Check which third-party SaaS accounts are currently connected and active for this tenant user.",
-      parameters: {
-        type: "object",
-        properties: {}
-      }
+      description: "Check which third-party SaaS accounts are connected and active for this tenant user.",
+      parameters: { type: "object", properties: {} }
     }
   },
+  // ── 10. DATABASE QUERY (Totalum D1 / SQLite) ────────────────────────────────
   {
     type: "function",
     function: {
       name: "database_query",
-      description: "Ask a plain English/Indonesian question to query records or fetch table data from the cloud SQLite/D1 database.",
+      description: "Query the tenant's cloud database using plain English or SQL. Can list tables, count records, filter rows, or run any database question.",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Plain English or Indonesian query to find records in the database" },
-          table: { type: "string", description: "Optional table name to retrieve rows directly" }
+          query: { type: "string", description: "Plain English or SQL query" },
+          table: { type: "string", description: "Optional table name to retrieve all rows" }
         },
         required: ["query"]
       }
     }
   },
+  // ── 11. CLOUDFLARE R2 STORAGE ───────────────────────────────────────────────
   {
     type: "function",
     function: {
       name: "storage_save",
-      description: "Save or update a tenant document, JSON config, or file in the Cloudflare R2 bucket.",
+      description: "Save or update any file, JSON config, or document in the tenant's Cloudflare R2 storage bucket.",
       parameters: {
         type: "object",
         properties: {
-          file: { type: "string", description: "File path, e.g. 'notes.json' or 'data.csv'" },
-          content: { type: "string", description: "Text or JSON string content to persist" }
+          file: { type: "string", description: "File path/name (e.g. 'notes.json', 'export.csv')" },
+          content: { type: "string", description: "Full text/JSON content to persist" }
         },
         required: ["file", "content"]
+      }
+    }
+  },
+  // ── 12. STRIPE PAYMENT / CHECKOUT ──────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "create_payment_checkout",
+      description: "Create a Stripe Connect checkout session for a subscription plan or one-time payment. Returns a checkout URL the user can be redirected to.",
+      parameters: {
+        type: "object",
+        properties: {
+          plan: { type: "string", description: "Plan name (e.g. 'Pro', 'Starter', 'Enterprise')" },
+          amount: { type: "integer", description: "Amount in cents (e.g. 1999 = $19.99)" },
+          currency: { type: "string", description: "Currency code (default: usd)" }
+        },
+        required: ["plan", "amount"]
+      }
+    }
+  },
+  // ── 13. TRIGGER.DEV — BACKGROUND JOB ──────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "trigger_background_job",
+      description: "Dispatch a Trigger.dev v3 background job for async long-running tasks (batch processing, scheduled emails, data pipeline, file generation).",
+      parameters: {
+        type: "object",
+        properties: {
+          taskId: { type: "string", description: "Task identifier defined in the Trigger.dev project" },
+          payload: { type: "object", description: "Payload data to send to the background task" }
+        },
+        required: ["taskId"]
       }
     }
   }
 ];
 
 async function executeDeepAgentTool(toolName, args, ctx) {
-  const { origin, paasId, endUserId } = ctx;
+  const { origin, paasId, endUserId, projectFiles } = ctx;
 
+  // ── 1. WEB SEARCH ──────────────────────────────────────────────────────────
+  if (toolName === 'web_search') {
+    const query = args.query || '';
+    const numResults = Math.min(args.num_results || 3, 5);
+    try {
+      // Try Tavily first (via gateway), fallback to DuckDuckGo Instant Answer
+      const tavilyKey = ctx.tavilyKey || '';
+      if (tavilyKey) {
+        const res = await fetch('https://api.tavily.com/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tavilyKey}` },
+          body: JSON.stringify({ query, max_results: numResults, search_depth: 'basic' })
+        });
+        if (res.ok) {
+          const d = await res.json();
+          return { ok: true, results: (d.results || []).slice(0, numResults).map(r => ({ title: r.title, url: r.url, snippet: r.content?.slice(0, 400) })) };
+        }
+      }
+      // Fallback: DuckDuckGo Instant Answer API
+      const ddRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+      if (ddRes.ok) {
+        const dd = await ddRes.json();
+        const results = [];
+        if (dd.AbstractText) results.push({ title: dd.Heading || query, url: dd.AbstractURL || '', snippet: dd.AbstractText.slice(0, 400) });
+        (dd.RelatedTopics || []).slice(0, numResults - 1).forEach(t => {
+          if (t.Text) results.push({ title: t.Text.slice(0, 80), url: t.FirstURL || '', snippet: t.Text.slice(0, 300) });
+        });
+        return { ok: true, query, results };
+      }
+      return { ok: false, error: 'Web search unavailable', query };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 2. READ CODE FILE ───────────────────────────────────────────────────────
+  if (toolName === 'read_code_file') {
+    const path = args.path || 'index.html';
+    const files = projectFiles || [];
+    const f = files.find(x => (x.path || x.name) === path);
+    if (f && f.content) {
+      return { ok: true, path, content: f.content, length: f.content.length };
+    }
+    return { ok: false, error: `File not found: ${path}`, available: files.map(x => x.path || x.name) };
+  }
+
+  // ── 3. EDIT CODE FILE ───────────────────────────────────────────────────────
+  if (toolName === 'edit_code_file') {
+    const path = args.path || 'index.html';
+    const content = args.content || '';
+    const summary = args.summary || `Updated ${path}`;
+    // Store in context so caller can collect modified files
+    if (!ctx.modifiedFiles) ctx.modifiedFiles = [];
+    const existing = ctx.modifiedFiles.find(x => x.path === path);
+    if (existing) { existing.code = content; existing.summary = summary; }
+    else { ctx.modifiedFiles.push({ path, code: content, summary }); }
+    return { ok: true, path, length: content.length, summary };
+  }
+
+  // ── 4. HUMAN-IN-THE-LOOP ───────────────────────────────────────────────────
+  if (toolName === 'ask_human') {
+    // Signal the loop to pause and return a human clarification request
+    ctx.humanRequest = { question: args.question, options: args.options || [] };
+    return { ok: true, status: 'human_input_required', question: args.question, options: args.options || [] };
+  }
+
+  // ── 5. EXECUTE JAVASCRIPT SANDBOX ──────────────────────────────────────────
+  if (toolName === 'execute_code') {
+    const code = args.code || '';
+    try {
+      // Safe evaluation: only allow pure JS (Math, JSON, Array, String, Date, Number)
+      const forbidden = /import|require|fetch|XMLHttpRequest|eval|Function|process|globalThis|__proto__|constructor/;
+      if (forbidden.test(code)) {
+        return { ok: false, error: 'Forbidden: external access not allowed in sandbox' };
+      }
+      // eslint-disable-next-line no-new-func
+      const fn = new Function('Math', 'JSON', 'Array', 'String', 'Date', 'Number', 'Object', `"use strict";\n${code}`);
+      const result = fn(Math, JSON, Array, String, Date, Number, Object);
+      return { ok: true, result: typeof result === 'object' ? JSON.stringify(result) : String(result) };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 6. MCP — FETCH URL ─────────────────────────────────────────────────────
+  if (toolName === 'fetch_url') {
+    const url = args.url || '';
+    const method = (args.method || 'GET').toUpperCase();
+    if (!url.startsWith('http')) return { ok: false, error: 'Invalid URL' };
+    try {
+      const opts = { method, headers: { 'User-Agent': 'Runnerflo-Agent/1.0' } };
+      if (method === 'POST' && args.body) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = args.body;
+      }
+      const res = await fetch(url, opts);
+      const text = await res.text();
+      return { ok: res.ok, status: res.status, content: text.slice(0, 8000), truncated: text.length > 8000 };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 7. COMPOSIO — EXECUTE SAAS ACTION ──────────────────────────────────────
   if (toolName === 'composio_execute_action') {
     const actName = args.actionName || '';
     const inputPayload = args.params || {};
@@ -94,6 +334,7 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     }
   }
 
+  // ── 8. COMPOSIO — OAUTH CONNECT ────────────────────────────────────────────
   if (toolName === 'composio_get_connect_url') {
     const app = args.appName || 'google';
     try {
@@ -107,26 +348,48 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     }
   }
 
+  // ── 9. COMPOSIO — CHECK CONNECTIONS ────────────────────────────────────────
   if (toolName === 'composio_check_connections') {
     try {
-      const res = await fetch(`${origin}/api/composio?action=connections&paasId=${encodeURIComponent(paasId)}&endUserId=${encodeURIComponent(endUserId)}`, {
-        method: 'GET'
-      });
+      const res = await fetch(`${origin}/api/composio?action=connections&paasId=${encodeURIComponent(paasId)}&endUserId=${encodeURIComponent(endUserId)}`, { method: 'GET' });
       return await res.json();
     } catch (e) {
       return { ok: false, error: e.message };
     }
   }
 
+  // ── 10. DATABASE QUERY ──────────────────────────────────────────────────────
   if (toolName === 'database_query') {
     const q = args.query || '';
     const tbl = args.table || '';
     try {
       const ep = tbl ? `${origin}/api/totalum?action=database-rows&projectId=${encodeURIComponent(paasId)}` : `${origin}/api/totalum?action=database-ask&projectId=${encodeURIComponent(paasId)}`;
-      const res = await fetch(ep, {
+      const res = await fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, table: tbl }) });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 11. CLOUDFLARE R2 STORAGE ───────────────────────────────────────────────
+  if (toolName === 'storage_save') {
+    const f = args.file || 'data.json';
+    const c = typeof args.content === 'object' ? JSON.stringify(args.content) : String(args.content || '');
+    try {
+      const res = await fetch(`${origin}/api/storage?action=save`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId, file: f, content: c }) });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 12. STRIPE PAYMENT ──────────────────────────────────────────────────────
+  if (toolName === 'create_payment_checkout') {
+    try {
+      const res = await fetch(`${origin}/api/totalum?action=stripe-checkout&projectId=${encodeURIComponent(paasId)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, table: tbl })
+        body: JSON.stringify({ paasId, endUserId, plan: args.plan, amount: args.amount, currency: args.currency || 'usd' })
       });
       return await res.json();
     } catch (e) {
@@ -134,14 +397,13 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     }
   }
 
-  if (toolName === 'storage_save') {
-    const f = args.file || 'data.json';
-    const c = typeof args.content === 'object' ? JSON.stringify(args.content) : String(args.content || '');
+  // ── 13. TRIGGER.DEV BACKGROUND JOB ─────────────────────────────────────────
+  if (toolName === 'trigger_background_job') {
     try {
-      const res = await fetch(`${origin}/api/storage?action=save`, {
+      const res = await fetch(`${origin}/api/gateway`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paasId, file: f, content: c })
+        body: JSON.stringify({ paasId, endUserId, provider: 'trigger', taskId: args.taskId, payload: args.payload || {} })
       });
       return await res.json();
     } catch (e) {
@@ -461,12 +723,483 @@ export async function onRequest(context) {
         }), { status: traceRes.status, headers: corsHeaders });
       }
 
-      // 2. Perform Autonomous Deep Agent Inference with ReAct Tool-Calling Loop
+      // 2. Perform Autonomous Deep Agent Inference with Full ReAct Tool-Calling Loop
       let outputData = null;
       const openrouterKey = env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY);
       const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+      const tavilyKey = env && (env.TAVILY_API_KEY || env.TAVILY_KEY);
       const origin = new URL(request.url).origin;
-      const toolCtx = { origin, paasId, endUserId, compositeId };
+      const toolCtx = { origin, paasId, endUserId, compositeId, tavilyKey, modifiedFiles: [], projectFiles: body.currentFiles || [] };
+
+      if (body.execute !== false && (openrouterKey || googleKey)) {
+        const userPrompt = typeof input === 'string'
+          ? input
+          : (input.prompt || input.text || (Array.isArray(input.messages) ? input.messages[input.messages.length - 1]?.content : 'Hello'));
+
+        const systemPrompt = body.systemPrompt ||
+          `You are an autonomous LangSmith Deep Agent running on child PaaS (${paasId}) for end-user (${endUserId}).
+Orchestrated by Runnerflo Meta-PaaS with full tool access — equal to Claude Managed Agent.
+
+AVAILABLE TOOLS (use ALL of them when needed):
+1. web_search — Search real-time web for docs, APIs, tutorials, pricing
+2. read_code_file — Read current source code before editing
+3. edit_code_file — Write/update code files (ALWAYS read first)
+4. ask_human — Ask user for clarification (Human-in-the-Loop)
+5. execute_code — Run JavaScript sandbox for data processing
+6. fetch_url — Read any URL/API endpoint (MCP browser)
+7. composio_execute_action — Execute Gmail, Slack, Sheets, Notion, GitHub actions
+8. composio_get_connect_url — Generate OAuth connect URL (zero-config Google login)
+9. composio_check_connections — Check user's connected SaaS accounts
+10. database_query — Query tenant's cloud D1 database
+11. storage_save — Save files to Cloudflare R2 bucket
+12. create_payment_checkout — Create Stripe payment/subscription checkout
+13. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
+
+WORKFLOW:
+- Think step-by-step before acting
+- Call read_code_file BEFORE editing any file
+- Use web_search when you need current documentation or APIs
+- Use ask_human when task is ambiguous and needs user decision
+- Always call edit_code_file when you modify code
+- Chain multiple tools when needed (search → read → edit → verify)
+
+Respond in Indonesian if the user writes in Indonesian. Otherwise respond in English.`;
+
+        const conversationMessages = Array.isArray(input.messages)
+          ? input.messages.slice()
+          : [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ];
+
+        if (!conversationMessages.some(m => m.role === 'system')) {
+          conversationMessages.unshift({ role: 'system', content: systemPrompt });
+        }
+
+        const modelChoice = body.model || 'openai/gpt-4o-mini';
+        const agentSteps = [];
+        let finalReply = '';
+        let totalUsage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0, cost: 0 };
+        let loopCount = 0;
+        const maxLoops = 12; // Deeper reasoning loops
+
+        while (loopCount < maxLoops) {
+          loopCount++;
+
+          // Try OpenRouter first, fallback to Gemini native
+          let llmData = null;
+          if (openrouterKey) {
+            const llmRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${openrouterKey}`,
+                'HTTP-Referer': 'https://runnerflo-b2b.pages.dev',
+                'X-Title': 'Runnerflo LangSmith Deep Agent',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model: modelChoice,
+                messages: conversationMessages,
+                tools: DEEP_AGENT_TOOLS,
+                tool_choice: 'auto',
+                temperature: 0.5,
+                max_tokens: 8192
+              })
+            }).catch(() => null);
+            if (llmRes && llmRes.ok) llmData = await llmRes.json().catch(() => null);
+          }
+
+          // Gemini fallback if OpenRouter failed or no key
+          if (!llmData && googleKey) {
+            const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'];
+            const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+            const gMessages = conversationMessages.filter(m => m.role !== 'tool').map(m => ({
+              role: m.role === 'assistant' ? 'model' : 'user',
+              parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
+            }));
+            for (const mdl of GEMINI_MODELS) {
+              try {
+                const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ contents: gMessages, generationConfig: { temperature: 0.5, maxOutputTokens: 8192 } })
+                });
+                if (gRes.ok) {
+                  const gData = await gRes.json();
+                  const text = gData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                  if (text) { llmData = { choices: [{ message: { role: 'assistant', content: text } }] }; break; }
+                }
+              } catch (e) { /* try next */ }
+            }
+          }
+
+          if (!llmData) { finalReply = 'Agent inference failed — no LLM available.'; break; }
+
+          const choice = llmData.choices?.[0];
+          const assistantMsg = choice?.message;
+
+          if (llmData.usage) {
+            totalUsage.prompt_tokens += (llmData.usage.prompt_tokens || 0);
+            totalUsage.completion_tokens += (llmData.usage.completion_tokens || 0);
+            totalUsage.total_tokens += (llmData.usage.total_tokens || 0);
+            totalUsage.cost += (llmData.usage.cost || 0);
+          }
+
+          if (!assistantMsg) break;
+
+          if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
+            conversationMessages.push(assistantMsg);
+
+            for (const tc of assistantMsg.tool_calls) {
+              const toolName = tc.function?.name || '';
+              let toolArgs = {};
+              try { toolArgs = JSON.parse(tc.function?.arguments || '{}'); } catch { toolArgs = {}; }
+
+              // Post tool span to LangSmith trace
+              const toolRunId = crypto.randomUUID();
+              await fetch('https://api.smith.langchain.com/api/v1/runs', {
+                method: 'POST', headers: commonHeaders,
+                body: JSON.stringify({ id: toolRunId, name: `tool:${toolName}`, run_type: 'tool', parent_run_id: runId, inputs: toolArgs, start_time: new Date().toISOString(), session_name: langsmithProject, extra: { metadata: { paas_id: paasId, end_user_id: endUserId, tool_name: toolName } } })
+              }).catch(() => null);
+
+              const toolResult = await executeDeepAgentTool(toolName, toolArgs, toolCtx);
+
+              await fetch(`https://api.smith.langchain.com/api/v1/runs/${toolRunId}`, {
+                method: 'PATCH', headers: commonHeaders,
+                body: JSON.stringify({ outputs: toolResult, end_time: new Date().toISOString() })
+              }).catch(() => null);
+
+              agentSteps.push({ tool: toolName, input: toolArgs, output: toolResult });
+
+              // Human-in-the-loop: return immediately with question
+              if (toolName === 'ask_human' && toolCtx.humanRequest) {
+                await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
+                  method: 'PATCH', headers: commonHeaders,
+                  body: JSON.stringify({ outputs: { status: 'needs_clarification', question: toolCtx.humanRequest.question }, end_time: new Date().toISOString() })
+                }).catch(() => null);
+                return new Response(JSON.stringify({
+                  ok: true, source: 'langsmith_deep_agent_v1', runId,
+                  status: 'needs_clarification',
+                  question: toolCtx.humanRequest.question,
+                  options: toolCtx.humanRequest.options,
+                  steps: agentSteps, tenantId: compositeId, paasId, endUserId
+                }), { status: 200, headers: corsHeaders });
+              }
+
+              conversationMessages.push({ role: 'tool', tool_call_id: tc.id, name: toolName, content: JSON.stringify(toolResult) });
+            }
+          } else {
+            finalReply = assistantMsg.content || '';
+            break;
+          }
+        }
+
+        outputData = {
+          output: finalReply,
+          model: modelChoice,
+          stepsCount: agentSteps.length,
+          steps: agentSteps,
+          modifiedFiles: toolCtx.modifiedFiles || [],
+          usage: totalUsage
+        };
+
+        await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
+          method: 'PATCH', headers: commonHeaders,
+          body: JSON.stringify({ outputs: outputData, end_time: new Date().toISOString() })
+        }).catch(() => null);
+      }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        source: 'langsmith_deep_agent_v1',
+        runId,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
+        project: langsmithProject,
+        result: outputData?.output || null,
+        modifiedFiles: outputData?.modifiedFiles || [],
+        steps: outputData?.steps || [],
+        stepsCount: outputData?.stepsCount || 0,
+        output: outputData,
+        data: traceData
+      }), { status: 200, headers: corsHeaders });
+    }
+
+    // ─── 3. EDIT-CODE — LangSmith Full ReAct Edit Agent (Gemini + All Tools) ──
+    // This is the MAIN EDIT ENGINE: replaces Totalum for follow-up prompts.
+    // Tools: read_code_file, edit_code_file, web_search, fetch_url, ask_human, execute_code, composio, database, storage, stripe, trigger.dev
+    if (subAction === 'edit-code') {
+      const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+      const openrouterKey = env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY);
+      const tavilyKey = env && (env.TAVILY_API_KEY || env.TAVILY_KEY);
+
+      if (!googleKey && !openrouterKey) {
+        return new Response(JSON.stringify({ ok: false, error: 'No LLM key available (GOOGLE_AI_API_KEY or OPENROUTER_API_KEY)', fallback: false }), { status: 200, headers: corsHeaders });
+      }
+
+      const userPrompt = typeof input === 'string' ? input : (input.prompt || input.text || 'Update the application');
+      const projectName = body.projectName || paasId;
+      const userLlmModel = body.userModel || 'openai/gpt-4o-mini';
+      const userLlmProvider = body.userProvider || 'openrouter';
+      const currentFiles = (body.currentFiles || []).map(f => ({ path: f.path, content: f.content || '', name: f.name || f.path }));
+      const history = body.history || [];
+
+      // LangSmith: open edit-code trace
+      const editRunId = crypto.randomUUID();
+      await fetch('https://api.smith.langchain.com/api/v1/runs', {
+        method: 'POST', headers: commonHeaders,
+        body: JSON.stringify({
+          id: editRunId,
+          name: `gemini-edit-code-${paasId}`,
+          run_type: 'chain',
+          inputs: { prompt: userPrompt, projectName, filesCount: currentFiles.length },
+          start_time: new Date().toISOString(),
+          session_name: langsmithProject,
+          extra: { metadata: { paas_id: paasId, end_user_id: endUserId, composite_tenant_id: compositeId, engine: 'edit-code', userLlmModel } }
+        })
+      }).catch(() => null);
+
+      const origin = new URL(request.url).origin;
+      const toolCtx = {
+        origin, paasId, endUserId, compositeId, tavilyKey,
+        modifiedFiles: [],
+        projectFiles: currentFiles
+      };
+
+      // Build system prompt for edit — mirrors Claude Managed Agent system prompt
+      const editSystemPrompt = `You are an Autonomous Lead Software Architect & Code Editor for Runnerflo Cloud Platform (Year 2026).
+You are running as a LangSmith Managed Deep Agent for child PaaS: "${projectName}" (paasId: ${paasId}).
+
+MISSION: Edit, improve, or update the existing application code as requested by the user.
+
+MANDATORY WORKFLOW:
+1. ALWAYS call read_code_file("index.html") first to understand the current code
+2. If you need research (e.g. library docs, API references), call web_search
+3. Plan your changes carefully, then call edit_code_file with the COMPLETE updated file
+4. If the task is ambiguous, call ask_human before proceeding
+5. If you need to run a calculation or data transformation, use execute_code
+6. After editing, write a clear summary of what changed
+
+AVAILABLE TOOLS: read_code_file, edit_code_file, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job
+
+ZERO-BYOK MANDATE: NEVER add API key input forms. ALL external API calls MUST use Runnerflo's centralized endpoints:
+- LLM: fetch('/api/gateway', { body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: '${userLlmProvider}', model: '${userLlmModel}', input: { messages: [...] } }) })
+- Agent: fetch('/api/langsmith', { body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, action: 'run', model: '${userLlmModel}', provider: '${userLlmProvider}', input: { prompt: '...' } }) })
+- Composio OAuth: fetch('/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID)
+- Database: fetch('/api/totalum?action=database-ask&projectId='+PAAS_ID, { method: 'POST', body: JSON.stringify({ question: '...' }) })
+- Storage: fetch('/api/storage?action=save', { method: 'POST', body: JSON.stringify({ paasId: PAAS_ID, file: 'name.json', content: '...' }) })
+- Stripe: fetch('/api/totalum?action=stripe-checkout&projectId='+PAAS_ID, { method: 'POST', body: JSON.stringify({ plan: 'Pro', amount: 1999 }) })
+
+TENANT DUAL-IDENTITY (inject if not present):
+const PAAS_ID = window.PAAS_ID || '${paasId}';
+let END_USER_ID = localStorage.getItem('rf_end_user_id');
+if (!END_USER_ID) { END_USER_ID = 'usr_' + Math.random().toString(36).substring(2,10); localStorage.setItem('rf_end_user_id', END_USER_ID); }
+
+CHILD PAAS FULL TOOL INJECTION — INJECT ALL THESE HELPER FUNCTIONS IN THE GENERATED CODE:
+\`\`\`javascript
+// === RUNNERFLO CHILD PAAS FULL TOOL SUITE ===
+async function callLangSmithAgent(prompt, history=[]) {
+  const res = await fetch('/api/langsmith', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, action: 'run',
+      model: '${userLlmModel}', provider: '${userLlmProvider}', input: { prompt, messages: history } }) });
+  return await res.json();
+}
+async function callLLM(messages) {
+  const res = await fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: '${userLlmProvider}', model: '${userLlmModel}', input: { messages } }) });
+  return await res.json();
+}
+async function loginWithGoogle() {
+  const res = await fetch('/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+  const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl;
+}
+async function checkConnection(app='google') {
+  const res = await fetch('/api/composio?action=connections&paasId='+PAAS_ID+'&endUserId='+END_USER_ID); return await res.json();
+}
+async function executeSaaS(actionName, params={}) {
+  const res = await fetch('/api/composio?action=execute', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ actionName, paasId: PAAS_ID, endUserId: END_USER_ID, input: params }) });
+  return await res.json();
+}
+async function queryDB(question, table='') {
+  const res = await fetch('/api/totalum?action=database-ask&projectId='+PAAS_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question, table }) });
+  return await res.json();
+}
+async function saveToCloud(fileName, content) {
+  const res = await fetch('/api/storage?action=save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paasId: PAAS_ID, file: fileName, content }) });
+  return await res.json();
+}
+async function createPayment(plan, amountCents, currency='usd') {
+  const res = await fetch('/api/totalum?action=stripe-checkout&projectId='+PAAS_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, plan, amount: amountCents, currency }) });
+  const data = await res.json(); if (data.checkoutUrl) window.location.href = data.checkoutUrl; return data;
+}
+async function triggerJob(taskId, payload={}) {
+  const res = await fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'trigger', taskId, payload }) });
+  return await res.json();
+}
+// === END RUNNERFLO TOOL SUITE ===
+\`\`\`
+
+PROJECT CONTEXT:
+- Name: "${projectName}" | paasId: ${paasId}
+- User's LLM: ${userLlmModel} (${userLlmProvider})
+- Current files: ${currentFiles.map(f => f.path).join(', ') || 'index.html'}
+
+Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.
+After editing: write a one-line summary of what changed.`;
+
+      // Build conversation with history
+      const editMessages = [{ role: 'system', content: editSystemPrompt }];
+      history.slice(-4).forEach(h => { if (h.role && h.text) editMessages.push({ role: h.role === 'agent' ? 'assistant' : h.role, content: h.text }); });
+      editMessages.push({ role: 'user', content: userPrompt });
+
+      const agentSteps = [];
+      let finalReply = '';
+      let loopCount = 0;
+      const maxLoops = 10;
+
+      while (loopCount < maxLoops) {
+        loopCount++;
+
+        // Try OpenRouter first (supports tool_calls natively), fallback to Gemini
+        let llmData = null;
+        if (openrouterKey) {
+          const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${openrouterKey}`, 'HTTP-Referer': 'https://runnerflo-b2b.pages.dev', 'X-Title': 'Runnerflo LangSmith Edit Agent', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: userLlmModel.includes('/') ? userLlmModel : `openai/${userLlmModel}`, messages: editMessages, tools: DEEP_AGENT_TOOLS, tool_choice: 'auto', temperature: 0.3, max_tokens: 32768 })
+          }).catch(() => null);
+          if (r && r.ok) llmData = await r.json().catch(() => null);
+        }
+
+        // Gemini native fallback (native function calling)
+        if (!llmData && googleKey) {
+          const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash-lite'];
+          const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+          const gContents = editMessages.filter(m => m.role !== 'tool').map(m => ({
+            role: m.role === 'assistant' ? 'model' : (m.role === 'system' ? 'user' : m.role),
+            parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
+          }));
+          const gTools = [{ function_declarations: DEEP_AGENT_TOOLS.map(t => ({ name: t.function.name, description: t.function.description, parameters: t.function.parameters })) }];
+          for (const mdl of GEMINI_MODELS) {
+            try {
+              const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: gContents, tools: gTools, generationConfig: { temperature: 0.3, maxOutputTokens: 32768 } })
+              });
+              if (gRes.ok) {
+                const gData = await gRes.json();
+                const part = gData.candidates?.[0]?.content?.parts?.[0];
+                if (part?.functionCall) {
+                  // Normalize Gemini function call to OpenAI format
+                  llmData = { choices: [{ message: { role: 'assistant', content: null, tool_calls: [{ id: `call_${Math.random().toString(36).slice(2)}`, type: 'function', function: { name: part.functionCall.name, arguments: JSON.stringify(part.functionCall.args || {}) } }] } }] };
+                } else if (part?.text) {
+                  llmData = { choices: [{ message: { role: 'assistant', content: part.text } }] };
+                }
+                if (llmData) break;
+              }
+            } catch (e) { /* try next */ }
+          }
+        }
+
+        if (!llmData) { finalReply = 'Edit agent inference failed — no LLM key available.'; break; }
+
+        const choice = llmData.choices?.[0];
+        const assistantMsg = choice?.message;
+        if (!assistantMsg) break;
+
+        if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
+          editMessages.push(assistantMsg);
+          for (const tc of assistantMsg.tool_calls) {
+            const toolName = tc.function?.name || '';
+            let toolArgs = {};
+            try { toolArgs = JSON.parse(tc.function?.arguments || '{}'); } catch { toolArgs = {}; }
+
+            // LangSmith tool span
+            const toolRunId = crypto.randomUUID();
+            await fetch('https://api.smith.langchain.com/api/v1/runs', {
+              method: 'POST', headers: commonHeaders,
+              body: JSON.stringify({ id: toolRunId, name: `tool:${toolName}`, run_type: 'tool', parent_run_id: editRunId, inputs: toolArgs, start_time: new Date().toISOString(), session_name: langsmithProject, extra: { metadata: { paas_id: paasId, tool_name: toolName } } })
+            }).catch(() => null);
+
+            const toolResult = await executeDeepAgentTool(toolName, toolArgs, toolCtx);
+
+            await fetch(`https://api.smith.langchain.com/api/v1/runs/${toolRunId}`, {
+              method: 'PATCH', headers: commonHeaders,
+              body: JSON.stringify({ outputs: toolResult, end_time: new Date().toISOString() })
+            }).catch(() => null);
+
+            agentSteps.push({ tool: toolName, input: toolArgs, output: toolResult, done: true, label: `${toolName}: ${toolArgs.path || toolArgs.query || toolArgs.question || ''}`.slice(0, 80) });
+
+            // Human-in-the-loop: pause and return question to frontend
+            if (toolName === 'ask_human' && toolCtx.humanRequest) {
+              await fetch(`https://api.smith.langchain.com/api/v1/runs/${editRunId}`, {
+                method: 'PATCH', headers: commonHeaders,
+                body: JSON.stringify({ outputs: { status: 'needs_clarification' }, end_time: new Date().toISOString() })
+              }).catch(() => null);
+              return new Response(JSON.stringify({
+                ok: true, source: 'langsmith_edit_agent', runId: editRunId,
+                status: 'needs_clarification',
+                question: toolCtx.humanRequest.question,
+                options: toolCtx.humanRequest.options || [],
+                steps: agentSteps, paasId, endUserId
+              }), { status: 200, headers: corsHeaders });
+            }
+
+            editMessages.push({ role: 'tool', tool_call_id: tc.id, name: toolName, content: JSON.stringify(toolResult) });
+          }
+        } else {
+          finalReply = assistantMsg.content || '';
+          break;
+        }
+      }
+
+      // Collect all edited files from toolCtx
+      const modifiedFiles = toolCtx.modifiedFiles || [];
+      const primaryFile = modifiedFiles.find(f => f.path === 'index.html') || modifiedFiles[0];
+      const htmlCode = primaryFile ? primaryFile.code : null;
+
+      // Run Zero-BYOK validator on the edited code
+      let auditResult = null;
+      if (htmlCode) {
+        auditResult = validateAndSanitizePaaSCode(htmlCode, paasId);
+        if (primaryFile) primaryFile.code = auditResult.code;
+      }
+
+      // Auto-save to R2 if code was edited
+      if (htmlCode) {
+        await fetch(`${origin}/api/storage?action=save`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paasId, projectName, file: 'index.html', content: htmlCode, totalumProjectId: null })
+        }).catch(() => null);
+      }
+
+      // Patch LangSmith trace with outputs
+      await fetch(`https://api.smith.langchain.com/api/v1/runs/${editRunId}`, {
+        method: 'PATCH', headers: commonHeaders,
+        body: JSON.stringify({ outputs: { output: finalReply, filesEdited: modifiedFiles.length, audit: auditResult }, end_time: new Date().toISOString() })
+      }).catch(() => null);
+
+      return new Response(JSON.stringify({
+        ok: true,
+        source: 'langsmith_edit_agent',
+        runId: editRunId,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
+        htmlCode: htmlCode || null,
+        code: htmlCode || null,
+        modifiedFiles,
+        summary: finalReply,
+        steps: agentSteps,
+        audit: auditResult
+      }), { status: 200, headers: corsHeaders });
+    }
 
       if (body.execute !== false && (openrouterKey || googleKey)) {
         const userPrompt = typeof input === 'string'
@@ -778,35 +1511,54 @@ The generated application runs on Totalum Cloud infrastructure. Provide working 
   }
   \`\`\`
 
-INJECTION 2: LANGSMITH MANAGED DEEP AGENT + USER LLM + COMPOSIO + TRIGGER.DEV:
-Provide working client-side helper functions for autonomous agent orchestration:
+INJECTION 2: FULL RUNNERFLO CHILD PAAS TOOL SUITE (LANGSMITH + COMPOSIO + TRIGGER.DEV + STRIPE):
+Inject ALL these helper functions — every child PaaS must have full autonomous agent capabilities:
   \`\`\`javascript
-  // 1. Call LangSmith Managed Deep Agent (runs with user's selected LLM: \${userLlmModel})
-  async function callDeepAgent(promptText) {
-    const res = await fetch('/api/langsmith', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        paasId: PAAS_ID,
-        endUserId: END_USER_ID,
-        action: 'run',
-        model: '\${userLlmModel}',
-        provider: '\${userLlmProvider}',
-        input: { prompt: promptText }
-      })
-    });
+  // === RUNNERFLO CHILD PAAS FULL TOOL SUITE ===
+  async function callLangSmithAgent(prompt, history=[]) {
+    const res = await fetch('/api/langsmith', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, action: 'run',
+        model: '\${userLlmModel}', provider: '\${userLlmProvider}', input: { prompt, messages: history } }) });
     return await res.json();
   }
-
-  // 2. Trigger.dev v3 Background Task Dispatcher (for async jobs/pipelines)
-  async function triggerBackgroundTask(taskId, payload) {
-    const res = await fetch('/api/gateway', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'trigger', taskId, payload })
-    });
+  async function callLLM(messages) {
+    const res = await fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: '\${userLlmProvider}', model: '\${userLlmModel}', input: { messages } }) });
     return await res.json();
   }
+  async function loginWithGoogle() {
+    const res = await fetch('/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl;
+  }
+  async function checkConnection() {
+    const res = await fetch('/api/composio?action=connections&paasId='+PAAS_ID+'&endUserId='+END_USER_ID); return await res.json();
+  }
+  async function executeSaaS(actionName, params={}) {
+    const res = await fetch('/api/composio?action=execute', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ actionName, paasId: PAAS_ID, endUserId: END_USER_ID, input: params }) });
+    return await res.json();
+  }
+  async function queryDB(question, table='') {
+    const res = await fetch('/api/totalum?action=database-ask&projectId='+PAAS_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, table }) });
+    return await res.json();
+  }
+  async function saveToCloud(fileName, content) {
+    const res = await fetch('/api/storage?action=save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, file: fileName, content }) });
+    return await res.json();
+  }
+  async function createPayment(plan, amountCents, currency='usd') {
+    const res = await fetch('/api/totalum?action=stripe-checkout&projectId='+PAAS_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, plan, amount: amountCents, currency }) });
+    const data = await res.json(); if (data.checkoutUrl) window.location.href = data.checkoutUrl; return data;
+  }
+  async function triggerJob(taskId, payload={}) {
+    const res = await fetch('/api/gateway', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'trigger', taskId, payload }) });
+    return await res.json();
+  }
+  // === END RUNNERFLO TOOL SUITE ===
   \`\`\`
 
 ABSOLUTE NO-BYOK (BRING YOUR OWN KEY) MANDATE:
@@ -936,7 +1688,7 @@ Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in Engli
     }
 
     return new Response(JSON.stringify({
-      error: `Unknown action: "${subAction}". Supported: run, thread, dispatch, generate-ui.`
+      error: `Unknown action: "${subAction}". Supported: run, thread, dispatch, generate-ui, edit-code.`
     }), { status: 400, headers: corsHeaders });
 
   } catch (err) {
