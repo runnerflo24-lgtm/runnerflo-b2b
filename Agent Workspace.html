@@ -1932,6 +1932,54 @@ body.ws-stage-2-active .topbar {
       }
     } catch(e){}
   }
+
+  // Cross-device Cloudflare R2 Sync: Automatically hydrates projects from R2 storage
+  function syncProjectsFromR2() {
+    fetch('/api/storage?action=projects')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data || !data.ok || !Array.isArray(data.projects) || data.projects.length === 0) return;
+        var existingPaasIds = {};
+        (state.projects || []).forEach(function(p) {
+          var slug = (p.totalumProjectId || p.name || p.id).toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+          existingPaasIds[slug] = true;
+          existingPaasIds[p.id] = true;
+        });
+
+        var toFetch = data.projects.filter(function(rp) {
+          return !existingPaasIds[rp.paasId] && rp.paasId !== 'default-paas';
+        });
+
+        if (toFetch.length === 0) return;
+
+        Promise.all(toFetch.map(function(rp) {
+          return fetch('/api/storage?action=get&paasId=' + encodeURIComponent(rp.paasId) + '&file=index.html')
+            .then(function(r) { return r.json(); })
+            .then(function(fileData) {
+              if (fileData && fileData.ok && fileData.content) {
+                var newP = mkProject(rp.name || rp.paasId, 3);
+                newP.id = 'r2-' + rp.paasId;
+                newP.totalumProjectId = rp.paasId;
+                newP.claudePreviewHtml = fileData.content;
+                newP.msgs = [
+                  { role: 'agent', text: '☁️ **Restored from Cloudflare R2** (`tenants/' + rp.paasId + '/index.html`).\nProject synced from central cloud storage across all sessions.' }
+                ];
+                state.projects.unshift(newP);
+                if (state.open.indexOf(newP.id) < 0) state.open.push(newP.id);
+                return true;
+              }
+              return false;
+            }).catch(function(){ return false; });
+        })).then(function(results) {
+          if (results.some(Boolean)) {
+            try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+            render();
+            toast('☁️ Synced ' + results.filter(Boolean).length + ' projects from Cloudflare R2');
+          }
+        });
+      })
+      .catch(function(){});
+  }
   function proj(id) { for (var i = 0; i < state.projects.length; i++) if (state.projects[i].id === id) return state.projects[i]; return null; }
   function cur() { return proj(state.active) || (state.projects.length ? state.projects[0] : null); }
   function ago(t) { var m = Math.round((Date.now() - t) / 60000); if (m < 1) return 'just now'; if (m < 60) return m + 'm ago'; var h = Math.round(m / 60); if (h < 24) return h + 'h ago'; return Math.round(h / 24) + 'd ago'; }
@@ -6807,6 +6855,7 @@ body.ws-stage-2-active .topbar {
 
   render();
   updateWsStageUI();
+  syncProjectsFromR2();
 
   // Auto-check active session if current project has a session pending
   var cp = cur();

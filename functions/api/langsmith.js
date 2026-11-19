@@ -692,6 +692,75 @@ LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
   }
   \`\`\`
 
+TWO MANDATORY ARCHITECTURAL INJECTIONS IN THE GENERATED UI/UX:
+
+INJECTION 1: TOTALUM CLOUD INFRASTRUCTURE (HOSTING, DB, DOMAIN, STRIPE PAYMENT):
+The generated application runs on Totalum Cloud infrastructure. Provide working client-side helper functions for Totalum Database and Stripe Connect:
+  \`\`\`javascript
+  // 1. Totalum Cloud Database Query (D1/SQLite per tenant)
+  async function queryTenantDatabase(question) {
+    const res = await fetch('/api/totalum?action=database-ask&projectId=' + encodeURIComponent(PAAS_ID), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    return await res.json();
+  }
+
+  // 2. Cloudflare R2 Cloud Storage Sync (per tenant bucket)
+  async function saveToCloudStorage(fileName, content) {
+    const res = await fetch('/api/storage?action=save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, file: fileName, content })
+    });
+    return await res.json();
+  }
+
+  // 3. Stripe Connect Payment Gateway Checkout
+  async function initiateStripePayment(planName, amountCents) {
+    const res = await fetch('/api/totalum?action=stripe-checkout&projectId=' + encodeURIComponent(PAAS_ID), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, plan: planName, amount: amountCents })
+    });
+    const data = await res.json();
+    if (data.checkoutUrl) { window.location.href = data.checkoutUrl; }
+    return data;
+  }
+  \`\`\`
+
+INJECTION 2: LANGSMITH MANAGED DEEP AGENT + USER LLM + COMPOSIO + TRIGGER.DEV:
+Provide working client-side helper functions for autonomous agent orchestration:
+  \`\`\`javascript
+  // 1. Call LangSmith Managed Deep Agent (runs with user's selected LLM: \${userLlmModel})
+  async function callDeepAgent(promptText) {
+    const res = await fetch('/api/langsmith', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paasId: PAAS_ID,
+        endUserId: END_USER_ID,
+        action: 'run',
+        model: '\${userLlmModel}',
+        provider: '\${userLlmProvider}',
+        input: { prompt: promptText }
+      })
+    });
+    return await res.json();
+  }
+
+  // 2. Trigger.dev v3 Background Task Dispatcher (for async jobs/pipelines)
+  async function triggerBackgroundTask(taskId, payload) {
+    const res = await fetch('/api/gateway', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: 'trigger', taskId, payload })
+    });
+    return await res.json();
+  }
+  \`\`\`
+
 ABSOLUTE NO-BYOK (BRING YOUR OWN KEY) MANDATE:
 - NEVER output UI forms asking end-users to input API keys. That is strictly prohibited!
 - All AI, 3D, video, and agent capabilities must be wired directly to "/api/gateway", "/api/langsmith", or "/api/composio".
