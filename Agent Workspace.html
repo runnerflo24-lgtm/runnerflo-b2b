@@ -3545,6 +3545,9 @@ body.ws-stage-2-active .topbar {
         if (geminiRes && geminiRes.ok && geminiRes.htmlCode) {
           m.steps[0].done = true;
           m.steps[0].label = '✨ UI/UX Synthesized by Gemini (' + (geminiRes.model || 'Google AI Studio') + ')';
+          if (geminiRes.audit) {
+            m.steps.push({ label: geminiRes.audit.summary || '🛡️ Security & Zero-BYOK Audit: 0 violations, 100% compliant', done: true });
+          }
           renderIf(p);
 
           // Save and render preview immediately

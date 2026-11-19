@@ -152,6 +152,54 @@ async function executeDeepAgentTool(toolName, args, ctx) {
   return { error: `Unknown tool: "${toolName}"` };
 }
 
+// ─── Post-Generation Static Code Validator (Checklist E-03) ─────────────────
+function validateAndSanitizePaaSCode(rawCode, paasId) {
+  let code = rawCode || '';
+  const violations = [];
+
+  // 1. Check for BYOK API key input forms
+  const byokRegex = /<input[^>]+(?:placeholder|name|id)=["'][^"']*(?:api[_-]?key|secret[_-]?key|vendor[_-]?key|access[_-]?token)[^"']*["'][^>]*>/gi;
+  const byokMatches = code.match(byokRegex);
+  if (byokMatches && byokMatches.length > 0) {
+    violations.push(`Neutralized ${byokMatches.length} BYOK key input fields for Zero-BYOK compliance`);
+    code = code.replace(byokRegex, '<!-- [REMOVED: Zero-BYOK Policy strictly enforced by Runnerflo Meta-PaaS] -->');
+  }
+
+  // 2. Check for direct external vendor calls outside Runnerflo Edge Gateway
+  const rawVendorRegex = /fetch\s*\(\s*['"`]https?:\/\/(?:api\.openai\.com|api\.anthropic\.com|openrouter\.ai\/api|api\.composio\.dev|api\.smith\.langchain\.com|api\.replicate\.com|api\.fal\.ai)[^'"`]*['"`]/gi;
+  const rawMatches = code.match(rawVendorRegex);
+  if (rawMatches && rawMatches.length > 0) {
+    violations.push(`Found ${rawMatches.length} raw third-party fetch calls outside Runnerflo Gateway`);
+  }
+
+  // 3. Check for leaked secret patterns in code
+  const secretRegex = /(?:sk-ant-api[a-zA-Z0-9_-]{20,}|sk-or-v1-[a-zA-Z0-9]{30,}|ak_[a-zA-Z0-9_-]{20,}|totalum_[a-zA-Z0-9]{20,})/g;
+  const secretMatches = code.match(secretRegex);
+  if (secretMatches && secretMatches.length > 0) {
+    violations.push(`Redacted ${secretMatches.length} hardcoded vendor secrets`);
+    code = code.replace(secretRegex, '/* [REDACTED: Vendor Secret] */');
+  }
+
+  // 4. Ensure composite tenant dual-identity is initialized
+  if (!code.includes('PAAS_ID') && !code.includes(paasId)) {
+    const identityScript = `\n<script>\nconst PAAS_ID = window.PAAS_ID || "${paasId}";\nlet END_USER_ID = localStorage.getItem("rf_end_user_id");\nif (!END_USER_ID) { END_USER_ID = "usr_" + Math.random().toString(36).substring(2, 10); localStorage.setItem("rf_end_user_id", END_USER_ID); }\nconst COMPOSITE_TENANT_ID = PAAS_ID + ":" + END_USER_ID;\n</script>\n`;
+    if (code.includes('<head>')) {
+      code = code.replace('<head>', `<head>${identityScript}`);
+    } else {
+      code = identityScript + code;
+    }
+  }
+
+  return {
+    valid: violations.length === 0,
+    code,
+    violations,
+    summary: violations.length === 0
+      ? '🛡️ Security & Zero-BYOK Audit: 0 violations, 100% compliant'
+      : `🛡️ Security & Zero-BYOK Audit: Auto-sanitized (${violations.join('; ')})`
+  };
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -853,11 +901,20 @@ Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in Engli
         htmlCode = geminiResult.trim();
       }
 
+      // Checklist E-03: Post-Generation Static Code Validator (Zero-BYOK & Secrets Sanitizer)
+      const auditResult = validateAndSanitizePaaSCode(htmlCode, paasId);
+      htmlCode = auditResult.code;
+
       // PATCH LangSmith run with output
       await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
         method: 'PATCH', headers: commonHeaders,
         body: JSON.stringify({
-          outputs: { htmlLength: htmlCode.length, model: usedModel, projectName },
+          outputs: {
+            htmlLength: htmlCode.length,
+            model: usedModel,
+            projectName,
+            audit: auditResult
+          },
           end_time: new Date().toISOString()
         })
       }).catch(() => null);
@@ -871,6 +928,7 @@ Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in Engli
         endUserId,
         model: usedModel,
         htmlCode,
+        audit: auditResult,
         projectName,
         userLlmModel,
         userLlmProvider

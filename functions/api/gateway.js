@@ -2,6 +2,47 @@
 // Central AI API Gateway & Metering Router (OpenRouter, fal.ai, Replicate, WaveSpeed)
 // All white-label SaaS frontends call ONLY this endpoint. PaaS owner holds all keys.
 
+// ─── Pillar B-03: Sliding-Window Multi-Tenant Rate Limiter ───────────────────
+const TENANT_RATE_WINDOW_MS = 60 * 1000; // 1 minute
+const TENANT_MAX_REQ_PER_MIN = 60; // 60 requests per minute per tenant
+const tenantRateMap = new Map(); // paasId -> Array of timestamps
+
+function checkTenantRateLimit(paasId) {
+  const now = Date.now();
+  let timestamps = tenantRateMap.get(paasId) || [];
+  timestamps = timestamps.filter(t => now - t < TENANT_RATE_WINDOW_MS);
+
+  if (timestamps.length >= TENANT_MAX_REQ_PER_MIN) {
+    const oldest = timestamps[0];
+    const retryAfter = Math.max(1, Math.ceil((oldest + TENANT_RATE_WINDOW_MS - now) / 1000));
+    return {
+      allowed: false,
+      count: timestamps.length,
+      limit: TENANT_MAX_REQ_PER_MIN,
+      retryAfter
+    };
+  }
+
+  timestamps.push(now);
+  tenantRateMap.set(paasId, timestamps);
+
+  // Periodic eviction
+  if (tenantRateMap.size > 2000) {
+    for (const [k, v] of tenantRateMap.entries()) {
+      if (!v.length || now - v[v.length - 1] > TENANT_RATE_WINDOW_MS) {
+        tenantRateMap.delete(k);
+      }
+    }
+  }
+
+  return {
+    allowed: true,
+    count: timestamps.length,
+    limit: TENANT_MAX_REQ_PER_MIN,
+    remaining: Math.max(0, TENANT_MAX_REQ_PER_MIN - timestamps.length)
+  };
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -50,6 +91,32 @@ export async function onRequest(context) {
     const paasId = body.paas_id || body.paasId || body.tenantId || request.headers.get('x-paas-id') || request.headers.get('x-tenant-id') || 'default-paas';
     const endUserId = body.end_user_id || body.endUserId || body.userId || request.headers.get('x-end-user-id') || request.headers.get('x-user-id') || 'default-user';
     const compositeId = `${paasId}:${endUserId}`;
+
+    // ─── Pillar B-03: Sliding-Window Multi-Tenant Rate Limiter ───────────────
+    const rateCheck = checkTenantRateLimit(paasId);
+    if (!rateCheck.allowed) {
+      return new Response(JSON.stringify({
+        ok: false,
+        error: `Tenant rate limit exceeded (max ${rateCheck.limit} req/min). Please slow down.`,
+        paasId,
+        limit: rateCheck.limit,
+        retryAfter: rateCheck.retryAfter
+      }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Retry-After': String(rateCheck.retryAfter),
+          'X-RateLimit-Limit': String(rateCheck.limit),
+          'X-RateLimit-Remaining': '0'
+        }
+      });
+    }
+
+    const responseHeaders = {
+      ...corsHeaders,
+      'X-RateLimit-Limit': String(rateCheck.limit),
+      'X-RateLimit-Remaining': String(rateCheck.remaining)
+    };
 
     let provider = (body.provider || '').toLowerCase();
     const model = body.model || body.modelId || '';
