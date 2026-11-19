@@ -2,6 +2,156 @@
 // LangSmith Managed Deep Agent Engine & Tenant Thread Isolator
 // Central orchestration for Runnerflo Meta-PaaS
 
+// ─── Universal Deep Agent Tools (Composio SaaS, Totalum DB, Cloudflare R2) ──
+const DEEP_AGENT_TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "composio_execute_action",
+      description: "Execute a SaaS action on behalf of this tenant (e.g. send an email via Gmail, post a Slack message, append to Google Sheets, create Notion page).",
+      parameters: {
+        type: "object",
+        properties: {
+          actionName: { type: "string", description: "The action slug in SCREAMING_SNAKE_CASE, e.g. GMAIL_SEND_EMAIL, SLACK_SENDS_A_MESSAGE, GOOGLESHEETS_BATCH_UPDATE" },
+          params: { type: "object", description: "Parameters for the SaaS action" }
+        },
+        required: ["actionName"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "composio_get_connect_url",
+      description: "Generate an OAuth connect URL for an end-user to link their SaaS account (e.g. Google, Gmail, Slack, Notion, GitHub).",
+      parameters: {
+        type: "object",
+        properties: {
+          appName: { type: "string", description: "The app to connect: gmail, googlecalendar, googlesheets, slack, notion, github" }
+        },
+        required: ["appName"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "composio_check_connections",
+      description: "Check which third-party SaaS accounts are currently connected and active for this tenant user.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "database_query",
+      description: "Ask a plain English/Indonesian question to query records or fetch table data from the cloud SQLite/D1 database.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Plain English or Indonesian query to find records in the database" },
+          table: { type: "string", description: "Optional table name to retrieve rows directly" }
+        },
+        required: ["query"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "storage_save",
+      description: "Save or update a tenant document, JSON config, or file in the Cloudflare R2 bucket.",
+      parameters: {
+        type: "object",
+        properties: {
+          file: { type: "string", description: "File path, e.g. 'notes.json' or 'data.csv'" },
+          content: { type: "string", description: "Text or JSON string content to persist" }
+        },
+        required: ["file", "content"]
+      }
+    }
+  }
+];
+
+async function executeDeepAgentTool(toolName, args, ctx) {
+  const { origin, paasId, endUserId } = ctx;
+
+  if (toolName === 'composio_execute_action') {
+    const actName = args.actionName || '';
+    const inputPayload = args.params || {};
+    try {
+      const res = await fetch(`${origin}/api/composio?action=execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'execute', actionName: actName, paasId, endUserId, input: inputPayload })
+      });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  if (toolName === 'composio_get_connect_url') {
+    const app = args.appName || 'google';
+    try {
+      const res = await fetch(`${origin}/api/composio?action=connect-url&appName=${encodeURIComponent(app)}&paasId=${encodeURIComponent(paasId)}&endUserId=${encodeURIComponent(endUserId)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  if (toolName === 'composio_check_connections') {
+    try {
+      const res = await fetch(`${origin}/api/composio?action=connections&paasId=${encodeURIComponent(paasId)}&endUserId=${encodeURIComponent(endUserId)}`, {
+        method: 'GET'
+      });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  if (toolName === 'database_query') {
+    const q = args.query || '';
+    const tbl = args.table || '';
+    try {
+      const ep = tbl ? `${origin}/api/totalum?action=database-rows&projectId=${encodeURIComponent(paasId)}` : `${origin}/api/totalum?action=database-ask&projectId=${encodeURIComponent(paasId)}`;
+      const res = await fetch(ep, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, table: tbl })
+      });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  if (toolName === 'storage_save') {
+    const f = args.file || 'data.json';
+    const c = typeof args.content === 'object' ? JSON.stringify(args.content) : String(args.content || '');
+    try {
+      const res = await fetch(`${origin}/api/storage?action=save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paasId, file: f, content: c })
+      });
+      return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  return { error: `Unknown tool: "${toolName}"` };
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -263,66 +413,179 @@ export async function onRequest(context) {
         }), { status: traceRes.status, headers: corsHeaders });
       }
 
-      // 2. Perform Agent Inference if requested and OpenRouter key is present
+      // 2. Perform Autonomous Deep Agent Inference with ReAct Tool-Calling Loop
       let outputData = null;
       const openrouterKey = env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY);
+      const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+      const origin = new URL(request.url).origin;
+      const toolCtx = { origin, paasId, endUserId, compositeId };
 
-      if (openrouterKey && body.execute !== false) {
+      if (body.execute !== false && (openrouterKey || googleKey)) {
         const userPrompt = typeof input === 'string'
           ? input
           : (input.prompt || input.text || (Array.isArray(input.messages) ? input.messages[input.messages.length - 1]?.content : 'Hello'));
 
         const systemPrompt = body.systemPrompt || 
-          `You are an autonomous Deep Agent running on child PaaS (${paasId}) for end-user (${endUserId}). Orchestrated by Runnerflo Meta-PaaS.`;
+          `You are an autonomous Deep Agent running on child PaaS (${paasId}) for end-user (${endUserId}).
+Orchestrated by Runnerflo Meta-PaaS with LangSmith Observability.
+You have direct access to tools for:
+- Composio SaaS (Gmail, Slack, Google Calendar, Sheets, Notion, GitHub)
+- Totalum Cloud Database (query records and inspect tables)
+- Cloudflare R2 Storage (save and read documents)
+Always call tools when needed to fulfill the user's request. Respond in the user's language (Indonesian/English) with clear conclusions.`;
 
-        const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openrouterKey}`,
-            'HTTP-Referer': 'https://runnerflo-b2b.pages.dev',
-            'X-Title': 'Runnerflo Meta-PaaS Deep Agent',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: body.model || 'openai/gpt-4o-mini',
-            messages: [
+        const conversationMessages = Array.isArray(input.messages)
+          ? input.messages.slice()
+          : [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: userPrompt }
-            ],
-            temperature: 0.7
+            ];
+
+        // Ensure system prompt is first
+        if (!conversationMessages.some(m => m.role === 'system')) {
+          conversationMessages.unshift({ role: 'system', content: systemPrompt });
+        }
+
+        const modelChoice = body.model || 'openai/gpt-4o-mini';
+        const agentSteps = [];
+        let finalReply = '';
+        let totalUsage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0, cost: 0 };
+        let loopCount = 0;
+        const maxLoops = 5;
+
+        while (loopCount < maxLoops) {
+          loopCount++;
+
+          const llmRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${openrouterKey}`,
+              'HTTP-Referer': 'https://runnerflo-b2b.pages.dev',
+              'X-Title': 'Runnerflo Meta-PaaS Deep Agent',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: modelChoice,
+              messages: conversationMessages,
+              tools: DEEP_AGENT_TOOLS,
+              tool_choice: 'auto',
+              temperature: 0.5
+            })
+          }).catch(e => ({ ok: false, error: e.message }));
+
+          if (!llmRes || !llmRes.ok) {
+            const errTxt = llmRes.text ? await llmRes.text().catch(() => '') : (llmRes.error || 'LLM Call Failed');
+            finalReply = `Deep Agent inference notice: ${errTxt}`;
+            break;
+          }
+
+          const llmData = await llmRes.json();
+          const choice = llmData.choices?.[0];
+          const assistantMsg = choice?.message;
+
+          if (llmData.usage) {
+            totalUsage.prompt_tokens += (llmData.usage.prompt_tokens || 0);
+            totalUsage.completion_tokens += (llmData.usage.completion_tokens || 0);
+            totalUsage.total_tokens += (llmData.usage.total_tokens || 0);
+            totalUsage.cost += (llmData.usage.cost || 0);
+          }
+
+          if (!assistantMsg) break;
+
+          // Check if assistant called tools
+          if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
+            conversationMessages.push(assistantMsg);
+
+            for (const tc of assistantMsg.tool_calls) {
+              const toolName = tc.function?.name || '';
+              let toolArgs = {};
+              try {
+                toolArgs = JSON.parse(tc.function?.arguments || '{}');
+              } catch {
+                toolArgs = {};
+              }
+
+              // 1. Post child tool span to LangSmith (hierarchical trace tree)
+              const toolRunId = crypto.randomUUID();
+              await fetch('https://api.smith.langchain.com/api/v1/runs', {
+                method: 'POST',
+                headers: commonHeaders,
+                body: JSON.stringify({
+                  id: toolRunId,
+                  name: `tool:${toolName}`,
+                  run_type: 'tool',
+                  parent_run_id: runId,
+                  inputs: toolArgs,
+                  start_time: new Date().toISOString(),
+                  session_name: langsmithProject,
+                  extra: { metadata: { paas_id: paasId, end_user_id: endUserId, tool_name: toolName } }
+                })
+              }).catch(() => null);
+
+              // 2. Execute the tool locally
+              const toolResult = await executeDeepAgentTool(toolName, toolArgs, toolCtx);
+
+              // 3. Complete tool span in LangSmith
+              await fetch(`https://api.smith.langchain.com/api/v1/runs/${toolRunId}`, {
+                method: 'PATCH',
+                headers: commonHeaders,
+                body: JSON.stringify({
+                  outputs: toolResult,
+                  end_time: new Date().toISOString()
+                })
+              }).catch(() => null);
+
+              agentSteps.push({
+                tool: toolName,
+                input: toolArgs,
+                output: toolResult
+              });
+
+              // Append tool response for next model step
+              conversationMessages.push({
+                role: 'tool',
+                tool_call_id: tc.id,
+                name: toolName,
+                content: JSON.stringify(toolResult)
+              });
+            }
+          } else {
+            // Final response achieved
+            finalReply = assistantMsg.content || '';
+            break;
+          }
+        }
+
+        outputData = {
+          output: finalReply,
+          model: modelChoice,
+          stepsCount: agentSteps.length,
+          steps: agentSteps,
+          usage: totalUsage
+        };
+
+        // Complete Root Run in LangSmith with outputs & steps
+        await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
+          method: 'PATCH',
+          headers: commonHeaders,
+          body: JSON.stringify({
+            outputs: outputData,
+            end_time: new Date().toISOString()
           })
         }).catch(() => null);
-
-        if (orRes && orRes.ok) {
-          const orData = await orRes.json();
-          const reply = orData.choices?.[0]?.message?.content || '';
-          outputData = {
-            output: reply,
-            model: body.model || 'openai/gpt-4o-mini',
-            usage: orData.usage
-          };
-
-          // Complete Run in LangSmith with outputs
-          await fetch(`https://api.smith.langchain.com/api/v1/runs/${runId}`, {
-            method: 'PATCH',
-            headers: commonHeaders,
-            body: JSON.stringify({
-              outputs: outputData,
-              end_time: new Date().toISOString()
-            })
-          }).catch(() => null);
-        }
       }
 
       return new Response(JSON.stringify({
         ok: true,
-        source: 'langsmith_runs_api_v1',
+        source: 'langsmith_deep_agent_v1',
         runId,
         tenantId: compositeId,
         paasId,
         endUserId,
         project: langsmithProject,
         result: outputData?.output || null,
+        steps: outputData?.steps || [],
+        stepsCount: outputData?.stepsCount || 0,
         output: outputData,
         data: traceData
       }), { status: 200, headers: corsHeaders });
