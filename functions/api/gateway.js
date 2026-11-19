@@ -112,11 +112,8 @@ export async function onRequest(context) {
       });
     }
 
-    const responseHeaders = {
-      ...corsHeaders,
-      'X-RateLimit-Limit': String(rateCheck.limit),
-      'X-RateLimit-Remaining': String(rateCheck.remaining)
-    };
+    corsHeaders['X-RateLimit-Limit'] = String(rateCheck.limit);
+    corsHeaders['X-RateLimit-Remaining'] = String(rateCheck.remaining);
 
     let provider = (body.provider || '').toLowerCase();
     const model = body.model || body.modelId || '';
