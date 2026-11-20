@@ -5475,11 +5475,6 @@ body.ws-stage-2-active .topbar {
         runClaudeFallbackAgent(p, text, 'credits_exhausted', null, null, attachedImg);
         return;
       }
-      // When Totalum has finished the initial build and remaining edits/continuations are handled by Claude + Trigger.dev
-      if (p.totalumProjectId && p.stage >= 4 && p.msgs.length > 2) {
-        runClaudeFallbackAgent(p, text, 'continue_edit', null, null, attachedImg);
-        return;
-      }
       runTotalumAgent(p, text, attachedImg);
       return;
     }
