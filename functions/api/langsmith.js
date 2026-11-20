@@ -1411,6 +1411,8 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
       const userLlmModel = body.userModel || 'google/gemini-2.5-flash';
       const userLlmProvider = body.userProvider || 'google';
       const currentFiles = (body.currentFiles || []).map(f => ({ path: f.path, content: f.content || '', name: f.name || f.path }));
+      const currentHtmlFile = currentFiles.find(f => (f.path || f.name) === 'index.html') || currentFiles[0];
+      const currentHtmlCode = currentHtmlFile ? currentHtmlFile.content : '';
       const history = body.history || [];
 
       // LangSmith: open edit-code trace
@@ -1528,6 +1530,11 @@ PROJECT CONTEXT:
 - Name: "${projectName}" | paasId: ${paasId}
 - User's LLM: ${userLlmModel} (${userLlmProvider})
 - Current files: ${currentFiles.map(f => f.path).join(', ') || 'index.html'}
+${currentHtmlCode ? `\nCURRENT APPLICATION CODE (${currentHtmlFile ? (currentHtmlFile.path || 'index.html') : 'index.html'} — ${currentHtmlCode.length} bytes):\n\`\`\`html\n${currentHtmlCode.slice(0, 50000)}\n\`\`\`\n` : ''}
+EDITING RULES:
+1. You are EDITING the existing application above. DO NOT build a brand new unrelated project from scratch!
+2. Retain all existing styling, layout, components, and functions unless the user specifically asks to change them.
+3. Call "edit_code_file" with the complete updated code, or output the full updated HTML code in \`\`\`html blocks.
 
 Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.
 After editing: write a one-line summary of what changed.`;
@@ -1660,7 +1667,21 @@ After editing: write a one-line summary of what changed.`;
       // Collect all edited files from toolCtx
       const modifiedFiles = toolCtx.modifiedFiles || [];
       const primaryFile = modifiedFiles.find(f => f.path === 'index.html') || modifiedFiles[0];
-      const htmlCode = primaryFile ? primaryFile.code : null;
+      let htmlCode = primaryFile ? primaryFile.code : null;
+
+      // If agent didn't call edit_code_file but output HTML code in text — extract it!
+      if (!htmlCode && finalReply) {
+        const htmlMatch = finalReply.match(/```(?:html|xml)?\s*([\s\S]*?)```/i);
+        if (htmlMatch && htmlMatch[1]) {
+          htmlCode = htmlMatch[1].trim();
+        } else if (finalReply.includes('<!DOCTYPE') || finalReply.includes('<html')) {
+          const bare = finalReply.match(/<!DOCTYPE[\s\S]*?<\/html>/i);
+          if (bare) htmlCode = bare[0].trim();
+        }
+        if (htmlCode) {
+          modifiedFiles.push({ path: 'index.html', code: htmlCode, summary: 'Updated via text output' });
+        }
+      }
 
       // Run Zero-BYOK validator on the edited code
       let auditResult = null;
