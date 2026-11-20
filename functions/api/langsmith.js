@@ -1493,7 +1493,7 @@ async function callLLM(messages) {
 }
 async function loginWithGoogle() {
   const res = await fetch('/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-  const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl;
+  const data = await res.json(); if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
 }
 async function checkConnection(app='google') {
   const res = await fetch('/api/composio?action=connections&paasId='+PAAS_ID+'&endUserId='+END_USER_ID); return await res.json();
@@ -1812,7 +1812,7 @@ LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
     const redirectUri = window.location.href;
     const res = await fetch('/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
     const data = await res.json();
-    if (data.connectUrl) { window.location.href = data.connectUrl; }
+    if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
   }
   async function checkGoogleConnection() {
     const res = await fetch('/api/composio?action=connections&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID));
@@ -1876,7 +1876,7 @@ Inject ALL these helper functions — every child PaaS must have full autonomous
   }
   async function loginWithGoogle() {
     const res = await fetch('/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-    const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl;
+    const data = await res.json(); if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
   }
   async function checkConnection() {
     const res = await fetch('/api/composio?action=connections&paasId='+PAAS_ID+'&endUserId='+END_USER_ID); return await res.json();

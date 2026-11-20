@@ -433,7 +433,7 @@ LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
     const redirectUri = window.location.href;
     const res = await fetch('/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
     const data = await res.json();
-    if (data.connectUrl) { window.location.href = data.connectUrl; }
+    if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
   }
 
   // 2. Check if this end-user already has an active Google connection:
@@ -1564,7 +1564,7 @@ All internal endpoint calls MUST pass paasId and endUserId:
 5. LangSmith Managed Deep Agent & Composio Managed Google OAuth:
    - Deep Agent Runs: fetch('/api/langsmith', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paasId: '${projectName}', endUserId: window.END_USER_ID, action: 'run', input: { ... } }) })
    - Composio Managed Google OAuth: When the generated PaaS needs user sign-in or Google Workspace integration, use Composio Managed Auth (DO NOT ask users for Google Cloud credentials). Inject:
-     \`async function loginWithGoogle() { const res = await fetch('/api/composio?action=connect-url&app=google&paasId=${projectName}&endUserId=' + encodeURIComponent(window.END_USER_ID) + '&redirectUri=' + encodeURIComponent(window.location.href)); const data = await res.json(); if (data.connectUrl) window.location.href = data.connectUrl; }\`
+     \`async function loginWithGoogle() { const res = await fetch('/api/composio?action=connect-url&app=google&paasId=${projectName}&endUserId=' + encodeURIComponent(window.END_USER_ID) + '&redirectUri=' + encodeURIComponent(window.location.href)); const data = await res.json(); if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); } }\`
      And render a "Continue with Google" button in the PaaS navigation / auth modal.
    - Tenant isolation is enforced via Cloudflare OAuth and tenant IDs.
 
