@@ -5469,11 +5469,11 @@ body.ws-stage-2-active .topbar {
         runClaudeFallbackAgent(p, text, 'image_redesign', null, null, attachedImg);
         return;
       }
-      // 2. Dual-purpose Fallback to Claude Sonnet 5.5:
-      // When Totalum credits are depleted
+      // 2. Credits exhausted flag — reset dulu agar tidak permanen, biarkan LangSmith coba lagi
+      // Claude hanya dipanggil saat runtime error, bukan dari flag lama tersimpan
       if (p.totalumCreditsExhausted) {
-        runClaudeFallbackAgent(p, text, 'credits_exhausted', null, null, attachedImg);
-        return;
+        p.totalumCreditsExhausted = false;
+        save();
       }
       runTotalumAgent(p, text, attachedImg);
       return;
