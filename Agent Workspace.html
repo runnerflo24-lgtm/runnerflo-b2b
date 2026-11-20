@@ -2869,9 +2869,9 @@ body.ws-stage-2-active .topbar {
     // Close modal, show toast
     var modal = $('#modalComposio');
     if (modal) modal.hidden = true;
-    toast('⚡ Injecting ' + api.name + ' into "' + p.name + '" via Claude 5.5...');
+    toast('⚡ Menginjeksi ' + api.name + ' ke "' + p.name + '" via Gemini LangSmith Deep Agent...');
 
-    // Build injection prompt — Claude will rewrite the SaaS with this API baked in
+    // Build injection prompt — Gemini LangSmith will rewrite/extend the SaaS with this API baked in
     var injectionPrompt = 'INJECT_API: Inject the ' + api.name + ' integration into this application.\n\n' +
       'Integration ID: ' + api.id + '\n' +
       'Primary Action: ' + api.action + '\n' +
@@ -2882,14 +2882,14 @@ body.ws-stage-2-active .topbar {
       '3. Inject Trigger.dev background job code for async processing of ' + api.name + ' tasks\n' +
       '4. Add OAuth connect button that calls /api/composio?action=connect-url&app=' + api.id + '\n' +
       '5. Keep all existing UI and branding — ONLY ADD the new integration section\n' +
-      '6. Use project_patch_file to surgically add the new section without destroying existing code';
+      '6. Use edit_code_file to surgically update index.html with complete working code';
 
     _injectedApis[apiId] = true;
     window._renderApiGrid();
     window._refreshInjectedBanner();
 
-    // Run Claude fallback agent to actually inject the code
-    runClaudeFallbackAgent(p, injectionPrompt, 'api_injection');
+    // Run LangSmith Gemini agent to inject the code
+    runTotalumAgent(p, injectionPrompt);
   };
 
   window.connectComposioApp = function(appName) {

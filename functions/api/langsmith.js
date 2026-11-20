@@ -209,6 +209,36 @@ const DEEP_AGENT_TOOLS = [
         required: ["taskId"]
       }
     }
+  },
+  // ── 14. COMPOSIO — SEARCH APPS & ACTIONS (1,700+ SaaS Catalog) ─────────────
+  {
+    type: "function",
+    function: {
+      name: "composio_search_apps",
+      description: "Search across 1,700+ SaaS apps and toolkits in Composio (e.g. 'crm', 'salesforce', 'hubspot', 'whatsapp', 'zendesk', 'shopify', 'jira', 'stripe', 'notion', 'gmail'). Returns matching app IDs, action slugs, and descriptions so you can integrate them.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Search keyword for app name or capability (e.g. 'crm', 'accounting', 'email', 'support', 'ecommerce')" }
+        },
+        required: ["query"]
+      }
+    }
+  },
+  // ── 15. OPENROUTER — SEARCH LLM MODELS ─────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "search_llm_models",
+      description: "Search available frontier and open-weight LLM models on OpenRouter (DeepSeek R1/V3, Claude 3.7 Sonnet, GPT-4o, Llama 3.3 70B, Gemini 2.0 Flash, etc.) to use as the autonomous brain of a child agent. Returns context window, price per 1M tokens, and category.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Model name or keyword (e.g. 'deepseek', 'reasoning', 'coding', 'fast', 'cheap', 'claude')" }
+        },
+        required: ["query"]
+      }
+    }
   }
 ];
 
@@ -406,6 +436,47 @@ async function executeDeepAgentTool(toolName, args, ctx) {
         body: JSON.stringify({ paasId, endUserId, provider: 'trigger', taskId: args.taskId, payload: args.payload || {} })
       });
       return await res.json();
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 14. COMPOSIO SEARCH APPS ───────────────────────────────────────────────
+  if (toolName === 'composio_search_apps') {
+    const q = (args.query || '').toLowerCase().trim();
+    try {
+      const res = await fetch(`${origin}/api/composio?action=apps`);
+      if (res.ok) {
+        const d = await res.json();
+        const apps = (d.apps || []).filter(a =>
+          !q || (a.name + a.id + (a.description || '') + (a.category || '')).toLowerCase().includes(q)
+        ).slice(0, 10);
+        return { ok: true, query: q, count: apps.length, apps: apps.map(a => ({ id: a.id, name: a.name, category: a.category, actions: a.popularActions, description: a.description })) };
+      }
+      return { ok: false, error: 'Composio catalog fetch failed' };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // ── 15. SEARCH LLM MODELS ──────────────────────────────────────────────────
+  if (toolName === 'search_llm_models') {
+    const q = (args.query || '').toLowerCase().trim();
+    try {
+      const res = await fetch(`${origin}/api/catalog?provider=openrouter&q=${encodeURIComponent(q)}`);
+      if (res.ok) {
+        const d = await res.json();
+        const models = (d.models || []).slice(0, 8).map(m => ({
+          id: m.id,
+          name: m.name,
+          category: m.category,
+          contextLength: m.contextLength,
+          pricing: m.retailPrice || m.basePrice,
+          description: m.description
+        }));
+        return { ok: true, query: q, count: models.length, models };
+      }
+      return { ok: false, error: 'Model catalog fetch failed' };
     } catch (e) {
       return { ok: false, error: e.message };
     }
@@ -748,20 +819,22 @@ AVAILABLE TOOLS (use ALL of them when needed):
 5. execute_code — Run JavaScript sandbox for data processing
 6. fetch_url — Read any URL/API endpoint (MCP browser)
 7. composio_execute_action — Execute Gmail, Slack, Sheets, Notion, GitHub actions
-8. composio_get_connect_url — Generate OAuth connect URL (zero-config Google login)
+8. composio_get_connect_url — Generate OAuth connect URL (zero-config Google/SaaS login)
 9. composio_check_connections — Check user's connected SaaS accounts
 10. database_query — Query tenant's cloud D1 database
 11. storage_save — Save files to Cloudflare R2 bucket
 12. create_payment_checkout — Create Stripe payment/subscription checkout
 13. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
+14. composio_search_apps — Search across 1,700+ SaaS apps & actions in Composio
+15. search_llm_models — Search frontier OpenRouter LLM models (DeepSeek R1/V3, Claude 3.7, GPT-4o, Llama 3.3)
 
-WORKFLOW:
-- Think step-by-step before acting
-- Call read_code_file BEFORE editing any file
-- Use web_search when you need current documentation or APIs
-- Use ask_human when task is ambiguous and needs user decision
-- Always call edit_code_file when you modify code
-- Chain multiple tools when needed (search → read → edit → verify)
+AGENTIC DISCOVERY & HUMAN-IN-THE-LOOP WORKFLOW:
+- When a user asks for an agent involving third-party apps (e.g. HubSpot, Zendesk, Salesforce, WhatsApp), call composio_search_apps to discover available integrations.
+- When an agent requires an LLM brain (OpenRouter), call search_llm_models to inspect available models and prices.
+- If the model choice or app selection is ambiguous, call ask_human to present clear multiple-choice options to the user before building!
+- Think step-by-step before acting. Call read_code_file BEFORE editing any file.
+- Always call edit_code_file when you modify code.
+- Chain multiple tools when needed (search → read → edit → verify).
 
 Respond in Indonesian if the user writes in Indonesian. Otherwise respond in English.`;
 
@@ -981,7 +1054,12 @@ MANDATORY WORKFLOW:
 5. If you need to run a calculation or data transformation, use execute_code
 6. After editing, write a clear summary of what changed
 
-AVAILABLE TOOLS: read_code_file, edit_code_file, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job
+AVAILABLE TOOLS: read_code_file, edit_code_file, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job, composio_search_apps, search_llm_models
+
+AGENTIC AGENT CREATION & DISCOVERY:
+- If user wants an agent for any of Composio's 1,700+ apps (e.g. CRM, email, social, support), call composio_search_apps to find exact app IDs and action names.
+- If user wants to choose or change the LLM brain (OpenRouter models), call search_llm_models to get available models.
+- If user requirements need clarification, call ask_human with a question and options list so the user can choose directly.
 
 ZERO-BYOK MANDATE: NEVER add API key input forms. ALL external API calls MUST use Runnerflo's centralized endpoints:
 - LLM: fetch('/api/gateway', { body: JSON.stringify({ paasId: PAAS_ID, endUserId: END_USER_ID, provider: '${userLlmProvider}', model: '${userLlmModel}', input: { messages: [...] } }) })
