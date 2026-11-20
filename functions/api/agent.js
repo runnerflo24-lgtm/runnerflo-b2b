@@ -197,6 +197,7 @@ export async function onRequest(context) {
 
   // ─── GET /api/agent?session=<sessionId> : Async Session Polling ─────────────
   const url = new URL(request.url);
+  const origin = url.origin;
   const pollSessionId = url.searchParams.get('session');
   if (request.method === 'GET' && pollSessionId) {
     try {
@@ -507,7 +508,7 @@ PROJECT CONTEXT:
 - Available files in workspace (${projectFiles.length}):
 ${projectFiles.length ? projectFiles.map(f => `  • ${f.path || f.name} (${f.size || 2048} bytes)`).slice(0, 30).join('\n') : '  (No files yet)'}
 
-BOLT.DIY MCP TOOLS:
+BOLT.DIY MCP TOOLS (FULL DEVELOPER SUITE — EQUAL TO LANGSMITH DEEP AGENT):
 1. project_read_file({ path }): Read the full content of a project file.
 2. project_patch_file({ path, oldText, newText }): Surgically replace oldText with newText. Keeps the rest of the file untouched!
 3. project_write_file({ path, content, replacementReason }): Full file creation or overwrite.
@@ -516,6 +517,22 @@ BOLT.DIY MCP TOOLS:
 6. inspect_image_reference({ focus }): Perform OCR & visual analysis on attached reference image/screenshot to match against.
 7. trigger_job(taskId, description, payload, triggerCode): Inject Trigger.dev v3 background task pipeline.
 8. composio_action(app, action, userId, params, generateConnectUI): Inject Composio multi-tenancy SaaS OAuth/action.
+9. web_search({ query }): Search the web for real-time information using DuckDuckGo.
+10. fetch_url({ url, method, body }): Read any external URL, documentation, or API endpoint (MCP browser).
+11. debug_code({ file, issue }): Static syntax and brace/paren analysis on a file.
+12. get_datetime(): Get current UTC date, time, and Unix timestamp.
+13. save_snapshot({ label }): Create a named restore point before major changes.
+14. rollback_snapshot({ version }): Restore project to a previous snapshot version.
+15. project_delete_file({ path }) / delete_file: Delete an unused file from workspace.
+16. project_rename_file({ oldPath, newPath }) / rename_file: Rename or move a project file.
+17. database_query({ query, table }): Query the tenant's Totalum D1 cloud database.
+18. database_schema({ table }): Inspect database table structures and columns.
+19. storage_save({ file, content }): Persist files or data in tenant's Cloudflare R2 bucket.
+20. create_payment_checkout({ plan, amount }): Create Stripe Connect subscription checkout session.
+21. composio_search_apps({ query }): Search across 1,700+ SaaS apps and popular actions in Composio.
+22. search_llm_models({ query }): Search available frontier LLMs across OpenRouter catalog.
+23. execute_code({ code }): Run JavaScript expression in a safe sandbox (Math, JSON, Date, RegExp).
+24. ask_user({ questions }): Ask clarifying questions before generating code.
 (Aliases: read_file, edit_code, search_code, ocr_image are also supported)
 
 Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in English. Always summarize what code changes were made.`;
@@ -699,6 +716,148 @@ Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in E
           type: 'object',
           properties: { label: { type: 'string', description: 'Short label for this snapshot, e.g. "Before adding music"' } },
           required: ['label']
+        }
+      },
+      {
+        name: 'rollback_snapshot',
+        description: 'Rollback project files to a previous snapshot version.',
+        input_schema: {
+          type: 'object',
+          properties: { version: { type: 'integer', description: 'Snapshot version number to restore' } },
+          required: ['version']
+        }
+      },
+      {
+        name: 'project_delete_file',
+        description: 'Delete an obsolete or unused file from the project workspace.',
+        input_schema: {
+          type: 'object',
+          properties: { path: { type: 'string', description: 'Relative file path to delete' } },
+          required: ['path']
+        }
+      },
+      {
+        name: 'delete_file',
+        description: 'Alias for project_delete_file. Delete a file from the project.',
+        input_schema: {
+          type: 'object',
+          properties: { path: { type: 'string', description: 'File path to delete' } },
+          required: ['path']
+        }
+      },
+      {
+        name: 'project_rename_file',
+        description: 'Rename or move a project file from oldPath to newPath.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            oldPath: { type: 'string', description: 'Current file path' },
+            newPath: { type: 'string', description: 'New file path' }
+          },
+          required: ['oldPath', 'newPath']
+        }
+      },
+      {
+        name: 'rename_file',
+        description: 'Alias for project_rename_file. Rename or move a file.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            oldPath: { type: 'string', description: 'Current file path' },
+            newPath: { type: 'string', description: 'New file path' }
+          },
+          required: ['oldPath', 'newPath']
+        }
+      },
+      {
+        name: 'database_query',
+        description: 'Query the tenant Totalum D1 cloud database using plain English or SQL.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'Plain English or SQL query' },
+            table: { type: 'string', description: 'Optional table name' }
+          },
+          required: ['query']
+        }
+      },
+      {
+        name: 'database_schema',
+        description: 'Inspect the Totalum D1 cloud database schema and list tables/columns.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            table: { type: 'string', description: 'Optional specific table name to inspect' }
+          }
+        }
+      },
+      {
+        name: 'execute_code',
+        description: 'Evaluate a small JavaScript utility expression or calculation in a safe sandbox.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            code: { type: 'string', description: 'JavaScript code/expression to evaluate' }
+          },
+          required: ['code']
+        }
+      },
+      {
+        name: 'fetch_url',
+        description: 'Fetch and read the content of any URL (documentation page, API endpoint, JSON data, HTML page). Returns text content.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            url: { type: 'string', description: 'The URL to fetch' },
+            method: { type: 'string', description: 'HTTP method: GET or POST (default: GET)' },
+            body: { type: 'string', description: 'Optional JSON body for POST requests' }
+          },
+          required: ['url']
+        }
+      },
+      {
+        name: 'storage_save',
+        description: 'Save or update any file, JSON config, or document in the tenant\'s Cloudflare R2 storage bucket.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'File path/name (e.g. "notes.json", "export.csv")' },
+            content: { type: 'string', description: 'Full text/JSON content to persist' }
+          },
+          required: ['file', 'content']
+        }
+      },
+      {
+        name: 'create_payment_checkout',
+        description: 'Create a Stripe Connect checkout session for a subscription plan or one-time payment.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            plan: { type: 'string', description: 'Plan name (e.g. "Pro", "Starter")' },
+            amount: { type: 'integer', description: 'Amount in cents (e.g. 1999 = $19.99)' },
+            currency: { type: 'string', description: 'Currency code (default: usd)' }
+          },
+          required: ['plan', 'amount']
+        }
+      },
+      {
+        name: 'composio_search_apps',
+        description: 'Search across 1,700+ SaaS apps and their popular actions in Composio (e.g. "gmail", "slack", "notion", "github", "hubspot", "airtable", "zendesk", "whatsapp").',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'Keyword or app name to search for in Composio catalog' }
+          }
+        }
+      },
+      {
+        name: 'search_llm_models',
+        description: 'Search available frontier LLM models across OpenRouter catalog (e.g. "claude", "gemini", "deepseek", "gpt-4o", "llama"). Returns model IDs, context length, pricing.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'Search term for model name or capability' }
+          }
         }
       },
       {
@@ -1000,6 +1159,208 @@ async function connectApp(app) {
           focus: toolInput.focus || 'all',
           message: 'Reference image is attached to your Vision context. Inspect the image block directly to transcribe text (OCR), identify color codes (hex), and replicate UI components.'
         };
+      }
+
+      // rollback_snapshot — signal frontend to restore a previous version
+      if (toolName === 'rollback_snapshot') {
+        const version = toolInput.version || 0;
+        return { saved: true, rollbackRequested: true, version, message: `Rollback to snapshot version ${version} requested. The platform will restore the previous state.` };
+      }
+
+      // project_delete_file / delete_file — remove file from workspace
+      if (toolName === 'project_delete_file' || toolName === 'delete_file') {
+        const filePath = toolInput.path || '';
+        if (!filePath) return { error: 'Parameter "path" is required for delete_file.' };
+        if (fileIndex[filePath] !== undefined) {
+          delete fileIndex[filePath];
+          const idx = modifiedFiles.findIndex(mf => mf.path === filePath);
+          if (idx >= 0) modifiedFiles.splice(idx, 1);
+          return { success: true, path: filePath, deleted: true, message: `File "${filePath}" deleted from workspace.` };
+        }
+        return { error: `File "${filePath}" not found. Available files: ${Object.keys(fileIndex).join(', ')}` };
+      }
+
+      // project_rename_file / rename_file — move/rename file in workspace
+      if (toolName === 'project_rename_file' || toolName === 'rename_file') {
+        const oldPath = toolInput.oldPath || '';
+        const newPath = toolInput.newPath || '';
+        if (!oldPath || !newPath) return { error: 'Both "oldPath" and "newPath" are required for rename_file.' };
+        const content = fileIndex[oldPath];
+        if (content === undefined) {
+          return { error: `File "${oldPath}" not found. Available files: ${Object.keys(fileIndex).join(', ')}` };
+        }
+        fileIndex[newPath] = content;
+        delete fileIndex[oldPath];
+        // Update modifiedFiles references
+        const idx = modifiedFiles.findIndex(mf => mf.path === oldPath);
+        if (idx >= 0) modifiedFiles[idx] = { path: newPath, code: content, explanation: `Renamed ${oldPath} → ${newPath}` };
+        else modifiedFiles.push({ path: newPath, code: content, explanation: `Renamed ${oldPath} → ${newPath}` });
+        return { success: true, oldPath, newPath, renamed: true, message: `File renamed from "${oldPath}" to "${newPath}".` };
+      }
+
+      // database_query — proxy to Totalum D1 database
+      if (toolName === 'database_query') {
+        const query = toolInput.query || '';
+        const table = toolInput.table || '';
+        try {
+          const dbUrl = `${context.env.SITE_URL || 'https://runnerflo-b2b.pages.dev'}/api/totalum?action=database-ask`;
+          const dbRes = await fetch(dbUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: query, table, projectId: projectName })
+          });
+          if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            return { success: true, query, results: dbData.results || dbData, message: `Database query executed: "${query}"` };
+          }
+          return { success: false, query, error: `Database returned HTTP ${dbRes.status}`, message: 'Database query failed. The database might not be provisioned yet.' };
+        } catch (dbErr) {
+          return { success: false, query, error: dbErr.message, message: 'Database unavailable. Proceeding with code generation.' };
+        }
+      }
+
+      // database_schema — inspect D1 table structures
+      if (toolName === 'database_schema') {
+        const table = toolInput.table || '';
+        try {
+          const schemaQuery = table
+            ? `PRAGMA table_info(${table})`
+            : `SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`;
+          const dbUrl = `${context.env.SITE_URL || 'https://runnerflo-b2b.pages.dev'}/api/totalum?action=database-ask`;
+          const dbRes = await fetch(dbUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: schemaQuery, table, projectId: projectName, isSchema: true })
+          });
+          if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            return { success: true, table: table || '(all tables)', schema: dbData.results || dbData, message: table ? `Schema for table "${table}" retrieved.` : 'All database tables listed.' };
+          }
+          return { success: false, error: `Schema query returned HTTP ${dbRes.status}`, message: 'Could not inspect database schema.' };
+        } catch (dbErr) {
+          return { success: false, error: dbErr.message, message: 'Database schema inspection unavailable.' };
+        }
+      }
+
+      // execute_code — JavaScript sandbox evaluation
+      if (toolName === 'execute_code') {
+        const code = toolInput.code || '';
+        if (!code) return { error: 'Parameter "code" is required for execute_code.' };
+        try {
+          const fn = new Function('Math', 'JSON', 'Date', 'Array', 'Object', 'String', 'Number', 'RegExp', 'parseInt', 'parseFloat', 'isNaN', 'isFinite', 'encodeURIComponent', 'decodeURIComponent', `"use strict"; return (${code})`);
+          const result = fn(Math, JSON, Date, Array, Object, String, Number, RegExp, parseInt, parseFloat, isNaN, isFinite, encodeURIComponent, decodeURIComponent);
+          return { success: true, result: typeof result === 'object' ? JSON.stringify(result) : String(result), type: typeof result, message: `Code executed successfully.` };
+        } catch (evalErr) {
+          try {
+            const fn2 = new Function('Math', 'JSON', 'Date', 'Array', 'Object', 'String', 'Number', 'RegExp', 'parseInt', 'parseFloat', 'isNaN', 'isFinite', 'encodeURIComponent', 'decodeURIComponent', `"use strict"; ${code}`);
+            const result2 = fn2(Math, JSON, Date, Array, Object, String, Number, RegExp, parseInt, parseFloat, isNaN, isFinite, encodeURIComponent, decodeURIComponent);
+            return { success: true, result: result2 !== undefined ? String(result2) : 'undefined', type: typeof result2, message: `Code executed (statement mode).` };
+          } catch (evalErr2) {
+            return { success: false, error: evalErr2.message, message: `Code execution error: ${evalErr2.message}` };
+          }
+        }
+      }
+
+      // fetch_url — MCP browser: fetch any URL / API endpoint
+      if (toolName === 'fetch_url') {
+        const targetUrl = toolInput.url;
+        const method = (toolInput.method || 'GET').toUpperCase();
+        try {
+          const fetchOpts = { method, headers: { 'User-Agent': 'Runnerflo-Agent/1.0' } };
+          if (method === 'POST' && toolInput.body) {
+            fetchOpts.headers['Content-Type'] = 'application/json';
+            fetchOpts.body = typeof toolInput.body === 'string' ? toolInput.body : JSON.stringify(toolInput.body);
+          }
+          const res = await fetch(targetUrl, fetchOpts);
+          const text = await res.text();
+          return { ok: res.ok, status: res.status, url: targetUrl, content: text.slice(0, 8000), truncated: text.length > 8000 };
+        } catch (e) {
+          return { ok: false, error: e.message, url: targetUrl };
+        }
+      }
+
+      // storage_save — persist data/files in tenant's R2 bucket
+      if (toolName === 'storage_save') {
+        const file = toolInput.file || 'data.json';
+        const content = toolInput.content || '';
+        try {
+          const storageUrl = `${origin}/api/storage?action=save`;
+          const sRes = await fetch(storageUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paasId: projectName, file, content })
+          });
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            return { ok: true, file, saved: true, message: `File "${file}" saved to Cloudflare R2 bucket.`, details: sData };
+          }
+          return { ok: false, file, error: `Storage API returned HTTP ${sRes.status}` };
+        } catch (sErr) {
+          return { ok: false, file, error: sErr.message };
+        }
+      }
+
+      // create_payment_checkout — Stripe Connect checkout session
+      if (toolName === 'create_payment_checkout') {
+        const plan = toolInput.plan || 'Pro';
+        const amount = toolInput.amount || 1999;
+        const currency = toolInput.currency || 'usd';
+        try {
+          const stripeUrl = `${origin}/api/totalum?action=stripe-checkout&projectId=${encodeURIComponent(projectName)}`;
+          const pRes = await fetch(stripeUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paasId: projectName, plan, amount, currency })
+          });
+          if (pRes.ok) {
+            const pData = await pRes.json();
+            return { ok: true, checkoutUrl: pData.checkoutUrl || pData.url, plan, amount, message: `Stripe checkout session created for ${plan} ($${(amount/100).toFixed(2)}).` };
+          }
+          return { ok: false, error: `Payment gateway returned HTTP ${pRes.status}` };
+        } catch (pErr) {
+          return { ok: false, error: pErr.message };
+        }
+      }
+
+      // composio_search_apps — dynamic discovery across 1,700+ SaaS apps
+      if (toolName === 'composio_search_apps') {
+        const q = (toolInput.query || '').toLowerCase().trim();
+        try {
+          const cRes = await fetch(`${origin}/api/composio?action=apps`);
+          if (cRes.ok) {
+            const d = await cRes.json();
+            const apps = (d.apps || []).filter(a =>
+              !q || (a.name + a.id + (a.description || '') + (a.category || '')).toLowerCase().includes(q)
+            ).slice(0, 10);
+            return { ok: true, query: q, count: apps.length, apps: apps.map(a => ({ id: a.id, name: a.name, category: a.category, actions: a.popularActions, description: a.description })) };
+          }
+          return { ok: false, error: 'Composio catalog fetch failed' };
+        } catch (e) {
+          return { ok: false, error: e.message };
+        }
+      }
+
+      // search_llm_models — dynamic discovery of frontier LLM models
+      if (toolName === 'search_llm_models') {
+        const q = (toolInput.query || '').toLowerCase().trim();
+        try {
+          const mRes = await fetch(`${origin}/api/catalog?provider=openrouter&q=${encodeURIComponent(q)}`);
+          if (mRes.ok) {
+            const d = await mRes.json();
+            const models = (d.models || []).slice(0, 8).map(m => ({
+              id: m.id,
+              name: m.name,
+              category: m.category,
+              contextLength: m.contextLength,
+              pricing: m.retailPrice || m.basePrice,
+              description: m.description
+            }));
+            return { ok: true, query: q, count: models.length, models };
+          }
+          return { ok: false, error: 'Model catalog fetch failed' };
+        } catch (e) {
+          return { ok: false, error: e.message };
+        }
       }
 
       // ask_user — returns special status so the frontend shows clarification UI

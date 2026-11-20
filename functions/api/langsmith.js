@@ -79,6 +79,54 @@ const DEEP_AGENT_TOOLS = [
       }
     }
   },
+  // ── SURGICAL PATCH CODE FILE ────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "patch_code_file",
+      description: "Surgically replace a unique block of text (oldText) with newText in an existing file. Keeps the rest of the file untouched. Preferred for targeted updates (theme change, adding a script, fixing a bug) without rewriting the entire file.",
+      parameters: {
+        type: "object",
+        properties: {
+          path: { type: "string", description: "File path to patch (e.g. 'index.html')" },
+          oldText: { type: "string", description: "The exact unique existing string to replace" },
+          newText: { type: "string", description: "The replacement text to insert" }
+        },
+        required: ["path", "oldText", "newText"]
+      }
+    }
+  },
+  // ── DELETE FILE ─────────────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "delete_file",
+      description: "Delete an obsolete, temporary, or unused file from the project workspace.",
+      parameters: {
+        type: "object",
+        properties: {
+          path: { type: "string", description: "Path of the file to remove (e.g. 'temp.js')" }
+        },
+        required: ["path"]
+      }
+    }
+  },
+  // ── RENAME FILE ─────────────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "rename_file",
+      description: "Rename or move a file in the project workspace from oldPath to newPath.",
+      parameters: {
+        type: "object",
+        properties: {
+          oldPath: { type: "string", description: "Current file path (e.g. 'styles-old.css')" },
+          newPath: { type: "string", description: "New file path (e.g. 'styles.css')" }
+        },
+        required: ["oldPath", "newPath"]
+      }
+    }
+  },
   // ── 4. HUMAN-IN-THE-LOOP ───────────────────────────────────────────────────
   {
     type: "function",
@@ -188,6 +236,20 @@ const DEEP_AGENT_TOOLS = [
       }
     }
   },
+  // ── DATABASE SCHEMA & TABLE INSPECTOR ───────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "database_schema",
+      description: "Inspect the database schema, table structures, column definitions, and list all tables in the tenant's Totalum D1 cloud database.",
+      parameters: {
+        type: "object",
+        properties: {
+          table: { type: "string", description: "Optional specific table name to inspect in detail" }
+        }
+      }
+    }
+  },
   // ── 11. CLOUDFLARE R2 STORAGE ───────────────────────────────────────────────
   {
     type: "function",
@@ -237,6 +299,36 @@ const DEEP_AGENT_TOOLS = [
       }
     }
   },
+  // ── SAVE SNAPSHOT ───────────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "save_snapshot",
+      description: "Create a named snapshot/checkpoint of the current project files for safe rollback before performing major architectural changes.",
+      parameters: {
+        type: "object",
+        properties: {
+          label: { type: "string", description: "Short description of the checkpoint, e.g. 'Before refactoring nav'" }
+        },
+        required: ["label"]
+      }
+    }
+  },
+  // ── ROLLBACK SNAPSHOT ───────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "rollback_snapshot",
+      description: "Rollback the project files to a previous snapshot or version if the recent changes were unsatisfactory.",
+      parameters: {
+        type: "object",
+        properties: {
+          version: { type: "integer", description: "The snapshot version number to restore (e.g. 1, 2)" }
+        },
+        required: ["version"]
+      }
+    }
+  },
   // ── 14. COMPOSIO — SEARCH APPS & ACTIONS (1,700+ SaaS Catalog) ─────────────
   {
     type: "function",
@@ -278,6 +370,34 @@ const DEEP_AGENT_TOOLS = [
         properties: {
           focus: { type: "string", description: "What to extract: 'all', 'text_ocr', 'color_palette', 'components', 'layout'" }
         }
+      }
+    }
+  },
+  // ── 17. GET DATETIME ───────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "get_datetime",
+      description: "Get the current date and time in UTC, ISO string, and Unix epoch timestamp.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
+  // ── 18. DEBUG CODE ─────────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "debug_code",
+      description: "Analyze code for syntax errors, unclosed brackets, undefined calls, or common JavaScript bugs in project files.",
+      parameters: {
+        type: "object",
+        properties: {
+          file: { type: "string", description: "File path to inspect (e.g. 'index.html')" },
+          issue: { type: "string", description: "Describe the observed bug or what to check" }
+        },
+        required: ["file", "issue"]
       }
     }
   }
@@ -343,6 +463,81 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     if (existing) { existing.code = content; existing.summary = summary; }
     else { ctx.modifiedFiles.push({ path, code: content, summary }); }
     return { ok: true, path, length: content.length, summary };
+  }
+
+  // ── SURGICAL PATCH CODE FILE ────────────────────────────────────────────────
+  if (toolName === 'patch_code_file') {
+    const p = args.path || 'index.html';
+    const oldText = args.oldText;
+    const newText = args.newText !== undefined ? args.newText : '';
+    if (!oldText) return { ok: false, error: 'Parameter "oldText" is required for patch_code_file.' };
+
+    let currentContent = '';
+    const mod = ctx.modifiedFiles && ctx.modifiedFiles.find(x => x.path === p);
+    if (mod) {
+      currentContent = mod.code;
+    } else {
+      const found = (projectFiles || []).find(f => (f.path || f.name) === p || (f.path || '').endsWith(p));
+      currentContent = found ? (found.content || '') : '';
+    }
+
+    if (!currentContent) return { ok: false, error: `File "${p}" not found in project or is empty.` };
+
+    const first = currentContent.indexOf(oldText);
+    if (first < 0) {
+      return {
+        ok: false,
+        error: `Patch conflict: "oldText" was not found in ${p}. Please call read_code_file first or call edit_code_file with the complete file.`,
+        searched: oldText.slice(0, 100)
+      };
+    }
+    if (currentContent.indexOf(oldText, first + oldText.length) >= 0) {
+      return { ok: false, error: `Patch conflict: "oldText" matches multiple times in ${p}. Include more surrounding context in oldText so it matches uniquely.` };
+    }
+
+    const updated = currentContent.slice(0, first) + newText + currentContent.slice(first + oldText.length);
+    if (!ctx.modifiedFiles) ctx.modifiedFiles = [];
+    const exIdx = ctx.modifiedFiles.findIndex(x => x.path === p);
+    if (exIdx >= 0) {
+      ctx.modifiedFiles[exIdx] = { path: p, code: updated, summary: `Patched ${p}` };
+    } else {
+      ctx.modifiedFiles.push({ path: p, code: updated, summary: `Patched ${p}` });
+    }
+    return { ok: true, path: p, patched: true, bytes: updated.length, summary: `Successfully patched ${p} (${updated.length} bytes).` };
+  }
+
+  // ── DELETE FILE ─────────────────────────────────────────────────────────────
+  if (toolName === 'delete_file') {
+    const p = args.path || '';
+    if (!p) return { ok: false, error: 'Path parameter is required for delete_file' };
+    if (!ctx.deletedFiles) ctx.deletedFiles = [];
+    ctx.deletedFiles.push(p);
+    if (ctx.modifiedFiles) ctx.modifiedFiles = ctx.modifiedFiles.filter(x => x.path !== p);
+    return { ok: true, path: p, deleted: true, message: `File "${p}" removed from project.` };
+  }
+
+  // ── RENAME FILE ─────────────────────────────────────────────────────────────
+  if (toolName === 'rename_file') {
+    const oldP = args.oldPath || '';
+    const newP = args.newPath || '';
+    if (!oldP || !newP) return { ok: false, error: 'Both oldPath and newPath are required for rename_file' };
+
+    let content = '';
+    const mod = ctx.modifiedFiles && ctx.modifiedFiles.find(x => x.path === oldP);
+    if (mod) {
+      content = mod.code;
+      ctx.modifiedFiles = ctx.modifiedFiles.filter(x => x.path !== oldP);
+    } else {
+      const found = (projectFiles || []).find(f => (f.path || f.name) === oldP);
+      if (found) content = found.content || '';
+    }
+    if (!content) return { ok: false, error: `File "${oldP}" not found to rename.` };
+
+    if (!ctx.modifiedFiles) ctx.modifiedFiles = [];
+    ctx.modifiedFiles.push({ path: newP, code: content, summary: `Renamed ${oldP} to ${newP}` });
+    if (!ctx.deletedFiles) ctx.deletedFiles = [];
+    ctx.deletedFiles.push(oldP);
+    return { ok: true, oldPath: oldP, newPath: newP, renamed: true };
   }
 
   // ── SEARCH CODE IN PROJECT ──────────────────────────────────────────────────
@@ -485,6 +680,23 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     }
   }
 
+  // ── DATABASE SCHEMA & TABLE INSPECTION ──────────────────────────────────────
+  if (toolName === 'database_schema') {
+    const tbl = args.table || '';
+    try {
+      const q = tbl ? `PRAGMA table_info(${tbl});` : `SELECT name, type, sql FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%';`;
+      const res = await fetch(`${origin}/api/totalum?action=database-ask&projectId=${encodeURIComponent(paasId)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, table: tbl })
+      });
+      const data = await res.json();
+      return { ok: true, paasId, table: tbl || 'ALL', schema: data.data || data };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
   // ── 11. CLOUDFLARE R2 STORAGE ───────────────────────────────────────────────
   if (toolName === 'storage_save') {
     const f = args.file || 'data.json';
@@ -523,6 +735,20 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     } catch (e) {
       return { ok: false, error: e.message };
     }
+  }
+
+  // ── SAVE SNAPSHOT ───────────────────────────────────────────────────────────
+  if (toolName === 'save_snapshot') {
+    const label = args.label || 'Snapshot';
+    ctx.snapshotRequest = { action: 'save', label };
+    return { ok: true, saved: true, label, message: `Snapshot "${label}" recorded for project ${paasId}.` };
+  }
+
+  // ── ROLLBACK SNAPSHOT ───────────────────────────────────────────────────────
+  if (toolName === 'rollback_snapshot') {
+    const version = args.version || 1;
+    ctx.snapshotRequest = { action: 'rollback', version };
+    return { ok: true, rollbackRequested: true, version, message: `Rollback to version ${version} requested.` };
   }
 
   // ── 14. COMPOSIO SEARCH APPS ───────────────────────────────────────────────
@@ -613,6 +839,29 @@ async function executeDeepAgentTool(toolName, args, ctx) {
       }
     }
     return { ok: true, hasImage: true, summary: 'Reference image is attached to agent context.' };
+  }
+
+  // ── 17. GET DATETIME ───────────────────────────────────────────────────────
+  if (toolName === 'get_datetime') {
+    return { ok: true, datetime: new Date().toISOString(), timezone: 'UTC', unix: Date.now() };
+  }
+
+  // ── 18. DEBUG CODE ─────────────────────────────────────────────────────────
+  if (toolName === 'debug_code') {
+    const filePath = args.file || '';
+    const fileObj = (projectFiles || []).find(f => (f.path || f.name) === filePath);
+    const content = fileObj ? (fileObj.customContent || fileObj.content || '') : '';
+    const issues = [];
+    if (content.includes('undefined') && content.includes('()')) issues.push('Possible undefined function calls detected');
+    if ((content.match(/\{/g) || []).length !== (content.match(/\}/g) || []).length) issues.push('Mismatched braces {}');
+    if ((content.match(/\(/g) || []).length !== (content.match(/\)/g) || []).length) issues.push('Mismatched parentheses ()');
+    return {
+      ok: true,
+      file: filePath,
+      issue: args.issue,
+      checks: issues.length > 0 ? issues : ['No obvious syntax issues found'],
+      recommendation: issues.length > 0 ? 'Fix the issues above with patch_code_file or edit_code_file' : 'Code looks structurally sound.'
+    };
   }
 
   return { error: `Unknown tool: "${toolName}"` };
@@ -945,25 +1194,33 @@ export async function onRequest(context) {
           `You are an autonomous LangSmith Deep Agent running on child PaaS (${paasId}) for end-user (${endUserId}).
 Orchestrated by Runnerflo Meta-PaaS with full tool access — equal to Claude Managed Agent.
 
-AVAILABLE TOOLS (use ALL of them when needed):
+AVAILABLE TOOLS (26 TOOLS — FULL DEVELOPER SUITE, EQUAL TO CLAUDE MANAGED AGENT):
 1. web_search — Search real-time web for docs, APIs, tutorials, pricing
 2. read_code_file — Read current source code before editing
 3. edit_code_file — Write/update code files (ALWAYS read first)
-4. search_code — Search keyword, function name, class, variable, or text pattern across all project code files
-5. list_files — List all files in the project with sizes and line counts
-6. ask_human — Ask user for clarification (Human-in-the-Loop)
-7. execute_code — Run JavaScript sandbox for data processing
-8. fetch_url — Read any URL/API endpoint (MCP browser)
-9. composio_execute_action — Execute Gmail, Slack, Sheets, Notion, GitHub actions
-10. composio_get_connect_url — Generate OAuth connect URL (zero-config Google/SaaS login)
-11. composio_check_connections — Check user's connected SaaS accounts
-12. database_query — Query tenant's cloud D1 database
-13. storage_save — Save files to Cloudflare R2 bucket
-14. create_payment_checkout — Create Stripe payment/subscription checkout
-15. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
-16. composio_search_apps — Search across 1,700+ SaaS apps & actions in Composio
-17. search_llm_models — Search frontier LLM models (DeepSeek, Gemini, Claude, GPT-4o, Llama 3.3)
-18. inspect_image_reference — Perform OCR & visual analysis on attached reference image/screenshot to match against UI design
+4. patch_code_file — Surgically replace unique text block without rewriting entire file
+5. search_code — Search keyword, function name, class, variable, or text pattern across all project code files
+6. list_files — List all files in the project with sizes and line counts
+7. delete_file — Remove an obsolete or unused file from workspace
+8. rename_file — Rename or move a file from oldPath to newPath
+9. ask_human — Ask user for clarification (Human-in-the-Loop)
+10. execute_code — Run JavaScript sandbox for data processing
+11. fetch_url — Read any URL/API endpoint (MCP browser)
+12. composio_execute_action — Execute Gmail, Slack, Sheets, Notion, GitHub actions
+13. composio_get_connect_url — Generate OAuth connect URL (zero-config Google/SaaS login)
+14. composio_check_connections — Check user's connected SaaS accounts
+15. composio_search_apps — Search across 1,700+ SaaS apps & actions in Composio
+16. database_query — Query tenant's cloud D1 database
+17. database_schema — Inspect database table structures and columns
+18. storage_save — Save files to Cloudflare R2 bucket
+19. create_payment_checkout — Create Stripe payment/subscription checkout
+20. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
+21. save_snapshot — Create a named restore point before major changes
+22. rollback_snapshot — Restore project to a previous snapshot version
+23. search_llm_models — Search frontier LLM models (DeepSeek, Gemini, Claude, GPT-4o, Llama 3.3)
+24. inspect_image_reference — Perform OCR & visual analysis on attached reference image/screenshot to match against UI design
+25. get_datetime — Get current UTC date, time, and Unix timestamp
+26. debug_code — Diagnose syntax errors or logic bugs in code files
 
 AGENTIC DISCOVERY & HUMAN-IN-THE-LOOP WORKFLOW:
 - When a user asks for an agent involving third-party apps (e.g. HubSpot, Zendesk, Salesforce, WhatsApp), call composio_search_apps to discover available integrations.
@@ -1196,7 +1453,7 @@ MANDATORY WORKFLOW:
 6. If you need to run a calculation or data transformation, use execute_code
 7. After editing, write a clear summary of what changed
 
-AVAILABLE TOOLS: read_code_file, edit_code_file, search_code, list_files, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job, composio_search_apps, search_llm_models, inspect_image_reference
+AVAILABLE TOOLS (26 TOOLS): read_code_file, edit_code_file, patch_code_file, search_code, list_files, delete_file, rename_file, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, composio_search_apps, database_query, database_schema, storage_save, create_payment_checkout, trigger_background_job, save_snapshot, rollback_snapshot, search_llm_models, inspect_image_reference, get_datetime, debug_code
 
 AGENTIC AGENT CREATION & DISCOVERY:
 - If user wants an agent for any of Composio's 1,700+ apps (e.g. CRM, email, social, support), call composio_search_apps to find exact app IDs and action names.
