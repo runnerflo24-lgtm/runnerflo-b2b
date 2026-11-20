@@ -52,6 +52,33 @@ const DEEP_AGENT_TOOLS = [
       }
     }
   },
+  // ── SEARCH CODE IN PROJECT ──────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "search_code",
+      description: "Search for a keyword, function name, class, variable, or text pattern across all code and files in the project. Returns matching file paths, line numbers, and code snippets.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "The text or keyword to search for across project files" }
+        },
+        required: ["query"]
+      }
+    }
+  },
+  // ── LIST PROJECT FILES ──────────────────────────────────────────────────────
+  {
+    type: "function",
+    function: {
+      name: "list_files",
+      description: "List all files in the project along with their file sizes and line counts.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
   // ── 4. HUMAN-IN-THE-LOOP ───────────────────────────────────────────────────
   {
     type: "function",
@@ -302,6 +329,49 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     if (existing) { existing.code = content; existing.summary = summary; }
     else { ctx.modifiedFiles.push({ path, code: content, summary }); }
     return { ok: true, path, length: content.length, summary };
+  }
+
+  // ── SEARCH CODE IN PROJECT ──────────────────────────────────────────────────
+  if (toolName === 'search_code') {
+    const q = (args.query || '').toLowerCase().trim();
+    const files = projectFiles || [];
+    if (!q) return { ok: false, error: 'Query parameter is required' };
+    const matches = [];
+    for (const f of files) {
+      const fPath = f.path || f.name || 'file';
+      const content = f.content || '';
+      const lines = content.split('\n');
+      lines.forEach((line, idx) => {
+        if (line.toLowerCase().includes(q)) {
+          matches.push({
+            file: fPath,
+            line: idx + 1,
+            snippet: line.trim().slice(0, 200)
+          });
+        }
+      });
+    }
+    return {
+      ok: true,
+      query: q,
+      totalMatches: matches.length,
+      filesScanned: files.length,
+      matches: matches.slice(0, 25)
+    };
+  }
+
+  // ── LIST PROJECT FILES ──────────────────────────────────────────────────────
+  if (toolName === 'list_files') {
+    const files = projectFiles || [];
+    return {
+      ok: true,
+      count: files.length,
+      files: files.map(f => ({
+        path: f.path || f.name,
+        size: f.size || (f.content ? f.content.length : 0),
+        lines: f.content ? f.content.split('\n').length : 0
+      }))
+    };
   }
 
   // ── 4. HUMAN-IN-THE-LOOP ───────────────────────────────────────────────────
@@ -815,22 +885,24 @@ AVAILABLE TOOLS (use ALL of them when needed):
 1. web_search — Search real-time web for docs, APIs, tutorials, pricing
 2. read_code_file — Read current source code before editing
 3. edit_code_file — Write/update code files (ALWAYS read first)
-4. ask_human — Ask user for clarification (Human-in-the-Loop)
-5. execute_code — Run JavaScript sandbox for data processing
-6. fetch_url — Read any URL/API endpoint (MCP browser)
-7. composio_execute_action — Execute Gmail, Slack, Sheets, Notion, GitHub actions
-8. composio_get_connect_url — Generate OAuth connect URL (zero-config Google/SaaS login)
-9. composio_check_connections — Check user's connected SaaS accounts
-10. database_query — Query tenant's cloud D1 database
-11. storage_save — Save files to Cloudflare R2 bucket
-12. create_payment_checkout — Create Stripe payment/subscription checkout
-13. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
-14. composio_search_apps — Search across 1,700+ SaaS apps & actions in Composio
-15. search_llm_models — Search frontier OpenRouter LLM models (DeepSeek R1/V3, Claude 3.7, GPT-4o, Llama 3.3)
+4. search_code — Search keyword, function name, class, variable, or text pattern across all project code files
+5. list_files — List all files in the project with sizes and line counts
+6. ask_human — Ask user for clarification (Human-in-the-Loop)
+7. execute_code — Run JavaScript sandbox for data processing
+8. fetch_url — Read any URL/API endpoint (MCP browser)
+9. composio_execute_action — Execute Gmail, Slack, Sheets, Notion, GitHub actions
+10. composio_get_connect_url — Generate OAuth connect URL (zero-config Google/SaaS login)
+11. composio_check_connections — Check user's connected SaaS accounts
+12. database_query — Query tenant's cloud D1 database
+13. storage_save — Save files to Cloudflare R2 bucket
+14. create_payment_checkout — Create Stripe payment/subscription checkout
+15. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
+16. composio_search_apps — Search across 1,700+ SaaS apps & actions in Composio
+17. search_llm_models — Search frontier LLM models (DeepSeek, Gemini, Claude, GPT-4o, Llama 3.3)
 
 AGENTIC DISCOVERY & HUMAN-IN-THE-LOOP WORKFLOW:
 - When a user asks for an agent involving third-party apps (e.g. HubSpot, Zendesk, Salesforce, WhatsApp), call composio_search_apps to discover available integrations.
-- When an agent requires an LLM brain (OpenRouter), call search_llm_models to inspect available models and prices.
+- When an agent requires an LLM brain (OpenRouter / Google), call search_llm_models to inspect available models and prices. Default to Gemini (google/gemini-2.5-flash) if the user does not specify an LLM!
 - If the model choice or app selection is ambiguous, call ask_human to present clear multiple-choice options to the user before building!
 - Think step-by-step before acting. Call read_code_file BEFORE editing any file.
 - Always call edit_code_file when you modify code.
@@ -849,7 +921,7 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
           conversationMessages.unshift({ role: 'system', content: systemPrompt });
         }
 
-        const modelChoice = body.model || 'openai/gpt-4o-mini';
+        const modelChoice = body.model || 'google/gemini-2.5-flash';
         const agentSteps = [];
         let finalReply = '';
         let totalUsage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0, cost: 0 };
@@ -1013,8 +1085,8 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
 
       const userPrompt = typeof input === 'string' ? input : (input.prompt || input.text || 'Update the application');
       const projectName = body.projectName || paasId;
-      const userLlmModel = body.userModel || 'openai/gpt-4o-mini';
-      const userLlmProvider = body.userProvider || 'openrouter';
+      const userLlmModel = body.userModel || 'google/gemini-2.5-flash';
+      const userLlmProvider = body.userProvider || 'google';
       const currentFiles = (body.currentFiles || []).map(f => ({ path: f.path, content: f.content || '', name: f.name || f.path }));
       const history = body.history || [];
 
@@ -1047,18 +1119,19 @@ You are running as a LangSmith Managed Deep Agent for child PaaS: "${projectName
 MISSION: Edit, improve, or update the existing application code as requested by the user.
 
 MANDATORY WORKFLOW:
-1. ALWAYS call read_code_file("index.html") first to understand the current code
+1. ALWAYS call read_code_file("index.html") or search_code/list_files to understand the current code
 2. If you need research (e.g. library docs, API references), call web_search
 3. Plan your changes carefully, then call edit_code_file with the COMPLETE updated file
 4. If the task is ambiguous, call ask_human before proceeding
 5. If you need to run a calculation or data transformation, use execute_code
 6. After editing, write a clear summary of what changed
 
-AVAILABLE TOOLS: read_code_file, edit_code_file, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job, composio_search_apps, search_llm_models
+AVAILABLE TOOLS: read_code_file, edit_code_file, search_code, list_files, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job, composio_search_apps, search_llm_models
 
 AGENTIC AGENT CREATION & DISCOVERY:
 - If user wants an agent for any of Composio's 1,700+ apps (e.g. CRM, email, social, support), call composio_search_apps to find exact app IDs and action names.
 - If user wants to choose or change the LLM brain (OpenRouter models), call search_llm_models to get available models.
+- If user does NOT specify an LLM model, default directly to Gemini via LangSmith Managed Deep Agent (google/gemini-2.5-flash, provider: google).
 - If user requirements need clarification, call ask_human with a question and options list so the user can choose directly.
 
 ZERO-BYOK MANDATE: NEVER add API key input forms. ALL external API calls MUST use Runnerflo's centralized endpoints:
@@ -1297,8 +1370,8 @@ After editing: write a one-line summary of what changed.`;
         ? input
         : (input.prompt || input.text || 'Build a modern SaaS application');
       const projectName = body.projectName || paasId.replace(/[^a-z0-9-]+/g, '-') || 'runnerflo-app';
-      const userLlmModel = body.userModel || 'openai/gpt-4o-mini';
-      const userLlmProvider = body.userProvider || 'openrouter';
+      const userLlmModel = body.userModel || 'google/gemini-2.5-flash';
+      const userLlmProvider = body.userProvider || 'google';
 
       // LangSmith: open trace run BEFORE inference
       const runId = crypto.randomUUID();

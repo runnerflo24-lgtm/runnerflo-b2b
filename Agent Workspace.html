@@ -3538,11 +3538,11 @@ body.ws-stage-2-active .topbar {
     var isNew = !p.totalumProjectId;
     var projSlug = (p.totalumProjectId || p.name || 'app-' + Math.random().toString(36).slice(2, 8)).toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 32);
 
-    // Resolve user's chosen LLM engine from the dock switch
+    // Resolve user's chosen LLM engine from the dock switch (defaults directly to Gemini via LangSmith)
     var esBtn = document.querySelector('.es-btn.active');
-    var userLlmModel = (esBtn && esBtn.dataset.model) || 'openai/gpt-4o-mini';
-    var userLlmProvider = (esBtn && esBtn.dataset.engine) || 'openrouter';
-    if (userLlmProvider === 'totalum' || !userLlmProvider) { userLlmProvider = 'openrouter'; }
+    var userLlmModel = (esBtn && esBtn.dataset.model) || 'google/gemini-2.5-flash';
+    var userLlmProvider = (esBtn && esBtn.dataset.engine) || 'google';
+    if (userLlmProvider === 'totalum' || !userLlmProvider) { userLlmProvider = 'google'; }
 
     // Helper: launch Totalum infrastructure (DB, Hosting, Stripe Connect)
     function launchTotalumInfrastructure(htmlCode) {

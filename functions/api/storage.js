@@ -146,7 +146,7 @@ export async function onRequest(context) {
         name: body.projectName || meta.name || cleanPaasId,
         updatedAt: new Date().toISOString(),
         totalumProjectId: body.totalumProjectId || meta.totalumProjectId || null,
-        userModel: body.userModel || 'openai/gpt-4o-mini',
+        userModel: body.userModel || 'google/gemini-2.5-flash',
         lastFile: filePath,
         lastFileSize: content.length
       };

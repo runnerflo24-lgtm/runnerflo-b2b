@@ -60,6 +60,7 @@ export async function onRequest(context) {
   // GET: Health & Status check of the Gateway
   if (request.method === 'GET') {
     const keys = {
+      google: Boolean(env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY)),
       openrouter: Boolean(env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY)),
       fal: Boolean(env && (env.FAL_KEY || env.FAL_API_KEY)),
       replicate: Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY)),
@@ -74,6 +75,7 @@ export async function onRequest(context) {
       version: '2026.2',
       activeProviders: keys,
       core4Ready: keys.openrouter && keys.fal && keys.replicate && keys.wavespeed,
+      geminiReady: keys.google,
       langsmithReady: keys.langsmith,
       composioReady: keys.composio,
       message: 'Meta-PaaS Central Gateway active. All child PaaS platforms route exclusively to Runnerflo.'
@@ -129,6 +131,8 @@ export async function onRequest(context) {
     if (!provider) {
       if (model.startsWith('fal-ai/') || model.includes('tripo3d') || model.includes('flux/')) {
         provider = 'fal';
+      } else if (model.includes('gemini') || model.startsWith('google/')) {
+        provider = 'google';
       } else if (model.includes('deepseek') || model.includes('anthropic/') || model.includes('openai/gpt') || model.includes('llama-3')) {
         provider = 'openrouter';
       } else if (model.includes('stability-ai') || model.includes('whisper') || model.includes('musicgen')) {
@@ -136,8 +140,111 @@ export async function onRequest(context) {
       } else if (model.includes('pixverse') || model.includes('wavespeed') || model.includes('minimax')) {
         provider = 'wavespeed';
       } else {
-        provider = 'openrouter'; // default fallback
+        provider = 'google'; // default fallback to Gemini
       }
+    }
+
+    // ─── 0. Google AI Studio / Gemini (Direct Frontier LLM) ───────────────────
+    if (provider === 'google' || provider === 'gemini') {
+      const googleKey = (env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY)) || '';
+      const openrouterKey = (env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY)) || '';
+
+      // Format messages
+      const messages = Array.isArray(input.messages)
+        ? input.messages
+        : [{ role: 'user', content: input.prompt || input.text || 'Hello' }];
+
+      let geminiModel = model.replace(/^google\//, '');
+      if (!geminiModel || geminiModel === 'gemini' || geminiModel === 'default') {
+        geminiModel = 'gemini-2.5-flash';
+      }
+
+      // 1. Direct Google AI Studio v1beta
+      if (googleKey) {
+        try {
+          const gContents = messages.filter(m => m.role !== 'system').map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
+          }));
+          const sysMsg = messages.find(m => m.role === 'system');
+          const reqPayload = {
+            contents: gContents,
+            generationConfig: {
+              temperature: input.temperature ?? 0.7,
+              maxOutputTokens: input.max_tokens || 8192
+            }
+          };
+          if (sysMsg) {
+            reqPayload.systemInstruction = {
+              parts: [{ text: typeof sysMsg.content === 'string' ? sysMsg.content : JSON.stringify(sysMsg.content) }]
+            };
+          }
+
+          const gRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${googleKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reqPayload)
+          });
+
+          if (gRes.ok) {
+            const gData = await gRes.json();
+            const replyText = gData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            return new Response(JSON.stringify({
+              ok: true,
+              tenantId: compositeId,
+              paasId,
+              endUserId,
+              provider: 'google',
+              model: geminiModel,
+              result: replyText,
+              raw: gData
+            }), { status: 200, headers: corsHeaders });
+          }
+        } catch (gErr) {
+          // Fall through to OpenRouter if direct call fails
+        }
+      }
+
+      // 2. Fallback: OpenRouter via google/<model>
+      if (openrouterKey) {
+        const orModel = model.startsWith('google/') ? model : `google/${geminiModel}`;
+        const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openrouterKey}`,
+            'HTTP-Referer': 'https://runnerflo-b2b.pages.dev',
+            'X-Title': 'Runnerflo B2B PaaS',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: orModel,
+            messages,
+            temperature: input.temperature ?? 0.7,
+            max_tokens: input.max_tokens || 8192
+          })
+        });
+
+        if (orRes.ok) {
+          const orData = await orRes.json();
+          return new Response(JSON.stringify({
+            ok: true,
+            tenantId: compositeId,
+            paasId,
+            endUserId,
+            provider: 'google',
+            model: orModel,
+            result: orData.choices?.[0]?.message?.content || '',
+            usage: orData.usage
+          }), { status: 200, headers: corsHeaders });
+        }
+      }
+
+      return new Response(JSON.stringify({
+        ok: false,
+        error: 'GOOGLE_AI_API_KEY atau OPENROUTER_API_KEY belum disetel untuk menjalankan Gemini.',
+        provider: 'google',
+        model
+      }), { status: 200, headers: corsHeaders });
     }
 
     // ─── 1. OpenRouter (LLM / Chat / Text Generation) ───────────────────────
@@ -395,7 +502,7 @@ export async function onRequest(context) {
     }
 
     return new Response(JSON.stringify({
-      error: `Unknown provider: "${provider}". Supported: openrouter, fal, replicate, wavespeed, custom, tripo3d, langsmith.`
+      error: `Unknown provider: "${provider}". Supported: google, openrouter, fal, replicate, wavespeed, custom, tripo3d, langsmith.`
     }), { status: 400, headers: corsHeaders });
 
   } catch (err) {
