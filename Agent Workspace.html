@@ -3522,7 +3522,7 @@ body.ws-stage-2-active .topbar {
 
   var progressTicker = null;
 
-  function runTotalumAgent(p, text) {
+  function runTotalumAgent(p, text, attachedImg) {
     var my = ++runId;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
@@ -3637,7 +3637,8 @@ body.ws-stage-2-active .topbar {
           paasId: projSlug,
           endUserId: localStorage.getItem('rf_end_user_id') || 'usr_dev',
           userModel: userLlmModel,
-          userProvider: userLlmProvider
+          userProvider: userLlmProvider,
+          image: attachedImg ? { data: attachedImg.data, mimeType: attachedImg.mimeType } : null
         })
       })
       .then(function(r) { return r.json(); })
@@ -3751,6 +3752,7 @@ body.ws-stage-2-active .topbar {
           userModel: userLlmModel,
           userProvider: userLlmProvider,
           history: editHistory,
+          image: attachedImg ? { data: attachedImg.data, mimeType: attachedImg.mimeType } : null,
           currentFiles: editFiles.slice(0, 5).map(function(f) {
             return { path: f.path || f.name, content: (f.customContent || '').slice(0, 60000) };
           })
@@ -5477,7 +5479,7 @@ body.ws-stage-2-active .topbar {
         runClaudeFallbackAgent(p, text, 'continue_edit', null, null, attachedImg);
         return;
       }
-      runTotalumAgent(p, text);
+      runTotalumAgent(p, text, attachedImg);
       return;
     }
     if (attachedImg) {

@@ -266,11 +266,25 @@ const DEEP_AGENT_TOOLS = [
         required: ["query"]
       }
     }
+  },
+  // ── 16. OCR & IMAGE INSPECTION (Multimodal Vision Matching) ─────────────────
+  {
+    type: "function",
+    function: {
+      name: "inspect_image_reference",
+      description: "Perform OCR and visual analysis on an uploaded reference image, design mockup, wireframe, or screenshot. Extracts verbatim text, headings, buttons, hex color codes, typography, layout cards, and UI hierarchy so you can match the application code against the design.",
+      parameters: {
+        type: "object",
+        properties: {
+          focus: { type: "string", description: "What to extract: 'all', 'text_ocr', 'color_palette', 'components', 'layout'" }
+        }
+      }
+    }
   }
 ];
 
 async function executeDeepAgentTool(toolName, args, ctx) {
-  const { origin, paasId, endUserId, projectFiles } = ctx;
+  const { origin, paasId, endUserId, projectFiles, imagePayload, googleKey } = ctx;
 
   // ── 1. WEB SEARCH ──────────────────────────────────────────────────────────
   if (toolName === 'web_search') {
@@ -550,6 +564,55 @@ async function executeDeepAgentTool(toolName, args, ctx) {
     } catch (e) {
       return { ok: false, error: e.message };
     }
+  }
+
+  // ── 16. OCR & IMAGE INSPECTION ─────────────────────────────────────────────
+  if (toolName === 'inspect_image_reference' || toolName === 'ocr_image_content') {
+    const img = imagePayload;
+    if (!img) {
+      return { ok: false, error: 'No reference image was attached in this request. Please upload or attach a design screenshot.' };
+    }
+    if (googleKey) {
+      try {
+        let b64 = typeof img === 'string' ? img : (img.data || img.base64 || '');
+        let mime = (typeof img === 'object' && (img.mimeType || img.type)) || 'image/jpeg';
+        if (b64.startsWith('data:')) {
+          const parts = b64.split(',');
+          const m = parts[0].match(/data:([^;]+);base64/);
+          if (m) mime = m[1];
+          b64 = parts[1];
+        }
+        if (b64) {
+          const vRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${googleKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                role: 'user',
+                parts: [
+                  { inlineData: { mimeType: mime, data: b64 } },
+                  { text: 'Perform a comprehensive UI design analysis and OCR transcript of this reference image. Extract: 1) All visible text verbatim (headings, labels, buttons), 2) Color palette (hex codes, background, accents), 3) Layout structure (grid, navigation, hero, cards, sidebar), 4) Interactive elements (inputs, CTA buttons, badges).' }
+                ]
+              }],
+              generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+            })
+          });
+          if (vRes.ok) {
+            const vData = await vRes.json();
+            const analysis = vData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            return {
+              ok: true,
+              hasImage: true,
+              ocrAnalysis: analysis,
+              summary: 'Successfully extracted OCR text, colors, and UI layout components from reference image.'
+            };
+          }
+        }
+      } catch (vErr) {
+        // Fallback
+      }
+    }
+    return { ok: true, hasImage: true, summary: 'Reference image is attached to agent context.' };
   }
 
   return { error: `Unknown tool: "${toolName}"` };
@@ -870,7 +933,8 @@ export async function onRequest(context) {
       const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
       const tavilyKey = env && (env.TAVILY_API_KEY || env.TAVILY_KEY);
       const origin = new URL(request.url).origin;
-      const toolCtx = { origin, paasId, endUserId, compositeId, tavilyKey, modifiedFiles: [], projectFiles: body.currentFiles || [] };
+      const imagePayload = body.image || body.imagePayload || body.attachedImage || (input && (input.image || input.imagePayload)) || null;
+      const toolCtx = { origin, paasId, endUserId, compositeId, tavilyKey, modifiedFiles: [], projectFiles: body.currentFiles || [], imagePayload, googleKey };
 
       if (body.execute !== false && (openrouterKey || googleKey)) {
         const userPrompt = typeof input === 'string'
@@ -899,10 +963,12 @@ AVAILABLE TOOLS (use ALL of them when needed):
 15. trigger_background_job — Dispatch Trigger.dev v3 async background jobs
 16. composio_search_apps — Search across 1,700+ SaaS apps & actions in Composio
 17. search_llm_models — Search frontier LLM models (DeepSeek, Gemini, Claude, GPT-4o, Llama 3.3)
+18. inspect_image_reference — Perform OCR & visual analysis on attached reference image/screenshot to match against UI design
 
 AGENTIC DISCOVERY & HUMAN-IN-THE-LOOP WORKFLOW:
 - When a user asks for an agent involving third-party apps (e.g. HubSpot, Zendesk, Salesforce, WhatsApp), call composio_search_apps to discover available integrations.
 - When an agent requires an LLM brain (OpenRouter / Google), call search_llm_models to inspect available models and prices. Default to Gemini (google/gemini-2.5-flash) if the user does not specify an LLM!
+- When user provides an image or design screenshot, call inspect_image_reference to extract exact text, buttons, and colors to match!
 - If the model choice or app selection is ambiguous, call ask_human to present clear multiple-choice options to the user before building!
 - Think step-by-step before acting. Call read_code_file BEFORE editing any file.
 - Always call edit_code_file when you modify code.
@@ -1106,10 +1172,13 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
       }).catch(() => null);
 
       const origin = new URL(request.url).origin;
+      const imagePayload = body.image || body.imagePayload || body.attachedImage || (input && (input.image || input.imagePayload)) || null;
       const toolCtx = {
         origin, paasId, endUserId, compositeId, tavilyKey,
         modifiedFiles: [],
-        projectFiles: currentFiles
+        projectFiles: currentFiles,
+        imagePayload,
+        googleKey
       };
 
       // Build system prompt for edit — mirrors Claude Managed Agent system prompt
@@ -1121,17 +1190,19 @@ MISSION: Edit, improve, or update the existing application code as requested by 
 MANDATORY WORKFLOW:
 1. ALWAYS call read_code_file("index.html") or search_code/list_files to understand the current code
 2. If you need research (e.g. library docs, API references), call web_search
-3. Plan your changes carefully, then call edit_code_file with the COMPLETE updated file
-4. If the task is ambiguous, call ask_human before proceeding
-5. If you need to run a calculation or data transformation, use execute_code
-6. After editing, write a clear summary of what changed
+3. If user provided a reference image or design mockup, call inspect_image_reference to extract exact text and UI components
+4. Plan your changes carefully, then call edit_code_file with the COMPLETE updated file
+5. If the task is ambiguous, call ask_human before proceeding
+6. If you need to run a calculation or data transformation, use execute_code
+7. After editing, write a clear summary of what changed
 
-AVAILABLE TOOLS: read_code_file, edit_code_file, search_code, list_files, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job, composio_search_apps, search_llm_models
+AVAILABLE TOOLS: read_code_file, edit_code_file, search_code, list_files, web_search, fetch_url, ask_human, execute_code, composio_execute_action, composio_get_connect_url, composio_check_connections, database_query, storage_save, create_payment_checkout, trigger_background_job, composio_search_apps, search_llm_models, inspect_image_reference
 
 AGENTIC AGENT CREATION & DISCOVERY:
 - If user wants an agent for any of Composio's 1,700+ apps (e.g. CRM, email, social, support), call composio_search_apps to find exact app IDs and action names.
 - If user wants to choose or change the LLM brain (OpenRouter models), call search_llm_models to get available models.
 - If user does NOT specify an LLM model, default directly to Gemini via LangSmith Managed Deep Agent (google/gemini-2.5-flash, provider: google).
+- When user provides an image or design screenshot, call inspect_image_reference to extract exact text, buttons, and colors to match!
 - If user requirements need clarification, call ask_human with a question and options list so the user can choose directly.
 
 ZERO-BYOK MANDATE: NEVER add API key input forms. ALL external API calls MUST use Runnerflo's centralized endpoints:
@@ -1228,7 +1299,7 @@ After editing: write a one-line summary of what changed.`;
           if (r && r.ok) llmData = await r.json().catch(() => null);
         }
 
-        // Gemini native fallback (native function calling)
+        // Gemini native fallback (native function calling + multimodal vision OCR)
         if (!llmData && googleKey) {
           const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash-lite'];
           const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -1236,6 +1307,25 @@ After editing: write a one-line summary of what changed.`;
             role: m.role === 'assistant' ? 'model' : (m.role === 'system' ? 'user' : m.role),
             parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
           }));
+
+          // Attach multimodal image payload to Gemini user prompt for OCR & visual matching
+          if (imagePayload) {
+            let b64 = typeof imagePayload === 'string' ? imagePayload : (imagePayload.data || imagePayload.base64 || '');
+            let mime = (typeof imagePayload === 'object' && (imagePayload.mimeType || imagePayload.type)) || 'image/jpeg';
+            if (b64.startsWith('data:')) {
+              const parts = b64.split(',');
+              const m = parts[0].match(/data:([^;]+);base64/);
+              if (m) mime = m[1];
+              b64 = parts[1];
+            }
+            if (b64) {
+              const lastUser = [...gContents].reverse().find(c => c.role === 'user');
+              if (lastUser && lastUser.parts && !lastUser.parts.some(p => p.inlineData)) {
+                lastUser.parts.unshift({ inlineData: { mimeType: mime, data: b64 } });
+              }
+            }
+          }
+
           const gTools = [{ function_declarations: DEEP_AGENT_TOOLS.map(t => ({ name: t.function.name, description: t.function.description, parameters: t.function.parameters })) }];
           for (const mdl of GEMINI_MODELS) {
             try {

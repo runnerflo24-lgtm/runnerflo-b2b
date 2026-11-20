@@ -513,14 +513,35 @@ BOLT.DIY MCP TOOLS:
 3. project_write_file({ path, content, replacementReason }): Full file creation or overwrite.
 4. project_list_paths({ path }): List files in the workspace.
 5. project_search_content({ query }): Search across all workspace files.
-6. trigger_job(taskId, description, payload, triggerCode): Inject Trigger.dev v3 background task pipeline.
-7. composio_action(app, action, userId, params, generateConnectUI): Inject Composio multi-tenancy SaaS OAuth/action.
-(Aliases: read_file, edit_code, search_code are also supported)
+6. inspect_image_reference({ focus }): Perform OCR & visual analysis on attached reference image/screenshot to match against.
+7. trigger_job(taskId, description, payload, triggerCode): Inject Trigger.dev v3 background task pipeline.
+8. composio_action(app, action, userId, params, generateConnectUI): Inject Composio multi-tenancy SaaS OAuth/action.
+(Aliases: read_file, edit_code, search_code, ocr_image are also supported)
 
 Respond in Indonesian if the user prompted in Indonesian. Otherwise respond in English. Always summarize what code changes were made.`;
 
     // ─── Tool Definitions (Bolt.diy MCP + Trigger.dev + Composio) ─────────────
     const tools = [
+      {
+        name: 'inspect_image_reference',
+        description: 'Perform OCR and visual analysis on the user\'s attached reference image or screenshot. Inspects visible text, headings, buttons, color palettes, and UI layout hierarchy so you can match the code against the design.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            focus: { type: 'string', description: 'What to extract: "all", "ocr_text", "color_palette", "ui_components", "layout_structure"' }
+          }
+        }
+      },
+      {
+        name: 'ocr_image',
+        description: 'Alias for inspect_image_reference. Extract text and visual elements from the attached reference image.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            focus: { type: 'string', description: 'Focus area for OCR and design matching' }
+          }
+        }
+      },
       {
         name: 'project_read_file',
         description: 'Read the complete UTF-8 content of a project file. Always call this before modifying an existing file.',
@@ -964,6 +985,23 @@ async function connectApp(app) {
         return { saved: true, label: toolInput.label || 'Snapshot', message: `Snapshot "${toolInput.label}" will be saved by the platform before applying changes.` };
       }
 
+      // inspect_image_reference / ocr_image: inspect reference image
+      if (toolName === 'inspect_image_reference' || toolName === 'ocr_image') {
+        if (!hasImage) {
+          return {
+            hasImage: false,
+            message: 'No reference image is attached in this request. Please ask the user to upload or attach a design screenshot.'
+          };
+        }
+        let mime = (typeof imagePayload === 'object' && (imagePayload.mimeType || imagePayload.type)) || 'image/jpeg';
+        return {
+          hasImage: true,
+          mimeType: mime,
+          focus: toolInput.focus || 'all',
+          message: 'Reference image is attached to your Vision context. Inspect the image block directly to transcribe text (OCR), identify color codes (hex), and replicate UI components.'
+        };
+      }
+
       // ask_user — returns special status so the frontend shows clarification UI
       if (toolName === 'ask_user') {
         return { __ask_user__: true, questions: toolInput.questions || [], intro: toolInput.intro || 'Before I start, a few quick questions to make sure I build exactly what you need:' };
@@ -1009,6 +1047,25 @@ async function connectApp(app) {
     try {
       // ── SESSION CONTINUITY: If client already has an active session, POST to it ──
       if (activeSessionId) {
+        const continueContent = [];
+        if (hasImage) {
+          let b64 = typeof imagePayload === 'string' ? imagePayload : (imagePayload.data || imagePayload.base64 || imagePayload.url || '');
+          let mime = (typeof imagePayload === 'object' && (imagePayload.mimeType || imagePayload.type)) || 'image/jpeg';
+          if (b64.startsWith('data:')) {
+            const parts = b64.split(',');
+            const m = parts[0].match(/data:([^;]+);base64/);
+            if (m) mime = m[1];
+            b64 = parts[1];
+          }
+          if (b64 && b64.length > 50) {
+            continueContent.push({
+              type: 'image',
+              source: { type: 'base64', media_type: mime, data: b64 }
+            });
+          }
+        }
+        continueContent.push({ type: 'text', text: userText });
+
         const continueRes = await fetch(`https://api.anthropic.com/v1/sessions/${activeSessionId}/events`, {
           method: 'POST',
           headers: {
@@ -1019,7 +1076,7 @@ async function connectApp(app) {
           },
           body: JSON.stringify({
             type: 'user.message',
-            content: [{ type: 'text', text: userText }]
+            content: continueContent
           })
         });
         if (continueRes.ok) {
@@ -1182,7 +1239,26 @@ CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
    - Also provide companion CSS in \`\`\`css ... \`\`\` and JS logic in \`\`\`javascript ... \`\`\` if appropriate.
    - In your text commentary, provide a clean, friendly Indonesian summary. DO NOT dump raw code outside markdown code blocks.`;
 
-        // Create Managed Agents Session with initial_events
+        // Create Managed Agents Session with initial_events (including reference image if provided)
+        const initialContent = [];
+        if (hasImage) {
+          let b64 = typeof imagePayload === 'string' ? imagePayload : (imagePayload.data || imagePayload.base64 || imagePayload.url || '');
+          let mime = (typeof imagePayload === 'object' && (imagePayload.mimeType || imagePayload.type)) || 'image/jpeg';
+          if (b64.startsWith('data:')) {
+            const parts = b64.split(',');
+            const m = parts[0].match(/data:([^;]+);base64/);
+            if (m) mime = m[1];
+            b64 = parts[1];
+          }
+          if (b64 && b64.length > 50) {
+            initialContent.push({
+              type: 'image',
+              source: { type: 'base64', media_type: mime, data: b64 }
+            });
+          }
+        }
+        initialContent.push({ type: 'text', text: maPrompt });
+
         const maSessRes = await fetch('https://api.anthropic.com/v1/sessions', {
           method: 'POST',
           headers: {
@@ -1198,7 +1274,7 @@ CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
             initial_events: [
               {
                 type: 'user.message',
-                content: [{ type: 'text', text: maPrompt }]
+                content: initialContent
               }
             ]
           })
@@ -1303,16 +1379,11 @@ CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
         tools
       };
 
-      // Force Claude to call a specific tool, or force project_write_file when code write is mandatory
+      // Allow Claude to choose tools freely (search_content, read_file, inspect_image_reference, write_file)
       if (specificTool) {
         payload.tool_choice = { type: 'tool', name: specificTool };
       } else if (forceToolUse) {
-        if (isVisualRedesignRequest || hasImage || modifiedFiles.length === 0) {
-          // STRICT ENFORCEMENT: Force project_write_file so Claude CANNOT escape or just read files
-          payload.tool_choice = { type: 'tool', name: 'project_write_file' };
-        } else {
-          payload.tool_choice = { type: 'any' };
-        }
+        payload.tool_choice = { type: 'auto' };
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST', headers, body: JSON.stringify(payload)
