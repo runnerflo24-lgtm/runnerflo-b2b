@@ -276,6 +276,42 @@ export async function onRequest(context) {
     }
   }
 
+  // Try fetching live models from Replicate if key is present
+  if (keys.replicate && (providerFilter === 'all' || providerFilter === 'replicate')) {
+    try {
+      const repRes = await fetch('https://api.replicate.com/v1/models', {
+        headers: { 'Authorization': `Bearer ${keys.replicate}` }
+      });
+      if (repRes.ok) {
+        const repData = await repRes.json();
+        const liveRepModels = (repData.results || []).slice(0, 25).map(m => {
+          let cat = 'image';
+          const nameLower = (m.name + ' ' + (m.description || '')).toLowerCase();
+          if (nameLower.includes('video') || nameLower.includes('motion') || nameLower.includes('animate')) cat = 'video';
+          else if (nameLower.includes('audio') || nameLower.includes('voice') || nameLower.includes('speech') || nameLower.includes('music')) cat = 'audio';
+          else if (nameLower.includes('3d') || nameLower.includes('mesh')) cat = '3d';
+          else if (nameLower.includes('llm') || nameLower.includes('chat') || nameLower.includes('code')) cat = 'llm';
+
+          return {
+            id: `${m.owner}/${m.name}`,
+            name: m.name,
+            provider: 'replicate',
+            category: cat,
+            icon: cat === 'video' ? '🎬' : (cat === 'audio' ? '🎵' : (cat === '3d' ? '🧊' : '🖼️')),
+            description: m.description ? m.description.slice(0, 160) : `Official ${m.name} model on Replicate.`,
+            basePrice: { perRun: 0.02 },
+            unit: 'per generation',
+            live: true
+          };
+        });
+        const existingIds = new Set(allModels.map(m => m.id));
+        liveRepModels.forEach(lm => {
+          if (!existingIds.has(lm.id)) allModels.push(lm);
+        });
+      }
+    } catch (_) {}
+  }
+
   // Calculate Retail Metering / Margins for each model
   const processedModels = allModels.map(m => {
     let clientPriceText = '';
