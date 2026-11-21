@@ -257,34 +257,40 @@ export async function onRequest(context) {
         { tld: '.co', priceUsd: 24.00, priceIdr: 'Rp 360.000' }
       ];
 
-      // Perform real-time DNS probe using Cloudflare DNS-over-HTTPS (authoritative NS probe)
+      // Perform real-time DNS probe using Cloudflare DNS-over-HTTPS (dual probe: NS + A)
       const results = await Promise.all(tlds.map(async (item) => {
         const fullDomain = `${query}${item.tld}`;
-        let available = true;
+        // Default SAFE: assume registered unless we explicitly get NXDOMAIN (Status 3)
+        let available = false;
         try {
+          // Probe 1: NS record (authoritative delegation check)
           const dohRes = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(fullDomain)}&type=NS`, {
             headers: { 'Accept': 'application/dns-json' }
           });
           if (dohRes.ok) {
             const dohData = await dohRes.json();
-            // Status 0 (NOERROR) means domain is registered and active in global DNS
-            // Status 3 (NXDOMAIN) means domain does not exist in TLD (available)
-            if (dohData.Status === 0) {
-              available = false;
-            } else if (dohData.Status === 3) {
+            if (dohData.Status === 3) {
+              // NXDOMAIN confirmed → domain truly does not exist
               available = true;
-            } else if (dohData.Answer && dohData.Answer.length > 0) {
+            } else if (dohData.Status === 0) {
+              // NOERROR → domain is registered and delegated
               available = false;
+            } else {
+              // SERVFAIL (2) or other → ambiguous, do A-record fallback
+              const dohA = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(fullDomain)}&type=A`, { headers: { 'Accept': 'application/dns-json' } });
+              if (dohA.ok) {
+                const dA = await dohA.json();
+                if (dA.Status === 3) {
+                  available = true;   // NXDOMAIN on A too → safe to say available
+                } else {
+                  available = false;  // Any other status → assume registered (safe default)
+                }
+              }
+              // If A probe also fails → available stays false (conservative)
             }
           }
         } catch {
-          try {
-            const dohA = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(fullDomain)}&type=A`, { headers: { 'Accept': 'application/dns-json' } });
-            if (dohA.ok) {
-              const d = await dohA.json();
-              if (d.Status === 0) available = false;
-            }
-          } catch {}
+          // Network error → keep available = false (conservative, do not sell unverified domain)
         }
 
         return {
