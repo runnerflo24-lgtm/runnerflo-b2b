@@ -1499,7 +1499,8 @@ async function callLLM(messages) {
   return await res.json();
 }
 async function loginWithGoogle() {
-  const res = await fetch('/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+  const apiHost = window.__RF_ORIGIN || (window.location.origin.startsWith('blob:') ? 'https://runnerflo-b2b.pages.dev' : window.location.origin);
+  const res = await fetch(apiHost + '/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
   const data = await res.json(); if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
 }
 async function checkConnection(app='google') {
@@ -1988,8 +1989,9 @@ LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
   DO NOT ask end-users for Google Cloud Client IDs or Secrets!
   \`\`\`javascript
   async function loginWithGoogle() {
+    const apiHost = window.__RF_ORIGIN || (window.location.origin.startsWith('blob:') ? 'https://runnerflo-b2b.pages.dev' : window.location.origin);
     const redirectUri = window.location.href;
-    const res = await fetch('/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
+    const res = await fetch(apiHost + '/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
     const data = await res.json();
     if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
   }

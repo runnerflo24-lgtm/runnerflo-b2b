@@ -4796,12 +4796,28 @@ body.ws-stage-2-active .topbar {
     if (!rawHtml || typeof rawHtml !== 'string') return '';
     var pSlug = (p && (p.totalumProjectId || p.name || p.id || 'preview-app')) || 'preview-app';
     var endUser = localStorage.getItem('rf_end_user_id') || 'usr_dev';
+    var appOrigin = window.location.origin || 'https://runnerflo-b2b.pages.dev';
+    if (appOrigin.startsWith('blob:') || !appOrigin.startsWith('http')) {
+      appOrigin = 'https://runnerflo-b2b.pages.dev';
+    }
 
     // Interactive Bridge Script injected into every preview iframe
     var bridge = '\n<script data-runnerflo-bridge="true">\n' +
       '(function(){\n' +
+      '  var API_HOST = ' + JSON.stringify(appOrigin) + ';\n' +
       '  window.PAAS_ID = window.PAAS_ID || ' + JSON.stringify(pSlug) + ';\n' +
       '  window.END_USER_ID = window.END_USER_ID || ' + JSON.stringify(endUser) + ';\n' +
+      '  window.__RF_ORIGIN = API_HOST;\n' +
+      '\n' +
+      '  // Monkey-patch fetch inside blob sandbox so relative /api/... calls resolve to API_HOST\n' +
+      '  var _rawFetch = window.fetch;\n' +
+      '  window.fetch = function(input, init) {\n' +
+      '    if (typeof input === "string" && input.startsWith("/")) {\n' +
+      '      input = API_HOST + input;\n' +
+      '    }\n' +
+      '    return _rawFetch.call(this, input, init);\n' +
+      '  };\n' +
+      '\n' +
       '  function initBridge() {\n' +
       '    // 1. Google OAuth Popup Handler (Google denies iframe embedding via X-Frame-Options)\n' +
       '    window.loginWithGoogle = function(e) {\n' +
@@ -4812,13 +4828,17 @@ body.ws-stage-2-active .topbar {
       '        btn.dataset.origText = btn.innerText;\n' +
       '        btn.innerText = "⏳ Connecting Google...";\n' +
       '      }\n' +
-      '      fetch("/api/composio?action=connect-url&app=google&paasId=" + encodeURIComponent(window.PAAS_ID) + "&endUserId=" + encodeURIComponent(window.END_USER_ID))\n' +
+      '      var ep = API_HOST + "/api/composio?action=connect-url&app=google&paasId=" + encodeURIComponent(window.PAAS_ID) + "&endUserId=" + encodeURIComponent(window.END_USER_ID);\n' +
+      '      fetch(ep)\n' +
       '        .then(function(r){ return r.json(); })\n' +
       '        .then(function(d){\n' +
       '          if (btn && btn.dataset.origText) { btn.disabled = false; btn.innerText = btn.dataset.origText; }\n' +
       '          if (d && d.connectUrl) {\n' +
-      '            var pop = window.open(d.connectUrl, "google_auth", "width=600,height=700,status=yes,scrollbars=yes");\n' +
-      '            if (!pop) window.open(d.connectUrl, "_blank");\n' +
+      '            showFeedback("Membuka jendela Google OAuth...");\n' +
+      '            var pop = window.open(d.connectUrl, "_blank", "width=600,height=720,status=yes,scrollbars=yes");\n' +
+      '            if (!pop) {\n' +
+      '              window.open(d.connectUrl, "_blank");\n' +
+      '            }\n' +
       '          } else {\n' +
       '            showFeedback("Google OAuth ready via Composio! (" + (d.error || "active") + ")");\n' +
       '          }\n' +
@@ -4868,7 +4888,16 @@ body.ws-stage-2-active .topbar {
       '})();\n' +
       '<' + '/script>\n';
 
+    var baseTag = '<base href="' + appOrigin + '/">';
     var finalHtml = rawHtml;
+    if (finalHtml.includes('<head>')) {
+      finalHtml = finalHtml.replace('<head>', '<head>\n  ' + baseTag);
+    } else if (finalHtml.includes('<html>')) {
+      finalHtml = finalHtml.replace('<html>', '<html>\n<head>' + baseTag + '</head>');
+    } else {
+      finalHtml = '<head>' + baseTag + '</head>\n' + finalHtml;
+    }
+
     if (finalHtml.includes('</body>')) {
       finalHtml = finalHtml.replace('</body>', bridge + '</body>');
     } else if (finalHtml.includes('</html>')) {
