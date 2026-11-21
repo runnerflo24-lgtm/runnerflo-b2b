@@ -340,6 +340,27 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
       <span><b id="f-audio">0</b> providers</span>
       <span><b id="f-fast">0</b> categories</span><span><b>Any</b> API on request</span>
     </div>
+
+    <!-- Live Unified Vendor Status Bar: OpenRouter, fal.ai, Replicate, WaveSpeed -->
+    <div class="vendor-health-banner rise" style="--d:340ms;margin-top:20px;padding:12px 18px;background:rgba(248,250,252,0.9);border:1px solid #e2e8f0;border-radius:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <div style="font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em">Live Connected Aggregators:</div>
+      <div id="badge-openrouter" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>OpenRouter</b> <span id="cnt-openrouter" style="opacity:0.85;font-size:11px">(Live API)</span>
+      </div>
+      <div id="badge-fal" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>fal.ai</b> <span id="cnt-fal" style="opacity:0.85;font-size:11px">(Live API)</span>
+      </div>
+      <div id="badge-replicate" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>Replicate</b> <span id="cnt-replicate" style="opacity:0.85;font-size:11px">(Live API)</span>
+      </div>
+      <div id="badge-wavespeed" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>WaveSpeed</b> <span id="cnt-wavespeed" style="opacity:0.85;font-size:11px">(Live API)</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -703,7 +724,11 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
       '<div class="info"><h3 class="title">'+avatar(m[0])+'<span class="owner">'+esc(m[0])+'</span><span class="sl">/</span><a href="#'+id+'">'+esc(m[1])+'</a></h3>'+
       '<p class="desc">'+esc(m[2])+'</p>'+
       '<div class="mrow" style="gap:6px;flex-wrap:wrap"><span class="brand-pill" style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:'+br.bg+';color:'+br.fg+'">'+br.name+'</span><span class="price-pill" style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;background:#f8fafc;color:#0f172a;border:1px solid #e2e8f0">'+esc(pr)+'</span><span class="runs" style="font-size:11.5px;color:#64748b;margin-left:auto">'+fmt(m[3])+' runs</span></div>'+
-      '<div class="bot"><span class="time">'+I.clock+esc(m[5]+' → '+m[6])+'</span><span class="official" style="font-size:11.5px;color:#059669;display:flex;align-items:center;gap:3px">'+I.check+esc(m[7])+'</span><button class="save" type="button" aria-pressed="false" aria-label="Save '+esc(k)+'">'+I.heart+'</button></div></div></article>';
+      '<div class="bot"><span class="time">'+I.clock+esc(m[5]+' → '+m[6])+'</span><span class="official" style="font-size:11.5px;color:#059669;display:flex;align-items:center;gap:3px">'+I.check+esc(m[7])+'</span><button class="save" type="button" aria-pressed="false" aria-label="Save '+esc(k)+'">'+I.heart+'</button></div>'+
+      '<div class="card-act" style="margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb;display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
+      '<a href="/Agent%20Workspace?model='+encodeURIComponent(k)+'&provider='+encodeURIComponent(br.name.toLowerCase())+'" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#4f46e5;color:#fff;border-radius:6px;font-size:11.5px;font-weight:700;text-decoration:none;box-shadow:0 1px 4px rgba(79,70,229,0.3)">⚡ Gunakan di Agent Workspace</a>'+
+      '<button type="button" class="btn pri" data-r="'+esc(k)+'" style="margin-left:auto;padding:5px 9px;font-size:11px;border-radius:6px;background:none;border:1px solid #d1d5db;color:#374151;cursor:pointer">Setup / Detail</button>'+
+      '</div></div></article>';
   }
   function render(append){
     var all=list(), vis=all.slice(0,S.shown);
@@ -751,35 +776,61 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
     fetch('/api/catalog')
       .then(function(res){ return res.ok ? res.json() : null; })
       .then(function(data){
-        if (data && Array.isArray(data.models) && data.models.length > 0) {
-          var existingKeys = {};
-          M.forEach(function(item){ existingKeys[key(item)] = true; });
-          var added = false;
-          data.models.forEach(function(dm){
-            var prov = dm.provider || 'openrouter';
-            var modName = dm.id.indexOf('/') > -1 ? dm.id.split('/').pop() : dm.id;
-            var itemKey = prov + '/' + modName;
-            if (!existingKeys[itemKey]) {
-              existingKeys[itemKey] = true;
-              var cat = dm.category || 'llm';
-              var priceText = dm.pricing ? dm.pricing.clientPriceDisplay : (cat === 'llm' ? '$0.55 / $2.19 per 1M' : '$0.02 / req');
-              var runCount = 750000 + (hash(itemKey) % 1200000);
-              M.unshift([
-                prov,
-                modName,
-                dm.description || (dm.name + ' on ' + prov),
-                runCount,
-                cat + ' ' + prov,
-                cat === 'llm' ? 'Text' : (cat === 'image' ? 'Text / Image' : 'Prompt'),
-                cat === 'llm' ? 'Text' : (cat === 'video' ? 'Video' : 'Asset'),
-                dm.hasProviderKey ? 'Live API (Connected)' : 'Hosted API',
-                priceText
-              ]);
-              added = true;
+        if (data) {
+          // Update vendor live status badges with model counts
+          var provCounts = { openrouter: 0, fal: 0, replicate: 0, wavespeed: 0 };
+          if (Array.isArray(data.models)) {
+            data.models.forEach(function(m){
+              if (provCounts[m.provider] !== undefined) provCounts[m.provider]++;
+            });
+          }
+          ['openrouter', 'fal', 'replicate', 'wavespeed'].forEach(function(pk){
+            var cntEl = document.getElementById('cnt-' + pk);
+            var badgeEl = document.getElementById('badge-' + pk);
+            var isLive = data.activeKeys && data.activeKeys[pk];
+            var count = provCounts[pk] || 0;
+            if (cntEl) {
+              cntEl.textContent = count > 0 ? '(' + count + ' models live)' : (isLive ? '(Live API)' : '(Available)');
+            }
+            if (badgeEl && isLive) {
+              badgeEl.style.background = '#f0fdf4';
+              badgeEl.style.borderColor = '#86efac';
             }
           });
-          if (added) {
-            render(false);
+
+          if (Array.isArray(data.models) && data.models.length > 0) {
+            var existingKeys = {};
+            M.forEach(function(item){ existingKeys[key(item)] = true; });
+            var added = false;
+            data.models.forEach(function(dm){
+              var prov = dm.provider || 'openrouter';
+              var modName = dm.id.indexOf('/') > -1 ? dm.id.split('/').pop() : dm.id;
+              var itemKey = prov + '/' + modName;
+              if (!existingKeys[itemKey]) {
+                existingKeys[itemKey] = true;
+                var cat = dm.category || 'llm';
+                var priceText = dm.pricing ? dm.pricing.clientPriceDisplay : (cat === 'llm' ? '$0.55 / $2.19 per 1M' : '$0.02 / req');
+                var runCount = 750000 + (hash(itemKey) % 1200000);
+                M.unshift([
+                  prov,
+                  modName,
+                  dm.description || (dm.name + ' on ' + prov),
+                  runCount,
+                  cat + ' ' + prov,
+                  cat === 'llm' ? 'Text' : (cat === 'image' ? 'Text / Image' : 'Prompt'),
+                  cat === 'llm' ? 'Text' : (cat === 'video' ? 'Video' : 'Asset'),
+                  dm.hasProviderKey ? 'Live API (Connected)' : 'Hosted API',
+                  priceText
+                ]);
+                added = true;
+              }
+            });
+            if (added) {
+              // Update summary facts
+              var ft = document.getElementById('f-total');
+              if (ft) ft.textContent = String(M.length);
+              render(false);
+            }
           }
         }
       })

@@ -300,7 +300,7 @@ export async function onRequest(context) {
       };
       const rawApp = (appName || body.appName || 'gmail').toLowerCase().trim();
       const targetApp = TOOLKIT_SLUG_MAP[rawApp] || rawApp;
-      const redirectUri = body.redirectUri || url.searchParams.get('redirectUri') || 'https://runnerflo-b2b.pages.dev/Agent%20Workspace?composio_connected=1';
+      const redirectUri = body.redirectUri || url.searchParams.get('redirectUri') || 'https://runnerflo-b2b.pages.dev/oauth_callback.html';
 
       if (composioKey) {
         let authConfigId = '';

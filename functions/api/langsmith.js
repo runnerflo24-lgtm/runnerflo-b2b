@@ -1500,9 +1500,25 @@ async function callLLM(messages) {
 }
 async function loginWithGoogle() {
   const apiHost = window.__RF_ORIGIN || (window.location.origin.startsWith('blob:') ? 'https://runnerflo-b2b.pages.dev' : window.location.origin);
-  const res = await fetch(apiHost + '/api/composio?action=connect-url&app=google&paasId='+PAAS_ID+'&endUserId='+END_USER_ID, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-  const data = await res.json(); if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
+  const redirectUri = apiHost + '/oauth_callback.html';
+  const res = await fetch(apiHost + '/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri), { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+  const data = await res.json();
+  if (data.connectUrl) {
+    window.open(data.connectUrl, '_blank', 'width=600,height=720,status=yes,scrollbars=yes');
+  }
 }
+window.addEventListener('message', function(ev) {
+  if (ev.data && ev.data.type === 'COMPOSIO_AUTH_SUCCESS') {
+    document.querySelectorAll('button, a, [role="button"]').forEach(function(b) {
+      const txt = (b.innerText || '').toLowerCase();
+      if (txt.includes('google') || txt.includes('login') || txt.includes('masuk')) {
+        b.innerHTML = '🟢 Akun Terhubung';
+        b.style.background = '#059669';
+        b.style.color = '#fff';
+      }
+    });
+  }
+});
 async function checkConnection(app='google') {
   const res = await fetch('/api/composio?action=connections&paasId='+PAAS_ID+'&endUserId='+END_USER_ID); return await res.json();
 }
@@ -1829,22 +1845,35 @@ CRITICAL COMMUNICATION GUIDELINES:
    - Never use intimidating technical terms like "ReAct supervisor loop", "multimodal tensor pipeline", or "REST webhooks".
    - Instead explain clearly:
      * "AI Agent": Karyawan digital otonom yang bekerja menyelesaikan tugas nyata di background tanpa perlu diawasi terus-menerus.
-     * "Composio": Jembatan koneksi ke 1.700+ aplikasi harian (WhatsApp, Gmail, Sheets, Notion, Stripe).
+     * "Composio": Jembatan koneksi ke 1.700+ aplikasi harian (WhatsApp, Gmail, Sheets, Notion, Stripe, Shopify, Slack).
      * "SaaS AI": Website/aplikasi tempat pelanggan datang untuk menggunakan alat AI (video reels, gambar, tulisan).
      * "Replicate / Fal.ai / Wavespeed": Mesin AI cepat untuk bikin video, avatar, atau gambar.
-3. THE TWO PATHWAYS:
-   - Jalur 1: AI Agent (Karyawan Otonom untuk tugas: follow-up sales, CS 24 jam, pencatatan keuangan, pencari leads).
-   - Jalur 2: SaaS AI (Aplikasi produk web yang menjual tools AI ke orang lain: video reels generator, copywriting, desain produk).
-4. TURN-BY-TURN INTERACTION:
-   - Handle ONE step at a time! Do NOT dump 5 questions in one turn.
-   - If user asks a question (e.g., "apa bedanya?", "bisa sambung ke WhatsApp?"), answer their question warmly and clearly first, then guide them forward.
-   - If user says "langsung buatkan", "generate sekarang", "rekomendasi terbaikmu", or has completed the steps, set "readyToBuild": true.
-5. STEPS:
-   - Step 1: Jalur Produk (AI Agent vs SaaS AI)
-   - Step 2: Tugas / Hasil Kerja Nyata (Outcome)
-   - Step 3: Alat yang Dihubungkan (Composio apps & AI models)
-   - Step 4: Alur Kontrol (100% Otonom vs Butuh Persetujuan User)
-   - Step 5: Model Bisnis & Pembayaran (Bayar per hasil, saldo token, atau langganan)
+3. TAILOR DYNAMICALLY TO USER'S DOMAIN (COMPOSIO 1,700+ APPS & 4 AI ENGINES):
+   - NEVER repeat generic accounting examples unless the user explicitly requested accounting!
+   - If user asks for WhatsApp Bot / CS / Sales Assistant:
+     * Suggest Composio toolkits: WhatsApp Cloud + Google Sheets (chat log & leads) + Gmail (order alerts) + Stripe.
+     * Suggest AI Engines: Gemini 3.8 Flash (rapid conversational closing) + WaveSpeed (voice note response).
+     * Suggest Outcome: Asisten Sales & CS WhatsApp 24/7 (jawab pertanyaan, hitung ongkir, catat order).
+   - If user asks for Agency / Portfolio / Freelancer:
+     * Suggest Composio toolkits: Google Calendar (booking meeting) + Gmail + Stripe (invoice).
+     * Suggest AI Engines: Fal.ai Flux (desain visual portofolio) + Gemini (proposal generator).
+   - If user asks for E-commerce / Online Store:
+     * Suggest Composio toolkits: Shopify / WooCommerce + WhatsApp (kirim resi) + Google Sheets (inventori) + Midtrans/Stripe.
+   - If user asks for Video / Creator Studio:
+     * Suggest AI Engines: WaveSpeed (reels & avatar AI) + Replicate (video animation) + Fal.ai (Flux image).
+4. TRUE CONSULTATIVE DIALOGUE (ANSWER USER QUESTIONS FIRST):
+   - If the user asks ANY question (e.g. "gimana cara sambungin ke no WA?", "apa bedanya agent sama SaaS AI?", "bisa pakai bahasa daerah?"):
+     * ALWAYS answer their question first with warm clarity and practical examples!
+     * Then smoothly guide them to the next architectural step.
+5. TURN-BY-TURN INTERACTION:
+   - Handle ONE step at a time! Do NOT dump all 5 questions at once.
+   - If user says "langsung buatkan", "generate sekarang", "rekomendasi terbaikmu", "build now", or finishes step 5, set "readyToBuild": true.
+6. STEPS:
+   - Step 1: Jalur Produk (AI Agent Otonom vs SaaS AI Produk)
+   - Step 2: Tugas / Hasil Kerja Nyata (Outcome spesifik)
+   - Step 3: Alat yang Dihubungkan (Composio 1,700+ apps & AI models)
+   - Step 4: Alur Kontrol (100% Otonom vs Semi-Otonom butuh konfirmasi manusia)
+   - Step 5: Model Bisnis & Monetisasi (Pay-per-outcome, saldo token, atau langganan bulanan)
 
 OUTPUT STRICTLY IN JSON FORMAT:
 {
@@ -1902,17 +1931,70 @@ OUTPUT STRICTLY IN JSON FORMAT:
         }
       }
 
+      // Fallback to Cloudflare Workers AI if Gemini was throttled or unavailable
+      if (!consultData && env && env.AI) {
+        try {
+          const cfRes = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
+            messages: [
+              { role: 'system', content: consultSystemPrompt },
+              { role: 'user', content: `User Prompt: ${userPrompt}\nCurrent Step: ${currentStep}\nPathway: ${pathway}\nConfirmed Specs: ${JSON.stringify(confirmedSpecs)}\nChat History: ${JSON.stringify(chatHistory)}` }
+            ],
+            max_tokens: 2048
+          });
+          const text = cfRes.response || '';
+          if (text) {
+            try { consultData = JSON.parse(text); } catch(e) {
+              const m = text.match(/\{[\s\S]*\}/);
+              if (m) { try { consultData = JSON.parse(m[0]); } catch(e2){} }
+            }
+          }
+        } catch(e) {}
+      }
+
       if (!consultData) {
         const isEn = /^(?:hello|hi|build|create|what|can)\b/i.test(userPrompt);
-        consultData = {
-          reply: isEn
+        const isWA = /(?:wa|whatsapp|bot|chat|cs|customer service)\b/i.test(userPrompt);
+        const isShop = /(?:toko|shop|store|ecommerce|e-commerce|jual|produk)\b/i.test(userPrompt);
+        const isAgency = /(?:agency|agensi|portfolio|portofolio|desain|design)\b/i.test(userPrompt);
+
+        let defaultReply = '';
+        let defaultChips = [];
+
+        if (isWA) {
+          defaultReply = isEn
+            ? 'Awesome! For a WhatsApp Bot agent, Composio provides native connectors to WhatsApp Cloud, Google Sheets (for logging chats & customer leads), and Gmail (for order notifications). What is the main outcome you want your bot to accomplish?'
+            : 'Ide asisten WhatsApp yang luar biasa! Melalui Composio (1.700+ aplikasi), bot Anda dapat langsung terhubung ke WhatsApp Cloud, Google Sheets (untuk mencatat riwayat chat & leads), dan Gmail (notifikasi order). Apa tugas utama yang Anda inginkan?';
+          defaultChips = isEn
+            ? ['24/7 AI Customer Support & FAQ', 'Auto-Log Orders to Google Sheets', 'Auto-Checkout & Shipping Calculator', '🚀 Build WhatsApp Bot Now']
+            : ['🤖 CS 24 Jam & Auto-Reply FAQ', '📊 Catat Leads ke Google Sheets', '💳 Hitung Ongkir & Checkout', '🚀 Langsung Bangun Bot Sekarang'];
+        } else if (isShop) {
+          defaultReply = isEn
+            ? 'An autonomous e-commerce store is a great choice! We can connect product catalogs, Stripe/Midtrans checkout, and automated WhatsApp delivery updates. What is the core feature you need?'
+            : 'Toko online otonom adalah pilihan hebat! Kami dapat menghubungkan katalog produk dengan pembayaran Stripe/Midtrans dan WhatsApp untuk kirim notifikasi resi otomatis. Fitur apa yang paling penting untuk toko Anda?';
+          defaultChips = isEn
+            ? ['🛍️ Product Catalog & Cart', '💳 Stripe / Midtrans Payment', '📱 WhatsApp Order Notifications', '🚀 Build Store Now']
+            : ['🛍️ Katalog Produk & Keranjang', '💳 Checkout Stripe / Midtrans', '📱 Notifikasi Pesanan ke WhatsApp', '🚀 Langsung Bangun Toko Sekarang'];
+        } else if (isAgency) {
+          defaultReply = isEn
+            ? 'Brilliant! A modern agency needs an interactive portfolio with automated meeting scheduling and project proposal intake. What services does your agency offer?'
+            : 'Pilihan brilian! Agensi modern membutuhkan halaman portofolio interaktif dengan booking jadwal meeting dan form brief otomatis. Apa layanan utama agensi Anda?';
+          defaultChips = isEn
+            ? ['🎨 Interactive Portfolio Showcase', '📅 Google Calendar Booking', '💼 Service Packages & Stripe Invoicing', '🚀 Build Agency Now']
+            : ['🎨 Portofolio Proyek Interaktif', '📅 Booking Jadwal via Google Calendar', '💼 Paket Layanan & Pembayaran DP', '🚀 Langsung Bangun Agensi Sekarang'];
+        } else {
+          defaultReply = isEn
             ? 'Great idea! To tailor your platform, what is the core outcome your users or business will achieve?'
-            : 'Pilihan yang sangat bagus! Agar platform ini menghasilkan nilai nyata, apa tugas utama atau hasil akhir yang ingin diselesaikan?',
-          nextStep: Math.min(currentStep + 1, 5),
-          pathway: pathway || 'agent',
-          suggestedChips: isEn
+            : 'Pilihan yang sangat bagus! Agar platform ini menghasilkan nilai nyata, apa tugas utama atau hasil akhir yang ingin diselesaikan?';
+          defaultChips = isEn
             ? ['Automated Sales Leads', 'Customer Support 24/7', 'Video & Media Production', '🚀 Build Platform Now']
-            : ['Cari Calon Pembeli & Kirim Penawaran', 'Layanan Chat CS 24 Jam', 'Pencatatan Keuangan Otomatis', '🚀 Langsung Bangun Sekarang'],
+            : ['Cari Calon Pembeli & Kirim Penawaran', 'Layanan Chat CS 24 Jam', 'Pembuat Konten & Media AI', '🚀 Langsung Bangun Sekarang'];
+        }
+
+        consultData = {
+          reply: defaultReply,
+          nextStep: Math.min(currentStep + 1, 5),
+          pathway: pathway || (isWA ? 'agent' : 'saas'),
+          suggestedChips: defaultChips,
           readyToBuild: /buatkan|bangun|generate|build now|start now/i.test(userPrompt),
           confirmedSpecs
         };
@@ -2015,11 +2097,25 @@ LANGSMITH MANAGED DEEP AGENT & COMPOSIO MANAGED APIS (ZERO-CONFIG GOOGLE OAUTH):
   \`\`\`javascript
   async function loginWithGoogle() {
     const apiHost = window.__RF_ORIGIN || (window.location.origin.startsWith('blob:') ? 'https://runnerflo-b2b.pages.dev' : window.location.origin);
-    const redirectUri = window.location.href;
+    const redirectUri = apiHost + '/oauth_callback.html';
     const res = await fetch(apiHost + '/api/composio?action=connect-url&app=google&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID) + '&redirectUri=' + encodeURIComponent(redirectUri));
     const data = await res.json();
-    if (data.connectUrl) { window.open(data.connectUrl, '_blank') || (window.top.location.href = data.connectUrl); }
+    if (data.connectUrl) {
+      window.open(data.connectUrl, '_blank', 'width=600,height=720,status=yes,scrollbars=yes');
+    }
   }
+  window.addEventListener('message', function(ev) {
+    if (ev.data && ev.data.type === 'COMPOSIO_AUTH_SUCCESS') {
+      document.querySelectorAll('button, a, [role="button"]').forEach(function(b) {
+        const txt = (b.innerText || '').toLowerCase();
+        if (txt.includes('google') || txt.includes('login') || txt.includes('masuk')) {
+          b.innerHTML = '🟢 Akun Terhubung';
+          b.style.background = '#059669';
+          b.style.color = '#fff';
+        }
+      });
+    }
+  });
   async function checkGoogleConnection() {
     const res = await fetch('/api/composio?action=connections&paasId=' + encodeURIComponent(PAAS_ID) + '&endUserId=' + encodeURIComponent(END_USER_ID));
     const data = await res.json();
@@ -2146,7 +2242,24 @@ CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO
        window.scrollTo(0, 0);
      }
 5. DO NOT default to dark theme unless explicitly requested. Use crisp light backgrounds (bg-white, bg-slate-50).
-6. Output ONLY the complete HTML code inside a single html code block (wrapped in triple backticks with "html" language tag).
+6. SPECIAL MANDATE FOR AI AGENTS & WHATSAPP BOT PLATFORMS (NO DUMMY CODE — 100% WORKING FUNCTIONAL AGENT):
+   When the user requests an AI Agent, WhatsApp Bot, Customer Support Bot, or Autonomous Sales Platform:
+   - Provide an Interactive WhatsApp / Agent Test Chat Simulator:
+     * Beautiful chat window styled like WhatsApp (message bubbles, timestamps, read checkmarks).
+     * Real interactive chat that calls '/api/gateway' (model: '${userLlmModel}') and produces intelligent replies.
+     * When messages are sent, auto-log them into the Live Leads & Inquiries table.
+   - Provide a Working "📱 Hubungkan WhatsApp" Modal:
+     * Input field for WhatsApp number (+62 8...).
+     * "Hubungkan via QR Code" button with realistic QR scan canvas and simulated pairing animation.
+     * Smooth status badge transition from 🔴 Belum Terhubung to 🟢 WhatsApp Terhubung (+62 812-xxxx-xxxx).
+     * Disconnect and reconnect button options.
+   - Provide Composio 1,700+ App Connectors:
+     * Interactive cards for WhatsApp Cloud, Google Sheets (leads & chat log), Gmail (order alerts), Stripe.
+     * "⚡ Sambungkan" buttons that update status to 🟢 Terhubung.
+   - Provide a Live Leads & Inquiries Table:
+     * Columns: Kontak (Nomor WA), Pesan Terakhir, Klasifikasi AI, Status Respon, Waktu.
+     * Updates dynamically as users test the chat playground!
+7. Output ONLY the complete HTML code inside a single html code block (wrapped in triple backticks with "html" language tag).
 
 PROJECT CONTEXT:
 - Project Name: "${projectName}"

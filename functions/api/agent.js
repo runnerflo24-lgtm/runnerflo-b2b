@@ -1890,12 +1890,135 @@ CRITICAL RULES FOR MANAGED AGENTS AUTONOMOUS CODE GENERATION:
     }
 
     if (!selectedModel) {
-      return new Response(JSON.stringify({
-        error: 'Claude Sonnet 5.5 tidak dapat dihubungi.',
-        details: lastError,
-        modelAttempts,
-        fallback: false
-      }), { status: 502, headers: corsHeaders });
+      // ─── RESILIENT ZERO-CRASH FALLBACK CHAIN ───
+      // If Claude Sonnet 5.5 is unavailable or fails, seamlessly fall back to Gemini LangSmith Deep Agent
+      // followed by Cloudflare Workers AI, ensuring users never see a 502 error!
+      const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+      const openrouterKey = env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY);
+      const cfAi = env && env.AI;
+
+      let fallbackText = '';
+      let fallbackEngineName = '';
+
+      // 1. Fallback: Google Gemini LangSmith Deep Agent
+      if (googleKey) {
+        const GEMINI_MODELS = [
+          'gemini-3.8-flash',
+          'gemini-3.5-flash-lite',
+          'gemini-3-flash-preview',
+          'gemini-2.5-flash',
+          'gemini-2.0-flash',
+          'gemini-1.5-flash'
+        ];
+        const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+        const existingHtml = fileIndex['index.html'] || '';
+        const sysPromptText = systemPrompt + (existingHtml ? `\n\nCURRENT WORKING CODE FOR index.html:\n\`\`\`html\n${existingHtml.slice(0, 50000)}\n\`\`\`\nIMPORTANT: Maintain all existing structure, views, and styling. Apply the requested updates cleanly.` : '');
+
+        const userParts = [{ text: `User request for ${projectName}: "${userText}"\nUpdate application code and generate complete deployable HTML for index.html.` }];
+        if (image && image.data) {
+          userParts.push({
+            inline_data: {
+              mime_type: image.mimeType || 'image/png',
+              data: image.data.replace(/^data:image\/[a-zA-Z0-9.+]+;base64,/, '')
+            }
+          });
+        }
+        const gContents = [{ role: 'user', parts: userParts }];
+
+        for (const mdl of GEMINI_MODELS) {
+          try {
+            const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: sysPromptText }] },
+                contents: gContents,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
+              })
+            });
+            if (gRes.ok) {
+              const resJson = await gRes.json();
+              const text = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              if (text && (text.includes('<!DOCTYPE') || text.includes('<html') || text.includes('```html') || text.length > 300)) {
+                fallbackText = text;
+                fallbackEngineName = `Gemini LangSmith Deep Agent (${mdl})`;
+                selectedModel = mdl;
+                break;
+              }
+            }
+          } catch (e) {}
+        }
+      }
+
+      // 2. Fallback: Cloudflare Workers AI
+      if (!fallbackText && cfAi) {
+        const cfModels = [
+          '@cf/meta/llama-3.1-70b-instruct',
+          '@cf/meta/llama-3.3-70b-instruct',
+          '@cf/meta/llama-3-8b-instruct'
+        ];
+        for (const cfMdl of cfModels) {
+          try {
+            const existingHtml = fileIndex['index.html'] || '';
+            const cfAiRes = await cfAi.run(cfMdl, {
+              messages: [
+                { role: 'system', content: systemPrompt + (existingHtml ? `\n\nCURRENT CODE:\n\`\`\`html\n${existingHtml.slice(0, 30000)}\n\`\`\`` : '') },
+                { role: 'user', content: userText }
+              ],
+              max_tokens: 4096
+            });
+            const text = cfAiRes.response || '';
+            if (text && (text.includes('<!DOCTYPE') || text.includes('<html') || text.includes('```html') || text.length > 300)) {
+              fallbackText = text;
+              fallbackEngineName = `Cloudflare Workers AI (${cfMdl})`;
+              selectedModel = cfMdl;
+              break;
+            }
+          } catch (e) {}
+        }
+      }
+
+      // 3. Fallback: OpenRouter
+      if (!fallbackText && openrouterKey) {
+        try {
+          const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${openrouterKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'deepseek/deepseek-chat',
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userText }
+              ],
+              max_tokens: 8192
+            })
+          });
+          if (orRes.ok) {
+            const orData = await orRes.json();
+            const text = orData.choices?.[0]?.message?.content || '';
+            if (text) {
+              fallbackText = text;
+              fallbackEngineName = 'OpenRouter (DeepSeek V3)';
+              selectedModel = 'deepseek/deepseek-chat';
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (fallbackText) {
+        assistantText = fallbackText;
+        const extracted = extractProjectFiles(fallbackText, projectName, fileIndex['index.html'] || '');
+        if (extracted.length > 0) {
+          modifiedFiles.push(...extracted);
+        }
+      } else {
+        return new Response(JSON.stringify({
+          error: 'Claude Sonnet 5.5 tidak dapat dihubungi.',
+          details: lastError || 'Layanan AI sementara tidak tersedia.',
+          modelAttempts,
+          fallback: false
+        }), { status: 502, headers: corsHeaders });
+      }
     }
 
     // ─── Safety Net: Extract executable code from assistantText if modifiedFiles is empty ───

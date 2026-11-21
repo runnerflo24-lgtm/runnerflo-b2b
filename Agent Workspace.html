@@ -4801,11 +4801,12 @@ body.ws-stage-2-active .topbar {
       appOrigin = 'https://runnerflo-b2b.pages.dev';
     }
 
-    // Interactive Bridge Script injected into every preview iframe
+    // Interactive Bridge Script injected into every preview iframe HEAD (must run before any user scripts)
     var bridge = '\n<script data-runnerflo-bridge="true">\n' +
       '(function(){\n' +
       '  var API_HOST = ' + JSON.stringify(appOrigin) + ';\n' +
       '  window.PAAS_ID = window.PAAS_ID || ' + JSON.stringify(pSlug) + ';\n' +
+      '  window.__RF_PAAS_ID = window.PAAS_ID;\n' +
       '  window.END_USER_ID = window.END_USER_ID || ' + JSON.stringify(endUser) + ';\n' +
       '  window.__RF_ORIGIN = API_HOST;\n' +
       '\n' +
@@ -4814,8 +4815,16 @@ body.ws-stage-2-active .topbar {
       '  window.fetch = function(input, init) {\n' +
       '    if (typeof input === "string" && input.startsWith("/")) {\n' +
       '      input = API_HOST + input;\n' +
+      '    } else if (input && typeof input === "object" && input.url && input.url.startsWith("/")) {\n' +
+      '      input = new Request(API_HOST + input.url, input);\n' +
       '    }\n' +
       '    return _rawFetch.call(this, input, init);\n' +
+      '  };\n' +
+      '  // Also patch XMLHttpRequest for libraries that use XHR\n' +
+      '  var _origOpen = XMLHttpRequest.prototype.open;\n' +
+      '  XMLHttpRequest.prototype.open = function(method, url) {\n' +
+      '    if (typeof url === "string" && url.startsWith("/")) url = API_HOST + url;\n' +
+      '    return _origOpen.apply(this, arguments);\n' +
       '  };\n' +
       '\n' +
       '  function initBridge() {\n' +
@@ -4828,7 +4837,7 @@ body.ws-stage-2-active .topbar {
       '        btn.dataset.origText = btn.innerText;\n' +
       '        btn.innerText = "⏳ Connecting Google...";\n' +
       '      }\n' +
-      '      var ep = API_HOST + "/api/composio?action=connect-url&app=google&paasId=" + encodeURIComponent(window.PAAS_ID) + "&endUserId=" + encodeURIComponent(window.END_USER_ID);\n' +
+      '      var ep = API_HOST + "/api/composio?action=connect-url&app=google&paasId=" + encodeURIComponent(window.PAAS_ID) + "&endUserId=" + encodeURIComponent(window.END_USER_ID) + "&redirectUri=" + encodeURIComponent(API_HOST + "/oauth_callback.html");\n' +
       '      fetch(ep)\n' +
       '        .then(function(r){ return r.json(); })\n' +
       '        .then(function(d){\n' +
@@ -4848,6 +4857,22 @@ body.ws-stage-2-active .topbar {
       '          showFeedback("Google OAuth: " + (err.message || "Ready"));\n' +
       '        });\n' +
       '    };\n' +
+      '\n' +
+      '    // Listen for OAuth success from callback popup\n' +
+      '    window.addEventListener("message", function(ev) {\n' +
+      '      if (ev.data && ev.data.type === "COMPOSIO_AUTH_SUCCESS") {\n' +
+      '        showFeedback("✅ Google Login Berhasil!");\n' +
+      '        document.querySelectorAll("button, a, [role=\'button\'], input[type=\'button\']").forEach(function(btn) {\n' +
+      '          var txt = (btn.innerText || btn.textContent || btn.value || "").toLowerCase();\n' +
+      '          if (txt.includes("google") || txt.includes("login") || txt.includes("masuk") || txt.includes("sign in")) {\n' +
+      '            btn.innerHTML = "🟢 Akun Terhubung";\n' +
+      '            btn.style.background = "#059669";\n' +
+      '            btn.style.color = "#ffffff";\n' +
+      '            btn.style.borderColor = "#059669";\n' +
+      '          }\n' +
+      '        });\n' +
+      '      }\n' +
+      '    });\n' +
       '\n' +
       '    // 2. Make all buttons and links clickable\n' +
       '    document.querySelectorAll("button, a, [role=\'button\'], input[type=\'button\'], input[type=\'submit\']").forEach(function(el){\n' +
@@ -4890,20 +4915,14 @@ body.ws-stage-2-active .topbar {
 
     var baseTag = '<base href="' + appOrigin + '/">';
     var finalHtml = rawHtml;
+    // Inject baseTag and bridge at the very beginning of <head> so fetch/XHR monkey patching
+    // is active BEFORE any scripts inside the document body or head execute!
     if (finalHtml.includes('<head>')) {
-      finalHtml = finalHtml.replace('<head>', '<head>\n  ' + baseTag);
+      finalHtml = finalHtml.replace('<head>', '<head>\n  ' + baseTag + '\n' + bridge);
     } else if (finalHtml.includes('<html>')) {
-      finalHtml = finalHtml.replace('<html>', '<html>\n<head>' + baseTag + '</head>');
+      finalHtml = finalHtml.replace('<html>', '<html>\n<head>' + baseTag + '\n' + bridge + '</head>');
     } else {
-      finalHtml = '<head>' + baseTag + '</head>\n' + finalHtml;
-    }
-
-    if (finalHtml.includes('</body>')) {
-      finalHtml = finalHtml.replace('</body>', bridge + '</body>');
-    } else if (finalHtml.includes('</html>')) {
-      finalHtml = finalHtml.replace('</html>', bridge + '</html>');
-    } else {
-      finalHtml += bridge;
+      finalHtml = '<head>' + baseTag + '\n' + bridge + '</head>\n' + finalHtml;
     }
 
     try {
@@ -7543,9 +7562,23 @@ body.ws-stage-2-active .topbar {
     }
   }
 
-  // Auto-start project if prompt passed from landing page (?q=...)
+  // Auto-start project if prompt passed from landing page (?q=...) or model passed from API Catalog (?model=...)
   try {
     var up = new URLSearchParams(window.location.search);
+    var urlModel = up.get('model');
+    var urlProvider = up.get('provider');
+    if (urlModel) {
+      setTimeout(function() {
+        toast('⚡ AI Engine Dipilih dari API Catalog: ' + urlModel + (urlProvider ? ' (' + urlProvider + ')' : ''));
+        var esBtns = document.querySelectorAll('.es-btn');
+        esBtns.forEach(function(b) {
+          if (b.dataset.model === urlModel || (urlProvider && b.dataset.engine === urlProvider)) {
+            esBtns.forEach(function(btn){ btn.classList.remove('active'); });
+            b.classList.add('active');
+          }
+        });
+      }, 500);
+    }
     var urlQ = up.get('q');
     if (urlQ && urlQ.trim()) {
       var initialQuery = urlQ.trim();
