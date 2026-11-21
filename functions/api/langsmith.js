@@ -1541,30 +1541,30 @@ PROJECT CONTEXT:
 ${currentHtmlCode ? `\nCURRENT APPLICATION CODE (${currentHtmlFile ? (currentHtmlFile.path || 'index.html') : 'index.html'} — ${currentHtmlCode.length} bytes):\n\`\`\`html\n${currentHtmlCode.slice(0, 50000)}\n\`\`\`\n` : ''}
 EDITING RULES:
 1. You are EDITING the existing application above. DO NOT build a brand new unrelated project from scratch!
-2. Retain all existing styling, layout, components, and functions unless the user specifically asks to change them.
-3. MANDATORY DUAL-LAYER ARCHITECTURE (LANDING PAGE + APP DASHBOARD):
-   If user asks: "kok engga ada landing page", "tambahkan landing page", "landing page terlalu sederhana", or says "continue/lanjutkan":
-   - You MUST ensure "index.html" has BOTH:
-     Layer 1: Full Public Landing Page (<div id="landingView">):
-       * Header/Navbar: Brand Logo, Links (Fitur, Demo, Harga, Testimoni, Kontak), "Masuk dengan Google" button, and prominent CTA "Buka Dashboard" (with onclick="switchView('app')").
-       * Hero Section: Headline, description, badges, and primary CTA ("Buka Dashboard / Mulai Sekarang").
-       * Features Grid: 3-6 beautifully styled feature cards showcasing the platform's core tools.
-       * Live Preview / Interactive Showcase: Interactive demo previewing what the tool does.
-       * Pricing Section: Clear tiered cards (Gratis, Pro, Enterprise) with CTA buttons.
-       * Testimonials & Stats: User ratings, reviews, trust badges.
-       * Comprehensive Footer: Company info, links, copyright, social icons.
-     Layer 2: Functional App Workspace / Dashboard (<div id="appView" style="display:none">):
-       * Top bar with "← Kembali ke Beranda" button (onclick="switchView('landing')") and user profile/auth status.
-       * The complete interactive tool/studio (all existing functions preserved and enhanced).
-   - Provide a clean JavaScript toggle:
-     function switchView(view) {
-       var lv = document.getElementById('landingView');
-       var av = document.getElementById('appView');
-       if (lv) lv.style.display = (view === 'landing' ? 'block' : 'none');
-       if (av) av.style.display = (view === 'app' ? 'block' : 'none');
-       window.scrollTo(0, 0);
-     }
-4. Call "edit_code_file" with the complete updated code, or output the full updated HTML code wrapped in an html code block.
+2. ABSOLUTE PRESERVATION OF EXISTING PAGES & VIEWS:
+   - When the user asks to add or change a page (e.g. "tambahkan 1 halaman ecommerce", "tambahkan toko", "buat halaman portfolio", "tambahkan dashboard"):
+     * YOU MUST KEEP ALL PREVIOUS PAGES & VIEWS 100% INTACT! Never delete or wipe the existing landing page, navbar, hero, or previous sections.
+     * Implement each page as a distinct view container with data-view:
+       - Public Landing Page: <div id="landingView" data-view>...</div>
+       - App Workspace / Dashboard: <div id="appView" data-view style="display:none">...</div>
+       - E-Commerce / Store: <div id="ecommerceView" data-view style="display:none">...</div>
+       - Any other requested page: <div id="[name]View" data-view style="display:none">...</div>
+     * In the Header Navbar, ensure navigation links exist to switch between ALL views cleanly:
+       - <button onclick="switchView('landing')">Beranda</button>
+       - <button onclick="switchView('ecommerce')">Toko / E-Commerce</button>
+       - <button onclick="switchView('app')">Dashboard</button>
+     * Use the universal view switcher:
+       function switchView(viewName) {
+         document.querySelectorAll('[data-view]').forEach(function(v) { v.style.display = 'none'; });
+         var target = document.getElementById(viewName + 'View') || document.getElementById(viewName);
+         if (target) target.style.display = 'block';
+         window.scrollTo(0, 0);
+       }
+3. REFERENCE IMAGE & THEME FIDELITY:
+   - When user attaches a reference image or specifies design styling (e.g. "themenya terang aja jgn gelap", ecommerce catalog, card grid):
+     * Faithfully match the visual style, typography, cards, badges, and layout of the reference.
+     * For light theme: use clean white/neutral backgrounds (bg-white, bg-slate-50, text-slate-900).
+4. Output the COMPLETE updated HTML code wrapped in an \`\`\`html ... \`\`\` code block, or call edit_code_file.
 
 Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.
 After editing: write a one-line summary of what changed.`;
@@ -1604,10 +1604,23 @@ After editing: write a one-line summary of what changed.`;
             'gemini-1.5-flash'
           ];
           const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-          const gContents = editMessages.filter(m => m.role !== 'tool').map(m => ({
-            role: m.role === 'assistant' ? 'model' : (m.role === 'system' ? 'user' : m.role),
-            parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
-          }));
+          // Build strictly-alternating Gemini contents (system message extracted to system_instruction)
+          const gContents = [];
+          const convoMsgs = editMessages.filter(m => m.role !== 'system' && m.role !== 'tool');
+          let prevRole = null;
+          for (const m of convoMsgs) {
+            const role = (m.role === 'assistant' || m.role === 'model') ? 'model' : 'user';
+            const partText = typeof m.content === 'string' ? m.content : JSON.stringify(m.content);
+            if (role === prevRole && gContents.length > 0) {
+              gContents[gContents.length - 1].parts.push({ text: partText });
+            } else {
+              gContents.push({ role, parts: [{ text: partText }] });
+              prevRole = role;
+            }
+          }
+          if (gContents.length === 0 || gContents[0].role !== 'user') {
+            gContents.unshift({ role: 'user', parts: [{ text: userPrompt || 'Update the application code according to user request.' }] });
+          }
 
           // Attach multimodal image payload to Gemini user prompt for OCR & visual matching
           if (imagePayload) {
@@ -1632,20 +1645,32 @@ After editing: write a one-line summary of what changed.`;
             try {
               const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: gContents, tools: gTools, generationConfig: { temperature: 0.3, maxOutputTokens: 32768 } })
+                body: JSON.stringify({
+                  system_instruction: { parts: [{ text: editSystemPrompt }] },
+                  contents: gContents,
+                  tools: gTools,
+                  generationConfig: { temperature: 0.3, maxOutputTokens: 32768 }
+                })
               });
               if (gRes.ok) {
                 const gData = await gRes.json();
-                const part = gData.candidates?.[0]?.content?.parts?.[0];
-                if (part?.functionCall) {
+                const parts = gData.candidates?.[0]?.content?.parts || [];
+                const funcCallPart = parts.find(p => p.functionCall);
+                const textParts = parts.filter(p => p.text).map(p => p.text).join('\n');
+                if (funcCallPart) {
                   // Normalize Gemini function call to OpenAI format
-                  llmData = { choices: [{ message: { role: 'assistant', content: null, tool_calls: [{ id: `call_${Math.random().toString(36).slice(2)}`, type: 'function', function: { name: part.functionCall.name, arguments: JSON.stringify(part.functionCall.args || {}) } }] } }] };
-                } else if (part?.text) {
-                  llmData = { choices: [{ message: { role: 'assistant', content: part.text } }] };
+                  llmData = { choices: [{ message: { role: 'assistant', content: textParts || null, tool_calls: [{ id: `call_${Math.random().toString(36).slice(2)}`, type: 'function', function: { name: funcCallPart.functionCall.name, arguments: JSON.stringify(funcCallPart.functionCall.args || {}) } }] } }] };
+                } else if (textParts) {
+                  llmData = { choices: [{ message: { role: 'assistant', content: textParts } }] };
                 }
                 if (llmData) break;
+              } else {
+                const errBody = await gRes.text().catch(() => '');
+                console.warn(`Gemini edit-code HTTP ${gRes.status} on ${mdl}:`, errBody.slice(0, 200));
               }
-            } catch (e) { /* try next */ }
+            } catch (e) {
+              console.warn(`Gemini edit-code exception on ${mdl}:`, e.message);
+            }
           }
         }
 

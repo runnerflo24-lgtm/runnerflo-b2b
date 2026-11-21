@@ -5976,28 +5976,19 @@ body.ws-stage-2-active .topbar {
              'serta hubungkan tombol CTA "Buka Dashboard / Mulai Sekarang" ke Dashboard Aplikasi yang interaktif dan berfungsi penuh.';
     }
     // Rollback intent detection
-    if (/kembalikan|rollback|revert|undo|balik ke|restore ke|pulihkan|kembali ke versi|previous version/i.test(text)) {
+    if (/kembalikan|roll\s*back|revert|undo|balik ke|restore|pulihkan|kembali ke|previous version/i.test(text)) {
       var snaps = p.codeSnapshots || [];
       if (snaps.length > 0) {
         p.msgs.push({ role: 'user', text: text });
-        var snapList = snaps.slice().reverse().map(function(s) {
-          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9">' +
-            '<span style="font-size:13px;color:#374151">' + s.label + '</span>' +
-            '<button type="button" onclick="window.restoreSnapshot(' + s.version + ')" style="padding:4px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer">↩ Restore</button>' +
-            '</div>';
-        }).join('');
-        p.msgs.push({
-          role: 'agent',
-          text: '↩ **Rollback — Choose a Version to Restore:**\n\nI found ' + snaps.length + ' saved snapshot(s). Click Restore to revert:',
-          actionHtml: '<div style="margin-top:8px">' + snapList + '</div>',
-          steps: [{ label: snaps.length + ' snapshots available', done: true }]
-        });
-        save(); renderChat(); renderTabs();
+        var targetSnap = snaps[snaps.length - 1];
+        window.restoreSnapshot(targetSnap.version);
+        save(); renderChat(); renderTabs(); renderSide();
         $('#msg').value = ''; fit(); updSend();
+        toast('↩ Berhasil roll back ke versi: ' + targetSnap.label);
         return;
       } else {
         p.msgs.push({ role: 'user', text: text });
-        p.msgs.push({ role: 'agent', text: '↩ **No snapshots found yet.**\nSnapshots are automatically saved before each Claude edit. Make a build first, then edits will be snapshotable.', steps: [], actionHtml: '' });
+        p.msgs.push({ role: 'agent', text: '↩ **Belum ada riwayat snapshot tersimpan.**\nSetiap kali kode diedit oleh agen, versi sebelumnya otomatis disimpan ke snapshot.', steps: [], actionHtml: '' });
         save(); renderChat();
         $('#msg').value = ''; fit(); updSend();
         return;
