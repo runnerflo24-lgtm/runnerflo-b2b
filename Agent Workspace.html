@@ -1932,7 +1932,25 @@ body.ws-stage-2-active .topbar {
   var state = load() || seed();
 
   function greet() {
-    return { role: 'agent', text: 'Hello! What kind of application or website would you like to build today? Type your idea in the chat box below, and the AI agent will design and build it for you in real time. 🚀', steps: [] };
+    return {
+      role: 'agent',
+      text: 'Halo! Selamat datang di **Runnerflo Autonomous Studio** 🚀\n\nSaya **Deep Agent Consultant** yang akan membantu merancang dan membangun platform digital bernilai tinggi untuk Anda.\n\nSebelum kita merakit kode, Anda ingin membangun platform di **jalur mana**?',
+      steps: [],
+      actionHtml: '<div class="rf-clarify-box" style="background:var(--panel);border:1.5px solid #6366f1;border-radius:12px;padding:16px;margin-top:10px;box-shadow:0 4px 14px rgba(99,102,241,0.12)">' +
+        '<div style="font-size:12.5px;color:var(--fg);margin-bottom:12px;line-height:1.6">' +
+        '<b>🤖 Jalur 1: AI Agent (Karyawan Digital / Agensi Otonom)</b><br>' +
+        '<span style="color:var(--muted);font-size:11.5px">Bekerja otomatis di background untuk tugas nyata (misal: otomatis hubungi calon klien via WhatsApp/Email, kelola tiket CS 24 jam, atau catat keuangan). Terkoneksi ke 1.700+ aplikasi via Composio + Otak Gemini 3.8 Flash.</span>' +
+        '<div style="margin:8px 0;border-top:1px dashed var(--line)"></div>' +
+        '<b>🚀 Jalur 2: SaaS AI (Aplikasi / Produk Web AI)</b><br>' +
+        '<span style="color:var(--muted);font-size:11.5px">Website tempat pelanggan datang untuk menggunakan layanan AI Anda (misal: studio pembuat video reels AI, generator gambar produk, copywriter, atau platform kursus). Terkoneksi ke API Replicate, Fal.ai, Wavespeed.</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button type="button" onclick="window.handleConsultChip(\'Saya ingin membangun Jalur 1: AI Agent (Karyawan Digital Otonom)\')" style="padding:7px 14px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px">🤖 Jalur 1: AI Agent</button>' +
+        '<button type="button" onclick="window.handleConsultChip(\'Saya ingin membangun Jalur 2: SaaS AI (Aplikasi Produk Web)\')" style="padding:7px 14px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px">🚀 Jalur 2: SaaS AI</button>' +
+        '<button type="button" onclick="window.handleConsultChip(\'Bantu saya memilih jalur yang cocok untuk ide saya...\')" style="padding:7px 12px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer">💬 Rekomendasikan untuk Ide Saya</button>' +
+        '</div>' +
+        '</div>'
+    };
   }
   function mkProject(name, stage) {
     return {
@@ -3617,109 +3635,11 @@ body.ws-stage-2-active .topbar {
       });
     }
 
-    // ── If isNew: Deep Agent Consultation (5 Pertanyaan Arsitektur Otonom) ───
-    if (isNew && !p._archConsulted && !text.includes('[Architecture Spec')) {
-      p.busy = false;
-      finishWave();
-      var qList = [
-        {
-          id: 'outcome',
-          title: '1. Target Outcome & Nilai Jual (Hasil Kerja Tuntas)',
-          options: [
-            '🎯 B2B Leads Terverifikasi & Outreach Otomatis',
-            '🎬 Video Reels & Shorts Factory (Multi-Scene)',
-            '📊 Departemen Akuntansi & Rekonsiliasi Otomatis',
-            '💬 Customer Support 24/7 Berbasis Tiket Tuntas',
-            '🎓 Platform Edukasi & AI Tutoring Interaktif'
-          ]
-        },
-        {
-          id: 'engine',
-          title: '2. Generative AI Engine & Reasoning Model',
-          options: [
-            '⚡ Gemini 3.8 Flash + Deep Agent ReAct Loop',
-            '🌟 Fal.ai Ultra-Fast (Wan 2.1 & Flux Pro)',
-            '📹 Wavespeed AI (Lip-Sync Avatar & Video)',
-            '🤖 Replicate Multi-Model (LLaMA-3.3 + Flux)'
-          ]
-        },
-        {
-          id: 'tools',
-          title: '3. Composio Action Toolkits (Aksi Nyata di Cloud)',
-          options: [
-            '📧 Gmail + WhatsApp + Google Sheets (CRM Flow)',
-            '💳 Stripe Billing + Invoice OCR Gateway',
-            '🐙 GitHub + Linear + Jira (DevOps Loop)',
-            '🏢 HubSpot CRM + Slack Notifications'
-          ]
-        },
-        {
-          id: 'workflow',
-          title: '4. Alur Kerja Otonom & Kontrol',
-          options: [
-            '🚀 Full Autonomous (Jalan otonom di background)',
-            '🛡️ Human-in-the-Loop (Butuh approval admin)',
-            '🐝 Multi-Agent Swarm (Supervisor + Subagents)'
-          ]
-        },
-        {
-          id: 'billing',
-          title: '5. Model Monetisasi & Billing Klien',
-          options: [
-            '💰 Pay-per-Outcome (Bayar per hasil / tiket selesai)',
-            '🪙 Saldo Kredit / Token Dompet (Wallet Balance)',
-            '📦 Langganan Bulanan (Tier Pro & Enterprise)'
-          ]
-        }
-      ];
-
-      var qHtml = '<div class="rf-clarify-box" style="background:var(--panel);border:1.5px solid #6366f1;border-radius:12px;padding:18px;margin-top:10px;box-shadow:0 4px 14px rgba(99,102,241,0.12)">' +
-        '<div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;color:var(--fg);margin-bottom:6px">' +
-        '<span style="background:#6366f1;color:#fff;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:800">DEEP AGENT CONSULTANT</span>' +
-        '<span>5 Pertanyaan Arsitektur Autonomous Platform</span>' +
-        '</div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5">' +
-        'Pilih spesifikasi arsitektur otonom agar platform Anda menjual <b>hasil kerja tuntas</b> (Service-as-a-Software), bukan sekadar tampilan dummy:' +
-        '</div>';
-
-      qList.forEach(function(q, qi) {
-        qHtml += '<div style="margin-bottom:12px">' +
-          '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:6px">' + q.title + '</div>' +
-          '<div style="display:flex;flex-wrap:wrap;gap:6px">';
-        q.options.forEach(function(opt) {
-          qHtml += '<button type="button" onclick="window.selectClarification(' + qi + ',this,\'' + opt.replace(/'/g,"&#39;") + '\')" style="padding:5px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);font-size:11.5px;color:var(--fg);cursor:pointer;transition:all 0.15s;font-weight:500" class="rf-clar-opt">' + opt + '</button>';
-        });
-        qHtml += '</div></div>';
-      });
-
-      qHtml += '<div style="display:flex;gap:10px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap">' +
-        '<button type="button" onclick="window.submitArchClarification()" style="padding:9px 18px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(79,70,229,0.25)">🚀 Bangun Autonomous Platform Sekarang</button>' +
-        '<button type="button" onclick="window.skipArchClarification()" style="padding:9px 14px;background:var(--bg);color:var(--muted);border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">⚡ Lewati &amp; Generate Langsung</button>' +
-        '</div></div>';
-
-      m.steps.push({ label: 'LangSmith Deep Agent: Konsultasi Arsitektur Aktif (5 Pertanyaan Diperlukan)...', done: false });
-      m.text = 'Saya telah menganalisis ide Anda: **"' + text + '"**.\n\nAgar platform ini tidak hanya sekadar kulit tampilan (UI dummy), melainkan platform otonom berbasis *Service-as-a-Software* yang menjual hasil nyata, silakan tentukan 5 pilar arsitektur di bawah ini:';
-      m.actionHtml = qHtml;
-
-      window._clarifyCtx = {
-        text: text,
-        projectId: p.id,
-        isLangsmith: true,
-        attachedImg: attachedImg
-      };
-      window._clarifyAnswers = {};
-      save();
-      renderChat();
-      renderTabs();
-      renderSide();
-      return;
-    }
-
-    // ── If isNew: Orchestrate Gemini via LangSmith to generate UI/UX first ───
+    // ── If isNew: Orchestrate Gemini 3.8 Flash via LangSmith to generate UI/UX first ───
     if (isNew) {
-      m.steps.push({ label: 'LangSmith Deep Agent: Synthesizing UI/UX with Gemini (Google AI Studio)...', done: false });
+      m.steps.push({ label: 'LangSmith Deep Agent: Synthesizing Platform with Gemini 3.8 Flash (Google AI Studio)...', done: false });
       renderIf(p);
-      updateWave(30, 'LangSmith Deep Agent: Synthesizing UI/UX with Gemini...', 'Progress: 30% • Prompt synchronized with Claude Managed Agent');
+      updateWave(30, 'LangSmith Deep Agent: Synthesizing Platform with Gemini 3.8 Flash...', 'Progress: 30% • Blueprint synchronized with Totalum & Composio');
 
       fetch('/api/langsmith?action=generate-ui', {
         method: 'POST',
@@ -5718,6 +5638,91 @@ body.ws-stage-2-active .topbar {
     });
   }
 
+  function runConsultationTurn(p, text, attachedImg) {
+    p.busy = true;
+    updateWave(25, 'LangSmith Deep Agent: Menganalisis kebutuhan & solusi...', 'Progress: 25% • Konsultasi Arsitektur Interaktif (Gemini 3.8 Flash)');
+    renderChat();
+
+    var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
+    p.msgs.push(m);
+    renderIf(p);
+
+    var historyContext = (p.msgs || []).slice(-8).map(function(item) {
+      return { role: item.role, text: item.text };
+    });
+
+    fetch('/api/langsmith?action=consult', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'consult',
+        input: {
+          prompt: text,
+          step: p._consultStep || 1,
+          pathway: p._consultPathway || '',
+          confirmedSpecs: p._consultSpecs || {}
+        },
+        step: p._consultStep || 1,
+        pathway: p._consultPathway || '',
+        confirmedSpecs: p._consultSpecs || {},
+        history: historyContext,
+        userModel: 'google/gemini-3.8-flash'
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      p.busy = false;
+      finishWave();
+      var cData = (res && res.data) || {};
+      m.text = cData.reply || 'Saya telah mencatat kebutuhan Anda. Mari kita lanjutkan ke langkah berikutnya.';
+
+      var chips = Array.isArray(cData.suggestedChips) ? cData.suggestedChips : [];
+      var actionBox = '';
+      if (chips.length > 0) {
+        actionBox += '<div class="rf-clarify-box" style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px">';
+        actionBox += '<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em">Pilihan Rekomendasi 1-Klik:</div>';
+        actionBox += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+        chips.forEach(function(chip) {
+          var isBuild = /🚀|\b(?:bangun|build|generate)\b/i.test(chip);
+          var btnStyle = isBuild
+            ? 'padding:6px 14px;background:#4f46e5;color:#fff;border:none;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer'
+            : 'padding:5px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);font-size:11.5px;color:var(--fg);cursor:pointer;font-weight:600';
+          actionBox += '<button type="button" onclick="window.handleConsultChip(\'' + chip.replace(/'/g, "\\'") + '\')" style="' + btnStyle + '">' + esc(chip) + '</button>';
+        });
+        actionBox += '</div></div>';
+      }
+
+      if (cData.readyToBuild) {
+        actionBox += '<div style="margin-top:10px">'
+          + '<button type="button" onclick="window.handleConsultChip(\'🚀 Langsung Bangun Platform Sekarang\')" style="padding:8px 18px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(79,70,229,0.3)">🚀 Langsung Bangun Platform Sekarang</button>'
+          + '</div>';
+      }
+
+      m.actionHtml = actionBox;
+      p._consultStep = cData.nextStep || ((p._consultStep || 1) + 1);
+      if (cData.pathway) p._consultPathway = cData.pathway;
+      if (cData.confirmedSpecs) p._consultSpecs = Object.assign(p._consultSpecs || {}, cData.confirmedSpecs);
+      save();
+      renderChat();
+      renderTabs();
+      renderSide();
+    })
+    .catch(function(err) {
+      p.busy = false;
+      finishWave();
+      m.text = 'Mohon maaf, terjadi kendala saat berkonsultasi: ' + err.message + '. Anda dapat langsung klik tombol bangun di bawah:';
+      m.actionHtml = '<div style="margin-top:10px"><button type="button" onclick="window.handleConsultChip(\'🚀 Langsung Bangun Platform Sekarang\')" style="padding:8px 18px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">🚀 Langsung Bangun Platform Sekarang</button></div>';
+      save();
+      renderChat();
+    });
+  }
+
+  window.handleConsultChip = function(txt) {
+    var msg = $('#msg');
+    if (msg) msg.value = txt;
+    send(txt);
+  };
+
   function runAgent(p, text, attachedImg) {
     if (state.engineMode === 'totalum') {
       // 1. If user provided a reference image OR prompt asks for visual redesign from image:
@@ -5732,6 +5737,24 @@ body.ws-stage-2-active .topbar {
         p.totalumCreditsExhausted = false;
         save();
       }
+
+      var hasCode = p.claudePreviewHtml || p.totalumProjectId || (p.projectCodeFiles && p.projectCodeFiles.length);
+      var wantsImmediateBuild = /🚀|\b(?:bangun sekarang|buatkan sekarang|build now|start building|generate sekarang|langsung buatkan|langsung bangun)\b/i.test(text);
+
+      if (!hasCode && !wantsImmediateBuild) {
+        runConsultationTurn(p, text, attachedImg);
+        return;
+      }
+
+      // If user clicked or typed to build now
+      if (!hasCode && wantsImmediateBuild) {
+        var specsStr = '';
+        if (p._consultSpecs) {
+          specsStr = Object.keys(p._consultSpecs).map(function(k) { return k + ': ' + p._consultSpecs[k]; }).join('\n- ');
+        }
+        text = text + (specsStr ? '\n\n[Blueprint Spesifikasi Otonom Hasil Konsultasi]:\n- ' + specsStr : '');
+      }
+
       runTotalumAgent(p, text, attachedImg);
       return;
     }

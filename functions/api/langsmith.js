@@ -1756,6 +1756,122 @@ After editing: write a one-line summary of what changed.`;
       }), { status: 200, headers: corsHeaders });
     }
 
+    // ─── 3b. Deep Agent Interactive Consultation (Turn-by-turn Architecture Intake) ──
+    if (subAction === 'consult') {
+      const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
+      const userPrompt = typeof input === 'string' ? input : (input.prompt || input.text || '');
+      const currentStep = (body.step || (input && input.step) || 1);
+      const pathway = body.pathway || (input && input.pathway) || '';
+      const chatHistory = Array.isArray(body.history) ? body.history.slice(-8) : [];
+      const confirmedSpecs = body.confirmedSpecs || (input && input.confirmedSpecs) || {};
+
+      const consultSystemPrompt = `You are the Friendly AI Solutions Architect & Co-Founder Consultant at Runnerflo.
+Your goal: Conduct a warm, encouraging, step-by-step consultation for a user who wants to build an AI platform or autonomous agent.
+
+CRITICAL COMMUNICATION GUIDELINES:
+1. ADAPTIVE LANGUAGE:
+   - If user asks or writes in Indonesian, reply in natural, polite, friendly, and encouraging Indonesian.
+   - If user asks or writes in English, reply in English.
+2. NO CONFUSING JARGON (HUMAN-FRIENDLY FOR NON-TECH FOUNDERS):
+   - Never use intimidating technical terms like "ReAct supervisor loop", "multimodal tensor pipeline", or "REST webhooks".
+   - Instead explain clearly:
+     * "AI Agent": Karyawan digital otonom yang bekerja menyelesaikan tugas nyata di background tanpa perlu diawasi terus-menerus.
+     * "Composio": Jembatan koneksi ke 1.700+ aplikasi harian (WhatsApp, Gmail, Sheets, Notion, Stripe).
+     * "SaaS AI": Website/aplikasi tempat pelanggan datang untuk menggunakan alat AI (video reels, gambar, tulisan).
+     * "Replicate / Fal.ai / Wavespeed": Mesin AI cepat untuk bikin video, avatar, atau gambar.
+3. THE TWO PATHWAYS:
+   - Jalur 1: AI Agent (Karyawan Otonom untuk tugas: follow-up sales, CS 24 jam, pencatatan keuangan, pencari leads).
+   - Jalur 2: SaaS AI (Aplikasi produk web yang menjual tools AI ke orang lain: video reels generator, copywriting, desain produk).
+4. TURN-BY-TURN INTERACTION:
+   - Handle ONE step at a time! Do NOT dump 5 questions in one turn.
+   - If user asks a question (e.g., "apa bedanya?", "bisa sambung ke WhatsApp?"), answer their question warmly and clearly first, then guide them forward.
+   - If user says "langsung buatkan", "generate sekarang", "rekomendasi terbaikmu", or has completed the steps, set "readyToBuild": true.
+5. STEPS:
+   - Step 1: Jalur Produk (AI Agent vs SaaS AI)
+   - Step 2: Tugas / Hasil Kerja Nyata (Outcome)
+   - Step 3: Alat yang Dihubungkan (Composio apps & AI models)
+   - Step 4: Alur Kontrol (100% Otonom vs Butuh Persetujuan User)
+   - Step 5: Model Bisnis & Pembayaran (Bayar per hasil, saldo token, atau langganan)
+
+OUTPUT STRICTLY IN JSON FORMAT:
+{
+  "reply": "Pesan konsultasi ramah, santai, dan jelas untuk user",
+  "nextStep": 2,
+  "pathway": "agent or saas",
+  "suggestedChips": ["Chip 1", "Chip 2", "Chip 3", "🚀 Langsung Bangun Sekarang"],
+  "readyToBuild": false,
+  "confirmedSpecs": {
+    "pathway": "AI Agent | SaaS AI",
+    "outcome": "...",
+    "tools": "...",
+    "workflow": "...",
+    "monetization": "..."
+  }
+}`;
+
+      let consultData = null;
+      if (googleKey) {
+        const GEMINI_MODELS = [
+          'gemini-3.8-flash',
+          'gemini-3.5-flash-lite',
+          'gemini-3-flash-preview',
+          'gemini-2.5-flash',
+          'gemini-2.0-flash',
+          'gemini-1.5-flash'
+        ];
+        const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+        const gContents = [
+          { role: 'user', parts: [{ text: `User Prompt: ${userPrompt}\nCurrent Step: ${currentStep}\nPathway: ${pathway}\nConfirmed Specs: ${JSON.stringify(confirmedSpecs)}\nChat History: ${JSON.stringify(chatHistory)}` }] }
+        ];
+
+        for (const mdl of GEMINI_MODELS) {
+          try {
+            const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: consultSystemPrompt }] },
+                contents: gContents,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 2048, responseMimeType: 'application/json' }
+              })
+            });
+            if (gRes.ok) {
+              const resJson = await gRes.json();
+              const text = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              if (text) {
+                try { consultData = JSON.parse(text); break; } catch(e) {
+                  const m = text.match(/\{[\s\S]*\}/);
+                  if (m) { consultData = JSON.parse(m[0]); break; }
+                }
+              }
+            }
+          } catch(e) {}
+        }
+      }
+
+      if (!consultData) {
+        const isEn = /^(?:hello|hi|build|create|what|can)\b/i.test(userPrompt);
+        consultData = {
+          reply: isEn
+            ? 'Great idea! To tailor your platform, what is the core outcome your users or business will achieve?'
+            : 'Pilihan yang sangat bagus! Agar platform ini menghasilkan nilai nyata, apa tugas utama atau hasil akhir yang ingin diselesaikan?',
+          nextStep: Math.min(currentStep + 1, 5),
+          pathway: pathway || 'agent',
+          suggestedChips: isEn
+            ? ['Automated Sales Leads', 'Customer Support 24/7', 'Video & Media Production', '🚀 Build Platform Now']
+            : ['Cari Calon Pembeli & Kirim Penawaran', 'Layanan Chat CS 24 Jam', 'Pencatatan Keuangan Otomatis', '🚀 Langsung Bangun Sekarang'],
+          readyToBuild: /buatkan|bangun|generate|build now|start now/i.test(userPrompt),
+          confirmedSpecs
+        };
+      }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        source: 'langsmith_consultant',
+        data: consultData
+      }), { status: 200, headers: corsHeaders });
+    }
+
     // ─── 4. Gemini UI/UX Generator (LangSmith Deep Agent — Google AI Studio) ──
     // Orkestrasi: LangSmith trace → Gemini generate UI/UX → inject capabilities
     // Fallback chain: gemini-2.5-flash → gemini-2.0-flash-lite → gemini-1.5-flash
