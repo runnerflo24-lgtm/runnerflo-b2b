@@ -27,7 +27,10 @@ export async function onRequest(context) {
     openrouter: (env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY)) || '',
     fal: (env && (env.FAL_KEY || env.FAL_API_KEY)) || '',
     replicate: (env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY)) || '',
-    wavespeed: (env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY)) || ''
+    wavespeed: (env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY)) || '',
+    heygen: (env && (env.HEYGEN_API_KEY || env.HEYGEN_KEY)) || '',
+    tripo3d: (env && (env.TRIPO3D_API_KEY || env.TRIPO_KEY || env.TRIPO_API_KEY)) || '',
+    trigger: (env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY)) || ''
   };
 
   // High-fidelity curated catalog of premier AI models across all 4 aggregators
@@ -235,6 +238,53 @@ export async function onRequest(context) {
       description: 'Next-gen open diffusion video transformer with exceptional prompt adherence and coherent physical motion.',
       basePrice: { perRun: 0.10 },
       unit: 'per video'
+    },
+    // ─── 5. HeyGen (Avatar 6 & Video Cloning Engine) ─────────────────────────
+    {
+      id: 'heygen/avatar-6',
+      name: 'HeyGen Avatar 6 (Flagship Pro)',
+      provider: 'heygen',
+      category: 'video',
+      icon: '🎬',
+      description: 'Latest audio-driven AI avatar model (Nov 2026). Generates talking head video from just a short video clip or image + speech with context-aware gestures, motion prompts, and 2K resolution (84.4% indistinguishability).',
+      capabilities: ['video-generation', 'avatar-cloning', 'gesture-sync', 'motion-prompt'],
+      basePrice: { perRun: 0.08 },
+      unit: 'per video minute',
+      featured: true
+    },
+    {
+      id: 'heygen/avatar-6-turbo',
+      name: 'HeyGen Avatar 6 Turbo',
+      provider: 'heygen',
+      category: 'video',
+      icon: '⚡',
+      description: 'Ultra-fast low-latency Avatar 6 inference for high-speed video generation pipelines.',
+      capabilities: ['video-generation', 'avatar-cloning', 'fast-render'],
+      basePrice: { perRun: 0.05 },
+      unit: 'per video minute'
+    },
+    {
+      id: 'heygen/instant-avatar',
+      name: 'HeyGen Instant Avatar V3',
+      provider: 'heygen',
+      category: 'video',
+      icon: '🎥',
+      description: 'Standard talking digital twin avatar generation with custom script and voice matching.',
+      capabilities: ['video-generation', 'talking-head'],
+      basePrice: { perRun: 0.04 },
+      unit: 'per video minute'
+    },
+    // ─── 6. Tripo 3D (3D Generative Mesh & Assets) ───────────────────────────
+    {
+      id: 'tripo/v2.5-mesh',
+      name: 'Tripo 3D AI Mesh Generator',
+      provider: 'tripo3d',
+      category: '3d',
+      icon: '🗿',
+      description: 'Generate production-ready textured 3D models and meshes (.glb, .obj) in seconds from text or single images.',
+      capabilities: ['3d-generation', 'text-to-3d', 'image-to-3d'],
+      basePrice: { perRun: 0.06 },
+      unit: 'per 3D model'
     }
   ];
 
@@ -363,9 +413,12 @@ export async function onRequest(context) {
       openrouter: Boolean(keys.openrouter),
       fal: Boolean(keys.fal),
       replicate: Boolean(keys.replicate),
-      wavespeed: Boolean(keys.wavespeed)
+      wavespeed: Boolean(keys.wavespeed),
+      heygen: Boolean(keys.heygen),
+      tripo3d: Boolean(keys.tripo3d),
+      trigger: Boolean(keys.trigger)
     },
-    supportedProviders: ['openrouter', 'fal', 'replicate', 'wavespeed'],
+    supportedProviders: ['openrouter', 'fal', 'replicate', 'wavespeed', 'heygen', 'tripo3d', 'trigger'],
     supportedCategories: ['llm', 'image', 'video', 'audio', '3d'],
     marginApplied: Math.round((marginMultiplier - 1) * 100) + '%',
     models: filtered

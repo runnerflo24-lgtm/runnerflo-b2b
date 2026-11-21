@@ -1859,8 +1859,12 @@ CRITICAL COMMUNICATION GUIDELINES:
      * Suggest AI Engines: Fal.ai Flux (desain visual portofolio) + Gemini (proposal generator).
    - If user asks for E-commerce / Online Store:
      * Suggest Composio toolkits: Shopify / WooCommerce + WhatsApp (kirim resi) + Google Sheets (inventori) + Midtrans/Stripe.
-   - If user asks for Video / Creator Studio:
-     * Suggest AI Engines: WaveSpeed (reels & avatar AI) + Replicate (video animation) + Fal.ai (Flux image).
+   - If user asks for Video / Creator Studio / Video Cloning / Avatar SaaS:
+     * Suggest AI Engines: HeyGen Avatar 6 (kloning avatar dari video/foto beberapa detik + context-aware gestures & motion prompt) + WaveSpeed (reels) + Trigger.dev (background worker queue anti-timeout).
+     * Suggest Composio toolkits: Google Drive (simpan video hasil) + Gmail (notifikasi video selesai) + Stripe/Midtrans.
+     * Suggest Outcome: Studio Kloning Avatar AI Video (cukup upload video pendek beberapa detik, buat video presentasi/iklan dengan gestur natural otomatis).
+   - If user asks for 3D Assets / Game Assets:
+     * Suggest AI Engines: Tripo 3D (generate 3D mesh .glb dari teks/gambar) + Trigger.dev (anti-timeout).
 4. TRUE CONSULTATIVE DIALOGUE (ANSWER USER QUESTIONS FIRST):
    - If the user asks ANY question (e.g. "gimana cara sambungin ke no WA?", "apa bedanya agent sama SaaS AI?", "bisa pakai bahasa daerah?"):
      * ALWAYS answer their question first with warm clarity and practical examples!
@@ -2259,7 +2263,29 @@ CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO
    - Provide a Live Leads & Inquiries Table:
      * Columns: Kontak (Nomor WA), Pesan Terakhir, Klasifikasi AI, Status Respon, Waktu.
      * Updates dynamically as users test the chat playground!
-7. Output ONLY the complete HTML code inside a single html code block (wrapped in triple backticks with "html" language tag).
+7. SPECIAL MANDATE FOR VIDEO CLONING AND HEYGEN AVATAR 6 SAAS (PRO VIDEO STUDIO):
+   When user requests Video Cloning, HeyGen Avatar, AI Presenter, Talking Avatar, or Video Creator Studio:
+   - Provide a Clean Studio Layout styled like HeyGen (crisp light canvas, left avatar library drawer, center video canvas and preview, right script and voice controls).
+   - Video / Photo Upload Section:
+     * Drag-and-drop file upload zone (<input type="file" accept="video/mp4,video/quicktime,image/*">).
+     * Clear notice: "Modal video sampel hanya beberapa detik (atau foto wajah) langsung siap di-render!".
+     * Live thumbnail preview of uploaded media with file size badge.
+   - HeyGen Avatar 6 Controls (Model API POST /api/heygen?action=avatar-6):
+     * Speech script textarea with character counter.
+     * Motion Prompt text field: "Gestur dan ekspresi (e.g. Senyum ramah, gestur tangan natural saat menjelaskan poin)".
+     * Resolution selector: 1080p (Full HD) vs 2K (Ultra HD).
+     * Voice / Language selector (Indonesian id-ID, English en-US, etc.).
+   - MANDATORY TRIGGER.DEV ANTI-TIMEOUT DISPATCH:
+     * Because video generation takes 1-3 minutes, Cloudflare Workers will timeout if called synchronously!
+     * The app MUST pass "useTrigger: true" or call "/api/heygen?action=avatar-6" / "/api/trigger?action=dispatch" with "useTrigger: true".
+     * Display an active progress bar with realistic stages: "1. Mengunggah sampel...", "2. Sinkronisasi audio dan ekspresi...", "3. Render HeyGen Avatar 6...".
+     * Poll "/api/heygen?action=video-status&id=..." or "/api/trigger?action=status&runId=..." every 3 seconds.
+     * When completed, render output video in a responsive <video controls autoplay> player with a working "Download Video (MP4)" button!
+   - Real-time Video Gallery:
+     * Bottom or side grid showing previously generated videos with play button and timestamps.
+   - ALL interactive buttons and file uploads must be fully functional in vanilla JavaScript!
+
+8. Output ONLY the complete HTML code inside a single html code block (wrapped in triple backticks with "html" language tag).
 
 PROJECT CONTEXT:
 - Project Name: "${projectName}"

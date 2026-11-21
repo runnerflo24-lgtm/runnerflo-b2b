@@ -360,6 +360,18 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
         <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
         <b>WaveSpeed</b> <span id="cnt-wavespeed" style="opacity:0.85;font-size:11px">(Live API)</span>
       </div>
+      <div id="badge-heygen" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>🎬 HeyGen</b> <span id="cnt-heygen" style="opacity:0.85;font-size:11px">(Avatar 6 Live)</span>
+      </div>
+      <div id="badge-trigger" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>⚡ Trigger.dev</b> <span id="cnt-trigger" style="opacity:0.85;font-size:11px">(Anti-Timeout)</span>
+      </div>
+      <div id="badge-tripo3d" style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;font-weight:600;color:#166534">
+        <span style="width:7px;height:7px;border-radius:50%;background:#16a34a"></span>
+        <b>🗿 Tripo 3D</b> <span id="cnt-tripo3d" style="opacity:0.85;font-size:11px">(Live API)</span>
+      </div>
     </div>
   </div>
 </section>
@@ -433,7 +445,7 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
           </div>
         </div>
       </div>
-      <div class="pills" id="pills" role="group" aria-label="Category"><button class="pillb" type="button" data-tag="all" aria-pressed="true">All</button><button class="pillb" type="button" data-tag="llm" aria-pressed="false">Language</button><button class="pillb" type="button" data-tag="image" aria-pressed="false">Image</button><button class="pillb" type="button" data-tag="video" aria-pressed="false">Video</button><button class="pillb" type="button" data-tag="speech" aria-pressed="false">Voice &amp; music</button><button class="pillb" type="button" data-tag="3d" aria-pressed="false">3D</button><button class="pillb" type="button" data-tag="tool" aria-pressed="false">Tools</button><button class="pillb" type="button" data-tag="open" aria-pressed="false">Open source</button><button class="pillb" type="button" data-tag="openrouter" aria-pressed="false">OpenRouter</button><button class="pillb" type="button" data-tag="fal" aria-pressed="false">fal.ai</button><button class="pillb" type="button" data-tag="replicate" aria-pressed="false">Replicate</button><button class="pillb" type="button" data-tag="wavespeed" aria-pressed="false">WaveSpeed</button></div>
+      <div class="pills" id="pills" role="group" aria-label="Category"><button class="pillb" type="button" data-tag="all" aria-pressed="true">All</button><button class="pillb" type="button" data-tag="llm" aria-pressed="false">Language</button><button class="pillb" type="button" data-tag="image" aria-pressed="false">Image</button><button class="pillb" type="button" data-tag="video" aria-pressed="false">Video</button><button class="pillb" type="button" data-tag="speech" aria-pressed="false">Voice &amp; music</button><button class="pillb" type="button" data-tag="3d" aria-pressed="false">3D</button><button class="pillb" type="button" data-tag="tool" aria-pressed="false">Tools</button><button class="pillb" type="button" data-tag="open" aria-pressed="false">Open source</button><button class="pillb" type="button" data-tag="openrouter" aria-pressed="false">OpenRouter</button><button class="pillb" type="button" data-tag="fal" aria-pressed="false">fal.ai</button><button class="pillb" type="button" data-tag="replicate" aria-pressed="false">Replicate</button><button class="pillb" type="button" data-tag="wavespeed" aria-pressed="false">WaveSpeed</button><button class="pillb" type="button" data-tag="heygen" aria-pressed="false">🎬 HeyGen</button><button class="pillb" type="button" data-tag="tripo" aria-pressed="false">🗿 Tripo 3D</button></div>
       <div class="reqbar"><div><b>Don't see your API?</b><span>Request any API or model, even if it is not in this catalog.</span></div><button class="btn pri" type="button" data-any="">Request any API</button></div>
       <div class="grid" id="grid"></div>
       <div class="more"><button class="btn" id="more" type="button">Load more</button></div>
@@ -513,9 +525,13 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
     if(t==="fal"&&(m[0]==="tripo3d"||m[0]==="black-forest-labs"||m[0]==="recraft-ai"||tags.indexOf("fal")>-1))return true;
     if(t==="replicate"&&(m[0]==="stability-ai"||tags.indexOf("open")>-1||tags.indexOf("replicate")>-1))return true;
     if(t==="wavespeed"&&(m[0]==="wavespeed-ai"||m[0]==="pixverse"||m[0]==="minimax"||tags.indexOf("wavespeed")>-1))return true;
+    if(t==="heygen"&&(m[0]==="heygen"||tags.indexOf("heygen")>-1))return true;
+    if(t==="tripo"&&(m[0]==="tripo"||m[0]==="tripo3d"||tags.indexOf("3d")>-1))return true;
     return false;
   }
   function getBrand(m){
+    if(has(m,"heygen"))return {name:"HeyGen",bg:"#fdf2f8",fg:"#be185d"};
+    if(has(m,"tripo")||has(m,"tripo3d"))return {name:"Tripo 3D",bg:"#fefce8",fg:"#a16207"};
     if(has(m,"wavespeed"))return {name:"WaveSpeed",bg:"#fff7ed",fg:"#c2410c"};
     if(has(m,"fal"))return {name:"fal.ai",bg:"#ecfdf5",fg:"#047857"};
     if(has(m,"replicate"))return {name:"Replicate",bg:"#eff6ff",fg:"#1d4ed8"};
@@ -778,19 +794,23 @@ h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance}
       .then(function(data){
         if (data) {
           // Update vendor live status badges with model counts
-          var provCounts = { openrouter: 0, fal: 0, replicate: 0, wavespeed: 0 };
+          var provCounts = { openrouter: 0, fal: 0, replicate: 0, wavespeed: 0, heygen: 0, tripo3d: 0, trigger: 0 };
           if (Array.isArray(data.models)) {
             data.models.forEach(function(m){
               if (provCounts[m.provider] !== undefined) provCounts[m.provider]++;
             });
           }
-          ['openrouter', 'fal', 'replicate', 'wavespeed'].forEach(function(pk){
+          ['openrouter', 'fal', 'replicate', 'wavespeed', 'heygen', 'trigger', 'tripo3d'].forEach(function(pk){
             var cntEl = document.getElementById('cnt-' + pk);
             var badgeEl = document.getElementById('badge-' + pk);
             var isLive = data.activeKeys && data.activeKeys[pk];
             var count = provCounts[pk] || 0;
             if (cntEl) {
-              cntEl.textContent = count > 0 ? '(' + count + ' models live)' : (isLive ? '(Live API)' : '(Available)');
+              if (pk === 'trigger') {
+                cntEl.textContent = isLive ? '(Anti-Timeout Ready)' : '(Background Worker)';
+              } else {
+                cntEl.textContent = count > 0 ? '(' + count + ' models live)' : (isLive ? '(Live API)' : '(Available)');
+              }
             }
             if (badgeEl && isLive) {
               badgeEl.style.background = '#f0fdf4';

@@ -65,6 +65,9 @@ export async function onRequest(context) {
       fal: Boolean(env && (env.FAL_KEY || env.FAL_API_KEY)),
       replicate: Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY)),
       wavespeed: Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY)),
+      heygen: Boolean(env && (env.HEYGEN_API_KEY || env.HEYGEN_KEY)),
+      tripo3d: Boolean(env && (env.TRIPO3D_API_KEY || env.TRIPO_KEY || env.TRIPO_API_KEY)),
+      trigger: Boolean(env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY)),
       langsmith: Boolean(env && (env.LANGSMITH_API_KEY || env.LANGCHAIN_API_KEY || env.LANGSMITH_KEY)),
       composio: Boolean(env && (env.COMPOSIO_API_KEY || env.COMPOSIO_KEY))
     };
@@ -75,6 +78,9 @@ export async function onRequest(context) {
       version: '2026.2',
       activeProviders: keys,
       core4Ready: keys.openrouter && keys.fal && keys.replicate && keys.wavespeed,
+      heygenReady: keys.heygen,
+      tripo3dReady: keys.tripo3d,
+      triggerReady: keys.trigger,
       geminiReady: keys.google,
       langsmithReady: keys.langsmith,
       composioReady: keys.composio,
@@ -120,8 +126,11 @@ export async function onRequest(context) {
     let provider = (body.provider || '').toLowerCase();
     const model = body.model || body.modelId || '';
     const input = body.input || body.params || body.payload || {};
+    const triggerKey = (env && (env.TRIGGER_SECRET_KEY || env.TRIGGER_DEV_KEY || env.TRIGGER_API_KEY)) || '';
+    const triggerApiUrl = (env && env.TRIGGER_API_URL) || 'https://api.trigger.dev/api/v3';
+    const useTrigger = body.useTrigger === true || body.async === true || request.headers.get('x-use-trigger') === 'true';
 
-    if (!model) {
+    if (!model && provider !== 'trigger') {
       return new Response(JSON.stringify({
         error: 'Missing required field: "model"'
       }), { status: 400, headers: corsHeaders });
@@ -129,7 +138,9 @@ export async function onRequest(context) {
 
     // Auto-detect provider from model name if not explicitly passed
     if (!provider) {
-      if (model.startsWith('fal-ai/') || model.includes('tripo3d') || model.includes('flux/')) {
+      if (model.includes('heygen') || model.includes('avatar-6')) {
+        provider = 'heygen';
+      } else if (model.startsWith('fal-ai/') || model.includes('tripo3d') || model.includes('flux/')) {
         provider = 'fal';
       } else if (model.includes('gemini') || model.startsWith('google/')) {
         provider = 'google';
@@ -324,6 +335,26 @@ export async function onRequest(context) {
         }), { status: 200, headers: corsHeaders });
       }
 
+      // Support Trigger.dev async dispatch to prevent Cloudflare timeout
+      if (useTrigger && triggerKey) {
+        try {
+          const trRes = await fetch(`${triggerApiUrl}/tasks/fal-generation/trigger`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${triggerKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload: { model, input, paasId, endUserId } })
+          });
+          const trData = await trRes.json();
+          return new Response(JSON.stringify({
+            ok: trRes.ok,
+            dispatchedToTrigger: true,
+            runId: trData.id,
+            status: 'QUEUED_IN_TRIGGER_DEV',
+            provider: 'fal',
+            model
+          }), { status: 202, headers: corsHeaders });
+        } catch (_) {}
+      }
+
       // Remove "fal-ai/" prefix if targeting endpoint route directly
       const endpointId = model.startsWith('fal-ai/') ? model : `fal-ai/${model}`;
 
@@ -372,6 +403,26 @@ export async function onRequest(context) {
             note: `[Simulated Replicate result for ${model}]. Set REPLICATE_API_TOKEN in Cloudflare for live generation.`
           }
         }), { status: 200, headers: corsHeaders });
+      }
+
+      // Support Trigger.dev async dispatch to prevent Cloudflare timeout
+      if (useTrigger && triggerKey) {
+        try {
+          const trRes = await fetch(`${triggerApiUrl}/tasks/replicate-video/trigger`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${triggerKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload: { model, input, paasId, endUserId } })
+          });
+          const trData = await trRes.json();
+          return new Response(JSON.stringify({
+            ok: trRes.ok,
+            dispatchedToTrigger: true,
+            runId: trData.id,
+            status: 'QUEUED_IN_TRIGGER_DEV',
+            provider: 'replicate',
+            model
+          }), { status: 202, headers: corsHeaders });
+        } catch (_) {}
       }
 
       // Support model in format "owner/model_name"
@@ -428,6 +479,26 @@ export async function onRequest(context) {
             note: `[Simulated WaveSpeed result for ${model}]. Set WAVESPEED_API_KEY in Cloudflare for live generation.`
           }
         }), { status: 200, headers: corsHeaders });
+      }
+
+      // Support Trigger.dev async dispatch to prevent Cloudflare timeout
+      if (useTrigger && triggerKey) {
+        try {
+          const trRes = await fetch(`${triggerApiUrl}/tasks/wavespeed-video/trigger`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${triggerKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload: { model, input, paasId, endUserId } })
+          });
+          const trData = await trRes.json();
+          return new Response(JSON.stringify({
+            ok: trRes.ok,
+            dispatchedToTrigger: true,
+            runId: trData.id,
+            status: 'QUEUED_IN_TRIGGER_DEV',
+            provider: 'wavespeed',
+            model
+          }), { status: 202, headers: corsHeaders });
+        } catch (_) {}
       }
 
       const wsRes = await fetch(`https://api.wavespeed.ai/api/v3/${model}`, {
@@ -501,8 +572,113 @@ export async function onRequest(context) {
       }), { status: 200, headers: corsHeaders });
     }
 
+    // ─── 6. HeyGen (Avatar 6 & Video Generation) ─────────────────────────────
+    if (provider === 'heygen') {
+      const heygenKey = (env && (env.HEYGEN_API_KEY || env.HEYGEN_KEY)) || '';
+      if (!heygenKey) {
+        return new Response(JSON.stringify({
+          ok: false,
+          error: 'HEYGEN_API_KEY belum disetel di Cloudflare Pages secrets.',
+          simulated: true,
+          provider: 'heygen',
+          model,
+          message: 'Set HEYGEN_API_KEY in Cloudflare Pages to activate live video generation.'
+        }), { status: 503, headers: corsHeaders });
+      }
+
+      // If useTrigger is requested to prevent Cloudflare timeout
+      if (useTrigger && triggerKey) {
+        try {
+          const trRes = await fetch(`${triggerApiUrl}/tasks/heygen-avatar-6/trigger`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${triggerKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload: { ...body, paasId, endUserId } })
+          });
+          const trData = await trRes.json();
+          return new Response(JSON.stringify({
+            ok: trRes.ok,
+            dispatchedToTrigger: true,
+            runId: trData.id,
+            status: 'QUEUED_IN_TRIGGER_DEV',
+            provider: 'heygen',
+            model,
+            message: 'HeyGen generation dispatched to Trigger.dev background task to prevent Cloudflare Worker timeout.'
+          }), { status: 202, headers: corsHeaders });
+        } catch (_) {}
+      }
+
+      // Model API for Avatar 6 (v3/models/avatars)
+      const isAvatar6 = model.includes('avatar-6') || body.action === 'avatar-6';
+      const targetUrl = isAvatar6 ? 'https://api.heygen.com/v3/models/avatars' : 'https://api.heygen.com/v2/video/generate';
+      let payload = input;
+      if (isAvatar6 && !payload.model) {
+        payload = {
+          model: model || 'heygen-avatar-6',
+          resolution: body.resolution || '1080p',
+          motion_prompt: body.motion_prompt || 'Natural gestures, pleasant and confident expression.',
+          ...input
+        };
+      }
+
+      const hRes = await fetch(targetUrl, {
+        method: 'POST',
+        headers: {
+          'x-api-key': heygenKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const hData = await hRes.json();
+      return new Response(JSON.stringify({
+        ok: hRes.ok,
+        tenantId: compositeId,
+        paasId,
+        endUserId,
+        provider: 'heygen',
+        model,
+        result: hData
+      }), { status: hRes.ok ? 200 : hRes.status, headers: corsHeaders });
+    }
+
+    // ─── 7. Trigger.dev Background Job Dispatcher ───────────────────────────
+    if (provider === 'trigger') {
+      if (!triggerKey) {
+        return new Response(JSON.stringify({
+          ok: false,
+          error: 'TRIGGER_SECRET_KEY belum disetel di Cloudflare Pages Environment Variables.',
+          simulated: true,
+          provider: 'trigger'
+        }), { status: 503, headers: corsHeaders });
+      }
+
+      const taskId = body.taskId || body.task || 'heavy-ai-task';
+      const trRes = await fetch(`${triggerApiUrl}/tasks/${encodeURIComponent(taskId)}/trigger`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${triggerKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          payload: {
+            ...(body.payload || input),
+            _paasId: paasId,
+            _endUserId: endUserId
+          }
+        })
+      });
+      const trData = await trRes.json();
+      return new Response(JSON.stringify({
+        ok: trRes.ok,
+        runId: trData.id,
+        taskId,
+        status: trData.status || 'QUEUED',
+        provider: 'trigger',
+        message: `Task "${taskId}" queued in Trigger.dev.`
+      }), { status: trRes.ok ? 202 : trRes.status, headers: corsHeaders });
+    }
+
     return new Response(JSON.stringify({
-      error: `Unknown provider: "${provider}". Supported: google, openrouter, fal, replicate, wavespeed, custom, tripo3d, langsmith.`
+      error: `Unknown provider: "${provider}". Supported: google, openrouter, fal, replicate, wavespeed, heygen, trigger, tripo3d, custom, langsmith.`
     }), { status: 400, headers: corsHeaders });
 
   } catch (err) {

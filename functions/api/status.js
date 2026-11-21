@@ -25,6 +25,8 @@ export async function onRequest(context) {
   const hasFal = Boolean(env && (env.FAL_KEY || env.FAL_API_KEY));
   const hasReplicate = Boolean(env && (env.REPLICATE_API_TOKEN || env.REPLICATE_KEY || env.REPLICATE_API_KEY));
   const hasWaveSpeed = Boolean(env && (env.WAVESPEED_API_KEY || env.WAVESPEED_KEY));
+  const hasHeyGen = Boolean(env && (env.HEYGEN_API_KEY || env.HEYGEN_KEY));
+  const hasTripo = Boolean(env && (env.TRIPO3D_API_KEY || env.TRIPO_KEY || env.TRIPO_API_KEY));
 
   let modelsList = [];
   let managedAgentsStatus = 'not_tested';
@@ -181,11 +183,13 @@ export async function onRequest(context) {
     openai: hasOpenAI,
     trigger: hasTrigger,
     composio: hasComposio,
-    // 4 Core Aggregators for PaaS Model Gateway
+    // Core Aggregators for PaaS Model Gateway
     openrouter: hasOpenRouter,
     fal: hasFal,
     replicate: hasReplicate,
     wavespeed: hasWaveSpeed,
+    heygen: hasHeyGen,
+    tripo3d: hasTripo,
     ready: hasTotalum || hasAnthropic || hasVertex || hasGemini || hasOpenAI,
     message: hasTotalum
       ? 'Totalum v2 Full-Stack Next.js Engine siap dan aktif.'
