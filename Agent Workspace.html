@@ -3534,7 +3534,7 @@ body.ws-stage-2-active .topbar {
 
     // Resolve user's chosen LLM engine from the dock switch (defaults directly to Gemini via LangSmith)
     var esBtn = document.querySelector('.es-btn.active');
-    var userLlmModel = (esBtn && esBtn.dataset.model) || 'google/gemini-2.5-flash';
+    var userLlmModel = (esBtn && esBtn.dataset.model) || 'google/gemini-3.8-flash';
     var userLlmProvider = (esBtn && esBtn.dataset.engine) || 'google';
     if (userLlmProvider === 'totalum' || !userLlmProvider) { userLlmProvider = 'google'; }
 
@@ -3615,6 +3615,104 @@ body.ws-stage-2-active .topbar {
         renderTabs();
         renderSide();
       });
+    }
+
+    // ── If isNew: Deep Agent Consultation (5 Pertanyaan Arsitektur Otonom) ───
+    if (isNew && !p._archConsulted && !text.includes('[Architecture Spec')) {
+      p.busy = false;
+      finishWave();
+      var qList = [
+        {
+          id: 'outcome',
+          title: '1. Target Outcome & Nilai Jual (Hasil Kerja Tuntas)',
+          options: [
+            '🎯 B2B Leads Terverifikasi & Outreach Otomatis',
+            '🎬 Video Reels & Shorts Factory (Multi-Scene)',
+            '📊 Departemen Akuntansi & Rekonsiliasi Otomatis',
+            '💬 Customer Support 24/7 Berbasis Tiket Tuntas',
+            '🎓 Platform Edukasi & AI Tutoring Interaktif'
+          ]
+        },
+        {
+          id: 'engine',
+          title: '2. Generative AI Engine & Reasoning Model',
+          options: [
+            '⚡ Gemini 3.8 Flash + Deep Agent ReAct Loop',
+            '🌟 Fal.ai Ultra-Fast (Wan 2.1 & Flux Pro)',
+            '📹 Wavespeed AI (Lip-Sync Avatar & Video)',
+            '🤖 Replicate Multi-Model (LLaMA-3.3 + Flux)'
+          ]
+        },
+        {
+          id: 'tools',
+          title: '3. Composio Action Toolkits (Aksi Nyata di Cloud)',
+          options: [
+            '📧 Gmail + WhatsApp + Google Sheets (CRM Flow)',
+            '💳 Stripe Billing + Invoice OCR Gateway',
+            '🐙 GitHub + Linear + Jira (DevOps Loop)',
+            '🏢 HubSpot CRM + Slack Notifications'
+          ]
+        },
+        {
+          id: 'workflow',
+          title: '4. Alur Kerja Otonom & Kontrol',
+          options: [
+            '🚀 Full Autonomous (Jalan otonom di background)',
+            '🛡️ Human-in-the-Loop (Butuh approval admin)',
+            '🐝 Multi-Agent Swarm (Supervisor + Subagents)'
+          ]
+        },
+        {
+          id: 'billing',
+          title: '5. Model Monetisasi & Billing Klien',
+          options: [
+            '💰 Pay-per-Outcome (Bayar per hasil / tiket selesai)',
+            '🪙 Saldo Kredit / Token Dompet (Wallet Balance)',
+            '📦 Langganan Bulanan (Tier Pro & Enterprise)'
+          ]
+        }
+      ];
+
+      var qHtml = '<div class="rf-clarify-box" style="background:var(--panel);border:1.5px solid #6366f1;border-radius:12px;padding:18px;margin-top:10px;box-shadow:0 4px 14px rgba(99,102,241,0.12)">' +
+        '<div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;color:var(--fg);margin-bottom:6px">' +
+        '<span style="background:#6366f1;color:#fff;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:800">DEEP AGENT CONSULTANT</span>' +
+        '<span>5 Pertanyaan Arsitektur Autonomous Platform</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5">' +
+        'Pilih spesifikasi arsitektur otonom agar platform Anda menjual <b>hasil kerja tuntas</b> (Service-as-a-Software), bukan sekadar tampilan dummy:' +
+        '</div>';
+
+      qList.forEach(function(q, qi) {
+        qHtml += '<div style="margin-bottom:12px">' +
+          '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:6px">' + q.title + '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+        q.options.forEach(function(opt) {
+          qHtml += '<button type="button" onclick="window.selectClarification(' + qi + ',this,\'' + opt.replace(/'/g,"&#39;") + '\')" style="padding:5px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);font-size:11.5px;color:var(--fg);cursor:pointer;transition:all 0.15s;font-weight:500" class="rf-clar-opt">' + opt + '</button>';
+        });
+        qHtml += '</div></div>';
+      });
+
+      qHtml += '<div style="display:flex;gap:10px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap">' +
+        '<button type="button" onclick="window.submitArchClarification()" style="padding:9px 18px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(79,70,229,0.25)">🚀 Bangun Autonomous Platform Sekarang</button>' +
+        '<button type="button" onclick="window.skipArchClarification()" style="padding:9px 14px;background:var(--bg);color:var(--muted);border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">⚡ Lewati &amp; Generate Langsung</button>' +
+        '</div></div>';
+
+      m.steps.push({ label: 'LangSmith Deep Agent: Konsultasi Arsitektur Aktif (5 Pertanyaan Diperlukan)...', done: false });
+      m.text = 'Saya telah menganalisis ide Anda: **"' + text + '"**.\n\nAgar platform ini tidak hanya sekadar kulit tampilan (UI dummy), melainkan platform otonom berbasis *Service-as-a-Software* yang menjual hasil nyata, silakan tentukan 5 pilar arsitektur di bawah ini:';
+      m.actionHtml = qHtml;
+
+      window._clarifyCtx = {
+        text: text,
+        projectId: p.id,
+        isLangsmith: true,
+        attachedImg: attachedImg
+      };
+      window._clarifyAnswers = {};
+      save();
+      renderChat();
+      renderTabs();
+      renderSide();
+      return;
     }
 
     // ── If isNew: Orchestrate Gemini via LangSmith to generate UI/UX first ───
@@ -4362,14 +4460,67 @@ body.ws-stage-2-active .topbar {
     if (parent) {
       var allBtns = parent.querySelectorAll('button');
       allBtns.forEach(function(b) {
-        b.style.background = '#fff';
-        b.style.borderColor = '#cbd5e1';
-        b.style.color = '#374151';
+        b.style.background = 'var(--bg)';
+        b.style.borderColor = 'var(--line)';
+        b.style.color = 'var(--fg)';
+        b.style.fontWeight = '500';
       });
     }
-    btn.style.background = '#6366f1';
-    btn.style.borderColor = '#6366f1';
+    btn.style.background = '#4f46e5';
+    btn.style.borderColor = '#4f46e5';
     btn.style.color = '#fff';
+    btn.style.fontWeight = '700';
+  };
+
+  window.submitArchClarification = function() {
+    if (!window._clarifyCtx) return;
+    var ctx = window._clarifyCtx;
+    var p = proj(ctx.projectId);
+    if (!p) return;
+    p._archConsulted = true;
+    var answers = window._clarifyAnswers || {};
+    var labels = [
+      'Target Outcome',
+      'AI Engine',
+      'Composio Toolkits',
+      'Alur Kerja Otonom',
+      'Model Monetisasi'
+    ];
+    var specsArr = [];
+    labels.forEach(function(lbl, i) {
+      if (answers[i]) specsArr.push(lbl + ': ' + answers[i]);
+    });
+    var specsText = specsArr.join('\n- ');
+    var fullPrompt = ctx.text + '\n\n[Architecture Spec - Service-as-a-Software Requirements]:\n- ' + (specsText || 'Default Enterprise Architecture');
+
+    var m = (p.msgs && p.msgs.length) ? p.msgs[p.msgs.length - 1] : null;
+    if (m && m.role === 'agent') {
+      m.actionHtml = '';
+      m.text += '\n\n✅ *Spesifikasi arsitektur dikonfirmasi:*' + (specsText ? '\n- ' + specsText : ' (Default)');
+      if (m.steps && m.steps.length) m.steps[0].done = true;
+    }
+    save();
+    renderChat();
+
+    runTotalumAgent(p, fullPrompt, ctx.attachedImg);
+  };
+
+  window.skipArchClarification = function() {
+    if (!window._clarifyCtx) return;
+    var ctx = window._clarifyCtx;
+    var p = proj(ctx.projectId);
+    if (!p) return;
+    p._archConsulted = true;
+    var m = (p.msgs && p.msgs.length) ? p.msgs[p.msgs.length - 1] : null;
+    if (m && m.role === 'agent') {
+      m.actionHtml = '';
+      m.text += '\n\n⚡ *Konsultasi dilewati — membuat platform dengan konfigurasi default otonom.*';
+      if (m.steps && m.steps.length) m.steps[0].done = true;
+    }
+    save();
+    renderChat();
+
+    runTotalumAgent(p, ctx.text, ctx.attachedImg);
   };
 
   window.submitClarification = function() {

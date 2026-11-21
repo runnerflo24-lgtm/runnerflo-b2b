@@ -1224,7 +1224,7 @@ AVAILABLE TOOLS (26 TOOLS — FULL DEVELOPER SUITE, EQUAL TO CLAUDE MANAGED AGEN
 
 AGENTIC DISCOVERY & HUMAN-IN-THE-LOOP WORKFLOW:
 - When a user asks for an agent involving third-party apps (e.g. HubSpot, Zendesk, Salesforce, WhatsApp), call composio_search_apps to discover available integrations.
-- When an agent requires an LLM brain (OpenRouter / Google), call search_llm_models to inspect available models and prices. Default to Gemini (google/gemini-2.5-flash) if the user does not specify an LLM!
+- When an agent requires an LLM brain (OpenRouter / Google), call search_llm_models to inspect available models and prices. Default to Gemini (google/gemini-3.8-flash) if the user does not specify an LLM!
 - When user provides an image or design screenshot, call inspect_image_reference to extract exact text, buttons, and colors to match!
 - If the model choice or app selection is ambiguous, call ask_human to present clear multiple-choice options to the user before building!
 - Think step-by-step before acting. Call read_code_file BEFORE editing any file.
@@ -1244,7 +1244,7 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
           conversationMessages.unshift({ role: 'system', content: systemPrompt });
         }
 
-        const modelChoice = body.model || 'google/gemini-2.5-flash';
+        const modelChoice = body.model || 'google/gemini-3.8-flash';
         const agentSteps = [];
         let finalReply = '';
         let totalUsage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0, cost: 0 };
@@ -1279,7 +1279,14 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
 
           // Gemini fallback if OpenRouter failed or no key
           if (!llmData && googleKey) {
-            const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+            const GEMINI_MODELS = [
+              'gemini-3.8-flash',
+              'gemini-3.5-flash-lite',
+              'gemini-3-flash-preview',
+              'gemini-2.5-flash',
+              'gemini-2.0-flash',
+              'gemini-1.5-flash'
+            ];
             const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
             const gMessages = conversationMessages.filter(m => m.role !== 'tool').map(m => ({
               role: m.role === 'assistant' ? 'model' : 'user',
@@ -1408,7 +1415,7 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
 
       const userPrompt = typeof input === 'string' ? input : (input.prompt || input.text || 'Update the application');
       const projectName = body.projectName || paasId;
-      const userLlmModel = body.userModel || 'google/gemini-2.5-flash';
+      const userLlmModel = body.userModel || 'google/gemini-3.8-flash';
       const userLlmProvider = body.userProvider || 'google';
       const currentFiles = (body.currentFiles || []).map(f => ({ path: f.path, content: f.content || '', name: f.name || f.path }));
       const currentHtmlFile = currentFiles.find(f => (f.path || f.name) === 'index.html') || currentFiles[0];
@@ -1460,7 +1467,7 @@ AVAILABLE TOOLS (26 TOOLS): read_code_file, edit_code_file, patch_code_file, sea
 AGENTIC AGENT CREATION & DISCOVERY:
 - If user wants an agent for any of Composio's 1,700+ apps (e.g. CRM, email, social, support), call composio_search_apps to find exact app IDs and action names.
 - If user wants to choose or change the LLM brain (OpenRouter models), call search_llm_models to get available models.
-- If user does NOT specify an LLM model, default directly to Gemini via LangSmith Managed Deep Agent (google/gemini-2.5-flash, provider: google).
+- If user does NOT specify an LLM model, default directly to Gemini via LangSmith Managed Deep Agent (google/gemini-3.8-flash, provider: google).
 - When user provides an image or design screenshot, call inspect_image_reference to extract exact text, buttons, and colors to match!
 - If user requirements need clarification, call ask_human with a question and options list so the user can choose directly.
 
@@ -1587,7 +1594,14 @@ After editing: write a one-line summary of what changed.`;
 
         // Gemini native fallback (native function calling + multimodal vision OCR)
         if (!llmData && googleKey) {
-          const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+          const GEMINI_MODELS = [
+            'gemini-3.8-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-3-flash-preview',
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+            'gemini-1.5-flash'
+          ];
           const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
           const gContents = editMessages.filter(m => m.role !== 'tool').map(m => ({
             role: m.role === 'assistant' ? 'model' : (m.role === 'system' ? 'user' : m.role),
@@ -1760,7 +1774,7 @@ After editing: write a one-line summary of what changed.`;
         ? input
         : (input.prompt || input.text || 'Build a modern SaaS application');
       const projectName = body.projectName || paasId.replace(/[^a-z0-9-]+/g, '-') || 'runnerflo-app';
-      const userLlmModel = body.userModel || 'google/gemini-2.5-flash';
+      const userLlmModel = body.userModel || 'google/gemini-3.8-flash';
       const userLlmProvider = body.userProvider || 'google';
 
       // LangSmith: open trace run BEFORE inference
@@ -1971,8 +1985,11 @@ PROJECT CONTEXT:
 
 Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.`;
 
-      // Gemini model fallback chain
+      // Gemini model fallback chain: gemini-3.8-flash -> gemini-3.5-flash-lite -> gemini-3-flash-preview -> 2.5-flash -> 2.0-flash -> 1.5-flash
       const GEMINI_MODELS = [
+        'gemini-3.8-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-3-flash-preview',
         'gemini-2.5-flash',
         'gemini-2.0-flash',
         'gemini-1.5-flash'
