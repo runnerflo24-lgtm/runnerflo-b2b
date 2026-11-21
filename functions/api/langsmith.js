@@ -1409,8 +1409,8 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
       const openrouterKey = env && (env.OPENROUTER_API_KEY || env.OPENROUTER_KEY);
       const tavilyKey = env && (env.TAVILY_API_KEY || env.TAVILY_KEY);
 
-      if (!googleKey && !openrouterKey) {
-        return new Response(JSON.stringify({ ok: false, error: 'No LLM key available (GOOGLE_AI_API_KEY or OPENROUTER_API_KEY)', fallback: false }), { status: 200, headers: corsHeaders });
+      if (!googleKey && !openrouterKey && !(env && env.AI)) {
+        return new Response(JSON.stringify({ ok: false, error: 'No LLM key or Cloudflare Workers AI available', fallback: false }), { status: 200, headers: corsHeaders });
       }
 
       const userPrompt = typeof input === 'string' ? input : (input.prompt || input.text || 'Update the application');
@@ -1648,6 +1648,33 @@ After editing: write a one-line summary of what changed.`;
           }
         }
 
+        // Cloudflare Workers AI fallback for edit (Free built-in Cloudflare models)
+        if (!llmData && env && env.AI) {
+          try {
+            const cfModels = [
+              '@cf/meta/llama-3.3-70b-instruct',
+              '@cf/meta/llama-3.1-8b-instruct',
+              '@cf/qwen/qwen2.5-72b-instruct',
+              '@cf/mistral/mistral-7b-instruct-v0.2'
+            ];
+            for (const cfM of cfModels) {
+              try {
+                const cfAiRes = await env.AI.run(cfM, {
+                  messages: editMessages.map(m => ({
+                    role: m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user'),
+                    content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+                  })),
+                  max_tokens: 8192
+                });
+                if (cfAiRes && (cfAiRes.response || cfAiRes.text)) {
+                  llmData = { choices: [{ message: { role: 'assistant', content: cfAiRes.response || cfAiRes.text } }] };
+                  break;
+                }
+              } catch(e) {}
+            }
+          } catch(e) {}
+        }
+
         if (!llmData) { finalReply = 'Edit agent inference failed — no LLM key available.'; break; }
 
         const choice = llmData.choices?.[0];
@@ -1878,10 +1905,10 @@ OUTPUT STRICTLY IN JSON FORMAT:
     if (subAction === 'generate-ui') {
       const googleKey = env && (env.GOOGLE_AI_API_KEY || env.GEMINI_API_KEY || env.GOOGLE_API_KEY);
 
-      if (!googleKey) {
+      if (!googleKey && !(env && env.AI)) {
         return new Response(JSON.stringify({
           ok: false,
-          error: 'GOOGLE_AI_API_KEY belum disetel di Cloudflare Pages. Tambahkan via Settings > Environment Variables.',
+          error: 'GOOGLE_AI_API_KEY belum disetel di Cloudflare Pages dan Cloudflare Workers AI tidak tersedia.',
           fallback: 'claude'
         }), { status: 200, headers: corsHeaders });
       }
@@ -2116,33 +2143,79 @@ Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in Engli
       let usedModel = '';
       let geminiError = '';
 
-      for (let i = 0; i < GEMINI_MODELS.length; i++) {
-        const mdl = GEMINI_MODELS[i];
-        try {
-          const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: geminiSystemPrompt }] },
-              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-              generationConfig: { temperature: 0.7, maxOutputTokens: 65536 }
-            })
-          });
-          if (gRes.ok) {
-            const gData = await gRes.json();
-            const text = gData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (text && text.length > 100) {
-              geminiResult = text;
-              usedModel = mdl;
-              break;
-            }
-          } else {
-            const errBody = await gRes.text().catch(() => '');
-            geminiError = `${mdl}: HTTP ${gRes.status} — ${errBody.slice(0, 200)}`;
-          }
-        } catch (e) {
-          geminiError = `${mdl}: ${e.message}`;
+      const imagePayload = body.image || (input && input.image) || null;
+      const userParts = [{ text: userPrompt }];
+      if (imagePayload) {
+        let b64 = typeof imagePayload === 'string' ? imagePayload : (imagePayload.data || imagePayload.base64 || '');
+        let mime = (typeof imagePayload === 'object' && (imagePayload.mimeType || imagePayload.type)) || 'image/jpeg';
+        if (b64.startsWith('data:')) {
+          const parts = b64.split(',');
+          const m = parts[0].match(/data:([^;]+);base64/);
+          if (m) mime = m[1];
+          b64 = parts[1];
         }
+        if (b64) {
+          userParts.unshift({ inlineData: { mimeType: mime, data: b64 } });
+        }
+      }
+
+      if (googleKey) {
+        for (let i = 0; i < GEMINI_MODELS.length; i++) {
+          const mdl = GEMINI_MODELS[i];
+          try {
+            const gRes = await fetch(`${GEMINI_BASE}/${mdl}:generateContent?key=${googleKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: geminiSystemPrompt }] },
+                contents: [{ role: 'user', parts: userParts }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 65536 }
+              })
+            });
+            if (gRes.ok) {
+              const gData = await gRes.json();
+              const text = gData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              if (text && text.length > 100) {
+                geminiResult = text;
+                usedModel = mdl;
+                break;
+              }
+            } else {
+              const errBody = await gRes.text().catch(() => '');
+              geminiError = `${mdl}: HTTP ${gRes.status} — ${errBody.slice(0, 200)}`;
+            }
+          } catch (e) {
+            geminiError = `${mdl}: ${e.message}`;
+          }
+        }
+      }
+
+      // Cloudflare Workers AI fallback (Free built-in AI models on Cloudflare)
+      if (!geminiResult && env && env.AI) {
+        try {
+          const cfModels = [
+            '@cf/meta/llama-3.3-70b-instruct',
+            '@cf/meta/llama-3.1-8b-instruct',
+            '@cf/qwen/qwen2.5-72b-instruct',
+            '@cf/mistral/mistral-7b-instruct-v0.2'
+          ];
+          for (const cfMdl of cfModels) {
+            try {
+              const cfAiRes = await env.AI.run(cfMdl, {
+                messages: [
+                  { role: 'system', content: geminiSystemPrompt },
+                  { role: 'user', content: userPrompt }
+                ],
+                max_tokens: 8192
+              });
+              if (cfAiRes && (cfAiRes.response || cfAiRes.text)) {
+                geminiResult = cfAiRes.response || cfAiRes.text;
+                usedModel = `Cloudflare Workers AI (${cfMdl})`;
+                break;
+              }
+            } catch(e) {}
+          }
+        } catch(cfErr) {}
       }
 
       // If all Gemini models failed → signal frontend to fall back to Claude

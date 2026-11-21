@@ -3853,7 +3853,8 @@ body.ws-stage-2-active .topbar {
             paasId: projSlug,
             endUserId: localStorage.getItem('rf_end_user_id') || 'usr_dev',
             userModel: userLlmModel,
-            userProvider: userLlmProvider
+            userProvider: userLlmProvider,
+            image: attachedImg ? { data: attachedImg.data, mimeType: attachedImg.mimeType } : null
           })
         })
         .then(function(r2) { return r2.json(); })
@@ -3910,7 +3911,7 @@ body.ws-stage-2-active .topbar {
     var targetProjectId = p.id;
     p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
     uiMode = 'live';
-    updateWave(25, (attachedImg ? 'Claude Sonnet 5.5 Vision: Inspecting Reference Image...' : 'Claude Sonnet 5.5: Code Reasoning & Analysis...'), 'Progress: 25% • Medium Thinking & Vision Pipeline active');
+    updateWave(25, (attachedImg ? '🤖 LangSmith Managed Deep Agent: Analyzing Reference Image...' : '🤖 LangSmith Managed Deep Agent: Code Reasoning & Analysis...'), 'Progress: 25% • Gemini Vision + LangSmith Deep Agent Pipeline active');
 
     var m = existingMsg || { role: 'agent', text: '', steps: [], actionHtml: '' };
     if (!existingMsg) {
@@ -3918,10 +3919,10 @@ body.ws-stage-2-active .topbar {
     }
 
     m.steps = [
-      { label: (attachedImg ? '🖼️ Analyzing Reference Image with Claude Sonnet 5.5 Vision' : (reason === 'credits_exhausted' ? '⚡ Totalum credits exhausted → Claude Sonnet 5.5 Fallback Activated' : '🛠️ Claude Sonnet 5.5 Autonomous Engine Engaged')), done: true },
-      { label: (attachedImg ? 'Synthesizing application UI layout to match image reference...' : 'Analyzing project codebase with Claude Sonnet 5.5 (Medium Thinking)...'), done: false }
+      { label: (attachedImg ? '🖼️ Analyzing Reference Image via LangSmith Managed Deep Agent (Gemini Vision)' : (reason === 'credits_exhausted' ? '⚡ Switching to LangSmith Managed Deep Agent (zero-credit path)...' : '🤖 LangSmith Managed Deep Agent: Engaged')), done: true },
+      { label: (attachedImg ? 'Synthesizing UI layout to match image reference via Gemini Vision...' : 'Analyzing project codebase with LangSmith Managed Deep Agent...'), done: false }
     ];
-    m.text = (attachedImg ? '🎨 **Analyzing your reference image with Claude Sonnet 5.5 Vision...**\nSynthesizing Tailwind CSS layout, components, and interactive JavaScript to match your design.\n\n' : (reason === 'credits_exhausted' ? '⚡ **Totalum credits depleted (-3.5193). Seamlessly activated Claude Sonnet 5.5 Fallback!**\nEquipped with code editing tools, file inspection, syntax debugging, and Trigger.dev v3 background pipeline.\n\n' : '')) + '🤖 **Claude Sonnet 5.5 is reasoning and updating code...**';
+    m.text = (attachedImg ? '🎨 **Analyzing your reference image with LangSmith Managed Deep Agent (Gemini Vision)...**\nSynthesizing Tailwind CSS layout, components, and interactive JavaScript to match your design.\n\n' : (reason === 'credits_exhausted' ? '⚡ **Switching to LangSmith Managed Deep Agent (zero-credit path)...**\nEquipped with code editing tools, file inspection, and LangSmith orchestration pipeline.\n\n' : '')) + '🤖 **LangSmith Managed Deep Agent is reasoning and updating code...**';
     renderIf(p);
 
     var history = (p.msgs || []).slice(-6).map(function(item) {
@@ -3967,7 +3968,7 @@ body.ws-stage-2-active .topbar {
         progressPct += Math.floor(Math.random() * 8) + 4;
         if (progressPct > 92) progressPct = 92;
         var stepLabel = progressPct > 70 ? 'Synthesizing application components...' : 'Reasoning & constructing UI layout...';
-        updateWave(progressPct, 'Claude Sonnet 5.5: ' + stepLabel, 'Progress: ' + progressPct + '% • Autonomous code synthesis active');
+        updateWave(progressPct, 'LangSmith Managed Deep Agent: ' + stepLabel, 'Progress: ' + progressPct + '% • Gemini + LangSmith orchestration active');
       }
     }, 1800);
 
@@ -4302,7 +4303,7 @@ body.ws-stage-2-active .topbar {
       var p = proj(targetProjectId) || p;
       p.busy = false;
       m.steps.forEach(function(s) { s.done = false; });
-      m.text = '⚠️ **Claude 5.5 Engine Notice:** ' + err.message + '\n\nPlease ensure `ANTHROPIC_API_KEY` is configured in Cloudflare Pages environment variables.';
+      m.text = '⚠️ **LangSmith Managed Deep Agent tidak tersedia saat ini.**\n\nSilakan pastikan API credentials dikonfigurasi di **Cloudflare Pages → Settings → Environment Variables**. Coba ulangi instruksi Anda.\n\n*Detail: ' + err.message + '*';
       m.actionHtml = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rf-btn" onclick="window.setEngineMode(\'sim\')">⚡ Switch to Demo</button></div>';
       finishWave();
       save();
@@ -5725,14 +5726,6 @@ body.ws-stage-2-active .topbar {
 
   function runAgent(p, text, attachedImg) {
     if (state.engineMode === 'totalum') {
-      // 1. If user provided a reference image OR prompt asks for visual redesign from image:
-      // ROUTE DIRECTLY TO CLAUDE SONNET 5.5 VISION!
-      if (attachedImg || /(?:gambar|foto|photo|image|screenshot|ui|mirip|desain|design)\b/i.test(text)) {
-        runClaudeFallbackAgent(p, text, 'image_redesign', null, null, attachedImg);
-        return;
-      }
-      // 2. Credits exhausted flag — reset dulu agar tidak permanen, biarkan LangSmith coba lagi
-      // Claude hanya dipanggil saat runtime error, bukan dari flag lama tersimpan
       if (p.totalumCreditsExhausted) {
         p.totalumCreditsExhausted = false;
         save();
@@ -5758,117 +5751,9 @@ body.ws-stage-2-active .topbar {
       runTotalumAgent(p, text, attachedImg);
       return;
     }
-    if (attachedImg) {
-      runClaudeFallbackAgent(p, text, 'image_redesign', null, null, attachedImg);
-      return;
-    }
-    var my = ++runId;
-    p.busy = true; p.suggest = []; p.dismissed = false; p.updated = Date.now();
-    uiMode = 'live';
-    updateWave(5, 'Step 1/5: Analyzing business concept...', 'Understanding feature requirements & target audience');
-    renderChat(); renderTabs(); renderSide();
-
-    var m = { role: 'agent', text: '', steps: [], actionHtml: '' };
-    p.msgs.push(m);
-    renderIf(p);
-
-    var simSteps = [
-      {
-        step: "Analyzing business concept & system architecture",
-        msg: "💡 **Analyzing your business requirements...**\nStructuring a complete, high-performance web platform tailored for your target audience.",
-        waveTitle: "Step 1/5: Analyzing architecture & requirements...",
-        waveSub: "Building user-friendly system foundation",
-        pct: 20,
-        delay: 2200
-      },
-      {
-        step: "Designing modern & responsive user interface (UI)",
-        msg: "\n\n🎨 **Designing visual interface (UI):**\n  • Clean, high-converting landing page & hero layout\n  • Fully responsive across mobile, tablet, and desktop\n  • Intuitive navigation for optimal user experience",
-        waveTitle: "Step 2/5: Crafting visual design...",
-        waveSub: "Setting responsive layouts & elegant typography",
-        pct: 45,
-        delay: 2400
-      },
-      {
-        step: "Configuring product catalog, curriculum & user accounts",
-        msg: "\n\n📚 **Setting up core application modules:**\n  • Interactive product & course catalog with dynamic search\n  • Secure authentication & visitor account management\n  • Personalized dashboard to track progress and activity",
-        waveTitle: "Step 3/5: Setting up data models & catalog...",
-        waveSub: "Configuring user auth & dashboard",
-        pct: 70,
-        delay: 2400
-      },
-      {
-        step: "Integrating interactive quiz engine & certificates",
-        msg: "\n\n🎓 **Connecting interactive modules:**\n  • Smooth adaptive video player with progress memory\n  • Interactive assessment quiz with instant auto-grading\n  • Verified digital completion certificate generator",
-        waveTitle: "Step 4/5: Connecting interactive modules...",
-        waveSub: "Enabling quizzes, video streaming & certificates",
-        pct: 90,
-        delay: 2200
-      },
-      {
-        step: "Application successfully built & ready to launch!",
-        msg: "\n\n✨ **Your Application is Successfully Built & Ready to Use!**\nThe system is ready to test live in the preview pane on the right. You can explore navigation, take interactive quizzes, or publish your application to the global web with the **Publish** button above.",
-        waveTitle: "Step 5/5: Done! Live preview active...",
-        waveSub: "Application ready to test and publish",
-        pct: 100,
-        delay: 2000
-      }
-    ];
-
-    var stepIdx = 0;
-    function runNext() {
-      if (my !== runId) return;
-      if (stepIdx >= simSteps.length) {
-        p.busy = false;
-        p.stage = 4;
-        p.suggest = ['Publish Website Live', 'Test Interactive Quiz', 'Connect Custom Domain'];
-        p.updated = Date.now();
-        m.actionHtml = renderHostingerDeployCard({
-          title: 'Aplikasi PaaS Berhasil Digenerate & Siap Dipublikasikan',
-          subtitle: 'Build selesai. Database, auth, dan sandbox preview aktif di Cloudflare Edge. Deploy ke custom domain dengan 1 klik.',
-          statusText: 'SIAP DIDEPLOY',
-          primaryBtnText: '🚀 Publish Website & Kelola Domain',
-          primaryOnClick: 'window.openPublishModal()',
-          secondaryBtnText: '🔍 Full View',
-          secondaryOnClick: 'window.wsNextStage()'
-        });
-        finishWave();
-        save();
-        toast('✨ Application successfully generated & ready!');
-        renderChat();
-        renderTabs();
-        renderSide();
-        return;
-      }
-
-      var current = simSteps[stepIdx];
-      updateWave(current.pct, current.waveTitle, current.waveSub);
-      var newStep = { label: current.step, done: false };
-      m.steps.push(newStep);
-      renderIf(p);
-
-      var appendText = current.msg;
-      var chars = appendText.split('');
-      var cIdx = 0;
-      var charSpeed = Math.max(8, Math.floor(current.delay / (chars.length + 10)));
-
-      function typeChar() {
-        if (my !== runId) return;
-        if (cIdx < chars.length) {
-          m.text += chars[cIdx++];
-          renderIf(p);
-          setTimeout(typeChar, charSpeed);
-        } else {
-          newStep.done = true;
-          renderIf(p);
-          stepIdx++;
-          setTimeout(runNext, 400);
-        }
-      }
-      typeChar();
-    }
-
-    setTimeout(runNext, 400);
+    // Demo/Sim mode fallback
+    runTotalumAgent(p, text, attachedImg);
+    return;
   }
   function renderIf(p) { if (cur() === p) renderThread(); }
   function stopRun() {
@@ -6089,9 +5974,11 @@ body.ws-stage-2-active .topbar {
         return;
       }
     }
-    var isNewBuild = /^\s*(?:build|create|make|buat|buatkan|generate)\b/i.test(text);
+    var hasExistingCode = Boolean(p.claudePreviewHtml || (p.projectCodeFiles && p.projectCodeFiles.length) || p.totalumProjectId);
+    var isImageOrEdit = Boolean(attachedImg) || /(?:gambar|foto|photo|image|screenshot|tampilan|ui|mirip|desain|design|mockup|referensi|reference|seperti|ubah|ganti|edit|tambah|perbaiki|update)\b/i.test(text);
+    var isNewBuild = !hasExistingCode && !isImageOrEdit && /^\s*(?:build|create|make|buat|buatkan|generate)\s+(?:an?\s+)?(?:new|baru|aplikasi|platform|website|web|saas|app)\b/i.test(text);
     if (isNewBuild) {
-      // Reset session on new build
+      // Reset session ONLY on a genuinely fresh new project, NEVER during editing!
       p.activeSessionId = null;
       p.codeSnapshots = [];
       p.claudePreviewHtml = null;
