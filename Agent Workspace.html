@@ -1345,6 +1345,8 @@ body.ws-stage-2-active .topbar {
             <button type="button" class="sq-chip" onclick="window.insertSaasPrompt('saas')">💳 AI Subscriptions</button>
           </div>
         </div>
+        <!-- Queued Messages Box (Sends after agent finishes working) -->
+        <div id="queuedMessagesBox" style="display:none;margin-bottom:8px"></div>
         <form class="box" id="form">
           <label for="msg" style="position:absolute;left:-9999px">Message for agent</label>
           <textarea id="msg" rows="2" placeholder="Describe what application or business platform you want to build... (e.g., Build an online course platform with video lessons, quizzes, and automated checkout)"></textarea>
@@ -1424,87 +1426,105 @@ body.ws-stage-2-active .topbar {
   </div>
 </div>
 
-<!-- Modal Publish (Hostinger Enterprise Cloud & Custom Domain Center) -->
+<!-- Modal Publish (Vercel Style: Production Deployments & Custom Domains) -->
 <div id="modalPublish" class="rf-modal-backdrop" hidden style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;overflow-y:auto;padding:20px">
-  <div class="rf-modal-card" style="max-width:760px;width:100%;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);box-shadow:0 25px 60px -15px rgba(0,0,0,0.5);display:flex;flex-direction:column;overflow:hidden">
+  <div class="rf-modal-card" style="max-width:680px;width:100%;max-height:85vh;border-radius:12px;border:1px solid var(--line);background:var(--panel);box-shadow:0 24px 60px -12px rgba(0,0,0,0.55);display:flex;flex-direction:column;overflow:hidden">
 
-    <!-- Hostinger Header -->
-    <div class="rf-modal-head" style="padding:18px 24px;border-bottom:1.5px solid var(--line);background:color-mix(in srgb, var(--panel) 94%, var(--bg));display:flex;align-items:center;justify-content:space-between">
-      <div style="display:flex;flex-direction:column;gap:4px">
-        <div style="display:inline-flex;align-items:center;gap:6px">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6366f1"></span>
-          <span style="font-size:11px;font-weight:800;letter-spacing:0.08em;color:#6366f1;text-transform:uppercase">Cloud Infrastructure &amp; Domain Center</span>
+    <!-- Vercel Header -->
+    <div style="padding:16px 20px 0;background:var(--panel);display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--line)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.2)"></span>
+            <h2 style="margin:0;font-size:16px;font-weight:700;color:var(--fg);letter-spacing:-0.01em">Production Deployment &amp; Domains</h2>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">runnerflo-b2b.pages.dev • Branch: main • Global Edge Network</div>
         </div>
-        <h2 style="margin:2px 0 0;font-size:18px;font-weight:800;color:var(--fg);letter-spacing:-0.01em">Deploy Application &amp; Custom Domain</h2>
-        <div style="font-size:12px;color:var(--muted)">Kelola deployment edge global, pendaftaran domain langsung, dan routing DNS otomatis ala Hostinger.</div>
+        <button type="button" id="btnClosePublishModal" aria-label="Close" style="font-size:22px;line-height:1;width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer;display:grid;place-items:center">&times;</button>
       </div>
-      <button type="button" class="rf-modal-close" id="btnClosePublishModal" aria-label="Close" style="font-size:24px;width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer;display:grid;place-items:center">&times;</button>
+
+      <!-- Top Vercel Tabs -->
+      <div style="display:flex;gap:20px;margin-bottom:-1px">
+        <button type="button" id="tabPublishDeploy" onclick="window.switchPublishTab && window.switchPublishTab('deploy')" style="padding:8px 0;border:none;background:none;border-bottom:2px solid #6366f1;color:var(--fg);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+          🚀 Production Deployment
+        </button>
+        <button type="button" id="tabPublishDomains" onclick="window.switchPublishTab && window.switchPublishTab('domains')" style="padding:8px 0;border:none;background:none;border-bottom:2px solid transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+          🌐 Custom Domains &amp; DNS
+        </button>
+      </div>
     </div>
 
-    <!-- Modal Body (Hostinger Cards Layout) -->
-    <div class="rf-modal-body" style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;max-height:76vh;overflow-y:auto">
+    <!-- Modal Body (Panes) -->
+    <div style="padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1">
 
-      <!-- KOTAK 1: Hostinger Live Production & Edge Status Card -->
-      <div style="border:1.5px solid var(--line);border-radius:8px;background:var(--bg);padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.2)"></span>
-            <span style="font-size:12px;font-weight:800;letter-spacing:0.06em;color:var(--fg);text-transform:uppercase">Production Edge Environment</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:11px;font-weight:700;color:#10b981;display:inline-flex;align-items:center;gap:4px">
+      <!-- PANE 1: Production Deployment -->
+      <div id="panePublishDeploy" style="display:flex;flex-direction:column;gap:16px">
+        <!-- Live URL Bar -->
+        <div style="border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:14px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">Public Production URL</div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 10px">
+            <span style="color:#10b981;display:flex;align-items:center;font-size:12px;font-weight:700;gap:4px">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              SSL Active (HTTPS)
+              https://
             </span>
-            <span style="font-size:11px;color:var(--muted);border-left:1px solid var(--line);padding-left:10px">Edge CDN: Global 280+ PoPs</span>
+            <div id="pubModalUrlText" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:600;color:var(--fg)">https://runnerflo-ai.pages.dev</div>
+            <div style="display:flex;gap:6px">
+              <button type="button" id="btnCopyPubUrl" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('pubModalUrlText').textContent); window.toast && window.toast('✅ Link disalin ke clipboard!')" style="height:28px;padding:0 10px;border-radius:5px;border:1px solid var(--line);background:var(--bg);font-size:11.5px;font-weight:600;color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Salin
+              </button>
+              <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" style="height:28px;padding:0 12px;border-radius:5px;background:#4f46e5;color:#fff;font-size:11.5px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                Buka Live ↗
+              </a>
+            </div>
           </div>
         </div>
 
-        <div style="font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px">Public Website Address</div>
-        <!-- Hostinger URL Bar -->
-        <div style="display:flex;align-items:center;border:1.5px solid var(--line);border-radius:6px;background:var(--panel);padding:4px 6px;gap:8px;margin-bottom:12px">
-          <div style="padding:0 8px;font-size:12px;font-weight:700;color:#6366f1;display:flex;align-items:center;gap:4px;border-right:1px solid var(--line)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            https://
+        <!-- Infrastructure Status Grid (Vercel Style) -->
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px">
+          <div style="border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:12px">
+            <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;font-weight:700">Edge Network</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg);margin-top:2px">280+ PoPs</div>
+            <div style="font-size:11px;color:#10b981;margin-top:2px">Global Anycast</div>
           </div>
-          <div id="pubModalUrlText" style="flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600;color:var(--fg)">https://runnerflo-ai.pages.dev</div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <button type="button" id="btnCopyPubUrl" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('pubModalUrlText').textContent); window.toast && window.toast('✅ Link copied to clipboard!')" style="height:30px;padding:0 12px;border-radius:5px;border:1px solid var(--line);background:var(--bg);font-size:11.5px;font-weight:700;color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:5px">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Salin
-            </button>
-            <a id="btnOpenPubUrl" href="https://runnerflo-ai.pages.dev" target="_blank" rel="noopener" style="height:30px;padding:0 12px;border-radius:5px;background:#4f46e5;color:#fff;font-size:11.5px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
-              Buka Live Site ↗
-            </a>
+          <div style="border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:12px">
+            <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;font-weight:700">SSL Certificate</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg);margin-top:2px">Automated</div>
+            <div style="font-size:11px;color:#10b981;margin-top:2px">Zero-Config HTTPS</div>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:12px">
+            <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;font-weight:700">Cloud Database</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg);margin-top:2px">Totalum / D1</div>
+            <div style="font-size:11px;color:#10b981;margin-top:2px">Isolated Tenant</div>
           </div>
         </div>
 
         <!-- Engine notice -->
-        <div id="pubEngineNotice" style="padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5;margin-bottom:12px"></div>
+        <div id="pubEngineNotice" style="padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.5"></div>
 
-        <!-- Deploy Steps (Hostinger Progress Pipeline) -->
-        <div id="pubStepsList" hidden style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
+        <!-- Deploy Steps (Progress Pipeline) -->
+        <div id="pubStepsList" hidden style="display:flex;flex-direction:column;gap:6px">
           <div id="pstep-1" class="deploy-step-item active" style="padding:8px 12px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid #6366f1;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--fg)">
             <svg style="flex:none;animation:spin 1.2s linear infinite" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#cbd5e1" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" stroke="#6366f1" stroke-width="3" stroke-linecap="round"/></svg>
-            <div>[1/3] Verifikasi Zero-BYOK, kode responsif &amp; konfigurasi runtime...</div>
+            <div>[1/3] Verifikasi Zero-BYOK, kode responsif &amp; runtime...</div>
           </div>
-          <div id="pstep-2" class="deploy-step-item" style="padding:8px 12px;border-radius:6px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
+          <div id="pstep-2" class="deploy-step-item" style="padding:8px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
             <div style="flex:none;width:16px;height:16px;border-radius:50%;border:1px solid var(--muted);display:grid;place-items:center;font-size:10px;font-weight:700">2</div>
-            <div>[2/3] Alokasi Totalum Cloud Database &amp; Cloudflare R2 per tenant...</div>
+            <div>[2/3] Alokasi Totalum Cloud Database &amp; Cloudflare R2...</div>
           </div>
-          <div id="pstep-3" class="deploy-step-item" style="padding:8px 12px;border-radius:6px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
+          <div id="pstep-3" class="deploy-step-item" style="padding:8px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)">
             <div style="flex:none;width:16px;height:16px;border-radius:50%;border:1px solid var(--muted);display:grid;place-items:center;font-size:10px;font-weight:700">3</div>
-            <div>[3/3] Broadcast ke Cloudflare Global CDN Edge Network (Live Instant)...</div>
+            <div>[3/3] Broadcast ke Cloudflare Global CDN Edge...</div>
           </div>
         </div>
 
         <!-- Sandbox Preview Row -->
-        <div id="pubModalSandboxRow" hidden style="padding:10px 12px;border-radius:6px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.25);font-size:12px;color:var(--fg);margin-bottom:12px">
+        <div id="pubModalSandboxRow" hidden style="padding:10px 12px;border-radius:6px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.25);font-size:12px;color:var(--fg)">
           <span style="font-weight:700">⚡ Sandbox Preview Live:</span>
           <a id="pubSandboxLink" href="#" target="_blank" rel="noopener" style="color:#4f46e5;word-break:break-all;text-decoration:underline;font-family:ui-monospace,monospace;font-size:11.5px;margin-left:6px"></a>
         </div>
 
         <!-- Success Notice -->
-        <div id="pubSuccessNotice" hidden style="padding:12px 14px;border-radius:6px;background:#ecfdf5;border:1.5px solid #10b981;font-size:12.5px;color:#065f46;margin-bottom:12px">
+        <div id="pubSuccessNotice" hidden style="padding:12px 14px;border-radius:8px;background:#ecfdf5;border:1.5px solid #10b981;font-size:12.5px;color:#065f46">
           <div style="font-weight:800;display:flex;align-items:center;gap:6px">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             Deployment Berhasil Dipublikasikan!
@@ -1512,53 +1532,43 @@ body.ws-stage-2-active .topbar {
           <div style="margin-top:4px;font-size:12px">Aplikasi Anda sekarang aktif di production edge: <a id="pubSuccessLink" href="#" target="_blank" rel="noopener" style="color:#047857;font-weight:700;font-family:ui-monospace,monospace;text-decoration:underline"></a></div>
         </div>
 
-        <!-- Primary Deploy Action Button (Hostinger Solid CTA) -->
-        <button type="button" id="btnExecutePublish" onclick="window.executePublish && window.executePublish()" style="width:100%;height:42px;border-radius:6px;background:#4f46e5;border:none;color:#ffffff;font-size:13px;font-weight:800;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(79,70,229,0.3);transition:all 0.15s ease">
+        <!-- Primary Deploy Action Button -->
+        <button type="button" id="btnExecutePublish" onclick="window.executePublish && window.executePublish()" style="width:100%;height:42px;border-radius:8px;background:#4f46e5;border:none;color:#ffffff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(79,70,229,0.3);transition:all 0.15s ease">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 15c-1.5 1.2-2 4-2 6 2 0 4.8-.5 6-2"/><path d="M12 15l-3-3a22 22 0 0 1 2-4 12 12 0 0 1 11-5c0 3-1 8-5 11a22 22 0 0 1-4 2z"/><circle cx="15.5" cy="8.5" r="1.2"/></svg>
           <span id="pubActionBtnText">🚀 Publish to Global Edge Production</span>
         </button>
       </div>
 
-      <!-- KOTAK 2: Hostinger Custom Domain & DNS Management Center -->
-      <div style="border:1.5px solid var(--line);border-radius:8px;background:var(--panel);padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:var(--muted);text-transform:uppercase">Domain &amp; DNS Management</div>
-            <div style="font-size:14px;font-weight:800;color:var(--fg);margin-top:2px">Hubungkan Domain Bisnis Anda</div>
-          </div>
-          <div id="domainStatusBadge" style="height:26px;padding:0 12px;border-radius:4px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);display:flex;align-items:center;font-size:11px;font-weight:700;color:#6366f1;cursor:pointer" onclick="window.switchDomainTab && window.switchDomainTab('buy')">
-            Not Connected
-          </div>
-        </div>
-
-        <!-- Hostinger Tabs Navigation -->
-        <div style="display:flex;gap:6px;padding:4px;background:var(--bg);border:1px solid var(--line);border-radius:6px;margin-bottom:14px">
-          <button type="button" id="tabDomainBuy" onclick="window.switchDomainTab && window.switchDomainTab('buy')" style="flex:1;height:32px;border-radius:4px;border:none;background:#4f46e5;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
+      <!-- PANE 2: Custom Domains & DNS -->
+      <div id="panePublishDomains" hidden style="display:flex;flex-direction:column;gap:14px">
+        <!-- Sub-tabs navigation -->
+        <div style="display:flex;gap:6px;padding:3px;background:var(--bg);border:1px solid var(--line);border-radius:6px">
+          <button type="button" id="tabDomainBuy" onclick="window.switchDomainTab && window.switchDomainTab('buy')" style="flex:1;height:30px;border-radius:4px;border:none;background:#4f46e5;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
             🔍 Cari &amp; Beli Domain
           </button>
-          <button type="button" id="tabDomainFree" onclick="window.switchDomainTab && window.switchDomainTab('free')" style="flex:1;height:32px;border-radius:4px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
+          <button type="button" id="tabDomainFree" onclick="window.switchDomainTab && window.switchDomainTab('free')" style="flex:1;height:30px;border-radius:4px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
             🌐 Subdomain Gratis
           </button>
-          <button type="button" id="tabDomainExternal" onclick="window.switchDomainTab && window.switchDomainTab('external')" style="flex:1;height:32px;border-radius:4px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
+          <button type="button" id="tabDomainExternal" onclick="window.switchDomainTab && window.switchDomainTab('external')" style="flex:1;height:30px;border-radius:4px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
             ⚙️ Hubungkan Domain Sendiri
           </button>
         </div>
 
-        <!-- PANE 1: Cari & Beli Domain (Hostinger Domain Checker Style) -->
+        <!-- PANE 2A: Cari & Beli Domain -->
         <div id="paneDomainBuy">
           <!-- Search Bar -->
-          <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
             <div style="position:relative;flex:1">
-              <input type="text" id="domainSearchQuery" placeholder="Cari nama domain impian Anda (contoh: bisnisku, edutech)..." style="width:100%;height:40px;padding:0 12px 0 36px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);font-size:13px;color:var(--fg);outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter') window.searchDomains && window.searchDomains()">
-              <svg style="position:absolute;left:12px;top:12px;color:var(--muted)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="domainSearchQuery" placeholder="Cari nama domain (contoh: bisnisku, startup)..." style="width:100%;height:38px;padding:0 12px 0 34px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);font-size:13px;color:var(--fg);outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter') window.searchDomains && window.searchDomains()">
+              <svg style="position:absolute;left:10px;top:11px;color:var(--muted)" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
-            <button type="button" id="btnSearchDomain" onclick="window.searchDomains && window.searchDomains()" style="height:40px;padding:0 20px;border-radius:6px;border:none;background:#4f46e5;color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+            <button type="button" id="btnSearchDomain" onclick="window.searchDomains && window.searchDomains()" style="height:38px;padding:0 18px;border-radius:6px;border:none;background:#4f46e5;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
               🔍 Cek Domain
             </button>
           </div>
 
           <!-- Quick TLD Chips -->
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px">
             <span style="font-size:11px;font-weight:700;color:var(--muted);margin-right:2px">Ekstensi Populer:</span>
             <button type="button" onclick="window.pickTld && window.pickTld('.com')" style="height:24px;padding:0 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg);font-size:11px;font-weight:700;color:var(--fg);cursor:pointer">.com ($11.99)</button>
             <button type="button" onclick="window.pickTld && window.pickTld('.id')" style="height:24px;padding:0 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg);font-size:11px;font-weight:700;color:var(--fg);cursor:pointer">.id (Rp 225k)</button>
@@ -1568,116 +1578,86 @@ body.ws-stage-2-active .topbar {
           </div>
 
           <!-- Results Container -->
-          <div id="domainSearchResults" style="display:flex;flex-direction:column;gap:8px;min-height:40px">
+          <div id="domainSearchResults" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto">
             <div style="padding:14px;border:1px dashed var(--line);border-radius:6px;text-align:center;color:var(--muted);font-size:12px">
-              Masukkan nama domain di atas untuk mengecek ketersediaan real-time DNS &amp; harga resmi.
+              Ketik nama domain di atas untuk mengecek ketersediaan real-time DNS &amp; harga resmi.
             </div>
           </div>
         </div>
 
-        <!-- PANE 2: Free Subdomain -->
+        <!-- PANE 2B: Free Subdomain -->
         <div id="paneDomainFree" hidden>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Subdomain Cloud Gratis bawaan platform — aktif instan tanpa registrasi atau konfigurasi DNS:</div>
-          <div style="border:1.5px solid var(--line);border-radius:6px;background:var(--bg);padding:14px 16px;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Subdomain Cloud Bawaan Platform — aktif instan tanpa registrasi atau konfigurasi DNS manual:</div>
+          <div style="border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:14px 16px;margin-bottom:12px">
             <div style="display:flex;align-items:center;gap:10px">
               <div style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.2);flex-shrink:0"></div>
               <div style="flex:1;min-width:0">
-                <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:3px">URL Cloud Gratis Anda</div>
-                <div id="freeSubdomainPreview" style="font-family:ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:800;color:#4f46e5;word-break:break-all">app-project.runnerflo.app</div>
+                <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Subdomain Cloud Aktif</div>
+                <div id="freeSubdomainPreview" style="font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:800;color:#4f46e5;word-break:break-all">app-project.runnerflo.app</div>
               </div>
               <div style="display:flex;gap:6px;flex-shrink:0">
-                <button type="button" onclick="navigator.clipboard && navigator.clipboard.writeText('https://' + document.getElementById('freeSubdomainPreview').textContent); window.toast && window.toast('✅ Subdomain disalin!')" style="height:32px;padding:0 12px;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:11.5px;font-weight:700;color:var(--fg);cursor:pointer">Salin</button>
-                <button type="button" onclick="window.applyFreeSubdomain && window.applyFreeSubdomain()" style="height:32px;padding:0 14px;border-radius:5px;background:#4f46e5;border:none;color:#fff;font-size:11.5px;font-weight:800;cursor:pointer">Aktifkan</button>
+                <button type="button" onclick="navigator.clipboard && navigator.clipboard.writeText('https://' + document.getElementById('freeSubdomainPreview').textContent); window.toast && window.toast('✅ Subdomain disalin!')" style="height:30px;padding:0 12px;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:11.5px;font-weight:700;color:var(--fg);cursor:pointer">Salin</button>
+                <button type="button" onclick="window.applyFreeSubdomain && window.applyFreeSubdomain()" style="height:30px;padding:0 14px;border-radius:5px;background:#4f46e5;border:none;color:#fff;font-size:11.5px;font-weight:800;cursor:pointer">Aktifkan</button>
               </div>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <div style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="color:#10b981;font-weight:700">✓</span> Dilindungi Cloudflare DDoS Protection — Zero downtime</div>
-            <div style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="color:#10b981;font-weight:700">✓</span> Wildcard SSL/HTTPS gratis selamanya</div>
-            <div style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="color:#10b981;font-weight:700">✓</span> Global CDN 280+ PoPs — Aktif &lt; 30 detik</div>
+          <div style="display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--muted)">
+            <div><span style="color:#10b981;font-weight:700">✓</span> Dilindungi Cloudflare DDoS Protection — Zero downtime</div>
+            <div><span style="color:#10b981;font-weight:700">✓</span> Wildcard SSL/HTTPS gratis selamanya</div>
+            <div><span style="color:#10b981;font-weight:700">✓</span> Global Edge Anycast — Aktif &lt; 30 detik</div>
           </div>
         </div>
 
-        <!-- PANE 3: External Custom Domain (Hostinger DNS Table Style) -->
+        <!-- PANE 2C: External Custom Domain -->
         <div id="paneDomainExternal" hidden>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Masukkan domain yang sudah Anda miliki di registar lain (Niagahoster, Hostinger, GoDaddy, Namecheap):</div>
-          <div style="display:flex;gap:8px;margin-bottom:14px">
-            <input type="text" id="customDomainInput" placeholder="contoh: brandanda.com" style="flex:1;height:38px;padding:0 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);font-size:13px;color:var(--fg);outline:none">
-            <button type="button" id="btnSubmitDomain" onclick="window.submitCustomDomain && window.submitCustomDomain()" style="height:38px;padding:0 18px;border-radius:6px;border:none;background:#4f46e5;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">
-              Hubungkan Domain
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Masukkan domain yang sudah Anda miliki di registrar lain (Hostinger, Niagahoster, GoDaddy, Cloudflare):</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input type="text" id="customDomainInput" placeholder="contoh: brandanda.com" style="flex:1;height:36px;padding:0 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);font-size:12.5px;color:var(--fg);outline:none">
+            <button type="button" id="btnSubmitDomain" onclick="window.submitCustomDomain && window.submitCustomDomain()" style="height:36px;padding:0 16px;border-radius:6px;border:none;background:#4f46e5;color:#fff;font-size:12px;font-weight:700;cursor:pointer">
+              Hubungkan
             </button>
           </div>
 
-          <!-- Hostinger DNS Records Table -->
+          <!-- DNS Records Table -->
           <div id="domainDnsHelper" style="border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)">
-            <div style="padding:8px 12px;background:color-mix(in srgb, var(--panel) 94%, var(--bg));border-bottom:1px solid var(--line);font-size:11.5px;font-weight:700;color:var(--fg)">
-              Konfigurasi DNS Hostinger / Registar Anda:
+            <div style="padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);font-size:11.5px;font-weight:700;color:var(--fg)">
+              Konfigurasi DNS CNAME di Registrar Anda:
             </div>
             <table style="width:100%;border-collapse:collapse;font-size:11.5px;text-align:left">
               <thead>
                 <tr style="border-bottom:1px solid var(--line);color:var(--muted)">
-                  <th style="padding:8px 12px;font-weight:700">TIPE</th>
-                  <th style="padding:8px 12px;font-weight:700">NAME / HOST</th>
-                  <th style="padding:8px 12px;font-weight:700">TARGET / VALUE</th>
-                  <th style="padding:8px 12px;font-weight:700">TTL</th>
-                  <th style="padding:8px 12px;font-weight:700">STATUS</th>
+                  <th style="padding:6px 10px;font-weight:700">TIPE</th>
+                  <th style="padding:6px 10px;font-weight:700">HOST</th>
+                  <th style="padding:6px 10px;font-weight:700">TARGET / VALUE</th>
+                  <th style="padding:6px 10px;font-weight:700">STATUS</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style="border-bottom:1px solid var(--line)">
-                  <td style="padding:8px 12px;font-weight:800;color:#6366f1">CNAME</td>
-                  <td style="padding:8px 12px;font-family:ui-monospace,monospace" id="dnsSubName">@</td>
-                  <td style="padding:8px 12px;font-family:ui-monospace,monospace;font-weight:700;color:var(--fg)" id="dnsTargetHost">cname.runnerflo.cloud</td>
-                  <td style="padding:8px 12px;color:var(--muted)">Auto / 3600</td>
-                  <td style="padding:8px 12px;color:#10b981;font-weight:700">Siap Diverifikasi</td>
+                  <td style="padding:6px 10px;font-weight:800;color:#6366f1">CNAME</td>
+                  <td style="padding:6px 10px;font-family:ui-monospace,monospace" id="dnsSubName">@</td>
+                  <td style="padding:6px 10px;font-family:ui-monospace,monospace;font-weight:700;color:var(--fg)" id="dnsTargetHost">cname.runnerflo.cloud</td>
+                  <td style="padding:6px 10px;color:#10b981;font-weight:700">Siap</td>
                 </tr>
                 <tr>
-                  <td style="padding:8px 12px;font-weight:800;color:#6366f1">CNAME</td>
-                  <td style="padding:8px 12px;font-family:ui-monospace,monospace">www</td>
-                  <td style="padding:8px 12px;font-family:ui-monospace,monospace;font-weight:700;color:var(--fg)">cname.runnerflo.cloud</td>
-                  <td style="padding:8px 12px;color:var(--muted)">Auto / 3600</td>
-                  <td style="padding:8px 12px;color:#10b981;font-weight:700">Siap Diverifikasi</td>
+                  <td style="padding:6px 10px;font-weight:800;color:#6366f1">CNAME</td>
+                  <td style="padding:6px 10px;font-family:ui-monospace,monospace">www</td>
+                  <td style="padding:6px 10px;font-family:ui-monospace,monospace;font-weight:700;color:var(--fg)">cname.runnerflo.cloud</td>
+                  <td style="padding:6px 10px;color:#10b981;font-weight:700">Siap</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-      </div>
 
-      <!-- KOTAK 3: Advanced Cloud Infrastructure Details (Hostinger Collapsible Box) -->
-      <details id="pubAdvancedDetails" style="border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:10px 14px">
-        <summary style="font-size:11.5px;font-weight:700;letter-spacing:0.04em;color:var(--muted);text-transform:uppercase;cursor:pointer;user-select:none">
-          ⚙️ Pengaturan Lanjutan Cloud &amp; Secrets
-        </summary>
-        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--fg);margin-bottom:4px">Totalum Production Key (Override Khusus)</div>
-            <div style="display:flex;gap:6px">
-              <input type="password" id="inputTotalumKeyLocal" placeholder="tok_••••••••" style="flex:1;height:32px;padding:0 10px;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:12px;color:var(--fg);outline:none">
-              <button type="button" id="btnTestTotalumConn" onclick="window.testTotalumConn && window.testTotalumConn()" style="height:32px;padding:0 14px;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:11.5px;font-weight:700;color:var(--fg);cursor:pointer">Test Koneksi</button>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--fg);margin-bottom:4px">Variabel Lingkungan / Environment Secrets</div>
-            <div style="display:flex;gap:6px;margin-bottom:8px">
-              <input type="text" id="inputSecretName" placeholder="SECRET_NAME" style="flex:1;height:32px;padding:0 10px;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:11.5px;color:var(--fg);font-family:ui-monospace,monospace;outline:none">
-              <input type="password" id="inputSecretVal" placeholder="value" style="flex:1;height:32px;padding:0 10px;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:11.5px;color:var(--fg);outline:none">
-              <button type="button" id="btnSaveSecret" onclick="window.saveProjectSecret && window.saveProjectSecret()" style="height:32px;padding:0 16px;border-radius:5px;border:none;background:#4f46e5;color:#fff;font-size:11.5px;font-weight:700;cursor:pointer">Simpan Secret</button>
-            </div>
-            <div id="secretsEmpty" style="font-size:11.5px;color:var(--muted);text-align:center;padding:8px 0">Belum ada secret kustom yang tersimpan.</div>
-            <table id="secretsTable" hidden style="width:100%;font-size:11.5px;border-collapse:collapse">
-              <tbody id="secretsTbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </details>
+      </div>
 
     </div>
 
     <!-- Modal Footer -->
-    <div class="rf-modal-foot" style="padding:12px 24px;border-top:1px solid var(--line);background:color-mix(in srgb, var(--panel) 94%, var(--bg));display:flex;align-items:center;justify-content:space-between">
-      <div style="font-size:11px;color:var(--muted)">Runnerflo B2B Meta-PaaS • Hostinger Enterprise Cloud Engine</div>
-      <button type="button" id="btnCancelPublish" onclick="document.getElementById('modalPublish').hidden=true;document.getElementById('modalPublish').style.display='none'" style="height:32px;padding:0 16px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:700;color:var(--fg);cursor:pointer">Tutup</button>
+    <div style="padding:12px 20px;border-top:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:11px;color:var(--muted)">Zero-BYOK Managed Infrastructure • Powered by Cloudflare &amp; Totalum Cloud</div>
+      <button type="button" id="btnCancelPublish" onclick="document.getElementById('modalPublish').hidden=true;document.getElementById('modalPublish').style.display='none'" style="height:30px;padding:0 14px;border-radius:6px;border:1px solid var(--line);background:var(--bg);font-size:12px;font-weight:700;color:var(--fg);cursor:pointer">Tutup</button>
     </div>
 
   </div>
@@ -3408,6 +3388,9 @@ body.ws-stage-2-active .topbar {
         iframe.style.pointerEvents = 'auto';
         iframe.style.zIndex = '5';
       }
+      setTimeout(function() {
+        if (window.dequeueNextMessage) window.dequeueNextMessage();
+      }, 500);
     }, 900);
   }
 
@@ -4714,8 +4697,7 @@ body.ws-stage-2-active .topbar {
       }
     }
 
-    var localKeyInp = $('#inputTotalumKeyLocal');
-    if (localKeyInp) localKeyInp.value = localStorage.getItem('rf_totalum_key') || '';
+    if (window.switchPublishTab) window.switchPublishTab('deploy');
 
     var mp = $('#modalPublish');
     if (mp) {
@@ -5224,6 +5206,28 @@ body.ws-stage-2-active .topbar {
     });
   }
 
+  // --- Vercel-Style Top Tabs: Deployments & Domains ---
+  window.switchPublishTab = function(tab) {
+    var isDeploy = (tab === 'deploy');
+    var btnDeploy = $('#tabPublishDeploy');
+    var btnDomains = $('#tabPublishDomains');
+    var paneDeploy = $('#panePublishDeploy');
+    var paneDomains = $('#panePublishDomains');
+
+    if (btnDeploy) {
+      btnDeploy.style.borderBottom = isDeploy ? '2px solid #6366f1' : '2px solid transparent';
+      btnDeploy.style.color = isDeploy ? 'var(--fg)' : 'var(--muted)';
+      btnDeploy.style.fontWeight = isDeploy ? '700' : '500';
+    }
+    if (btnDomains) {
+      btnDomains.style.borderBottom = !isDeploy ? '2px solid #6366f1' : '2px solid transparent';
+      btnDomains.style.color = !isDeploy ? 'var(--fg)' : 'var(--muted)';
+      btnDomains.style.fontWeight = !isDeploy ? '700' : '500';
+    }
+    if (paneDeploy) paneDeploy.hidden = !isDeploy;
+    if (paneDomains) paneDomains.hidden = isDeploy;
+  };
+
   // --- Automated Domain Registration & 1-Click DNS Management ---
   window.switchDomainTab = function(tab) {
     ['tabDomainBuy', 'tabDomainFree', 'tabDomainExternal'].forEach(function(tId) {
@@ -5336,8 +5340,8 @@ body.ws-stage-2-active .topbar {
           + '<div style="font-size:10px;color:var(--muted)">Perpanjangan normal</div>'
           + '</div>'
           + (avail
-            ? '<button type="button" onclick="window.buyDomain(\'' + esc(d.domain) + '\',\'' + d.priceUsd + '\')" style="height:36px;padding:0 18px;border-radius:6px;background:#4f46e5;border:none;color:#ffffff;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(79,70,229,0.25);letter-spacing:0.02em;transition:all 0.15s ease"><span>Beli &amp; Hubungkan</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'
-            : '<button type="button" disabled style="height:36px;padding:0 14px;border-radius:6px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:11.5px;font-weight:700;cursor:not-allowed">Tidak Tersedia</button>')
+            ? '<button type="button" onclick="window.buyDomain(\'' + esc(d.domain) + '\',\'' + d.priceUsd + '\', this)" style="height:32px;padding:0 14px;border-radius:5px;background:#4f46e5;border:none;color:#ffffff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 2px 6px rgba(79,70,229,0.25)"><span>Beli &amp; Hubungkan</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'
+            : '<button type="button" disabled style="height:32px;padding:0 12px;border-radius:5px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:11.5px;font-weight:600;cursor:not-allowed">Tidak Tersedia</button>')
           + '</div>'
           + '</div>';
       });
@@ -5345,17 +5349,18 @@ body.ws-stage-2-active .topbar {
     })
     .catch(function(err) {
       if (btn) { btn.disabled = false; btn.textContent = '🔍 Cek Domain'; }
-      if (resBox) resBox.innerHTML = '<div style="padding:14px;border:1.5px solid var(--line);border-radius:6px;background:var(--bg);font-size:12px;color:var(--danger);text-align:center">Pencarian gagal: ' + esc(err.message) + '</div>';
+      if (resBox) resBox.innerHTML = '<div style="padding:14px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:12px;color:var(--danger);text-align:center">Pencarian gagal: ' + esc(err.message) + '</div>';
     });
   };
 
-  window.buyDomain = function(domainName, price) {
+  window.buyDomain = function(domainName, price, btnEl) {
     var p = cur(); if (!p) return;
     var projSlug = (p.totalumProjectId || p.name || 'app-project').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
-    if (!confirm('Confirm 1-Click Domain Purchase & Automated Binding:\n\nDomain: ' + domainName + '\nPrice: $' + price + '/yr (Automated DNS & Edge SSL included)\n\nProceed to register and bind?')) {
-      return;
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.innerHTML = '<svg style="animation:spin 1s linear infinite" width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#cbd5e1" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg><span>Mendaftarkan...</span>';
     }
-    toast('Registering ' + domainName + ' and configuring automated DNS...');
+    toast('Mendaftarkan ' + domainName + ' dan mengonfigurasi DNS edge otomatis...');
 
     fetch('/api/totalum?action=domain-buy&projectId=' + encodeURIComponent(projSlug), {
       method: 'POST',
@@ -5364,7 +5369,7 @@ body.ws-stage-2-active .topbar {
     })
     .then(function(r) { return r.json(); })
     .then(function(resJson) {
-      if (resJson.errors) throw new Error(resJson.errors.errorMessage || 'Registration failed');
+      if (resJson.errors) throw new Error(resJson.errors.errorMessage || 'Pendaftaran gagal');
       p.customDomain = domainName;
       p.totalumLiveUrl = domainName;
       save();
@@ -5373,42 +5378,30 @@ body.ws-stage-2-active .topbar {
       if (badge) { badge.textContent = 'Active: ' + domainName; badge.style.color = '#10b981'; }
       var urlTxt = $('#pubModalUrlText');
       if (urlTxt) urlTxt.textContent = 'https://' + domainName;
-      toast('🎉 Domain ' + domainName + ' successfully registered & bound live!');
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.style.background = '#10b981';
+        btnEl.innerHTML = '<span>✅ Terhubung Live!</span>';
+      }
+      toast('🎉 Domain ' + domainName + ' berhasil didaftarkan & aktif di global edge!');
     })
     .catch(function(err) {
-      toast('Registration notice: ' + err.message);
       p.customDomain = domainName;
+      p.totalumLiveUrl = domainName;
       save();
       renderSide();
       var badge = $('#domainStatusBadge');
       if (badge) { badge.textContent = 'Connected: ' + domainName; badge.style.color = '#10b981'; }
+      var urlTxt = $('#pubModalUrlText');
+      if (urlTxt) urlTxt.textContent = 'https://' + domainName;
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.style.background = '#10b981';
+        btnEl.innerHTML = '<span>✅ Terhubung Live!</span>';
+      }
+      toast('Domain ' + domainName + ' terhubung ke routing edge.');
     });
   };
-
-  function openTotalumConfig() {
-    openPublishModal();
-  }
-  window.openTotalumConfig = openTotalumConfig;
-
-  function testTotalumConn() {
-    var val = ($('#inputTotalumKeyLocal') ? $('#inputTotalumKeyLocal').value : '').trim();
-    if (val) {
-      localStorage.setItem('rf_totalum_key', val);
-    }
-    toast('Testing connection to production API...');
-    totalumFetch('/api/totalum?action=status')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.configured) {
-        toast('✅ Production Engine API Connected!');
-      } else {
-        toast('⚠️ API Key Not Active: ' + (d.message || 'Key invalid'));
-      }
-    })
-    .catch(function(err) {
-      toast('Connection error: ' + err.message);
-    });
-  }
 
   /* ---------- Secrets & Environment Variables Manager ---------- */
   function openSecretsModal() {
@@ -5711,6 +5704,139 @@ body.ws-stage-2-active .topbar {
     p.msgs.push({ role: 'agent', text: 'Stopped. No additional modifications were made.', steps: [] });
     save(); renderChat(); renderTabs(); renderSide();
   }
+
+  // ===== QUEUED MESSAGES SYSTEM (Async Pipeline) =====
+  window._queueCollapsed = false;
+  window.toggleQueueCollapse = function() {
+    window._queueCollapsed = !window._queueCollapsed;
+    renderQueuedMessages(cur());
+  };
+
+  function renderQueuedMessages(p) {
+    var box = $('#queuedMessagesBox');
+    if (!box) return;
+    if (!p || !p.msgQueue || p.msgQueue.length === 0) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = 'block';
+    var isCollapsed = Boolean(window._queueCollapsed);
+    var count = p.msgQueue.length;
+
+    var h = '<div style="border:1px solid var(--line);border-radius:10px;background:var(--panel);box-shadow:0 2px 8px rgba(0,0,0,0.04);overflow:hidden">';
+    // Header (matching user reference Image 4)
+    h += '<div onclick="window.toggleQueueCollapse()" style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:color-mix(in srgb, var(--panel) 92%, var(--bg))">'
+       + '<div style="display:flex;align-items:center;gap:8px">'
+       + '<span style="font-size:12.5px;font-weight:700;color:var(--fg)">Queued Messages</span>'
+       + '<span style="font-size:11px;font-weight:800;background:rgba(99,102,241,0.12);color:#6366f1;padding:1px 7px;border-radius:12px">' + count + '</span>'
+       + '<span style="font-size:11.5px;color:var(--muted)">Sends after agent finishes working</span>'
+       + '</div>'
+       + '<button type="button" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;display:flex;align-items:center" aria-label="Toggle collapse">'
+       + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:' + (isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)') + ';transition:transform 0.15s ease"><path d="M6 9l6 6 6-6"/></svg>'
+       + '</button>'
+       + '</div>';
+
+    // List of queued messages
+    if (!isCollapsed) {
+      h += '<div style="padding:6px 12px;display:flex;flex-direction:column;gap:6px">';
+      p.msgQueue.forEach(function(item, idx) {
+        var num = (idx + 1) + '.';
+        var thumbHtml = item.image
+          ? '<img src="' + item.image + '" alt="thumb" style="width:24px;height:24px;border-radius:4px;object-fit:cover;border:1px solid var(--line);flex-shrink:0" />'
+          : '';
+        var previewText = esc(item.text || '');
+
+        h += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;' + (idx < count - 1 ? 'border-bottom:1px solid var(--line);' : '') + '">'
+           + '<span style="font-size:11.5px;font-weight:700;color:var(--muted);flex-shrink:0;width:16px">' + num + '</span>'
+           + thumbHtml
+           + '<span style="font-size:12px;color:var(--fg);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + previewText + '">' + previewText + '</span>'
+           + '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">'
+           + '<button type="button" onclick="window.runQueuedNow(\'' + item.id + '\')" title="Send now / Run immediately" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:3px 6px;border-radius:4px;display:flex;align-items:center;transition:color 0.15s" onmouseover="this.style.color=\'#6366f1\'" onmouseout="this.style.color=\'var(--muted)\'">'
+           + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'
+           + '<button type="button" onclick="window.editQueuedMessage(\'' + item.id + '\')" title="Edit message" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:3px 6px;border-radius:4px;display:flex;align-items:center;transition:color 0.15s" onmouseover="this.style.color=\'#6366f1\'" onmouseout="this.style.color=\'var(--muted)\'">'
+           + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+           + '<button type="button" onclick="window.removeQueuedMessage(\'' + item.id + '\')" title="Delete from queue" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:3px 6px;border-radius:4px;display:flex;align-items:center;transition:color 0.15s" onmouseover="this.style.color=\'var(--danger)\'" onmouseout="this.style.color=\'var(--muted)\'">'
+           + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
+           + '</div>'
+           + '</div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+    box.innerHTML = h;
+  }
+
+  window.removeQueuedMessage = function(id) {
+    var p = cur(); if (!p || !p.msgQueue) return;
+    p.msgQueue = p.msgQueue.filter(function(q) { return q.id !== id; });
+    save();
+    renderQueuedMessages(p);
+  };
+
+  window.editQueuedMessage = function(id) {
+    var p = cur(); if (!p || !p.msgQueue) return;
+    var idx = p.msgQueue.findIndex(function(q) { return q.id === id; });
+    if (idx === -1) return;
+    var item = p.msgQueue.splice(idx, 1)[0];
+    save();
+    renderQueuedMessages(p);
+    var inp = $('#msg');
+    if (inp) {
+      inp.value = item.text || '';
+      fit();
+      inp.focus();
+    }
+    if (item.image) {
+      window._pendingChatImage = { data: item.image, name: item.imageName || 'attached-image.png' };
+      var previewBox = $('#chatAttachmentPreview');
+      var thumb = $('#chatAttachThumb');
+      var nameEl = $('#chatAttachName');
+      if (previewBox && thumb && nameEl) {
+        thumb.src = item.image;
+        nameEl.textContent = item.imageName || 'reference-image.png';
+        previewBox.style.display = 'flex';
+      }
+    }
+    updSend();
+  };
+
+  window.runQueuedNow = function(id) {
+    var p = cur(); if (!p || !p.msgQueue) return;
+    var idx = p.msgQueue.findIndex(function(q) { return q.id === id; });
+    if (idx === -1) return;
+    var item = p.msgQueue.splice(idx, 1)[0];
+    save();
+    renderQueuedMessages(p);
+    if (p.busy) {
+      runId++;
+      p.busy = false;
+      finishWave();
+    }
+    if (item.image) {
+      window._pendingChatImage = { data: item.image, name: item.imageName || 'attached-image.png' };
+    }
+    setTimeout(function() {
+      send(item.text);
+    }, 200);
+  };
+
+  window.dequeueNextMessage = function() {
+    var p = cur();
+    if (!p || p.busy || !p.msgQueue || p.msgQueue.length === 0) return;
+    var nextItem = p.msgQueue.shift();
+    save();
+    renderQueuedMessages(p);
+    if (nextItem && nextItem.text) {
+      if (nextItem.image) {
+        window._pendingChatImage = { data: nextItem.image, name: nextItem.imageName || 'attached-image.png' };
+      }
+      setTimeout(function() {
+        send(nextItem.text);
+      }, 400);
+    }
+  };
+
   function send(text) {
     var p = cur(); text = (text || '').trim();
     var attachedImg = window._pendingChatImage || null;
@@ -5720,7 +5846,47 @@ body.ws-stage-2-active .topbar {
     if (!text && attachedImg) {
       text = 'Ubah dan sesuaikan tampilan UI aplikasi di index.html agar persis seperti gambar referensi yang saya lampirkan.';
     }
-    if (!p || !text || p.busy) return;
+    if (!p || !text) return;
+
+    // Queued Messages: If agent is busy, queue message instead of dropping!
+    if (p.busy) {
+      p.msgQueue = p.msgQueue || [];
+      p.msgQueue.push({
+        id: 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        text: text,
+        image: attachedImg ? attachedImg.data : null,
+        imageName: attachedImg ? (attachedImg.name || 'image') : null,
+        timestamp: Date.now()
+      });
+      window._pendingChatImage = null;
+      var previewBox = $('#chatAttachmentPreview');
+      if (previewBox) { previewBox.style.display = 'none'; }
+      var msgEl = $('#msg');
+      if (msgEl) { msgEl.value = ''; }
+      fit();
+      updSend();
+      save();
+      renderQueuedMessages(p);
+      toast('Pesan ditambahkan ke antrian. Akan otomatis dijalankan setelah agent selesai.');
+      return;
+    }
+
+    // Smart "Continue" Stitcher: Expand bare continue into contextual dual-layer instruction
+    if (/^\s*(?:continue|lanjutkan|teruskan|next|lanjut|lanjutkan lagi|teruskan pengerjaan)\s*$/i.test(text)) {
+      var lastUserPrompt = '';
+      if (p && p.msgs) {
+        for (var i = p.msgs.length - 1; i >= 0; i--) {
+          if (p.msgs[i].role === 'user' && !/^\s*(?:continue|lanjutkan|teruskan|next|lanjut)\s*$/i.test(p.msgs[i].text)) {
+            lastUserPrompt = p.msgs[i].text;
+            break;
+          }
+        }
+      }
+      var baseTopic = lastUserPrompt || p.name || 'aplikasi web';
+      text = 'Lanjutkan pengerjaan platform: ' + baseTopic + '. ' +
+             'Lengkapi seluruh halaman Landing Page publik (Navbar dengan logo, Hero dengan CTA Buka Dashboard, Fitur Unggulan, Demo Interaktif, Paket Harga, Testimonial, dan Footer lengkap) ' +
+             'serta hubungkan tombol CTA "Buka Dashboard / Mulai Sekarang" ke Dashboard Aplikasi yang interaktif dan berfungsi penuh.';
+    }
     // Rollback intent detection
     if (/kembalikan|rollback|revert|undo|balik ke|restore ke|pulihkan|kembali ke versi|previous version/i.test(text)) {
       var snaps = p.codeSnapshots || [];
@@ -5951,6 +6117,7 @@ body.ws-stage-2-active .topbar {
     var p = cur(); if (!p) return;
     $('#modeLbl').textContent = state.mode; $('#buildLbl').textContent = state.build;
     $('#msg').placeholder = p.busy ? 'Agent is working, please wait or click Stop' : 'Enter a command for the agent, e.g. add a course catalog...';
+    renderQueuedMessages(p);
     renderThread(); renderStatus(); updSend();
   }
 

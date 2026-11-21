@@ -477,7 +477,28 @@ ${hasImage || isVisualRedesignRequest ? `CRITICAL DIRECTIVE: VISUAL REDESIGN BAS
 1. YOU ARE IN CREATION MODE. Build a brand new, production-grade application for: "${userText}".
 2. You MUST produce a COMPLETE, self-contained, browser-executable HTML5 file in "index.html".
 3. Use Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
-4. Render high-fidelity UI: clean navigation, interactive buttons, realistic mock data, and functional controls.
+4. MANDATORY DUAL-LAYER ARCHITECTURE (LANDING PAGE + APP DASHBOARD):
+   Every generated platform MUST include BOTH layers in a single responsive HTML5 file:
+   - Layer 1: High-converting Public Landing Page (<div id="landingView">):
+     * Modern Navbar with Brand Logo, Navigation Links (Fitur, Demo, Harga, Testimoni), "Masuk dengan Google" button, and prominent CTA "Buka Dashboard" (with onclick="switchView('app')").
+     * Hero Section with compelling headline, subtitle, social proof badges, and primary CTA ("Mulai Sekarang / Buka Dashboard").
+     * Features Grid: 3-6 beautifully styled feature cards with icons and descriptions.
+     * Live Interactive Preview / Demo Section: An embedded preview demonstrating the core value.
+     * Pricing Table: Clear tiered pricing (Gratis, Pro, Enterprise) with Stripe-ready CTA buttons.
+     * Testimonials & Stats: User ratings, reviews, and trust metrics.
+     * Comprehensive Footer: Multi-column footer with company details, links, copyright, and social icons.
+   - Layer 2: Fully Functional Application / Dashboard (<div id="appView" style="display:none">):
+     * Accessible via CTA: Clicking "Buka Dashboard" or "Mulai Sekarang" switches view to appView.
+     * Top navigation bar with "← Kembali ke Beranda" button (onclick="switchView('landing')") so users can toggle back at any time.
+     * Full interactive application matching the user's business requirements.
+   - Include working JavaScript view switcher:
+     function switchView(view) {
+       var lv = document.getElementById('landingView');
+       var av = document.getElementById('appView');
+       if (lv) lv.style.display = (view === 'landing' ? 'block' : 'none');
+       if (av) av.style.display = (view === 'app' ? 'block' : 'none');
+       window.scrollTo(0, 0);
+     }
 5. Call "project_write_file({ path: 'index.html', content: '...', replacementReason: 'Initial build from user prompt' })" with the COMPLETE code!`)}
 
 CRITICAL PRESERVATION & DESIGN INTEGRITY RULES (BOLT.DIY ARCHITECTURE):

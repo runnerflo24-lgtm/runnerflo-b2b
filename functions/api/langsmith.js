@@ -1279,7 +1279,7 @@ Respond in Indonesian if the user writes in Indonesian. Otherwise respond in Eng
 
           // Gemini fallback if OpenRouter failed or no key
           if (!llmData && googleKey) {
-            const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'];
+            const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
             const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
             const gMessages = conversationMessages.filter(m => m.role !== 'tool').map(m => ({
               role: m.role === 'assistant' ? 'model' : 'user',
@@ -1534,7 +1534,29 @@ ${currentHtmlCode ? `\nCURRENT APPLICATION CODE (${currentHtmlFile ? (currentHtm
 EDITING RULES:
 1. You are EDITING the existing application above. DO NOT build a brand new unrelated project from scratch!
 2. Retain all existing styling, layout, components, and functions unless the user specifically asks to change them.
-3. Call "edit_code_file" with the complete updated code, or output the full updated HTML code in \`\`\`html blocks.
+3. MANDATORY DUAL-LAYER ARCHITECTURE (LANDING PAGE + APP DASHBOARD):
+   If user asks: "kok engga ada landing page", "tambahkan landing page", "landing page terlalu sederhana", or says "continue/lanjutkan":
+   - You MUST ensure "index.html" has BOTH:
+     Layer 1: Full Public Landing Page (<div id="landingView">):
+       * Header/Navbar: Brand Logo, Links (Fitur, Demo, Harga, Testimoni, Kontak), "Masuk dengan Google" button, and prominent CTA "Buka Dashboard" (with onclick="switchView('app')").
+       * Hero Section: Headline, description, badges, and primary CTA ("Buka Dashboard / Mulai Sekarang").
+       * Features Grid: 3-6 beautifully styled feature cards showcasing the platform's core tools.
+       * Live Preview / Interactive Showcase: Interactive demo previewing what the tool does.
+       * Pricing Section: Clear tiered cards (Gratis, Pro, Enterprise) with CTA buttons.
+       * Testimonials & Stats: User ratings, reviews, trust badges.
+       * Comprehensive Footer: Company info, links, copyright, social icons.
+     Layer 2: Functional App Workspace / Dashboard (<div id="appView" style="display:none">):
+       * Top bar with "← Kembali ke Beranda" button (onclick="switchView('landing')") and user profile/auth status.
+       * The complete interactive tool/studio (all existing functions preserved and enhanced).
+   - Provide a clean JavaScript toggle:
+     function switchView(view) {
+       var lv = document.getElementById('landingView');
+       var av = document.getElementById('appView');
+       if (lv) lv.style.display = (view === 'landing' ? 'block' : 'none');
+       if (av) av.style.display = (view === 'app' ? 'block' : 'none');
+       window.scrollTo(0, 0);
+     }
+4. Call "edit_code_file" with the complete updated code, or output the full updated HTML code wrapped in an html code block.
 
 Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.
 After editing: write a one-line summary of what changed.`;
@@ -1565,7 +1587,7 @@ After editing: write a one-line summary of what changed.`;
 
         // Gemini native fallback (native function calling + multimodal vision OCR)
         if (!llmData && googleKey) {
-          const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash-lite'];
+          const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
           const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
           const gContents = editMessages.filter(m => m.role !== 'tool').map(m => ({
             role: m.role === 'assistant' ? 'model' : (m.role === 'system' ? 'user' : m.role),
@@ -1917,9 +1939,30 @@ CRITICAL DIRECTIVE: CREATING NEW APPLICATION FROM ZERO
 1. YOU ARE IN CREATION MODE. Build a brand new, production-grade application for: "${userPrompt}".
 2. You MUST produce a COMPLETE, self-contained, browser-executable HTML5 file as "index.html".
 3. Use Tailwind CSS (<script src="https://cdn.tailwindcss.com"></script>) and working interactive JavaScript.
-4. Render high-fidelity UI: clean navigation, interactive buttons, realistic mock data, and functional controls.
+4. MANDATORY DUAL-LAYER ARCHITECTURE (LANDING PAGE + APP DASHBOARD):
+   Every generated platform MUST include BOTH layers in a single responsive HTML5 file:
+   - Layer 1: High-converting Public Landing Page (<div id="landingView">):
+     * Modern Navbar with Brand Logo, Navigation Links (Fitur, Demo, Harga, Testimoni), "Masuk dengan Google" button, and prominent CTA "Buka Dashboard" (with onclick="switchView('app')").
+     * Hero Section with compelling headline, subtitle, social proof badges, and primary CTA ("Mulai Sekarang / Buka Dashboard").
+     * Features Grid: 3-6 beautifully styled feature cards with icons and descriptions.
+     * Live Interactive Preview / Demo Section: An embedded preview demonstrating the core value.
+     * Pricing Table: Clear tiered pricing (Gratis, Pro, Enterprise) with Stripe-ready CTA buttons.
+     * Testimonials & Stats: User ratings, reviews, and trust metrics.
+     * Comprehensive Footer: Multi-column footer with company details, links, copyright, and social icons.
+   - Layer 2: Fully Functional Application / Dashboard (<div id="appView" style="display:none">):
+     * Accessible via CTA: Clicking "Buka Dashboard" or "Mulai Sekarang" switches view to appView.
+     * Top navigation bar with "← Kembali ke Beranda" button (onclick="switchView('landing')") so users can toggle back at any time.
+     * Full interactive application matching the prompt (video reel generator, AI creator, workspace, etc.).
+   - Include working JavaScript view switcher:
+     function switchView(view) {
+       var lv = document.getElementById('landingView');
+       var av = document.getElementById('appView');
+       if (lv) lv.style.display = (view === 'landing' ? 'block' : 'none');
+       if (av) av.style.display = (view === 'app' ? 'block' : 'none');
+       window.scrollTo(0, 0);
+     }
 5. DO NOT default to dark theme unless explicitly requested. Use crisp light backgrounds (bg-white, bg-slate-50).
-6. Output ONLY the complete HTML code inside a single markdown code block: \`\`\`html ... \`\`\`
+6. Output ONLY the complete HTML code inside a single html code block (wrapped in triple backticks with "html" language tag).
 
 PROJECT CONTEXT:
 - Project Name: "${projectName}"
@@ -1928,12 +1971,11 @@ PROJECT CONTEXT:
 
 Respond in Indonesian if the prompt is in Indonesian. Otherwise respond in English.`;
 
-      // Gemini model fallback chain (exact sequence requested by user)
+      // Gemini model fallback chain
       const GEMINI_MODELS = [
-        'gemini-3.8-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-3-flash-preview',
-        'gemini-2.5-flash'
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash'
       ];
       const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 

@@ -257,22 +257,35 @@ export async function onRequest(context) {
         { tld: '.co', priceUsd: 24.00, priceIdr: 'Rp 360.000' }
       ];
 
-      // Perform real-time DNS probe using Cloudflare DNS-over-HTTPS
+      // Perform real-time DNS probe using Cloudflare DNS-over-HTTPS (authoritative NS probe)
       const results = await Promise.all(tlds.map(async (item) => {
         const fullDomain = `${query}${item.tld}`;
         let available = true;
         try {
-          const dohRes = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(fullDomain)}&type=A`, {
+          const dohRes = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(fullDomain)}&type=NS`, {
             headers: { 'Accept': 'application/dns-json' }
           });
           if (dohRes.ok) {
             const dohData = await dohRes.json();
-            // Status 0 (NOERROR) with Answers means domain is already registered/in-use
-            if (dohData.Status === 0 && dohData.Answer && dohData.Answer.length > 0) {
+            // Status 0 (NOERROR) means domain is registered and active in global DNS
+            // Status 3 (NXDOMAIN) means domain does not exist in TLD (available)
+            if (dohData.Status === 0) {
+              available = false;
+            } else if (dohData.Status === 3) {
+              available = true;
+            } else if (dohData.Answer && dohData.Answer.length > 0) {
               available = false;
             }
           }
-        } catch {}
+        } catch {
+          try {
+            const dohA = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(fullDomain)}&type=A`, { headers: { 'Accept': 'application/dns-json' } });
+            if (dohA.ok) {
+              const d = await dohA.json();
+              if (d.Status === 0) available = false;
+            }
+          } catch {}
+        }
 
         return {
           domain: fullDomain,
